@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --pt-primary: #4F46E5;
+    --pt-secondary: #10B981;
+    --pt-bg: #F8FAFC;
+    --pt-text: #0F172A;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: var(--pt-text);
+    background: var(--pt-bg);
+}
+
+@layer components {
+    .pt-btn-primary {
+        @apply inline-flex items-center justify-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50;
+    }
+    .pt-btn-ghost {
+        @apply inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50;
+    }
+    .pt-card {
+        @apply rounded-2xl bg-white shadow-sm border border-slate-100;
+    }
+    .pt-input {
+        @apply block w-full rounded-lg border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm;
+    }
+    .pt-progress-track {
+        @apply h-2 w-full overflow-hidden rounded-full bg-slate-100;
+    }
+    .pt-progress-fill {
+        @apply h-full rounded-full bg-gradient-to-r from-indigo-500 to-emerald-500 transition-all duration-700;
+    }
+    .pt-badge {
+        @apply inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700;
+    }
+}

@@ -1,0 +1,39 @@
+<?php
+
+namespace Praxis\Plugins\{{NAMESPACE}}\Scoring;
+
+use App\Models\TestAttempt;
+use Praxis\Core\TestEngine\Contracts\ScoringEngineContract;
+
+class {{NAMESPACE}}ScoringEngine implements ScoringEngineContract
+{
+    public function key(): string
+    {
+        return '{{SLUG}}';
+    }
+
+    public function score(TestAttempt $attempt): array
+    {
+        $answers = $attempt->answers()->with('question')->get();
+
+        // TODO : adapter la logique métier extraite du plugin WP.
+        $dimensions = [];
+        foreach ($answers as $answer) {
+            $rules = $answer->question->scoring ?? [];
+            // ... formule scoring
+        }
+
+        return [
+            'engine'      => $this->key(),
+            'dimensions'  => $dimensions,
+            'profile'     => $this->resolveProfile($dimensions),
+            'computed_at' => now()->toIso8601String(),
+        ];
+    }
+
+    protected function resolveProfile(array $dimensions): ?string
+    {
+        // TODO : typologie spécifique (MBTI, RIASEC, custom)
+        return null;
+    }
+}

@@ -1,0 +1,427 @@
+/* ═══════════════════════════════════════════════
+   PraxiMet – Styles Admin
+   ═══════════════════════════════════════════════ */
+
+:root {
+    --pm-blue:       #1e3a5f;
+    --pm-blue-light: #e8f0fb;
+    --pm-green:      #00834e;
+    --pm-orange:     #996800;
+    --pm-red:        #c0392b;
+    --pm-gray:       #888;
+    --pm-border:     #e2e8f0;
+    --pm-bg:         #f8fafc;
+    --pm-white:      #ffffff;
+    --pm-radius:     8px;
+    --pm-shadow:     0 2px 8px rgba(0,0,0,.07);
+}
+
+/* ── Layout ──────────────────────────────────── */
+.praximet-wrap { max-width: 1200px; }
+
+.praximet-admin-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 16px 0 24px;
+}
+
+.praximet-admin-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 22px !important;
+    font-weight: 700;
+    color: var(--pm-blue);
+    margin: 0 !important;
+}
+
+.praximet-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px; height: 36px;
+    background: var(--pm-blue);
+    color: white;
+    border-radius: 8px;
+    font-weight: 800;
+    font-size: 18px;
+}
+
+/* ── KPI ─────────────────────────────────────── */
+.praximet-kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.praximet-kpi {
+    background: var(--pm-white);
+    border: 1px solid var(--pm-border);
+    border-radius: var(--pm-radius);
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    box-shadow: var(--pm-shadow);
+}
+
+.praximet-kpi-number {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--pm-blue);
+    line-height: 1;
+}
+
+.praximet-kpi-label {
+    font-size: 13px;
+    color: var(--pm-gray);
+}
+
+/* ── Filtres ─────────────────────────────────── */
+.praximet-filters {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.praximet-filter-statuts {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.praximet-filter-statuts a {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    color: var(--pm-gray);
+    text-decoration: none;
+    border: 1px solid var(--pm-border);
+    background: var(--pm-white);
+    transition: all .15s;
+}
+
+.praximet-filter-statuts a:hover,
+.praximet-filter-statuts a.praximet-filter-active {
+    background: var(--pm-blue);
+    color: white;
+    border-color: var(--pm-blue);
+}
+
+.praximet-search-form {
+    display: flex;
+    gap: 8px;
+}
+
+.praximet-search-input {
+    padding: 6px 12px;
+    border: 1px solid var(--pm-border);
+    border-radius: var(--pm-radius);
+    font-size: 13px;
+    width: 220px;
+}
+
+/* ── Tableau ─────────────────────────────────── */
+.praximet-table-wrap {
+    background: var(--pm-white);
+    border: 1px solid var(--pm-border);
+    border-radius: var(--pm-radius);
+    overflow: hidden;
+    box-shadow: var(--pm-shadow);
+    margin-bottom: 16px;
+}
+
+.praximet-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.praximet-table thead th {
+    background: var(--pm-bg);
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: var(--pm-gray);
+    border-bottom: 1px solid var(--pm-border);
+    font-weight: 600;
+}
+
+.praximet-table tbody tr {
+    border-bottom: 1px solid var(--pm-border);
+    transition: background .1s;
+}
+
+.praximet-table tbody tr:last-child { border-bottom: none; }
+.praximet-table tbody tr:hover { background: var(--pm-bg); }
+
+.praximet-table td { padding: 12px 16px; vertical-align: middle; }
+
+.praximet-lead-name {
+    font-weight: 600;
+    color: var(--pm-blue);
+    text-decoration: none;
+}
+.praximet-lead-name:hover { text-decoration: underline; }
+
+.praximet-tel { font-size: 12px; color: var(--pm-gray); text-decoration: none; }
+
+/* ── Code RIASEC badge ───────────────────────── */
+.praximet-code-badge {
+    display: inline-block;
+    background: var(--pm-blue);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 2px;
+}
+
+/* ── Select statut inline ────────────────────── */
+.praximet-statut-select {
+    padding: 5px 8px;
+    border: 1px solid var(--pm-border);
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+/* ── Tags ────────────────────────────────────── */
+.praximet-tag {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+.praximet-tag--relance { background: #fff3cd; color: #856404; }
+.praximet-tag--ok      { background: #d1fae5; color: #065f46; }
+
+/* ── Cards ───────────────────────────────────── */
+.praximet-card {
+    background: var(--pm-white);
+    border: 1px solid var(--pm-border);
+    border-radius: var(--pm-radius);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: var(--pm-shadow);
+}
+
+.praximet-card-title {
+    font-size: 15px !important;
+    font-weight: 700;
+    color: var(--pm-blue);
+    margin: 0 0 20px !important;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--pm-border);
+}
+
+.praximet-card--danger { border-color: #fde8e8; background: #fffafa; }
+.praximet-card--danger .praximet-card-title { color: var(--pm-red); }
+
+/* ── Fiche lead ──────────────────────────────── */
+.praximet-fiche-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: start;
+}
+
+.praximet-info-table { width: 100%; border-collapse: collapse; }
+.praximet-info-table th,
+.praximet-info-table td { padding: 8px 0; border-bottom: 1px solid var(--pm-border); font-size: 13px; }
+.praximet-info-table th { width: 110px; color: var(--pm-gray); font-weight: 600; }
+.praximet-info-table tr:last-child th,
+.praximet-info-table tr:last-child td { border-bottom: none; }
+
+.praximet-empty-val { color: var(--pm-gray); }
+
+/* ── Code display (fiche) ────────────────────── */
+.praximet-code-display {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+
+.praximet-lettre-admin {
+    width: 64px; height: 64px;
+    background: var(--pm-blue);
+    color: white;
+    border-radius: 10px;
+    font-size: 32px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ── Scores ──────────────────────────────────── */
+.praximet-score-row {
+    display: grid;
+    grid-template-columns: 160px 1fr 48px;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+    padding: 6px 10px;
+    border-radius: 4px;
+}
+.praximet-score-row--dominant { background: var(--pm-blue-light); }
+
+.praximet-score-label { display: flex; gap: 8px; font-size: 13px; }
+.praximet-score-label strong { color: var(--pm-blue); width: 16px; }
+
+.praximet-score-bar-wrap {
+    height: 8px;
+    background: var(--pm-border);
+    border-radius: 4px;
+    overflow: hidden;
+}
+.praximet-score-bar {
+    height: 100%;
+    background: var(--pm-blue);
+    border-radius: 4px;
+    transition: width .4s ease;
+}
+.praximet-score-val { font-size: 12px; color: var(--pm-gray); text-align: right; }
+
+/* ── Description types ───────────────────────── */
+.praximet-type-desc-block {
+    padding: 16px 0;
+    border-bottom: 1px solid var(--pm-border);
+}
+.praximet-type-desc-block:last-child { border-bottom: none; padding-bottom: 0; }
+.praximet-type-rang { font-size: 11px; color: var(--pm-gray); text-transform: uppercase; letter-spacing: 1px; margin: 0 0 4px; }
+.praximet-type-nom  { font-size: 15px; font-weight: 700; color: var(--pm-blue); margin: 0 0 6px; }
+.praximet-type-desc { font-size: 13px; color: #555; line-height: 1.6; margin: 0; }
+
+/* ── Statut form (fiche) ─────────────────────── */
+.praximet-statut-form { display: flex; gap: 8px; align-items: center; margin-bottom: 16px; }
+.praximet-select-large { padding: 8px 12px; border: 1px solid var(--pm-border); border-radius: var(--pm-radius); font-size: 14px; flex: 1; }
+.praximet-lead-meta p { margin: 4px 0; font-size: 13px; color: #555; }
+
+/* ── Paramètres ──────────────────────────────── */
+.praximet-settings-form { max-width: 680px; }
+.praximet-field { margin-bottom: 20px; }
+.praximet-field label { display: block; font-weight: 600; color: var(--pm-blue); margin-bottom: 6px; font-size: 14px; }
+.praximet-input-large  { width: 100%; padding: 9px 12px; border: 1px solid var(--pm-border); border-radius: var(--pm-radius); font-size: 14px; }
+.praximet-input-small  { width: 100px; padding: 9px 12px; border: 1px solid var(--pm-border); border-radius: var(--pm-radius); font-size: 14px; }
+.praximet-field-desc   { font-size: 12px; color: var(--pm-gray); margin: 6px 0 0; }
+
+.praximet-shortcode-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--pm-bg);
+    border: 1px solid var(--pm-border);
+    border-radius: var(--pm-radius);
+    padding: 10px 16px;
+}
+.praximet-shortcode-box code { font-size: 14px; font-weight: 600; color: var(--pm-blue); }
+
+.praximet-settings-footer { margin-top: 8px; }
+
+/* ── Boutons ─────────────────────────────────── */
+.praximet-btn-primary {
+    background: var(--pm-blue);
+    color: white;
+    border: none;
+    padding: 9px 20px;
+    border-radius: var(--pm-radius);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: opacity .15s;
+}
+.praximet-btn-primary:hover { opacity: .85; color: white; }
+.praximet-btn-primary.praximet-btn--large { padding: 12px 28px; font-size: 15px; }
+
+.praximet-btn-secondary {
+    background: var(--pm-white);
+    color: var(--pm-blue);
+    border: 1px solid var(--pm-border);
+    padding: 8px 16px;
+    border-radius: var(--pm-radius);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: border-color .15s;
+}
+.praximet-btn-secondary:hover { border-color: var(--pm-blue); color: var(--pm-blue); }
+
+.praximet-btn-link {
+    background: none;
+    border: none;
+    color: var(--pm-blue);
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0;
+}
+
+/* ── Notice ──────────────────────────────────── */
+.praximet-notice {
+    padding: 12px 16px;
+    border-radius: var(--pm-radius);
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+.praximet-notice--success {
+    background: #d1fae5;
+    color: #065f46;
+    border-left: 4px solid var(--pm-green);
+}
+
+/* ── Empty state ─────────────────────────────── */
+.praximet-empty {
+    text-align: center;
+    padding: 48px;
+    color: var(--pm-gray);
+    background: var(--pm-white);
+    border: 1px solid var(--pm-border);
+    border-radius: var(--pm-radius);
+}
+
+/* ── Footer actions ──────────────────────────── */
+.praximet-footer-actions { margin-top: 8px; }
+
+/* ── Date ────────────────────────────────────── */
+.praximet-date { font-size: 12px; color: var(--pm-gray); }
+
+/* ── Responsive ──────────────────────────────── */
+@media (max-width: 900px) {
+    .praximet-kpi-row     { grid-template-columns: repeat(2, 1fr); }
+    .praximet-fiche-grid  { grid-template-columns: 1fr; }
+    .praximet-filters     { flex-direction: column; align-items: flex-start; }
+}
+
+/* Bouton danger */
+.praximet-btn-danger {
+    background: #dc2626;
+    color: #fff;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s;
+}
+.praximet-btn-danger:hover { background: #b91c1c; }

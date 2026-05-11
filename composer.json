@@ -1,0 +1,112 @@
+{
+    "name": "praxis/praxitests",
+    "type": "project",
+    "description": "PraxiTests — SaaS d'évaluation et orientation augmenté par IA, neuromarketing et gamification.",
+    "keywords": ["saas", "tests", "orientation", "ia", "gamification", "neuromarketing"],
+    "license": "proprietary",
+    "require": {
+        "php": "^8.2",
+        "ext-json": "*",
+        "ext-pdo": "*",
+        "ext-mbstring": "*",
+        "ext-openssl": "*",
+        "ext-fileinfo": "*",
+        "laravel/framework": "^11.0",
+        "laravel/sanctum": "^4.0",
+        "laravel/tinker": "^2.9",
+        "inertiajs/inertia-laravel": "^1.0",
+        "tightenco/ziggy": "^2.0",
+        "spatie/laravel-permission": "^6.0",
+        "spatie/laravel-activitylog": "^4.8",
+        "barryvdh/laravel-dompdf": "^3.0",
+        "smalot/pdfparser": "^2.7",
+        "predis/predis": "^2.2",
+        "guzzlehttp/guzzle": "^7.8"
+    },
+    "require-dev": {
+        "fakerphp/faker": "^1.23",
+        "laravel/pint": "^1.13",
+        "mockery/mockery": "^1.6",
+        "nunomaduro/collision": "^8.0",
+        "pestphp/pest": "^2.34",
+        "pestphp/pest-plugin-laravel": "^2.3",
+        "phpunit/phpunit": "^11.0",
+        "spatie/laravel-ignition": "^2.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/",
+            "Praxis\\Core\\": "app/Core/",
+            "Praxis\\Plugins\\PraxiMet\\": "plugins/praximet/src/",
+            "Praxis\\Plugins\\PraxiMet\\Database\\Seeders\\": "plugins/praximet/database/seeders/",
+            "Praxis\\Plugins\\PraxiValeurs\\": "plugins/praxivaleurs/src/",
+            "Praxis\\Plugins\\PraxiValeurs\\Database\\Seeders\\": "plugins/praxivaleurs/database/seeders/",
+            "Praxis\\Plugins\\PraxiCare\\": "plugins/praxicare/src/",
+            "Praxis\\Plugins\\PraxiCare\\Database\\Seeders\\": "plugins/praxicare/database/seeders/",
+            "Praxis\\Plugins\\PraxiEmo\\": "plugins/praxiemo/src/",
+            "Praxis\\Plugins\\PraxiEmo\\Database\\Seeders\\": "plugins/praxiemo/database/seeders/",
+            "Praxis\\Plugins\\PraxiMum\\": "plugins/praximum/src/",
+            "Praxis\\Plugins\\PraxiMum\\Database\\Seeders\\": "plugins/praximum/database/seeders/",
+            "Database\\Factories\\": "database/factories/",
+            "Database\\Seeders\\": "database/seeders/"
+        },
+        "classmap": [
+            "plugins/praximet/PluginServiceProvider.php",
+            "plugins/praxivaleurs/PluginServiceProvider.php",
+            "plugins/praxicare/PluginServiceProvider.php",
+            "plugins/praxiemo/PluginServiceProvider.php",
+            "plugins/praximum/PluginServiceProvider.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php artisan package:discover --ansi"
+        ],
+        "post-root-package-install": [
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+        ],
+        "post-create-project-cmd": [
+            "@php artisan key:generate --ansi"
+        ],
+        "praxitests:install": [
+            "@php artisan key:generate --force",
+            "@php artisan storage:link",
+            "@php artisan migrate --force",
+            "@php artisan db:seed --force",
+            "@php artisan praxitests:plugins:discover --sync",
+            "@php artisan praxitests:plugins:activate praximet",
+            "@php artisan praxitests:plugins:activate praxivaleurs",
+            "@php artisan praxitests:plugins:activate praxicare",
+            "@php artisan praxitests:plugins:activate praxiemo",
+            "@php artisan praxitests:plugins:activate praximum"
+        ],
+        "test": "pest",
+        "lint": "pint"
+    },
+    "extra": {
+        "laravel": {
+            "dont-discover": []
+        },
+        "praxitests": {
+            "version": "1.0.0-alpha",
+            "min-php": "8.2"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "php-http/discovery": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

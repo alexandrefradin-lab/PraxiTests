@@ -1,0 +1,890 @@
+[
+  {
+    "id": 1,
+    "dim": "O",
+    "inv": false,
+    "texte": "Mon imagination produit souvent des images, des scènes ou des histoires spontanées.",
+    "facette": "O1_FAN"
+  },
+  {
+    "id": 2,
+    "dim": "O",
+    "inv": false,
+    "texte": "Les univers fictifs me semblent aussi réels et enrichissants que le monde ordinaire.",
+    "facette": "O1_FAN"
+  },
+  {
+    "id": 3,
+    "dim": "O",
+    "inv": true,
+    "texte": "Je consacre rarement du temps à imaginer des choses qui n'existent pas.",
+    "facette": "O1_FAN"
+  },
+  {
+    "id": 4,
+    "dim": "O",
+    "inv": true,
+    "texte": "Je préfère observer le monde tel qu'il est plutôt que d'imaginer ce qu'il pourrait être.",
+    "facette": "O1_FAN"
+  },
+  {
+    "id": 5,
+    "dim": "O",
+    "inv": false,
+    "texte": "Une belle mélodie, un tableau ou un coucher de soleil peuvent me toucher profondément.",
+    "facette": "O2_EST"
+  },
+  {
+    "id": 6,
+    "dim": "O",
+    "inv": false,
+    "texte": "La qualité visuelle ou sonore d'un environnement influence beaucoup mon humeur.",
+    "facette": "O2_EST"
+  },
+  {
+    "id": 7,
+    "dim": "O",
+    "inv": true,
+    "texte": "L'esthétique d'un lieu ou d'un objet ne compte guère pour moi — seule la fonctionnalité importe.",
+    "facette": "O2_EST"
+  },
+  {
+    "id": 8,
+    "dim": "O",
+    "inv": true,
+    "texte": "La musique, la peinture ou la poésie me laissent généralement de marbre.",
+    "facette": "O2_EST"
+  },
+  {
+    "id": 9,
+    "dim": "O",
+    "inv": false,
+    "texte": "Je prends le temps d'identifier et de nommer précisément ce que je ressens.",
+    "facette": "O3_SEN"
+  },
+  {
+    "id": 10,
+    "dim": "O",
+    "inv": false,
+    "texte": "Je considère ma vie émotionnelle comme une source de connaissance de moi-même.",
+    "facette": "O3_SEN"
+  },
+  {
+    "id": 11,
+    "dim": "O",
+    "inv": true,
+    "texte": "Je fais rarement attention à mes états émotionnels du moment.",
+    "facette": "O3_SEN"
+  },
+  {
+    "id": 12,
+    "dim": "O",
+    "inv": true,
+    "texte": "Les émotions me semblent des réactions irrationnelles qu'il vaut mieux mettre de côté.",
+    "facette": "O3_SEN"
+  },
+  {
+    "id": 13,
+    "dim": "O",
+    "inv": false,
+    "texte": "J'essaie régulièrement de nouvelles activités ou de nouveaux loisirs.",
+    "facette": "O4_ACT"
+  },
+  {
+    "id": 14,
+    "dim": "O",
+    "inv": false,
+    "texte": "Quand je voyage, je cherche des expériences insolites plutôt que les circuits classiques.",
+    "facette": "O4_ACT"
+  },
+  {
+    "id": 15,
+    "dim": "O",
+    "inv": true,
+    "texte": "Je me sens plus à l'aise dans des activités que je connais bien que dans des expériences inconnues.",
+    "facette": "O4_ACT"
+  },
+  {
+    "id": 16,
+    "dim": "O",
+    "inv": true,
+    "texte": "Changer mes habitudes me demande un effort et ne me procure guère de plaisir.",
+    "facette": "O4_ACT"
+  },
+  {
+    "id": 17,
+    "dim": "O",
+    "inv": false,
+    "texte": "Une idée stimulante peut m'occuper l'esprit pendant des jours.",
+    "facette": "O5_IDE"
+  },
+  {
+    "id": 18,
+    "dim": "O",
+    "inv": false,
+    "texte": "J'apprécie les débats intellectuels même sur des sujets sans application pratique immédiate.",
+    "facette": "O5_IDE"
+  },
+  {
+    "id": 19,
+    "dim": "O",
+    "inv": true,
+    "texte": "Je préfère nettement les informations pratiques et concrètes aux théories abstraites.",
+    "facette": "O5_IDE"
+  },
+  {
+    "id": 20,
+    "dim": "O",
+    "inv": true,
+    "texte": "Les débats philosophiques me semblent stériles et sans intérêt réel.",
+    "facette": "O5_IDE"
+  },
+  {
+    "id": 21,
+    "dim": "O",
+    "inv": false,
+    "texte": "Je remets régulièrement en question certaines de mes croyances ou valeurs.",
+    "facette": "O6_VAL"
+  },
+  {
+    "id": 22,
+    "dim": "O",
+    "inv": false,
+    "texte": "Je suis prêt(e) à réviser une conviction profonde si les faits le justifient.",
+    "facette": "O6_VAL"
+  },
+  {
+    "id": 23,
+    "dim": "O",
+    "inv": true,
+    "texte": "Je pense que les valeurs transmises par ma famille ou ma culture sont les bonnes et méritent d'être préservées.",
+    "facette": "O6_VAL"
+  },
+  {
+    "id": 24,
+    "dim": "O",
+    "inv": true,
+    "texte": "Je me sens mal à l'aise face aux personnes qui défient les traditions et les conventions établies.",
+    "facette": "O6_VAL"
+  },
+  {
+    "id": 25,
+    "dim": "C",
+    "inv": false,
+    "texte": "En général, je suis convaincu(e) de pouvoir mener à bien ce que j'entreprends.",
+    "facette": "C1_COM"
+  },
+  {
+    "id": 26,
+    "dim": "C",
+    "inv": false,
+    "texte": "Face à un problème difficile, je fais confiance à ma capacité à trouver une solution.",
+    "facette": "C1_COM"
+  },
+  {
+    "id": 27,
+    "dim": "C",
+    "inv": true,
+    "texte": "Je doute souvent de ma capacité à faire face aux défis importants.",
+    "facette": "C1_COM"
+  },
+  {
+    "id": 28,
+    "dim": "C",
+    "inv": true,
+    "texte": "Il m'arrive fréquemment de penser que les autres feraient mieux que moi à ma place.",
+    "facette": "C1_COM"
+  },
+  {
+    "id": 29,
+    "dim": "C",
+    "inv": false,
+    "texte": "Je veille à ce que mes affaires, fichiers et documents soient toujours bien organisés.",
+    "facette": "C2_ORD"
+  },
+  {
+    "id": 30,
+    "dim": "C",
+    "inv": false,
+    "texte": "Un environnement bien ordonné me permet de penser et de travailler plus efficacement.",
+    "facette": "C2_ORD"
+  },
+  {
+    "id": 31,
+    "dim": "C",
+    "inv": true,
+    "texte": "Je peux travailler sans problème dans un environnement désordonné.",
+    "facette": "C2_ORD"
+  },
+  {
+    "id": 32,
+    "dim": "C",
+    "inv": true,
+    "texte": "Mon espace de travail ou de vie est souvent en désordre sans que cela me dérange.",
+    "facette": "C2_ORD"
+  },
+  {
+    "id": 33,
+    "dim": "C",
+    "inv": false,
+    "texte": "Je respecte mes engagements même quand cela m'est difficile ou peu pratique.",
+    "facette": "C3_DEV"
+  },
+  {
+    "id": 34,
+    "dim": "C",
+    "inv": false,
+    "texte": "Je me sens mal à l'aise lorsque je dois manquer à un engagement que j'ai pris.",
+    "facette": "C3_DEV"
+  },
+  {
+    "id": 35,
+    "dim": "C",
+    "inv": true,
+    "texte": "Il m'arrive de contourner une règle si je pense que le résultat final en vaut la peine.",
+    "facette": "C3_DEV"
+  },
+  {
+    "id": 36,
+    "dim": "C",
+    "inv": true,
+    "texte": "Je ne me sens pas toujours obligé(e) de respecter des engagements pris à la légère.",
+    "facette": "C3_DEV"
+  },
+  {
+    "id": 37,
+    "dim": "C",
+    "inv": false,
+    "texte": "Je me fixe régulièrement des objectifs ambitieux que je travaille à atteindre.",
+    "facette": "C4_REA"
+  },
+  {
+    "id": 38,
+    "dim": "C",
+    "inv": false,
+    "texte": "Je consacre beaucoup d'énergie à progresser et à développer mes compétences.",
+    "facette": "C4_REA"
+  },
+  {
+    "id": 39,
+    "dim": "C",
+    "inv": true,
+    "texte": "Je me contente facilement de résultats ordinaires sans chercher à exceller.",
+    "facette": "C4_REA"
+  },
+  {
+    "id": 40,
+    "dim": "C",
+    "inv": true,
+    "texte": "L'ambition et la réussite ne sont pas des valeurs importantes pour moi.",
+    "facette": "C4_REA"
+  },
+  {
+    "id": 41,
+    "dim": "C",
+    "inv": false,
+    "texte": "Je me mets au travail même quand je n'en ai pas envie.",
+    "facette": "C5_DIS"
+  },
+  {
+    "id": 42,
+    "dim": "C",
+    "inv": false,
+    "texte": "Je résiste aux distractions et reste concentré(e) sur ma priorité du moment.",
+    "facette": "C5_DIS"
+  },
+  {
+    "id": 43,
+    "dim": "C",
+    "inv": true,
+    "texte": "Je remets facilement les tâches peu agréables à plus tard.",
+    "facette": "C5_DIS"
+  },
+  {
+    "id": 44,
+    "dim": "C",
+    "inv": true,
+    "texte": "Je me laisse souvent distraire avant d'avoir terminé ce que j'avais commencé.",
+    "facette": "C5_DIS"
+  },
+  {
+    "id": 45,
+    "dim": "C",
+    "inv": false,
+    "texte": "Je prends le temps de peser soigneusement les options avant toute décision importante.",
+    "facette": "C6_DEL"
+  },
+  {
+    "id": 46,
+    "dim": "C",
+    "inv": false,
+    "texte": "Avant d'agir, je réfléchis aux conséquences possibles à court et à long terme.",
+    "facette": "C6_DEL"
+  },
+  {
+    "id": 47,
+    "dim": "C",
+    "inv": true,
+    "texte": "J'agis souvent sur une impulsion sans m'attarder à analyser la situation.",
+    "facette": "C6_DEL"
+  },
+  {
+    "id": 48,
+    "dim": "C",
+    "inv": true,
+    "texte": "Je prends fréquemment des décisions rapides que je regrette ensuite.",
+    "facette": "C6_DEL"
+  },
+  {
+    "id": 49,
+    "dim": "E",
+    "inv": false,
+    "texte": "Je montre facilement mon affection aux personnes qui me sont proches.",
+    "facette": "E1_CHA"
+  },
+  {
+    "id": 50,
+    "dim": "E",
+    "inv": false,
+    "texte": "Je m'intéresse sincèrement à la vie et aux expériences des gens que je rencontre.",
+    "facette": "E1_CHA"
+  },
+  {
+    "id": 51,
+    "dim": "E",
+    "inv": true,
+    "texte": "Je garde naturellement une certaine réserve émotionnelle vis-à-vis des autres.",
+    "facette": "E1_CHA"
+  },
+  {
+    "id": 52,
+    "dim": "E",
+    "inv": true,
+    "texte": "On me dit parfois que je suis distant(e) ou difficile à cerner.",
+    "facette": "E1_CHA"
+  },
+  {
+    "id": 53,
+    "dim": "E",
+    "inv": false,
+    "texte": "J'aime les soirées animées avec beaucoup de monde et d'interactions.",
+    "facette": "E2_GRE"
+  },
+  {
+    "id": 54,
+    "dim": "E",
+    "inv": false,
+    "texte": "Une foule animée ou un groupe nombreux me stimule plutôt qu'il ne m'épuise.",
+    "facette": "E2_GRE"
+  },
+  {
+    "id": 55,
+    "dim": "E",
+    "inv": true,
+    "texte": "Je préfère passer la soirée avec une ou deux personnes proches plutôt qu'en grand groupe.",
+    "facette": "E2_GRE"
+  },
+  {
+    "id": 56,
+    "dim": "E",
+    "inv": true,
+    "texte": "Après une longue journée sociale, j'ai absolument besoin de solitude pour me ressourcer.",
+    "facette": "E2_GRE"
+  },
+  {
+    "id": 57,
+    "dim": "E",
+    "inv": false,
+    "texte": "Dans la plupart des groupes, je prends naturellement un rôle de meneur.",
+    "facette": "E3_ASS"
+  },
+  {
+    "id": 58,
+    "dim": "E",
+    "inv": false,
+    "texte": "Je n'hésite pas à exprimer clairement mon opinion, même si elle est impopulaire.",
+    "facette": "E3_ASS"
+  },
+  {
+    "id": 59,
+    "dim": "E",
+    "inv": true,
+    "texte": "Je laisse volontiers les autres mener les discussions ou prendre les décisions.",
+    "facette": "E3_ASS"
+  },
+  {
+    "id": 60,
+    "dim": "E",
+    "inv": true,
+    "texte": "Je me sens mal à l'aise lorsqu'on me demande de diriger un groupe.",
+    "facette": "E3_ASS"
+  },
+  {
+    "id": 61,
+    "dim": "E",
+    "inv": false,
+    "texte": "Mon quotidien est généralement bien rempli et je suis souvent en mouvement.",
+    "facette": "E4_ACT"
+  },
+  {
+    "id": 62,
+    "dim": "E",
+    "inv": false,
+    "texte": "Un rythme de vie soutenu me stimule plutôt qu'il ne me fatigue.",
+    "facette": "E4_ACT"
+  },
+  {
+    "id": 63,
+    "dim": "E",
+    "inv": true,
+    "texte": "Je mène un rythme de vie assez calme et ne cherche pas à le remplir davantage.",
+    "facette": "E4_ACT"
+  },
+  {
+    "id": 64,
+    "dim": "E",
+    "inv": true,
+    "texte": "Un agenda chargé m'angoisse plus qu'il ne me motive.",
+    "facette": "E4_ACT"
+  },
+  {
+    "id": 65,
+    "dim": "E",
+    "inv": false,
+    "texte": "Les activités à sensations fortes me plaisent vraiment.",
+    "facette": "E5_STI"
+  },
+  {
+    "id": 66,
+    "dim": "E",
+    "inv": false,
+    "texte": "Je suis attiré(e) par les situations qui comportent une part de risque ou d'imprévu.",
+    "facette": "E5_STI"
+  },
+  {
+    "id": 67,
+    "dim": "E",
+    "inv": true,
+    "texte": "Je préfère la sécurité et la stabilité aux situations risquées ou très stimulantes.",
+    "facette": "E5_STI"
+  },
+  {
+    "id": 68,
+    "dim": "E",
+    "inv": true,
+    "texte": "Les activités à risque ne m'attirent pas — je les trouve stressantes plus qu'excitantes.",
+    "facette": "E5_STI"
+  },
+  {
+    "id": 69,
+    "dim": "E",
+    "inv": false,
+    "texte": "Je ris facilement et je trouve souvent des raisons d'être joyeux(se).",
+    "facette": "E6_EMO"
+  },
+  {
+    "id": 70,
+    "dim": "E",
+    "inv": false,
+    "texte": "Je suis souvent de bonne humeur, même sans raison particulière.",
+    "facette": "E6_EMO"
+  },
+  {
+    "id": 71,
+    "dim": "E",
+    "inv": true,
+    "texte": "Je suis rarement exubérant(e) ou particulièrement enthousiaste.",
+    "facette": "E6_EMO"
+  },
+  {
+    "id": 72,
+    "dim": "E",
+    "inv": true,
+    "texte": "Mon humeur de fond est plutôt sérieuse ou neutre que joyeuse.",
+    "facette": "E6_EMO"
+  },
+  {
+    "id": 73,
+    "dim": "A",
+    "inv": false,
+    "texte": "Je suppose naturellement que les gens ont de bonnes intentions.",
+    "facette": "A1_CON"
+  },
+  {
+    "id": 74,
+    "dim": "A",
+    "inv": false,
+    "texte": "Je pense que la majorité des gens sont fondamentalement honnêtes.",
+    "facette": "A1_CON"
+  },
+  {
+    "id": 75,
+    "dim": "A",
+    "inv": true,
+    "texte": "Je me méfie souvent des inconnus jusqu'à ce qu'ils aient prouvé leur bonne foi.",
+    "facette": "A1_CON"
+  },
+  {
+    "id": 76,
+    "dim": "A",
+    "inv": true,
+    "texte": "Je pense que beaucoup de gens cherchent avant tout à servir leurs propres intérêts.",
+    "facette": "A1_CON"
+  },
+  {
+    "id": 77,
+    "dim": "A",
+    "inv": false,
+    "texte": "Mes intentions sont claires et transparentes — je ne cache rien pour manipuler les autres.",
+    "facette": "A2_DRO"
+  },
+  {
+    "id": 78,
+    "dim": "A",
+    "inv": false,
+    "texte": "Je dis ce que je pense, même quand la vérité est difficile à entendre.",
+    "facette": "A2_DRO"
+  },
+  {
+    "id": 79,
+    "dim": "A",
+    "inv": true,
+    "texte": "Il m'arrive de dissimuler certaines informations pour protéger mes intérêts.",
+    "facette": "A2_DRO"
+  },
+  {
+    "id": 80,
+    "dim": "A",
+    "inv": true,
+    "texte": "Je suis capable d'adapter ma présentation des faits pour orienter l'opinion des autres.",
+    "facette": "A2_DRO"
+  },
+  {
+    "id": 81,
+    "dim": "A",
+    "inv": false,
+    "texte": "J'éprouve un réel plaisir à aider les autres, même si cela me coûte temps et énergie.",
+    "facette": "A3_ALT"
+  },
+  {
+    "id": 82,
+    "dim": "A",
+    "inv": false,
+    "texte": "Le bien-être des personnes qui m'entourent compte autant pour moi que le mien.",
+    "facette": "A3_ALT"
+  },
+  {
+    "id": 83,
+    "dim": "A",
+    "inv": true,
+    "texte": "Je pense d'abord à mes propres besoins avant de me soucier de ceux des autres.",
+    "facette": "A3_ALT"
+  },
+  {
+    "id": 84,
+    "dim": "A",
+    "inv": true,
+    "texte": "Je n'éprouve pas de satisfaction particulière à rendre service.",
+    "facette": "A3_ALT"
+  },
+  {
+    "id": 85,
+    "dim": "A",
+    "inv": false,
+    "texte": "Je préfère céder dans un désaccord plutôt que de créer un conflit inutile.",
+    "facette": "A4_COM"
+  },
+  {
+    "id": 86,
+    "dim": "A",
+    "inv": false,
+    "texte": "Je cherche un terrain d'entente même quand je suis convaincu(e) d'avoir raison.",
+    "facette": "A4_COM"
+  },
+  {
+    "id": 87,
+    "dim": "A",
+    "inv": true,
+    "texte": "Je défends fermement ma position même face à une forte pression du groupe.",
+    "facette": "A4_COM"
+  },
+  {
+    "id": 88,
+    "dim": "A",
+    "inv": true,
+    "texte": "Je n'hésite pas à entrer en confrontation directe quand je pense avoir raison.",
+    "facette": "A4_COM"
+  },
+  {
+    "id": 89,
+    "dim": "A",
+    "inv": false,
+    "texte": "Je n'aime pas me mettre en avant ou souligner mes propres accomplissements.",
+    "facette": "A5_MOD"
+  },
+  {
+    "id": 90,
+    "dim": "A",
+    "inv": false,
+    "texte": "Je me considère comme égal(e) aux autres, sans sentiment de supériorité.",
+    "facette": "A5_MOD"
+  },
+  {
+    "id": 91,
+    "dim": "A",
+    "inv": true,
+    "texte": "Je pense mériter davantage de reconnaissance que ce que je reçois.",
+    "facette": "A5_MOD"
+  },
+  {
+    "id": 92,
+    "dim": "A",
+    "inv": true,
+    "texte": "J'ai une haute opinion de moi-même et je n'en fais pas mystère.",
+    "facette": "A5_MOD"
+  },
+  {
+    "id": 93,
+    "dim": "A",
+    "inv": false,
+    "texte": "La détresse des autres me touche sincèrement et me donne envie d'agir.",
+    "facette": "A6_SEN"
+  },
+  {
+    "id": 94,
+    "dim": "A",
+    "inv": false,
+    "texte": "Je perçois intuitivement quand quelqu'un souffre, même s'il ne le dit pas.",
+    "facette": "A6_SEN"
+  },
+  {
+    "id": 95,
+    "dim": "A",
+    "inv": true,
+    "texte": "La souffrance des autres ne m'affecte pas particulièrement.",
+    "facette": "A6_SEN"
+  },
+  {
+    "id": 96,
+    "dim": "A",
+    "inv": true,
+    "texte": "Je pense que chacun doit régler ses problèmes par lui-même sans chercher de la pitié.",
+    "facette": "A6_SEN"
+  },
+  {
+    "id": 97,
+    "dim": "N",
+    "inv": false,
+    "texte": "Je me fais facilement du souci, même pour des choses sans grande importance.",
+    "facette": "N1_ANX"
+  },
+  {
+    "id": 98,
+    "dim": "N",
+    "inv": false,
+    "texte": "L'incertitude sur l'avenir me génère une anxiété difficile à contrôler.",
+    "facette": "N1_ANX"
+  },
+  {
+    "id": 99,
+    "dim": "N",
+    "inv": true,
+    "texte": "Je fais face à l'incertitude avec sérénité — elle ne m'angoisse pas.",
+    "facette": "N1_ANX"
+  },
+  {
+    "id": 100,
+    "dim": "N",
+    "inv": true,
+    "texte": "Je suis rarement préoccupé(e) par ce qui pourrait mal tourner.",
+    "facette": "N1_ANX"
+  },
+  {
+    "id": 101,
+    "dim": "N",
+    "inv": false,
+    "texte": "Je m'énerve assez vite quand les choses ne se passent pas comme je l'avais prévu.",
+    "facette": "N2_HOS"
+  },
+  {
+    "id": 102,
+    "dim": "N",
+    "inv": false,
+    "texte": "J'ai du mal à masquer ma frustration quand les autres ne font pas ce qu'ils ont promis.",
+    "facette": "N2_HOS"
+  },
+  {
+    "id": 103,
+    "dim": "N",
+    "inv": true,
+    "texte": "Je garde mon calme même face à des comportements qui pourraient me contrarier.",
+    "facette": "N2_HOS"
+  },
+  {
+    "id": 104,
+    "dim": "N",
+    "inv": true,
+    "texte": "Je suis patient(e) et peu irritable, même dans les situations difficiles.",
+    "facette": "N2_HOS"
+  },
+  {
+    "id": 105,
+    "dim": "N",
+    "inv": false,
+    "texte": "Il m'arrive de traverser des périodes de profond découragement sans raison évidente.",
+    "facette": "N3_DEP"
+  },
+  {
+    "id": 106,
+    "dim": "N",
+    "inv": false,
+    "texte": "Je me sens parfois inutile ou convaincu(e) de ne pas valoir grand-chose.",
+    "facette": "N3_DEP"
+  },
+  {
+    "id": 107,
+    "dim": "N",
+    "inv": true,
+    "texte": "Je me sens rarement déprimé(e) ou profondément découragé(e).",
+    "facette": "N3_DEP"
+  },
+  {
+    "id": 108,
+    "dim": "N",
+    "inv": true,
+    "texte": "Même dans les moments difficiles, je conserve un sentiment de bien-être et d'espoir.",
+    "facette": "N3_DEP"
+  },
+  {
+    "id": 109,
+    "dim": "N",
+    "inv": false,
+    "texte": "Je suis très sensible à ce que les autres pensent ou disent de moi.",
+    "facette": "N4_CON"
+  },
+  {
+    "id": 110,
+    "dim": "N",
+    "inv": false,
+    "texte": "Je redoute d'être perçu(e) négativement par mon entourage.",
+    "facette": "N4_CON"
+  },
+  {
+    "id": 111,
+    "dim": "N",
+    "inv": true,
+    "texte": "L'opinion des autres sur moi m'affecte peu.",
+    "facette": "N4_CON"
+  },
+  {
+    "id": 112,
+    "dim": "N",
+    "inv": true,
+    "texte": "Je me comporte de la même façon, que les autres me regardent ou non.",
+    "facette": "N4_CON"
+  },
+  {
+    "id": 113,
+    "dim": "N",
+    "inv": false,
+    "texte": "J'ai du mal à résister aux envies du moment, même quand elles vont contre mes intérêts.",
+    "facette": "N5_IMP"
+  },
+  {
+    "id": 114,
+    "dim": "N",
+    "inv": false,
+    "texte": "Sous l'effet du stress, je retombe facilement dans de mauvaises habitudes.",
+    "facette": "N5_IMP"
+  },
+  {
+    "id": 115,
+    "dim": "N",
+    "inv": true,
+    "texte": "Je contrôle bien mes envies et mes impulsions, même sous pression.",
+    "facette": "N5_IMP"
+  },
+  {
+    "id": 116,
+    "dim": "N",
+    "inv": true,
+    "texte": "Je suis capable de différer une satisfaction immédiate pour un bénéfice à long terme.",
+    "facette": "N5_IMP"
+  },
+  {
+    "id": 117,
+    "dim": "N",
+    "inv": false,
+    "texte": "Quand la pression monte, je perds rapidement mes moyens.",
+    "facette": "N6_VUL"
+  },
+  {
+    "id": 118,
+    "dim": "N",
+    "inv": false,
+    "texte": "Face à un stress intense, je me sens incapable de prendre des décisions claires.",
+    "facette": "N6_VUL"
+  },
+  {
+    "id": 119,
+    "dim": "N",
+    "inv": true,
+    "texte": "Je reste lucide et efficace même dans les situations très stressantes.",
+    "facette": "N6_VUL"
+  },
+  {
+    "id": 120,
+    "dim": "N",
+    "inv": true,
+    "texte": "Les crises me mobilisent plutôt qu'elles ne me paralysent.",
+    "facette": "N6_VUL"
+  },
+  {
+    "id": 121,
+    "dim": "DS",
+    "inv": false,
+    "texte": "Je n'ai jamais dit quelque chose de faux pour obtenir ce que je voulais."
+  },
+  {
+    "id": 122,
+    "dim": "DS",
+    "inv": false,
+    "texte": "Je suis toujours courtois(e) et respectueux(se), même envers les personnes qui m'irritent."
+  },
+  {
+    "id": 123,
+    "dim": "DS",
+    "inv": true,
+    "texte": "Il m'arrive de critiquer les gens en leur absence."
+  },
+  {
+    "id": 124,
+    "dim": "DS",
+    "inv": false,
+    "texte": "Je ne ressens jamais d'envie ou de jalousie envers les autres."
+  },
+  {
+    "id": 125,
+    "dim": "DS",
+    "inv": true,
+    "texte": "Il m'est arrivé de vouloir abandonner une responsabilité que j'avais acceptée."
+  },
+  {
+    "id": 126,
+    "dim": "DS",
+    "inv": false,
+    "texte": "Je n'ai jamais laissé transparaître de la colère de façon inappropriée."
+  },
+  {
+    "id": 127,
+    "dim": "DS",
+    "inv": false,
+    "texte": "Je n'ai jamais profité d'une situation au détriment de quelqu'un d'autre."
+  },
+  {
+    "id": 128,
+    "dim": "DS",
+    "inv": false,
+    "texte": "Mes comportements sont toujours parfaitement en accord avec mes valeurs déclarées."
+  }
+]

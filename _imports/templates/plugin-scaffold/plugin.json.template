@@ -1,0 +1,22 @@
+{
+  "slug": "{{SLUG}}",
+  "name": "{{NAME}}",
+  "version": "{{VERSION}}",
+  "author": "{{AUTHOR}}",
+  "type": "test",
+  "description": "{{DESCRIPTION}}",
+  "namespace": "Praxis\\Plugins\\{{NAMESPACE}}",
+  "service_provider": "Praxis\\Plugins\\{{NAMESPACE}}\\PluginServiceProvider",
+  "permissions": ["read:profiles", "write:results"],
+  "requires": {
+    "praxitests": ">=1.0.0",
+    "php": ">=8.2"
+  },
+  "settings_view": "{{SLUG}}::settings",
+  "test": {
+    "name": "{{TEST_NAME}}",
+    "type": "questionnaire",
+    "scoring_engine": "{{SLUG}}",
+    "estimated_minutes": 10
+  }
+}
