@@ -47,7 +47,7 @@ const submit = () => {
                 <div>
                     <label class="block text-sm font-medium">Corps HTML</label>
                     <textarea v-model="form.body_html" rows="12" required class="pt-input font-mono text-xs mt-2"></textarea>
-                    <p class="text-xs text-slate-400 mt-1">Variables neuromarketing dispo : <code>{{ '{{ NEURO_PROGRESS }}' }}</code>, <code>{{ '{{ NEURO_SOCIAL_PROOF }}' }}</code></p>
+                    <p class="text-xs text-slate-400 mt-1">Variables neuromarketing dispo : <code v-pre>{{ NEURO_PROGRESS }}</code>, <code v-pre>{{ NEURO_SOCIAL_PROOF }}</code></p>
                 </div>
                 <div>
                     <label class="block text-sm font-medium">Version texte (fallback)</label>
