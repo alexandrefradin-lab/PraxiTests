@@ -10,7 +10,7 @@ return new class extends Migration {
         Schema::create('test_invitations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('test_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('professional_account_id')->nullable()->constrained()->nullOnDelete();
+            $table->unsignedBigInteger('professional_account_id')->nullable();
             $table->string('email');
             $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();

@@ -9,7 +9,7 @@ return new class extends Migration {
     {
         Schema::create('email_campaigns', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('professional_account_id')->nullable()->constrained()->nullOnDelete();
+            $table->unsignedBigInteger('professional_account_id')->nullable();
             $table->string('name');
             $table->string('subject');
             $table->string('preheader')->nullable();
@@ -29,7 +29,7 @@ return new class extends Migration {
 
         Schema::create('email_sequences', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('professional_account_id')->nullable()->constrained()->nullOnDelete();
+            $table->unsignedBigInteger('professional_account_id')->nullable();
             $table->string('name');
             $table->string('trigger_event'); // attempt.completed, lead.captured, inactive_7d, etc.
             $table->json('audience_filter')->nullable();
