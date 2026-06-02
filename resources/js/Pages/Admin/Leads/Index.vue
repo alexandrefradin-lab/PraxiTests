@@ -1,6 +1,6 @@
 <script setup>
 import { Link, router } from '@inertiajs/vue3'
-import { ref, watch } from 'vue'
+import { onUnmounted, ref, watch } from 'vue'
 import AdminLayout from '@/Layouts/AdminLayout.vue'
 
 const props = defineProps({ leads: Object, filters: Object })
@@ -17,6 +17,9 @@ watch([search, status], () => {
         })
     }, 250)
 })
+
+// FE-08 — nettoie le timer au démontage du composant
+onUnmounted(() => clearTimeout(timer))
 
 const statusColor = {
     new: 'bg-indigo-50 text-indigo-700',
@@ -75,9 +78,6 @@ const statusColor = {
         </div>
 
         <div v-if="leads.links" class="flex items-center justify-center gap-1 mt-6">
-            <component :is="link.url ? Link : 'span'" v-for="link in leads.links" :key="link.label" :href="link.url ?? ''" v-html="link.label"
-                class="px-3 py-1 text-xs rounded"
-                :class="[link.active ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-100', !link.url && 'opacity-40']"></component>
-        </div>
-    </AdminLayout>
-</template>
+            <!-- SEC-08 — trusted server-rendered pagination labels (Laravel Pagination: &laquo; / &raquo;) -->
+            <component :is="link.url ? Link : 'span'" v-for="link in leads.links" :key="link.label" :href="link.url ?? ''"
+                class="px-3 py-1 text-

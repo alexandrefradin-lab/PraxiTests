@@ -1,17 +1,17 @@
 @echo off
 REM ==========================================
-REM PraxiTests - Build distribuable (zip pret-a-deployer)
+REM PraxiQuest - Build distribuable (zip pret-a-deployer)
 REM Necessite : PHP 8.2+, Composer, Node 20+ INSTALLES
 REM ==========================================
 setlocal enabledelayedexpansion
 
 set VERSION=1.0.0-alpha
 set OUT_DIR=dist
-set ZIP_NAME=praxitests-%VERSION%.zip
+set ZIP_NAME=praxiquest-%VERSION%.zip
 
 echo.
 echo ========================================
-echo  PraxiTests - Build release v%VERSION%
+echo  PraxiQuest - Build release v%VERSION%
 echo ========================================
 echo.
 

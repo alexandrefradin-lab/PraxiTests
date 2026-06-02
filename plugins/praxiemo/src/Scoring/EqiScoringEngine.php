@@ -4,6 +4,7 @@ namespace Praxis\Plugins\PraxiEmo\Scoring;
 
 use App\Models\TestAttempt;
 use Praxis\Core\TestEngine\Contracts\ScoringEngineContract;
+use Praxis\Core\TestEngine\NormInterpreter;
 use Praxis\Plugins\PraxiEmo\Data\Dimensions;
 
 class EqiScoringEngine implements ScoringEngineContract
@@ -48,9 +49,16 @@ class EqiScoringEngine implements ScoringEngineContract
         [$niveau, $phrase] = $this->interpretGlobal($scoreGlobal);
         $ds = $this->desirabilite($byIdx);
 
+        // Étalonnage par dimension
+        $normScores = [];
+        foreach ($scoresDim as $dimId => $raw) {
+            $normScores[$dimId] = NormInterpreter::enrich('praxiemo-eqi', (string) $dimId, $raw);
+        }
+
         return [
             'engine'        => $this->key(),
             'dim_scores'    => $scoresDim,
+            'norm_scores'   => $normScores,
             'score_global'  => $scoreGlobal,
             'score_max'     => 320,
             'niveau_qe'     => $niveau,
@@ -78,17 +86,12 @@ class EqiScoringEngine implements ScoringEngineContract
         for ($i = 80; $i <= 85; $i++) {
             $sum += $byIdx[$i] ?? 1;
         }
+        // FIXME: Valider la direction des items DS (indices 80-85) avec un expert psychométrique.
+        // Convention Bar-On/Goleman : score élevé = biais élevé (items formulés positivement).
+        // Si les items sont formulés négativement, la condition devrait être >= 22 au lieu de <= 12.
         if ($sum <= 12) {
             return [
                 'score'   => $sum,
                 'niveau'  => 'Biais fort',
                 'alerte'  => true,
-                'message' => "Vos réponses semblent orientées vers une image très positive de vous-même. Les scores reflètent peut-être davantage ce que vous souhaiteriez être que ce que vous vivez au quotidien.",
-            ];
-        }
-        if ($sum <= 18) {
-            return ['score' => $sum, 'niveau' => 'Biais modéré', 'alerte' => false, 'message' => ''];
-        }
-        return ['score' => $sum, 'niveau' => 'Fiable', 'alerte' => false, 'message' => ''];
-    }
-}
+                'message' => "Vos réponses semblent orientées vers une image très positive de vous-même. Les scores reflètent peut-être davantage ce que vous souhaiteriez êt

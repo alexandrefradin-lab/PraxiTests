@@ -4,6 +4,7 @@ namespace Praxis\Plugins\PraxiMet\Scoring;
 
 use App\Models\TestAttempt;
 use Praxis\Core\TestEngine\Contracts\ScoringEngineContract;
+use Praxis\Core\TestEngine\NormInterpreter;
 use Praxis\Plugins\PraxiMet\Data\Questions;
 
 class RiasecScoringEngine implements ScoringEngineContract
@@ -36,10 +37,17 @@ class RiasecScoringEngine implements ScoringEngineContract
 
         $code = $this->code3($scores);
 
+        // Étalonnage — enrichit chaque dimension avec percentile + label candidat
+        $normScores = [];
+        foreach ($scores as $dim => $raw) {
+            $normScores[$dim] = NormInterpreter::enrich('praximet-riasec', $dim, $raw);
+        }
+
         return [
             'engine'        => $this->key(),
             'dimensions'    => $this->normalize($scores, 14),
             'raw_scores'    => $scores,
+            'norm_scores'   => $normScores,   // percentile + label par dimension
             'code'          => $code,
             'profile'       => $code,
             'profile_label' => $this->codeLabel($code),

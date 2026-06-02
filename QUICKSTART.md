@@ -1,6 +1,6 @@
-# PraxiTests — Quickstart local
+# PraxiQuest — Quickstart local
 
-Pour tester PraxiTests en local en 5 minutes.
+Pour tester PraxiQuest en local en 5 minutes.
 
 ## 1. Prérequis
 
@@ -41,9 +41,9 @@ sudo apt install php8.2-cli php8.2-mbstring php8.2-xml php8.2-mysql \
 Créer une base vide :
 
 ```sql
-CREATE DATABASE praxitests CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'praxitests'@'localhost' IDENTIFIED BY 'praxitests';
-GRANT ALL ON praxitests.* TO 'praxitests'@'localhost';
+CREATE DATABASE praxiquest CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'praxiquest'@'localhost' IDENTIFIED BY 'praxiquest';
+GRANT ALL ON praxiquest.* TO 'praxiquest'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
@@ -52,7 +52,7 @@ FLUSH PRIVILEGES;
 ### Windows
 
 ```cmd
-cd C:\Users\Fradin Alexandre\Documents\Claude\Projects\PraxiTests
+cd C:\Users\Fradin Alexandre\Documents\Claude\Projects\PraxiQuest
 setup.bat
 ```
 
@@ -65,7 +65,7 @@ setup.bat finish
 ### Mac / Linux
 
 ```bash
-cd ~/Documents/Claude/Projects/PraxiTests
+cd ~/Documents/Claude/Projects/PraxiQuest
 chmod +x setup.sh dev.sh
 ./setup.sh deps     # composer + npm + .env
 # édite .env (DB_DATABASE, DB_USERNAME, DB_PASSWORD)
@@ -87,12 +87,12 @@ php artisan migrate --force
 php artisan db:seed --force
 
 # Découvre + active les 5 plugins
-php artisan praxitests:plugins:discover --sync
-php artisan praxitests:plugins:activate praximet
-php artisan praxitests:plugins:activate praxivaleurs
-php artisan praxitests:plugins:activate praxicare
-php artisan praxitests:plugins:activate praxiemo
-php artisan praxitests:plugins:activate praximum
+php artisan praxiquest:plugins:discover --sync
+php artisan praxiquest:plugins:activate praximet
+php artisan praxiquest:plugins:activate praxivaleurs
+php artisan praxiquest:plugins:activate praxicare
+php artisan praxiquest:plugins:activate praxiemo
+php artisan praxiquest:plugins:activate praximum
 
 npm run build
 ```
@@ -123,9 +123,9 @@ php artisan serve
 
 | Compte | Email | Mot de passe |
 |--------|-------|--------------|
-| Admin par défaut | `admin@praxitests.local` | `changeme123` |
+| Admin par défaut | `admin@praxiquest.local` | `changeme123` |
 
-Personnalisable via `.env` (`PRAXITESTS_ADMIN_EMAIL`, `PRAXITESTS_ADMIN_PASSWORD`) **avant** de lancer le seeder.
+Personnalisable via `.env` (`PRAXIQUEST_ADMIN_EMAIL`, `PRAXIQUEST_ADMIN_PASSWORD`) **avant** de lancer le seeder.
 
 ## 7. Vérification rapide
 
@@ -199,7 +199,7 @@ chmod -R 775 storage bootstrap/cache
 ### Plugins pas découverts
 
 ```bash
-php artisan praxitests:plugins:discover --sync
+php artisan praxiquest:plugins:discover --sync
 php artisan cache:clear
 ```
 
@@ -207,13 +207,13 @@ php artisan cache:clear
 
 ```bash
 php artisan migrate:fresh --seed
-php artisan praxitests:plugins:discover --sync
+php artisan praxiquest:plugins:discover --sync
 ```
 
 ## 11. Désinstaller
 
 ```bash
-DROP DATABASE praxitests;
+DROP DATABASE praxiquest;
 rm -rf vendor node_modules public/build .env storage/app/.installed
 ```
 

@@ -46,7 +46,7 @@ class PluginRegistry
                 $manifest['_path'] = $dir;
                 $manifests->push($manifest);
             } catch (\Throwable $e) {
-                logger()->warning("PraxiTests plugin invalid: {$manifestFile} — {$e->getMessage()}");
+                logger()->warning("PraxiQuest plugin invalid: {$manifestFile} — {$e->getMessage()}");
             }
         }
 

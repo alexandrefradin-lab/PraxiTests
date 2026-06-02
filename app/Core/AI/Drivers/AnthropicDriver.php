@@ -54,6 +54,5 @@ class AnthropicDriver extends AbstractDriver
             'output_tokens' => $data['usage']['output_tokens'] ?? 0,
         ];
 
-        return $data['content'][0]['text'] ?? '';
-    }
-}
+        $text = $data['content'][0]['text'] ?? '';
+       

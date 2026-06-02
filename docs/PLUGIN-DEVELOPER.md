@@ -1,4 +1,4 @@
-# Développer un plugin PraxiTests
+# Développer un plugin PraxiQuest
 
 ## Structure minimum
 
@@ -30,7 +30,7 @@ plugins/mon-plugin/
   "namespace": "Praxis\\MonPlugin",
   "service_provider": "Praxis\\MonPlugin\\PluginServiceProvider",
   "permissions": ["read:profiles", "write:results"],
-  "requires": { "praxitests": ">=1.0.0" }
+  "requires": { "praxiquest": ">=1.0.0" }
 }
 ```
 
@@ -153,9 +153,9 @@ Demande dans `plugin.json` uniquement les permissions strictement nécessaires :
 ## CLI
 
 ```bash
-php artisan praxitests:plugins:discover         # Liste les plugins du disque
-php artisan praxitests:plugins:discover --sync  # Synchronise avec la DB
-php artisan praxitests:plugins:activate <slug>
+php artisan praxiquest:plugins:discover         # Liste les plugins du disque
+php artisan praxiquest:plugins:discover --sync  # Synchronise avec la DB
+php artisan praxiquest:plugins:activate <slug>
 ```
 
 ## Distribution

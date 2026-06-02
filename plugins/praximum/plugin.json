@@ -9,7 +9,7 @@
   "service_provider": "Praxis\\Plugins\\PraxiMum\\PluginServiceProvider",
   "permissions": ["read:profiles", "write:results", "send:mail"],
   "requires": {
-    "praxitests": ">=1.0.0",
+    "praxiquest": ">=1.0.0",
     "php": ">=8.2"
   },
   "test": {

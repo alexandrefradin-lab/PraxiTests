@@ -13,6 +13,9 @@ class SendSequenceStepJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public int $tries   = 3;
+    public int $timeout = 60;
+
     public function __construct(
         public int $sequenceId,
         public int $userId,

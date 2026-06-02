@@ -50,7 +50,7 @@ const typeLabel = {
 
             <div v-if="!plugins.length" class="md:col-span-2 lg:col-span-3 pt-card p-12 text-center text-slate-500">
                 Aucun plugin trouvé. Dépose un plugin dans le dossier <code>plugins/</code> et lance la commande
-                <code>php artisan praxitests:plugins:discover --sync</code>.
+                <code>php artisan praxiquest:plugins:discover --sync</code>.
             </div>
         </div>
     </AdminLayout>

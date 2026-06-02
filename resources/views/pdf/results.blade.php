@@ -53,6 +53,6 @@ h2{font-size:15px;margin:24px 0 10px;color:#4f46e5;border-bottom:1px solid #e2e8
 @endforeach
 @endif
 
-<p class="meta" style="margin-top:30px">Généré par PraxiTests le {{ now()->format('d/m/Y H:i') }}</p>
+<p class="meta" style="margin-top:30px">Généré par PraxiQuest le {{ now()->format('d/m/Y H:i') }}</p>
 </body>
 </html>

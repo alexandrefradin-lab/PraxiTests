@@ -3,11 +3,11 @@
 return [
     'path' => base_path('plugins'),
 
-    'autodiscover' => env('PRAXITESTS_PLUGINS_AUTODISCOVER', true),
+    'autodiscover' => env('PRAXIQUEST_PLUGINS_AUTODISCOVER', true),
 
     'manifest_file' => 'plugin.json',
 
-    'cache_key' => 'praxitests.plugins.registry',
+    'cache_key' => 'praxiquest.plugins.registry',
 
     'available_types' => [
         'test',          // ajoute des types de tests

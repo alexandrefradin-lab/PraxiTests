@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'enabled' => env('PRAXITESTS_GAMIFICATION_ENABLED', true),
+    'enabled' => env('PRAXIQUEST_GAMIFICATION_ENABLED', true),
 
     'xp' => [
         'answer_question'   => 10,

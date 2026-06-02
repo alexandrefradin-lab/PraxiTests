@@ -1,95 +1,62 @@
-# PraxiTests
+# PraxiQuest
 
-> SaaS propriétaire d'évaluation et orientation professionnelle, augmenté par IA, neuromarketing et gamification.
+> **Plateforme SaaS d'évaluation et d'orientation professionnelle**
+> augmentée par l'IA, le neuromarketing et la gamification.
 
-## Vision
+[![Version](https://img.shields.io/badge/version-1.0.0--alpha-indigo)](.)
+[![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4)](https://php.net)
+[![Laravel](https://img.shields.io/badge/Laravel-11-FF2D20)](https://laravel.com)
+[![License](https://img.shields.io/badge/license-Proprietary-gray)](LICENSE)
 
-PraxiTests aide professionnels (RH, cabinets, écoles, organismes d'orientation) **et** particuliers (candidats, demandeurs d'emploi, entrepreneurs en réflexion) à :
+---
 
-- administrer des tests en ligne riches et personnalisés
-- collecter automatiquement profil + CV
-- générer une **synthèse IA** + **15 métiers** pertinents
-- engager grâce à la **gamification** (XP, badges, narration, progression)
-- convertir grâce au **neuromarketing** (séquences emails optimisées)
-- étendre librement la plateforme via un **système de plugins**
+## Présentation
 
-## Stack
+PraxiQuest permet à des **organismes de formation, cabinets RH, écoles et consultants en orientation** de déployer une plateforme d'évaluation clé en main — et à leurs bénéficiaires de découvrir leur profil professionnel en quelques dizaines de minutes.
 
-| Couche | Technologie |
-|--------|-------------|
-| Backend | PHP 8.2+ · Laravel 11 |
-| Frontend | Inertia.js · Vue 3 · Tailwind CSS |
-| DB | MySQL 8 / PostgreSQL 15 |
-| Cache · Queue · Sessions | Redis |
-| IA | Drivers : Anthropic · OpenAI · Mistral · Ollama |
-| Mail | SMTP / Mailgun / SES (configurable) |
-| Storage | Local / S3 / Wasabi |
+Le candidat passe un ou plusieurs tests psychométriques (RIASEC, Big Five, intelligence émotionnelle, valeurs professionnelles, souffrance au travail), fournit son CV, et reçoit :
 
-## Installation rapide (recommandée — installeur web)
+- une **synthèse IA personnalisée** de son profil (Claude / GPT-4 / Mistral / Ollama)
+- **15 métiers** réalistes et adaptés à son contexte
+- un **rapport PDF** téléchargeable
+- une progression gamifiée (XP, badges, narration)
 
-1. Télécharge l'archive `praxitests-X.X.X.zip` ou clone le repo
-2. Décompresse / déploie sur ton serveur web (PHP 8.2+ requis)
-3. Pointe ton domaine vers `public/`
-4. Ouvre `https://ton-domaine.com/install.php`
-5. Suis l'assistant en 7 étapes (≈ 5 minutes)
+---
 
-L'installeur :
-- vérifie les prérequis (PHP, extensions, permissions)
-- teste la connexion à ta base de données
-- crée ton compte administrateur
-- configure la marque, l'URL, le SMTP, la clé de licence
-- exécute les migrations
-- s'auto-désactive à la fin (sécurité)
+## Fonctionnalités
 
-## Installation développeur
+### Parcours candidat
+- Onboarding structuré : statut professionnel, ancienneté, upload CV
+- Extraction intelligente du CV par IA → structuration automatique des expériences et compétences
+- Passage de tests en ligne avec progression en temps réel
+- Restitution richement visualisée (radars, graphiques, quadrant Karasek)
+- Synthèse IA narrative + suggestions métiers
+- Export PDF du rapport complet
+- Historique de tous les tests passés
 
-```bash
-git clone <repo> praxitests
-cd praxitests
-composer install
-npm install
-cp .env.example .env
-php artisan key:generate
-php artisan migrate --seed
-npm run dev
-php artisan serve
-```
+### Administration
+- Tableau de bord avec métriques en temps réel (cache 60 s)
+- Éditeur de tests complet (sections, questions, types, scoring)
+- Gestion des campagnes d'invitation par email
+- Suivi des leads et des comptes professionnels
+- Gestion des plugins (activation, désactivation, logs)
+- Configuration globale (clés IA, SMTP, marque)
 
-## Architecture
+### Intelligence artificielle
+- Abstraction multi-drivers : Anthropic Claude, OpenAI GPT, Mistral, Ollama (local)
+- Extraction et structuration automatique du CV
+- Synthèse de profil en français, bienveillante et actionnelle
+- Proposition de 15 métiers avec secteur, score de compatibilité et prochaine étape concrète
+- Personnalisation des emails par profil candidat
 
-Voir [`ARCHITECTURE.md`](ARCHITECTURE.md) pour le détail :
+### Gamification
+- Points XP à chaque action (réponse, section complétée, test terminé, CV uploadé)
+- 5 niveaux : Curieux → Explorateur → Analyste → Stratège → Visionnaire
+- Système de badges (Premier pas, Complétiste, Analyste…)
+- Narration progressive pendant le test
+- Insights débloquables à mesure de l'avancement
 
-- **Core** modulaire : tout ce qui peut bouger est en plugin
-- **Plugin system** style WordPress (actions, filters, auto-discovery)
-- **IA driver abstraction** (changer de modèle sans changer de code)
-- **Multi-tenant flexible** (B2C, B2B, B2B2C, white-label)
-
-## Plugins
-
-```
-plugins/mon-plugin/
-├── plugin.json              # Manifest
-├── PluginServiceProvider.php
-├── src/
-└── resources/
-```
-
-Voir [`docs/PLUGIN-DEVELOPER.md`](docs/PLUGIN-DEVELOPER.md) pour créer ton premier plugin.
-
-Commandes :
-```bash
-php artisan praxitests:plugins:discover --sync
-php artisan praxitests:plugins:activate <slug>
-```
-
-## Sécurité
-
-- 2FA admin obligatoire
-- CV chiffrés au rest (encryption disk)
-- RGPD natif : consentement, anonymisation, droit à l'oubli, export
-- Plugins sandboxés (permissions explicites)
-- Audit log toutes actions sensibles
-
-## Licence
-
-Propriétaire — © Praxis Accompagnement. Tous droits réservés.
+### Emailing & neuromarketing
+- Campagnes d'invitation avec segmentation par statut ou profil
+- Séquences email automatisées avec conditions et délais
+- Optimisation neuromarketing des ob

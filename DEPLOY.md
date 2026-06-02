@@ -1,10 +1,10 @@
-# Déploiement PraxiTests — guide client final
+# Déploiement PraxiQuest — guide client final
 
-> **Pour qui ?** Toute personne qui veut installer PraxiTests sur son hébergement, sans toucher à une ligne de code.
+> **Pour qui ?** Toute personne qui veut installer PraxiQuest sur son hébergement, sans toucher à une ligne de code.
 
 ## En 5 minutes, sans code
 
-1. **Tu reçois un fichier** : `praxitests-1.0.0-alpha.zip` (~ 50 Mo)
+1. **Tu reçois un fichier** : `praxiquest-1.0.0-alpha.zip` (~ 50 Mo)
 2. **Tu l'uploades** sur ton hébergement (FTP, cPanel, ou panneau OVH/Infomaniak)
 3. **Tu décompresses** dans le dossier de ton domaine
 4. **Tu pointes le domaine** vers le sous-dossier `public/`
@@ -33,8 +33,8 @@ Vérifie auprès de ton hébergeur ces 3 points :
 
 Connecte-toi au panneau de ton hébergeur, va dans la section **MySQL** ou **Bases de données** et crée :
 
-- **Nom de la base** : `praxitests` (ou ce que tu veux)
-- **Utilisateur** : `praxitests` (ou ce que tu veux)
+- **Nom de la base** : `praxiquest` (ou ce que tu veux)
+- **Utilisateur** : `praxiquest` (ou ce que tu veux)
 - **Mot de passe** : génère-en un solide (12+ caractères)
 - **Hôte** : généralement `localhost` (l'hébergeur te le donnera)
 
@@ -49,7 +49,7 @@ Note ces 4 infos, tu en auras besoin à l'étape 4.
 1. Connecte-toi à ton panneau d'administration
 2. Va dans **Gestionnaire de fichiers**
 3. Navigue jusqu'au dossier de ton domaine (souvent `public_html/` ou `www/`)
-4. Clique **Upload** et choisis le zip `praxitests-1.0.0-alpha.zip`
+4. Clique **Upload** et choisis le zip `praxiquest-1.0.0-alpha.zip`
 5. Une fois uploadé, fais clic-droit → **Extraire**
 6. Tu obtiens une arborescence avec `app/`, `public/`, `vendor/`, etc.
 
@@ -64,22 +64,22 @@ Note ces 4 infos, tu en auras besoin à l'étape 4.
 
 ## Étape 3 — Pointer le domaine vers `public/`
 
-PraxiTests, comme toute application Laravel, doit servir le dossier `public/` (pas la racine).
+PraxiQuest, comme toute application Laravel, doit servir le dossier `public/` (pas la racine).
 
 ### Option A — Hébergement mutualisé (cPanel / OVH / etc.)
 
 Crée un **sous-domaine** ou **modifie le domaine principal** pour qu'il pointe vers le sous-dossier `public/`.
 
-Dans la plupart des panneaux : **Domaines** → **Modifier** → **Document Root** → indique `praxitests/public` (ou le chemin où tu as extrait).
+Dans la plupart des panneaux : **Domaines** → **Modifier** → **Document Root** → indique `praxiquest/public` (ou le chemin où tu as extrait).
 
 ### Option B — Tu n'as pas accès au document root
 
-Place plutôt **un fichier .htaccess** à la racine de ton domaine (à côté du dossier `praxitests/`) avec :
+Place plutôt **un fichier .htaccess** à la racine de ton domaine (à côté du dossier `praxiquest/`) avec :
 
 ```apache
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteRule ^(.*)$ praxitests/public/$1 [L]
+    RewriteRule ^(.*)$ praxiquest/public/$1 [L]
 </IfModule>
 ```
 
@@ -90,9 +90,9 @@ Place plutôt **un fichier .htaccess** à la racine de ton domaine (à côté du
 **Apache vhost** :
 ```apache
 <VirtualHost *:80>
-    ServerName praxitests.tonsite.com
-    DocumentRoot /var/www/praxitests/public
-    <Directory /var/www/praxitests/public>
+    ServerName praxiquest.tonsite.com
+    DocumentRoot /var/www/praxiquest/public
+    <Directory /var/www/praxiquest/public>
         AllowOverride All
         Require all granted
     </Directory>
@@ -102,8 +102,8 @@ Place plutôt **un fichier .htaccess** à la racine de ton domaine (à côté du
 **Nginx** :
 ```nginx
 server {
-    server_name praxitests.tonsite.com;
-    root /var/www/praxitests/public;
+    server_name praxiquest.tonsite.com;
+    root /var/www/praxiquest/public;
     index index.php;
 
     location / {

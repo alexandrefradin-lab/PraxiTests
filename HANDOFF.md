@@ -1,4 +1,4 @@
-# HANDOFF — PraxiTests
+# HANDOFF — PraxiQuest
 
 > Document de reprise pour continuer le projet dans une nouvelle conversation Claude.
 
@@ -6,7 +6,7 @@
 
 ## 1. Mission
 
-**PraxiTests** = SaaS propriétaire d'évaluation et orientation professionnelle augmenté par 3 leviers :
+**PraxiQuest** = SaaS propriétaire d'évaluation et orientation professionnelle augmenté par 3 leviers :
 
 1. **IA** — synthèse profil + 15 métiers (drivers Anthropic / OpenAI / Mistral / Ollama)
 2. **Neuromarketing** — optimisation conversion (8 biais cognitifs)
@@ -34,28 +34,28 @@
 ## 3. Workspace local
 
 ```
-C:\Users\Fradin Alexandre\Documents\Claude\Projects\PraxiTests
+C:\Users\Fradin Alexandre\Documents\Claude\Projects\PraxiQuest
 ```
 
 ---
 
 ## 4. GitHub
 
-- **Repo** : `https://github.com/alexandrefradin-lab/PraxiTests` (privé)
+- **Repo** : `https://github.com/alexandrefradin-lab/PraxiQuest` (privé)
 - **Branch** : `main`
 - **GitHub Actions** : build automatique à chaque push → zip complet (vendor + public/build) téléchargeable dans Actions → Artifacts
 
 ### Workflow de mise à jour (à répéter à chaque modif)
 
 ```powershell
-# Dans PowerShell, depuis le dossier PraxiTests :
+# Dans PowerShell, depuis le dossier PraxiQuest :
 git add .
 git commit -m "Description du changement"
 git push
 # → GitHub Actions build le zip automatiquement (~2 min)
 # → Télécharger le zip depuis GitHub Actions → Artifacts
 # → Extraire avec 7-Zip vers C:\pt\
-# → FileZilla → upload dans www/praxitests/
+# → FileZilla → upload dans www/praxiquest/
 ```
 
 ---
@@ -71,14 +71,14 @@ git push
 2. `git push` → GitHub Actions build le zip
 3. Télécharger zip depuis GitHub Actions → Artifacts
 4. **Extraire avec 7-Zip vers `C:\pt\`** (chemin court obligatoire sur Windows)
-5. FileZilla → upload dans `www/praxitests/`
-6. Première install : ouvrir `https://praxitests.decisionpro.fr/install.php`
+5. FileZilla → upload dans `www/praxiquest/`
+6. Première install : ouvrir `https://praxiquest.decisionpro.fr/install.php`
 7. Mise à jour : les fichiers remplacent les anciens, pas besoin de réinstaller
 
 ### Sous-domaine OVH
 
-- URL cible : `https://praxitests.decisionpro.fr`
-- Document root : `praxitests/public` (**pas** `praxitests/`)
+- URL cible : `https://praxiquest.decisionpro.fr`
+- Document root : `praxiquest/public` (**pas** `praxiquest/`)
 - À créer dans OVH Manager → Multisite si pas encore fait
 
 ### Base de données OVH
@@ -91,7 +91,7 @@ git push
 
 ## 6. Installeur web
 
-- URL : `https://praxitests.decisionpro.fr/install.php`
+- URL : `https://praxiquest.decisionpro.fr/install.php`
 - Style : single form → résultats (inspiré DecisionPro)
 - Se verrouille après install via `storage/app/.installed`
 - Pour réinstaller : supprimer `storage/app/.installed` ou ajouter `?force=1`
@@ -111,7 +111,7 @@ git push
 ### Plugin system
 - `PluginContract` + `AbstractPlugin` + `PluginManager` + `PluginRegistry` + `PluginHooks`
 - Auto-discovery `/plugins/*/plugin.json`
-- Commandes Artisan : `praxitests:plugins:discover --sync`, `praxitests:plugins:activate {slug}`
+- Commandes Artisan : `praxiquest:plugins:discover --sync`, `praxiquest:plugins:activate {slug}`
 
 ### IA
 - `AIManager` + 4 drivers (Anthropic, OpenAI, Mistral, Ollama)
@@ -149,8 +149,8 @@ git push
 ## 8. Compte admin par défaut
 
 ```dotenv
-PRAXITESTS_ADMIN_EMAIL=admin@praxitests.local
-PRAXITESTS_ADMIN_PASSWORD=changeme123
+PRAXIQUEST_ADMIN_EMAIL=admin@praxiquest.local
+PRAXIQUEST_ADMIN_PASSWORD=changeme123
 ```
 
 ⚠ Changer après première connexion.
@@ -199,7 +199,7 @@ Sans clé : les tests fonctionnent, synthèse IA reste vide.
 Attache ce fichier dans une nouvelle conversation et dis :
 
 ```
-Je reprends le projet PraxiTests. Lis HANDOFF.md pour le contexte.
+Je reprends le projet PraxiQuest. Lis HANDOFF.md pour le contexte.
 Sujet du jour : [DÉCRIRE CE QUE TU VEUX FAIRE]
 ```
 

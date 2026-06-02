@@ -22,6 +22,7 @@ class CampaignService
         $variants = json_decode($campaign->variants ?? '[]', true) ?: ['control' => $campaign->subject];
 
         $stats = ['queued' => 0, 'failed' => 0];
+        $logBatch = [];
 
         foreach ($audience as $user) {
             try {
@@ -34,21 +35,31 @@ class CampaignService
 
                 Mail::to($user->email)->queue(new CampaignMail($subject, $html, $campaign->body_text));
 
-                DB::table('email_logs')->insert([
-                    'user_id'    => $user->id,
+                $logBatch[] = [
+                    'user_id'     => $user->id,
                     'campaign_id' => $campaign->id,
-                    'to_email'   => $user->email,
-                    'subject'    => $subject,
-                    'variant'    => $variant,
-                    'status'     => 'queued',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
+                    'to_email'    => $user->email,
+                    'subject'     => $subject,
+                    'variant'     => $variant,
+                    'status'      => 'queued',
+                    'created_at'  => now(),
+                    'updated_at'  => now(),
+                ];
+
+                if (count($logBatch) >= 500) {
+                    DB::table('email_logs')->insert($logBatch);
+                    $logBatch = [];
+                }
+
                 $stats['queued']++;
             } catch (\Throwable $e) {
                 $stats['failed']++;
                 logger()->error("Campaign send failed for {$user->email}: {$e->getMessage()}");
             }
+        }
+
+        if (!empty($logBatch)) {
+            DB::table('email_logs')->insert($logBatch);
         }
 
         DB::table('email_campaigns')->where('id', $campaign->id)->update([
@@ -66,11 +77,3 @@ class CampaignService
         $q = User::query();
         if (!empty($filter['status']))      $q->whereHas('profile', fn ($p) => $p->where('status', $filter['status']));
         if (!empty($filter['has_completed_test'])) {
-            $q->whereHas('attempts', fn ($a) => $a->where('status', 'completed'));
-        }
-        if (!empty($filter['inactive_days'])) {
-            $q->where('last_login_at', '<', now()->subDays((int) $filter['inactive_days']));
-        }
-        return $q->get();
-    }
-}

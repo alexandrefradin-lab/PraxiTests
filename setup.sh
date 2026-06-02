@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # ==========================================
-# PraxiTests — Setup Mac/Linux
+# PraxiQuest — Setup Mac/Linux
 # ==========================================
 set -e
 
 echo ""
 echo "========================================"
-echo " PraxiTests — Installation locale"
+echo " PraxiQuest — Installation locale"
 echo "========================================"
 echo ""
 
@@ -56,11 +56,11 @@ if [ "$step" = "all" ] || [ "$step" = "finish" ] || [ "$step" = "db" ]; then
     php artisan storage:link 2>/dev/null || true
     php artisan migrate --force
     php artisan db:seed --force
-    php artisan praxitests:plugins:discover --sync
+    php artisan praxiquest:plugins:discover --sync
 
     for slug in praximet praxivaleurs praxicare praxiemo praximum; do
         echo "Activation $slug..."
-        php artisan praxitests:plugins:activate "$slug" || echo "  (déjà activé)"
+        php artisan praxiquest:plugins:activate "$slug" || echo "  (déjà activé)"
     done
 fi
 
@@ -75,5 +75,5 @@ echo "========================================"
 echo " ✓ Installation terminée"
 echo " Démarrer : php artisan serve"
 echo " Queue    : php artisan queue:work"
-echo " Login    : admin@praxitests.local / changeme123"
+echo " Login    : admin@praxiquest.local / changeme123"
 echo "========================================"

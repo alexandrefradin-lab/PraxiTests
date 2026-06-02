@@ -14,6 +14,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/onboarding', [OnboardingController::class, 'show'])->name('onboarding.show');
     Route::post('/onboarding', [OnboardingController::class, 'store'])->name('onboarding.store');
 
+    // Mise à jour profil après onboarding
+    Route::get('/profile/edit', [OnboardingController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [OnboardingController::class, 'update'])->name('profile.update');
+
     // Liste des tests dispo
     Route::get('/tests', [TestController::class, 'index'])->name('tests.index');
     Route::get('/tests/{test:slug}', [TestController::class, 'show'])->name('tests.show');
@@ -26,11 +30,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Restitution
     Route::get('/results/{attempt}', [ResultController::class, 'show'])->name('results.show');
-    Route::get('/results/{attempt}/pdf', [ResultController::class, 'pdf'])->name('results.pdf');
-});
-
-// Lien d'invitation public
-Route::get('/i/{token}', [\App\Http\Controllers\InvitationController::class, 'land'])->name('invitation.land');
-
-require __DIR__ . '/auth.php';
-require __DIR__ . '/admin.php';
+    Route::get('/results/{attempt}/status', [ResultController::class, 'status'])->name('results.status');
+    Route::get('/results/{attempt}/pdf', [ResultController::class, 'pdf'])->name('re

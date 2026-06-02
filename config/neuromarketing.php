@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'enabled' => env('PRAXITESTS_NEUROMARKETING_ENABLED', true),
+    'enabled' => env('PRAXIQUEST_NEUROMARKETING_ENABLED', true),
 
     'biases' => [
         'scarcity'    => true,  // places limitées

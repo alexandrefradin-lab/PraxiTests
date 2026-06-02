@@ -14,13 +14,11 @@ class PluginServiceProvider extends AbstractPlugin
         $this->loadMigrationsFrom($this->pluginPath('database/migrations'));
         $this->app->make(TestEngine::class)
             ->registerScoringEngine(new Scoring\EqiScoringEngine());
-    }
 
-    public function onActivate(): void
-    {
-        \Artisan::call('db:seed', [
-            '--class' => 'Praxis\\Plugins\\PraxiEmo\\Database\\Seeders\\PraxiEmoQuestionsSeeder',
-            '--force' => true,
+        $this->registerFilters([
+            'results.inertia_page' => fn (string $page, $attempt) =>
+                $attempt->test->scoring_engine === 'praxiemo-eqi' ? 'PraxiEmoResult' : $page,
         ]);
     }
-}
+
+    public function o

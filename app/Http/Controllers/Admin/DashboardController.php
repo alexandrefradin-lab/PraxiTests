@@ -6,40 +6,34 @@ use App\Http\Controllers\Controller;
 use App\Models\Lead;
 use App\Models\TestAttempt;
 use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $stats = [
-            'total_users'        => User::count(),
-            'attempts_completed' => TestAttempt::where('status', 'completed')->count(),
-            'attempts_inprogress' => TestAttempt::where('status', 'in_progress')->count(),
-            'completion_rate'    => $this->completionRate(),
-            'leads_new'          => Lead::where('status', 'new')->count(),
-            'leads_qualified'    => Lead::where('status', 'qualified')->count(),
-        ];
+        $stats = Cache::remember('admin.dashboard.stats', 60, function () {
+            $attempts = \App\Models\TestAttempt::selectRaw("
+                COUNT(*) as total,
+                SUM(status = 'completed') as completed,
+                SUM(status = 'in_progress') as in_progress
+            ")->first();
 
-        $recent_attempts = TestAttempt::with('user', 'test')
-            ->latest('completed_at')
-            ->limit(10)
-            ->get();
+            $leads = \App\Models\Lead::selectRaw("
+                SUM(status = 'new') as new_leads,
+                SUM(status = 'qualified') as qualified_leads
+            ")->first();
 
-        $recent_leads = Lead::latest()->limit(10)->get();
+            return [
+                'total_users'         => \App\Models\User::count(),
+                'attempts_completed'  => (int) ($attempts->completed ?? 0),
+                'attempts_inprogress' => (int) ($attempts->in_progress ?? 0),
+                'completion_rate'     => ($attempts->total ?? 0) > 0
+                    ? round(($attempts->completed / $attempts->total) * 100, 1) : 0,
+                'leads_new'           => (int) ($leads->new_leads ?? 0),
+                'leads_qualified'     => (int) ($leads->qualified_leads ?? 0),
+            ];
+        });
 
-        return Inertia::render('Admin/Dashboard', [
-            'stats' => $stats,
-            'recent_attempts' => $recent_attempts,
-            'recent_leads'    => $recent_leads,
-        ]);
-    }
-
-    protected function completionRate(): float
-    {
-        $started = TestAttempt::count();
-        if (!$started) return 0;
-        $done = TestAttempt::where('status', 'completed')->count();
-        return round(($done / $started) * 100, 1);
-    }
-}
+        $recent_atte

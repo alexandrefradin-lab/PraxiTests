@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 # ==========================================
-# PraxiTests — Build distribuable (zip prêt-à-déployer)
+# PraxiQuest — Build distribuable (zip prêt-à-déployer)
 # Nécessite : PHP 8.2+, Composer, Node 20+ INSTALLÉS
 # ==========================================
 set -e
 
 VERSION="1.0.0-alpha"
 OUT_DIR="dist"
-ZIP_NAME="praxitests-${VERSION}.zip"
+ZIP_NAME="praxiquest-${VERSION}.zip"
 
 echo ""
 echo "========================================"
-echo " PraxiTests — Build release v${VERSION}"
+echo " PraxiQuest — Build release v${VERSION}"
 echo "========================================"
 echo ""
 

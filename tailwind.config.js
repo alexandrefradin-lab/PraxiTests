@@ -10,14 +10,17 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Inter', 'ui-sans-serif', 'system-ui'],
+                sans:    ['DM Sans', 'ui-sans-serif', 'system-ui', '-apple-system'],
+                display: ['Playfair Display', 'ui-serif', 'Georgia', 'serif'],
             },
             colors: {
                 praxi: {
-                    50:  '#EEF2FF',
-                    500: '#4F46E5',
-                    600: '#4338CA',
-                    700: '#3730A3',
+                    navy:  '#1B2B3A',
+                    gold:  '#B8913A',
+                    cream: '#F7F5F0',
+                    50:    '#FBF5E8',
+                    500:   '#B8913A',
+                    700:   '#8A6A20',
                 },
             },
         },

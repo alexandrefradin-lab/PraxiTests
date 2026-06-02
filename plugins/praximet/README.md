@@ -1,6 +1,6 @@
 # PraxiMet — Plugin RIASEC
 
-Test d'orientation Holland RIASEC porté depuis WordPress vers PraxiTests.
+Test d'orientation Holland RIASEC porté depuis WordPress vers PraxiQuest.
 
 ## Caractéristiques
 
@@ -13,8 +13,8 @@ Test d'orientation Holland RIASEC porté depuis WordPress vers PraxiTests.
 ## Activation
 
 ```bash
-php artisan praxitests:plugins:discover --sync
-php artisan praxitests:plugins:activate praximet
+php artisan praxiquest:plugins:discover --sync
+php artisan praxiquest:plugins:activate praximet
 ```
 
 L'activation lance la migration + le seeder de questions automatiquement.

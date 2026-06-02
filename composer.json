@@ -1,7 +1,7 @@
 {
-    "name": "praxis/praxitests",
+    "name": "praxis/praxiquest",
     "type": "project",
-    "description": "PraxiTests — SaaS d'évaluation et orientation augmenté par IA, neuromarketing et gamification.",
+    "description": "PraxiQuest — SaaS d'évaluation et orientation augmenté par IA, neuromarketing et gamification.",
     "keywords": ["saas", "tests", "orientation", "ia", "gamification", "neuromarketing"],
     "license": "proprietary",
     "require": {
@@ -74,17 +74,17 @@
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi"
         ],
-        "praxitests:install": [
+        "praxiquest:install": [
             "@php artisan key:generate --force",
             "@php artisan storage:link",
             "@php artisan migrate --force",
             "@php artisan db:seed --force",
-            "@php artisan praxitests:plugins:discover --sync",
-            "@php artisan praxitests:plugins:activate praximet",
-            "@php artisan praxitests:plugins:activate praxivaleurs",
-            "@php artisan praxitests:plugins:activate praxicare",
-            "@php artisan praxitests:plugins:activate praxiemo",
-            "@php artisan praxitests:plugins:activate praximum"
+            "@php artisan praxiquest:plugins:discover --sync",
+            "@php artisan praxiquest:plugins:activate praximet",
+            "@php artisan praxiquest:plugins:activate praxivaleurs",
+            "@php artisan praxiquest:plugins:activate praxicare",
+            "@php artisan praxiquest:plugins:activate praxiemo",
+            "@php artisan praxiquest:plugins:activate praximum"
         ],
         "test": "pest",
         "lint": "pint"
@@ -93,7 +93,7 @@
         "laravel": {
             "dont-discover": []
         },
-        "praxitests": {
+        "praxiquest": {
             "version": "1.0.0-alpha",
             "min-php": "8.2"
         }

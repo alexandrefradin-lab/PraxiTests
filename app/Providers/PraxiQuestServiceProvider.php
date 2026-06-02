@@ -10,11 +10,11 @@ use Praxis\Core\Plugins\PluginManager;
 use Praxis\Core\Plugins\PluginRegistry;
 use Praxis\Core\TestEngine\TestEngine;
 
-class PraxiTestsServiceProvider extends ServiceProvider
+class PraxiQuestServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__ . '/../../config/praxitests.php', 'praxitests');
+        $this->mergeConfigFrom(__DIR__ . '/../../config/praxiquest.php', 'praxiquest');
         $this->mergeConfigFrom(__DIR__ . '/../../config/plugins.php', 'plugins');
         $this->mergeConfigFrom(__DIR__ . '/../../config/ai.php', 'ai');
         $this->mergeConfigFrom(__DIR__ . '/../../config/gamification.php', 'gamification');

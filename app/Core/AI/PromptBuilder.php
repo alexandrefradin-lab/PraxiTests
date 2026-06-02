@@ -33,19 +33,53 @@ TXT;
                 'nom'  => $test->name,
                 'type' => $test->type,
             ],
-            'résultats' => $result?->scoring,
+            // Priorité aux données étalonnées (norm_scores) qui donnent le contexte
+            // populationnel (ex: "Très développé" = top 15%) — bien plus utile pour
+            // la synthèse que des chiffres bruts (86/100 ne veut rien dire sans référence)
+            'résultats' => $this->enrichScoringForPrompt($result?->scoring),
         ];
 
         $user_msg = "Voici les données du candidat :\n\n"
             . json_encode($context, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
             . "\n\nGénère une synthèse de 250-400 mots en 3 paragraphes : "
-            . "(1) traits dominants et forces, (2) zones de développement et angles morts, "
-            . "(3) levier principal pour transformer ce profil en valeur ajoutée concrète.";
+            . "(1) traits dominants et forces en t'appuyant sur les dimensions 'Très développé' "
+            . "et 'Au-dessus de la moyenne', (2) zones de développement (dimensions 'En développement' "
+            . "ou 'Peu présent'), (3) levier principal pour transformer ce profil en valeur ajoutée concrète. "
+            . "Ne cite jamais de chiffres ni de percentiles — utilise les labels qualitatifs.";
 
         return [
             ['role' => 'system', 'content' => $system],
             ['role' => 'user',   'content' => $user_msg],
         ];
+    }
+
+    /**
+     * Enrichit les données de scoring pour les prompts IA.
+     * Remplace les scores bruts par les labels normatifs quand disponibles.
+     * Ex: { dim: { label: "Très développé", level: 5 } } au lieu de { dim: 86 }
+     */
+    protected function enrichScoringForPrompt(?array $scoring): array
+    {
+        if (!$scoring) return [];
+
+        $normScores = $scoring['norm_scores'] ?? [];
+        if (empty($normScores)) {
+            return $scoring; // Pas de normes → retourner le scoring brut
+        }
+
+        // Construire une vue simplifiée : dimension → interprétation lisible
+        $interpretation = [];
+        foreach ($normScores as $dimKey => $norm) {
+            if ($norm['label'] ?? null) {
+                $interpretation[$dimKey] = $norm['label']; // "Très développé", "Dans la moyenne", etc.
+            }
+        }
+
+        // Retourner le scoring enrichi avec l'interprétation en tête
+        return array_merge(
+            ['interprétation_par_dimension' => $interpretation],
+            collect($scoring)->except('norm_scores')->all(), // scoring brut sans les données techniques
+        );
     }
 
     public function jobSuggestions(TestAttempt $attempt, int $count = 15): array

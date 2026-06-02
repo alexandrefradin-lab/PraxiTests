@@ -1,6 +1,6 @@
 @echo off
 REM Mode dev : serveur Laravel + Vite + Queue worker en parallele
-echo Demarrage PraxiTests en mode dev...
+echo Demarrage PraxiQuest en mode dev...
 echo URL : http://127.0.0.1:8000
 echo.
 start "Laravel server" cmd /k "php artisan serve"

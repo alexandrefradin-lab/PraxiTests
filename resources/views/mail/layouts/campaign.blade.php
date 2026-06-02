@@ -13,7 +13,7 @@
                     <tr>
                         <td style="padding:32px 40px 0 40px">
                             <a href="{{ config('app.url') }}" style="text-decoration:none;color:inherit">
-                                <strong style="font-size:18px;letter-spacing:-0.02em">{{ config('app.name', 'PraxiTests') }}</strong>
+                                <strong style="font-size:18px;letter-spacing:-0.02em">{{ config('app.name', 'PraxiQuest') }}</strong>
                             </a>
                         </td>
                     </tr>

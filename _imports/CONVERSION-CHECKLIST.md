@@ -25,7 +25,7 @@
 ### Étape 3 — Logique métier
 - [ ] `ScoringEngine` custom implémenté + enregistré
 - [ ] Tests unitaires Pest pour le scoring (au moins 3 cas : profil A, B, C)
-- [ ] Hooks PraxiTests branchés (`attempt.completed`, `jobs.suggested`, etc.)
+- [ ] Hooks PraxiQuest branchés (`attempt.completed`, `jobs.suggested`, etc.)
 
 ### Étape 4 — UI / Design
 - [ ] Pages Vue créées sous `plugins/{slug}/resources/js/Pages/`
@@ -43,7 +43,7 @@
 ### Étape 6 — Polish
 - [ ] `README.md` plugin écrit (install, config, hooks exposés)
 - [ ] `npm run build` passe sans warning
-- [ ] `php artisan praxitests:plugins:discover --sync` détecte le plugin
+- [ ] `php artisan praxiquest:plugins:discover --sync` détecte le plugin
 - [ ] Test end-to-end manuel : passer le test → voir résultats
 
 ### Étape 7 — Validation

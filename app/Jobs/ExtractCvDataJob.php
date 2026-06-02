@@ -22,7 +22,5 @@ class ExtractCvDataJob implements ShouldQueue
     public function handle(CvExtractionService $svc): void
     {
         $profile = Profile::find($this->profileId);
-        if (!$profile) return;
-        $svc->structureProfile($profile);
-    }
-}
+        if (!$profile) {
+            logger()->warning("ExtractCvDataJob: Profile

@@ -4,14 +4,14 @@ return [
     'version' => '1.0.0-alpha',
 
     'license' => [
-        'key' => env('PRAXITESTS_LICENSE_KEY'),
-        'api' => env('PRAXITESTS_LICENSE_API'),
+        'key' => env('PRAXIQUEST_LICENSE_KEY'),
+        'api' => env('PRAXIQUEST_LICENSE_API'),
     ],
 
     'features' => [
-        'gamification' => env('PRAXITESTS_GAMIFICATION_ENABLED', true),
-        'neuromarketing' => env('PRAXITESTS_NEUROMARKETING_ENABLED', true),
-        'multitenant' => env('PRAXITESTS_MULTITENANT', true),
+        'gamification' => env('PRAXIQUEST_GAMIFICATION_ENABLED', true),
+        'neuromarketing' => env('PRAXIQUEST_NEUROMARKETING_ENABLED', true),
+        'multitenant' => env('PRAXIQUEST_MULTITENANT', false), // non implémenté — activer manuellement
     ],
 
     'profile' => [
@@ -39,10 +39,8 @@ return [
     ],
 
     'branding' => [
-        'name'    => env('APP_NAME', 'PraxiTests'),
+        'name'    => env('APP_NAME', 'PraxiQuest'),
         'tagline' => 'Évaluer. Orienter. Transformer.',
-        'logo'    => env('PRAXITESTS_LOGO_URL'),
-        'primary_color'   => env('PRAXITESTS_COLOR_PRIMARY', '#4F46E5'),
-        'secondary_color' => env('PRAXITESTS_COLOR_SECONDARY', '#10B981'),
-    ],
-];
+        'logo'    => env('PRAXIQUEST_LOGO_URL'),
+        'primary_color'   => env('PRAXIQUEST_COLOR_PRIMARY', '#4F46E5'),
+        'secondary_color' => env('PRAXI

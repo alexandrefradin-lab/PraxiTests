@@ -15,13 +15,11 @@ class PluginServiceProvider extends AbstractPlugin
 
         $this->app->make(TestEngine::class)
             ->registerScoringEngine(new Scoring\SchwartzScoringEngine());
-    }
 
-    public function onActivate(): void
-    {
-        \Artisan::call('db:seed', [
-            '--class' => 'Praxis\\Plugins\\PraxiValeurs\\Database\\Seeders\\ValuesQuestionsSeeder',
-            '--force' => true,
+        $this->registerFilters([
+            'results.inertia_page' => fn (string $page, $attempt) =>
+                $attempt->test->scoring_engine === 'praxivaleurs-schwartz' ? 'PraxiValeursResult' : $page,
         ]);
     }
-}
+
+    public

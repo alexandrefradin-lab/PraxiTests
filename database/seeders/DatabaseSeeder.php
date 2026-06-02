@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
             AdminUserSeeder::class,
             BadgeSeeder::class,
             DemoTestSeeder::class,
+            TestNormsSeeder::class,
         ]);
     }
 }

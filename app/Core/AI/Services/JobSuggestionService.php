@@ -16,7 +16,7 @@ class JobSuggestionService
 
     public function suggest(TestAttempt $attempt, ?int $count = null): array
     {
-        $count ??= config('ai.tasks.job_suggestions.count', config('praxitests.results.suggested_jobs_count', 15));
+        $count ??= config('ai.tasks.job_suggestions.count', config('praxiquest.results.suggested_jobs_count', 15));
 
         $messages = $this->prompts->jobSuggestions($attempt, $count);
         $driver = $this->ai->forTask('job_suggestions');

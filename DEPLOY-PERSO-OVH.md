@@ -1,6 +1,6 @@
 # Déploiement OVH Perso — sans aucun outil local
 
-> **Pour qui ?** Tu as un hébergement OVH **Perso** (sans SSH), tu veux installer PraxiTests, tu **n'as PHP/Composer/Node sur aucune machine**.
+> **Pour qui ?** Tu as un hébergement OVH **Perso** (sans SSH), tu veux installer PraxiQuest, tu **n'as PHP/Composer/Node sur aucune machine**.
 
 ## Le flux : 4 étapes, ~30 min
 
@@ -24,11 +24,11 @@ Tu n'installes **rien sur ta machine**. Juste un navigateur web + FileZilla (gra
 
 https://github.com/signup — gratuit, 2 min.
 
-### 1.2 Crée un dépôt privé pour PraxiTests
+### 1.2 Crée un dépôt privé pour PraxiQuest
 
 1. Connecte-toi à GitHub
 2. Clique sur le **+** en haut à droite → **New repository**
-3. **Repository name** : `praxitests` (ou ce que tu veux)
+3. **Repository name** : `praxiquest` (ou ce que tu veux)
 4. Coche **Private** (recommandé)
 5. **Create repository**
 
@@ -37,7 +37,7 @@ https://github.com/signup — gratuit, 2 min.
 > **Sans terminal, juste le navigateur :**
 
 1. Sur la page de ton dépôt fraîchement créé, clique **uploading an existing file**
-2. Drag & drop **tout le contenu** du dossier `C:\Users\Fradin Alexandre\Documents\Claude\Projects\PraxiTests\` (sauf `node_modules/` et `vendor/` s'ils existent — ils ne devraient pas)
+2. Drag & drop **tout le contenu** du dossier `C:\Users\Fradin Alexandre\Documents\Claude\Projects\PraxiQuest\` (sauf `node_modules/` et `vendor/` s'ils existent — ils ne devraient pas)
 3. ⚠ **Important** : assure-toi d'inclure le dossier caché `.github/` (les workflows).
 4. **Limit GitHub web upload** : 100 fichiers max par batch. Si plus, fais plusieurs batches OU utilise **GitHub Desktop** (point 1.3.bis).
 5. En bas, écris « Initial commit » → **Commit changes**
@@ -46,7 +46,7 @@ https://github.com/signup — gratuit, 2 min.
 
 1. Télécharge **GitHub Desktop** : https://desktop.github.com (gratuit, GUI Windows)
 2. Installe + connecte ton compte
-3. **File → Add Local Repository** → sélectionne `C:\Users\Fradin Alexandre\Documents\Claude\Projects\PraxiTests`
+3. **File → Add Local Repository** → sélectionne `C:\Users\Fradin Alexandre\Documents\Claude\Projects\PraxiQuest`
 4. Tu verras tous les fichiers en attente
 5. Bas-gauche : message « Initial commit » → **Commit to main**
 6. Bouton **Publish repository** en haut → **Private** → **Publish repository**
@@ -56,7 +56,7 @@ https://github.com/signup — gratuit, 2 min.
 Sur la page de ton dépôt GitHub :
 
 1. Clique l'onglet **Actions** (en haut)
-2. Tu verras un workflow nommé **Build PraxiTests Release Zip** en cours (rond jaune qui tourne)
+2. Tu verras un workflow nommé **Build PraxiQuest Release Zip** en cours (rond jaune qui tourne)
 3. Attends ~3 à 5 minutes
 4. Quand le rond passe en vert ✓ : le build est terminé
 
@@ -67,9 +67,9 @@ Sur la page de ton dépôt GitHub :
 ## Étape 2 — Télécharge le zip généré
 
 1. Sur GitHub → onglet **Actions** → clique sur le workflow réussi (rond vert)
-2. En bas de la page, section **Artifacts** : clique sur **praxitests-XXXXXXXX-YYYYYYY**
+2. En bas de la page, section **Artifacts** : clique sur **praxiquest-XXXXXXXX-YYYYYYY**
 3. Le zip se télécharge sur ton ordinateur (~50 Mo)
-4. **Décompresse-le** : tu obtiens un fichier `praxitests-XXXXXXXX-YYYYYYY.zip` (oui, GitHub zippe le zip — c'est normal)
+4. **Décompresse-le** : tu obtiens un fichier `praxiquest-XXXXXXXX-YYYYYYY.zip` (oui, GitHub zippe le zip — c'est normal)
 
 > Tu obtiens donc 2 zips imbriqués. Le **vrai** zip à uploader est celui à l'intérieur.
 
@@ -79,7 +79,7 @@ Pour une version finale propre :
 
 1. Sur GitHub → page du dépôt → bouton **Create a new release** (à droite)
 2. Tag : `v1.0.0`
-3. Title : `PraxiTests 1.0.0`
+3. Title : `PraxiQuest 1.0.0`
 4. **Publish release**
 5. Le workflow refait le build et **attache le zip directement à la release** — téléchargeable en 1 clic depuis la page Releases.
 
@@ -99,7 +99,7 @@ Connecte-toi à **OVH Manager** (https://www.ovh.com/manager/) :
 
 → **Bases de données** → **Créer une base** :
 - Type : `MySQL Privée`
-- Nom : `praxitests` (ou `mondomaine_praxi`)
+- Nom : `praxiquest` (ou `mondomaine_praxi`)
 - Mot de passe : génère 16 caractères
 
 > **Note bien l'hôte** affiché ensuite : c'est `XXXX.mysql.db` (pas `localhost`). Tu en auras besoin à l'étape 4.
@@ -107,7 +107,7 @@ Connecte-toi à **OVH Manager** (https://www.ovh.com/manager/) :
 #### c) Crée un sous-domaine (recommandé)
 
 → **Domaines** → ton domaine → **Sous-domaines** → **Ajouter** :
-- Sous-domaine : `praxitests` → final URL `https://praxitests.tonsite.fr`
+- Sous-domaine : `praxiquest` → final URL `https://praxiquest.tonsite.fr`
 - **Cible / dossier racine** : laisse vide pour l'instant (à modifier plus tard)
 
 → Active aussi **SSL gratuit Let's Encrypt** (case à cocher).
@@ -134,20 +134,20 @@ OVH Manager → **Hébergements** → ton hébergement → onglet **FTP-SSH** :
 ### 3.4 Upload
 
 1. Côté droit de FileZilla : navigue dans `/www/` (la racine de tes sites OVH)
-2. Crée un dossier `praxitests` (clic-droit → **Créer un dossier**)
-3. Entre dans `/www/praxitests/`
+2. Crée un dossier `praxiquest` (clic-droit → **Créer un dossier**)
+3. Entre dans `/www/praxiquest/`
 4. Côté gauche : ouvre le dossier où tu as **décompressé le zip GitHub** (le vrai contenu, pas le zip de zip)
 5. **Sélectionne TOUT** (Ctrl+A) → drag & drop vers la droite
 6. ⚠ **Patience** : 50 Mo + ~3000 fichiers via FTP = **15 à 30 minutes**
 
 > Pendant l'upload, tu peux préparer l'étape 4 (compte admin, etc.).
 
-### 3.5 Configure le sous-domaine sur `praxitests/public`
+### 3.5 Configure le sous-domaine sur `praxiquest/public`
 
 Une fois l'upload **terminé** :
 
-OVH Manager → **Multisite** → trouve ton sous-domaine `praxitests.tonsite.fr` → **Modifier** :
-- **Dossier racine** : `praxitests/public` (très important — pas `praxitests/` mais `praxitests/public`)
+OVH Manager → **Multisite** → trouve ton sous-domaine `praxiquest.tonsite.fr` → **Modifier** :
+- **Dossier racine** : `praxiquest/public` (très important — pas `praxiquest/` mais `praxiquest/public`)
 - **Valider**
 
 → Attends ~1 min que la config soit prise en compte.
@@ -156,7 +156,7 @@ OVH Manager → **Multisite** → trouve ton sous-domaine `praxitests.tonsite.fr
 
 ## Étape 4 — Lance l'installeur web
 
-1. Ouvre dans ton navigateur : `https://praxitests.tonsite.fr/install.php`
+1. Ouvre dans ton navigateur : `https://praxiquest.tonsite.fr/install.php`
 2. Tu vois la page **Bienvenue** → clique **Commencer**
 3. **Étape 1 — Vérification système** : tout doit être ✓. Si non, vérifie permissions (étape 5 ci-dessous).
 4. **Étape 2 — Base de données** :
@@ -168,13 +168,13 @@ OVH Manager → **Multisite** → trouve ton sous-domaine `praxitests.tonsite.fr
    - Mot de passe : pareil
    - **Tester la connexion** → ✓
 5. **Étape 3 — Compte admin** : ton nom, ton email, mot de passe fort
-6. **Étape 4 — Marque & URL** : nom plateforme, URL = `https://praxitests.tonsite.fr`
+6. **Étape 4 — Marque & URL** : nom plateforme, URL = `https://praxiquest.tonsite.fr`
 7. **Étape 5 — SMTP** : si tu as Mailgun/Brevo/etc., remplis. Sinon laisse vide pour l'instant.
 8. **Étape 6 — Licence** : laisse vide
 9. **Étape 7 — Lancer l'installation** → patience ~30 secondes
 10. **Page « Installation terminée »** ✓
 
-Tu peux te connecter sur `https://praxitests.tonsite.fr/login`.
+Tu peux te connecter sur `https://praxiquest.tonsite.fr/login`.
 
 ---
 
@@ -202,7 +202,7 @@ Quand une nouvelle version sort :
 3. Sauvegarde ton fichier `.env` actuel (download via FileZilla)
 4. Upload le nouveau contenu via FileZilla (écrase l'ancien)
 5. Re-upload ton `.env`
-6. Ouvre `https://praxitests.tonsite.fr/install.php?force=1` → l'installeur détecte l'install existante et lance juste les nouvelles migrations.
+6. Ouvre `https://praxiquest.tonsite.fr/install.php?force=1` → l'installeur détecte l'install existante et lance juste les nouvelles migrations.
 
 ---
 
@@ -222,19 +222,19 @@ Quand une nouvelle version sort :
 
 → Vérifie permissions (étape 5).
 → Vérifie PHP 8.2 actif (étape 3.1.a).
-→ Vérifie que le sous-domaine pointe bien sur `praxitests/public` (pas `praxitests/`).
+→ Vérifie que le sous-domaine pointe bien sur `praxiquest/public` (pas `praxiquest/`).
 
 ### « Class not found »
 
 → Le `vendor/` n'a pas été uploadé entièrement. Re-upload juste le dossier `vendor/`.
 
-### Sous-domaine retourne « Index of /praxitests »
+### Sous-domaine retourne « Index of /praxiquest »
 
-→ Document root pas configuré. Étape 3.5 — doit être `praxitests/public`.
+→ Document root pas configuré. Étape 3.5 — doit être `praxiquest/public`.
 
 ### `npm run build` n'a pas généré `public/build/`
 
-→ Soit le workflow GitHub a échoué, soit c'est dans le zip mais pas uploadé. Vérifie via FileZilla que `praxitests/public/build/` existe.
+→ Soit le workflow GitHub a échoué, soit c'est dans le zip mais pas uploadé. Vérifie via FileZilla que `praxiquest/public/build/` existe.
 
 ---
 

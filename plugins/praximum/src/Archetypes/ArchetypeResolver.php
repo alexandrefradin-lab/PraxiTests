@@ -18,8 +18,12 @@ class ArchetypeResolver
     public static function map(): array
     {
         if (self::$map === null) {
+            $path = __DIR__ . '/../Data/archetypes.json';
+            if (!file_exists($path)) {
+                throw new \RuntimeException("ArchetypeResolver: fichier introuvable : {$path}");
+            }
             self::$map = json_decode(
-                file_get_contents(__DIR__ . '/../Data/archetypes.json'),
+                file_get_contents($path),
                 true
             ) ?: [];
         }
@@ -64,11 +68,3 @@ class ArchetypeResolver
             }
         }
         return $best;
-    }
-
-    /** Retourne tous les archétypes (utile pour admin / catalogue). */
-    public static function all(): array
-    {
-        return array_values(self::map());
-    }
-}

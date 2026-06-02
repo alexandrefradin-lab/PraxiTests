@@ -13,7 +13,13 @@ class LeadController extends Controller
     {
         $q = Lead::query()->latest();
 
-        if ($request->filled('status')) $q->where('status', $request->string('status'));
+        if ($request->filled('status')) {
+            $validStatuses = ['new', 'contacted', 'qualified', 'converted', 'lost'];
+            $statusFilter = $request->string('status')->toString();
+            if (in_array($statusFilter, $validStatuses, true)) {
+                $q->where('status', $statusFilter);
+            }
+        }
         if ($request->filled('search')) {
             $s = $request->string('search');
             $q->where(fn ($x) => $x->where('email', 'like', "%{$s}%")->orWhere('first_name', 'like', "%{$s}%")->orWhere('last_name', 'like', "%{$s}%"));
@@ -39,13 +45,4 @@ class LeadController extends Controller
         return back();
     }
 
-    public function destroy(Lead $lead)
-    {
-        $lead->delete();
-        return back();
-    }
-
-    public function create() { abort(404); }
-    public function store() { abort(404); }
-    public function edit(Lead $lead) { return $this->show($lead); }
-}
+    public fu

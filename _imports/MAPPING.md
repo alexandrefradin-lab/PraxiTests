@@ -1,10 +1,10 @@
-# Mapping WordPress → PraxiTests
+# Mapping WordPress → PraxiQuest
 
-Référence de conversion des concepts WordPress vers leur équivalent PraxiTests.
+Référence de conversion des concepts WordPress vers leur équivalent PraxiQuest.
 
 ## Manifest
 
-| WordPress (header de plugin PHP) | PraxiTests (`plugin.json`) |
+| WordPress (header de plugin PHP) | PraxiQuest (`plugin.json`) |
 |----------------------------------|-----------------------------|
 | `Plugin Name`                    | `name` |
 | `Version`                        | `version` |
@@ -16,9 +16,9 @@ Référence de conversion des concepts WordPress vers leur équivalent PraxiTest
 
 ## Hooks
 
-| WordPress | PraxiTests |
+| WordPress | PraxiQuest |
 |-----------|------------|
-| `add_action('init', $cb)` | `PluginHooks::action('plugin.booted', $cb)` (ou hook PraxiTests pertinent) |
+| `add_action('init', $cb)` | `PluginHooks::action('plugin.booted', $cb)` (ou hook PraxiQuest pertinent) |
 | `add_filter('the_content', $cb)` | `PluginHooks::filter('xxx.output', $cb)` |
 | `do_action('mon_event', ...)` | `PluginHooks::doAction('plugin_slug.mon_event', ...)` |
 | `apply_filters('mon_filter', $val)` | `PluginHooks::applyFilters('plugin_slug.mon_filter', $val)` |
@@ -28,7 +28,7 @@ Référence de conversion des concepts WordPress vers leur équivalent PraxiTest
 
 ## Stockage
 
-| WordPress | PraxiTests |
+| WordPress | PraxiQuest |
 |-----------|------------|
 | Custom post type (`register_post_type`) | Modèle Eloquent + migration dédiée |
 | Custom taxonomy | Table relation many-to-many |
@@ -40,7 +40,7 @@ Référence de conversion des concepts WordPress vers leur équivalent PraxiTest
 
 ## Routes / endpoints
 
-| WordPress | PraxiTests |
+| WordPress | PraxiQuest |
 |-----------|------------|
 | Shortcode `[mon_test]` | Route Inertia + page Vue |
 | `register_rest_route` | Route Laravel `routes/plugin.php` |
@@ -49,7 +49,7 @@ Référence de conversion des concepts WordPress vers leur équivalent PraxiTest
 
 ## Frontend
 
-| WordPress | PraxiTests |
+| WordPress | PraxiQuest |
 |-----------|------------|
 | Templates PHP | Composants Vue 3 (`<script setup>`) |
 | jQuery | Vue reactivity (`ref`, `computed`) |
@@ -59,7 +59,7 @@ Référence de conversion des concepts WordPress vers leur équivalent PraxiTest
 
 ## Auth
 
-| WordPress | PraxiTests |
+| WordPress | PraxiQuest |
 |-----------|------------|
 | `current_user_can('edit_posts')` | `auth()->user()->can('edit:tests')` (Spatie) |
 | Capabilities | Permissions Spatie |
@@ -68,7 +68,7 @@ Référence de conversion des concepts WordPress vers leur équivalent PraxiTest
 
 ## Mail
 
-| WordPress | PraxiTests |
+| WordPress | PraxiQuest |
 |-----------|------------|
 | `wp_mail` | `Mail::to($user)->send(new XxxMail())` |
 | Hook `wp_mail_from` | Config `MAIL_FROM_ADDRESS` |
@@ -84,10 +84,10 @@ Référence de conversion des concepts WordPress vers leur équivalent PraxiTest
 - Logique d'invitation / tokens
 
 ### À **adapter**
-- Styles : porter sur design system PraxiTests (`pt-card`, `pt-btn-primary`, `pt-progress-fill`)
+- Styles : porter sur design system PraxiQuest (`pt-card`, `pt-btn-primary`, `pt-progress-fill`)
 - Couleurs : remplacer par variables `--pt-primary`, `--pt-secondary`, ou gradient indigo→emerald
 - Polices : utiliser Inter (par défaut)
-- Boutons / inputs : classes Tailwind PraxiTests
+- Boutons / inputs : classes Tailwind PraxiQuest
 
 ### À **jeter**
 - Code spécifique WordPress (hooks WP, custom post types redondants)

@@ -4,6 +4,7 @@ namespace Praxis\Plugins\PraxiMum\Scoring;
 
 use App\Models\TestAttempt;
 use Praxis\Core\TestEngine\Contracts\ScoringEngineContract;
+use Praxis\Core\TestEngine\NormInterpreter;
 use Praxis\Plugins\PraxiMum\Archetypes\ArchetypeResolver;
 use Praxis\Plugins\PraxiMum\Data\Catalog;
 
@@ -52,8 +53,8 @@ class BigFiveScoringEngine implements ScoringEngineContract
                 $scoresFacette[$fk] = ['brut' => 0, 'T' => 50, 'pct' => 50, 'niveau' => 'moyen'];
                 continue;
             }
-            $norm = $normes[$fk] ?? ['mean' => 10.0, 'sd' => 2.5];
-            $T = $this->computeT($brut, $norm['mean'], $norm['sd']);
+            $norm = $normes[$fk] ?? ['mean' => 10.0, 'std_dev' => 2.5];
+            $T = $this->computeT($brut, $norm['mean'], $norm['std_dev']);
             $scoresFacette[$fk] = [
                 'brut'   => $brut,
                 'T'      => $T,
@@ -89,11 +90,23 @@ class BigFiveScoringEngine implements ScoringEngineContract
             ? (int) round((($dsBrut - $dsCount) / (4 * $dsCount)) * 100)
             : 0;
 
-        $archetype = ArchetypeResolver::resolve($scoresDim);
+        $archetype = ArchetypeResolver::resolve($scoresDim) ?? [
+            'titre'       => 'Profil équilibré',
+            'description' => 'Profil multidimensionnel, adaptable selon les contextes.',
+            'couleur'     => '#6366f1',
+        ];
+
+        // Étalonnage BigFive — percentile calculé directement depuis le T-score
+        // (T-score = already normed: mean=50, sd=10 par définition)
+        $normScores = [];
+        foreach ($scoresDim as $dim => $data) {
+            $normScores[$dim] = NormInterpreter::fromTScore($data['T']);
+        }
 
         return [
             'engine'           => $this->key(),
             'scores_dim'       => $scoresDim,
+            'norm_scores'      => $normScores,
             'scores_facette'   => $scoresFacette,
             'archetype'        => $archetype,
             'desirabilite'     => [
@@ -107,7 +120,7 @@ class BigFiveScoringEngine implements ScoringEngineContract
         ];
     }
 
-    protected function computeT(int $brut, float $mean, float $sd): int
+    protected function computeT(int|float $brut, float $mean, float $sd): int
     {
         if ($sd <= 0) return 50;
         $z = ($brut - $mean) / $sd;
@@ -117,18 +130,7 @@ class BigFiveScoringEngine implements ScoringEngineContract
 
     protected function tToPct(int $T): int
     {
-        // T (20-80) → percentile approximatif (cumulative normal).
-        // Simple: clamp linéaire 20→2, 50→50, 80→98.
         $clamped = max(20, min(80, $T));
-        return (int) round(($clamped - 20) * 100 / 60);
-    }
-
-    protected function niveauT(int $T): string
-    {
-        if ($T < 35)  return 'tres_bas';
-        if ($T < 45)  return 'bas';
-        if ($T <= 55) return 'moyen';
-        if ($T <= 65) return 'haut';
-        return 'tres_haut';
-    }
-}
+        // Utiliser la vraie CDF normale de NormInterpreter (cohérent avec les autres engines)
+        $norm = NormInterpreter::fromTScore($clamped);
+        return (int) round($norm['percentile'] ?? (($clamped - 20) * 100 

@@ -1,6 +1,6 @@
 # `_imports/` — Zone de réception des plugins WordPress
 
-Ce dossier sert à **importer puis convertir** des plugins WordPress existants en plugins PraxiTests natifs.
+Ce dossier sert à **importer puis convertir** des plugins WordPress existants en plugins PraxiQuest natifs.
 
 ## Comment déposer
 
@@ -81,16 +81,16 @@ Si tu n'as pas le temps de remplir ça, je peux **inférer** depuis le code — 
 2. **Analyser** le code (PHP, JS, CSS, manifest WP)
 3. **Extraire** la logique métier (questions, scoring, restitution)
 4. **Générer** dans `plugins/{slug}/` :
-   - `plugin.json` (manifest PraxiTests)
+   - `plugin.json` (manifest PraxiQuest)
    - `PluginServiceProvider.php`
    - Migrations dédiées (questions, scoring config)
    - `ScoringEngine` custom si formule spécifique
-   - Pages Vue avec **design system PraxiTests** appliqué (`pt-card`, `pt-btn-primary`, gradient indigo→emerald, etc.)
-   - Hooks PraxiTests (`attempt.completed`, `jobs.suggested`, ...)
+   - Pages Vue avec **design system PraxiQuest** appliqué (`pt-card`, `pt-btn-primary`, gradient indigo→emerald, etc.)
+   - Hooks PraxiQuest (`attempt.completed`, `jobs.suggested`, ...)
 5. **Tests Pest** : scoring + flow complétion
 6. **Doc d'usage** dans `plugins/{slug}/README.md`
 
-## Mapping WordPress → PraxiTests
+## Mapping WordPress → PraxiQuest
 
 Voir `_imports/MAPPING.md` pour la table de correspondance complète.
 

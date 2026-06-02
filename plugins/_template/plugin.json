@@ -1,0 +1,24 @@
+{
+    "_INSTRUCTIONS": "Copier ce dossier, renommer en plugins/mon-plugin/, chercher+remplacer PLUGIN_SLUG → mon-plugin, PLUGIN_CLASS → MonPlugin, PLUGIN_NAME → Mon Test",
+
+    "slug":             "PLUGIN_SLUG",
+    "name":             "PLUGIN_NAME",
+    "version":          "1.0.0",
+    "author":           "Praxis Accompagnement",
+    "type":             "assessment",
+    "description":      "Description courte du test affichée dans l'admin plugins.",
+    "service_provider": "Praxis\\Plugins\\PLUGIN_CLASS\\PluginServiceProvider",
+    "namespace":        "Praxis\\Plugins\\PLUGIN_CLASS",
+    "permissions":      [],
+
+    "_scoring_engine_key": "PLUGIN_SLUG-scoring",
+    "_result_page":        "PLUGIN_CLASSResult",
+
+    "_checklist": [
+        "1. Renommer ce dossier : plugins/PLUGIN_SLUG/",
+        "2. Remplacer PLUGIN_SLUG, PLUGIN_CLASS, PLUGIN_NAME dans tous les fichiers",
+        "3. Ajouter dans composer.json autoload.psr-4 et autoload.classmap",
+        "4. composer dump-autoload",
+        "5. Aller dans Admin > Plugins > Activer le plugin"
+    ]
+}

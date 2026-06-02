@@ -1,4 +1,4 @@
-# Design system PraxiTests — règles à respecter dans les pages plugin
+# Design system PraxiQuest — règles à respecter dans les pages plugin
 
 > **Tout plugin DOIT utiliser ces tokens, aucune couleur ni police custom.**
 

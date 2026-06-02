@@ -21,11 +21,11 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user()?->only(['id', 'name', 'email', 'locale']),
             ],
             'branding' => [
-                'name'    => config('praxitests.branding.name'),
-                'tagline' => config('praxitests.branding.tagline'),
-                'logo'    => config('praxitests.branding.logo'),
-                'primary_color'   => config('praxitests.branding.primary_color'),
-                'secondary_color' => config('praxitests.branding.secondary_color'),
+                'name'    => config('praxiquest.branding.name'),
+                'tagline' => config('praxiquest.branding.tagline'),
+                'logo'    => config('praxiquest.branding.logo'),
+                'primary_color'   => config('praxiquest.branding.primary_color'),
+                'secondary_color' => config('praxiquest.branding.secondary_color'),
             ],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),

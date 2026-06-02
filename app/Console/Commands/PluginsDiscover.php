@@ -7,7 +7,7 @@ use Praxis\Core\Plugins\PluginRegistry;
 
 class PluginsDiscover extends Command
 {
-    protected $signature = 'praxitests:plugins:discover {--sync : Synchroniser avec la base}';
+    protected $signature = 'praxiquest:plugins:discover {--sync : Synchroniser avec la base}';
     protected $description = 'Découvre les plugins dans /plugins et synchronise leurs manifests';
 
     public function handle(PluginRegistry $registry): int

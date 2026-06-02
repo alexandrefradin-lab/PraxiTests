@@ -24,17 +24,15 @@ class PluginServiceProvider extends AbstractPlugin
         $this->registerActions([
             'attempt.completed' => [Listeners\OnAttemptCompleted::class, 'handle'],
         ]);
+
+        $this->registerFilters([
+            'results.inertia_page' => fn (string $page, $attempt) =>
+                $attempt->test->scoring_engine === 'praximet-riasec' ? 'PraximetResult' : $page,
+        ]);
     }
 
     public function onActivate(): void
     {
         \Artisan::call('migrate', [
             '--path'  => 'plugins/praximet/database/migrations',
-            '--force' => true,
-        ]);
-        \Artisan::call('db:seed', [
-            '--class' => 'Praxis\\Plugins\\PraxiMet\\Database\\Seeders\\RiasecQuestionsSeeder',
-            '--force' => true,
-        ]);
-    }
-}
+            '-

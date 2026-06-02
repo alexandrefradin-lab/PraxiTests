@@ -1,6 +1,9 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
+import { Link } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
+import { Chart, RadialLinearScale, PointElement, LineElement, Filler, Tooltip } from 'chart.js'
+Chart.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip)
 
 const props = defineProps({ attempt: Object, result: Object })
 const scoring = computed(() => props.result?.scoring ?? {})
@@ -19,6 +22,88 @@ const facettesByDim = computed(() => {
     return out
 })
 
+const radarRef = ref(null)
+const facCanvases = {}   // canvas refs par dimension (O/C/E/A/N)
+
+const OCEAN_ORDER = ['O', 'C', 'E', 'A', 'N']
+
+onMounted(async () => {
+    // ── Radar global OCEAN (vue d'ensemble) ───────────────────────────
+    if (radarRef.value) {
+        const d = dims.value
+        const m = metaDim.value
+        const labels = OCEAN_ORDER.map(k => m[k]?.label ?? k)
+        const data   = OCEAN_ORDER.map(k => d[k]?.pct ?? 0)
+        const colors = OCEAN_ORDER.map(k => m[k]?.color ?? '#4F46E5')
+
+        new Chart(radarRef.value, {
+            type: 'radar',
+            data: {
+                labels,
+                datasets: [{
+                    data,
+                    backgroundColor: 'rgba(79, 70, 229, 0.12)',
+                    borderColor: '#4F46E5',
+                    borderWidth: 2,
+                    pointBackgroundColor: colors,
+                    pointBorderColor: colors,
+                    pointRadius: 5,
+                }],
+            },
+            options: {
+                scales: {
+                    r: {
+                        beginAtZero: true, min: 0, max: 100,
+                        ticks: { stepSize: 25, font: { size: 10 } },
+                        pointLabels: { font: { size: 12 } },
+                    },
+                },
+                plugins: { legend: { display: false } },
+            },
+        })
+    }
+
+    // ── Radars par dimension — 1 par domaine (O/C/E/A/N) ──────────────
+    await nextTick()
+    Object.entries(facettesByDim.value).forEach(([dimKey, facs]) => {
+        const canvas = facCanvases[dimKey]
+        if (!canvas) return
+        const color = metaDim.value[dimKey]?.color ?? '#4F46E5'
+        // Hex alpha 20 % : si color est #RRGGBB on ajoute '33'
+        const bg = color + (color.length === 7 ? '33' : '')
+
+        new Chart(canvas, {
+            type: 'radar',
+            data: {
+                labels: facs.map(f => f.label),
+                datasets: [{
+                    data: facs.map(f => f.pct ?? 50),
+                    backgroundColor: bg,
+                    borderColor: color,
+                    borderWidth: 2,
+                    pointBackgroundColor: color,
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 1.5,
+                    pointRadius: 4,
+                }],
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    r: {
+                        min: 0, max: 100,
+                        ticks: { display: false },
+                        grid: { color: 'rgba(0,0,0,0.07)' },
+                        angleLines: { color: 'rgba(0,0,0,0.07)' },
+                        pointLabels: { font: { size: 10 }, padding: 6 },
+                    },
+                },
+                plugins: { legend: { display: false } },
+            },
+        })
+    })
+})
+
 const niveauLabel = {
     tres_bas: 'Très bas',  bas: 'Bas',  moyen: 'Moyen',
     haut: 'Élevé',         tres_haut: 'Très élevé',
@@ -33,6 +118,14 @@ const niveauColor = {
     <CandidateLayout>
         <Head title="Tes résultats — PraxiMum" />
 
+        <!-- FE-07 — guard result null -->
+        <template v-if="!result">
+            <div class="pt-card p-8 text-center text-slate-500">
+                <p>Résultats non disponibles — veuillez réessayer dans quelques instants.</p>
+                <Link :href="route('history')" class="pt-btn-ghost mt-4 inline-block text-sm">← Mon historique</Link>
+            </div>
+        </template>
+        <template v-if="result">
         <div class="max-w-4xl mx-auto">
             <div class="text-center mb-12">
                 <span class="pt-badge">PraxiMum · Big Five OCEAN</span>
@@ -61,55 +154,4 @@ const niveauColor = {
                     <div class="flex flex-wrap gap-2 mt-6">
                         <span v-for="trait in archetype.traits" :key="trait" class="bg-white/20 backdrop-blur text-white text-xs font-medium px-3 py-1 rounded-full">{{ trait }}</span>
                     </div>
-                    <p v-if="archetype.distance > 0" class="text-xs text-white/60 mt-4">Profil le plus proche · combinaison {{ archetype.matched_key }}</p>
-                </div>
-            </section>
-
-            <!-- Alerte DS -->
-            <section v-if="scoring.desirabilite?.alert" class="pt-card p-6 mb-8 border-l-4 border-amber-400 bg-amber-50">
-                <p class="font-semibold text-amber-900">Désirabilité sociale élevée ({{ scoring.desirabilite.pct }}%)</p>
-                <p class="text-sm text-amber-800 mt-1">Tes réponses pourraient refléter une image idéalisée de toi-même. Considère les résultats avec ce filtre.</p>
-            </section>
-
-            <!-- 5 dimensions OCEAN -->
-            <section class="pt-card p-8 mb-8">
-                <h2 class="text-xl font-semibold mb-6">Tes 5 dimensions OCEAN</h2>
-                <div class="space-y-5">
-                    <div v-for="(d, key) in dims" :key="key">
-                        <div class="flex justify-between items-baseline mb-1">
-                            <div>
-                                <span class="font-semibold" :style="{ color: metaDim[key]?.color }">{{ d.label }}</span>
-                                <span class="text-xs text-slate-500 ml-2">{{ metaDim[key]?.court }}</span>
-                            </div>
-                            <span class="text-xs font-medium" :style="{ color: niveauColor[d.niveau] }">{{ niveauLabel[d.niveau] }} · T={{ d.T }}</span>
-                        </div>
-                        <div class="pt-progress-track">
-                            <div class="h-full rounded-full transition-all duration-700" :style="{ width: d.pct + '%', backgroundColor: metaDim[key]?.color }"></div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Facettes par dimension -->
-            <section v-for="(facs, dimKey) in facettesByDim" :key="dimKey" class="pt-card p-8 mb-6">
-                <h2 class="text-xl font-semibold mb-1" :style="{ color: metaDim[dimKey]?.color }">{{ metaDim[dimKey]?.label }}</h2>
-                <p class="text-sm text-slate-500 mb-6">{{ metaDim[dimKey]?.court }}</p>
-                <div class="grid md:grid-cols-2 gap-4">
-                    <div v-for="f in facs" :key="f.key" class="border border-slate-100 rounded-xl p-4">
-                        <div class="flex justify-between items-baseline mb-2">
-                            <span class="font-medium text-sm">{{ f.label }}</span>
-                            <span class="text-xs" :style="{ color: niveauColor[f.niveau] }">T={{ f.T }} · {{ niveauLabel[f.niveau] }}</span>
-                        </div>
-                        <div class="pt-progress-track">
-                            <div class="h-full rounded-full transition-all duration-700" :style="{ width: f.pct + '%', backgroundColor: metaDim[dimKey]?.color }"></div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <div class="text-center mt-12">
-                <a :href="route('results.pdf', attempt.id)" class="pt-btn-ghost">Télécharger en PDF</a>
-            </div>
-        </div>
-    </CandidateLayout>
-</template>
+                    <p v-if="archetype.distance > 0" class="text-xs text-white/60 mt-4">Prof

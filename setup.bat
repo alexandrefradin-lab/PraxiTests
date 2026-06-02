@@ -1,12 +1,12 @@
 @echo off
 REM ==========================================
-REM PraxiTests — Setup Windows
+REM PraxiQuest — Setup Windows
 REM ==========================================
 setlocal enabledelayedexpansion
 
 echo.
 echo ========================================
-echo  PraxiTests - Installation locale
+echo  PraxiQuest - Installation locale
 echo ========================================
 echo.
 
@@ -82,10 +82,10 @@ if errorlevel 1 goto :error
 
 echo.
 echo --- Decouverte et activation des plugins ---
-call php artisan praxitests:plugins:discover --sync
+call php artisan praxiquest:plugins:discover --sync
 for %%P in (praximet praxivaleurs praxicare praxiemo praximum) do (
     echo Activation %%P...
-    call php artisan praxitests:plugins:activate %%P
+    call php artisan praxiquest:plugins:activate %%P
 )
 
 echo.
@@ -96,7 +96,7 @@ echo.
 echo ========================================
 echo  Installation terminee !
 echo  Demarrage : setup.bat run
-echo  Login admin : admin@praxitests.local / changeme123
+echo  Login admin : admin@praxiquest.local / changeme123
 echo ========================================
 echo.
 exit /b 0

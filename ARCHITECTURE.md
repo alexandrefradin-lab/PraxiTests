@@ -1,4 +1,4 @@
-# PraxiTests — Architecture
+# PraxiQuest — Architecture
 
 > SaaS propriétaire d'évaluation et orientation. Plugin-first. IA + neuromarketing + gamification.
 
@@ -20,7 +20,7 @@
 ## 2. Arborescence projet
 
 ```
-praxitests/
+praxiquest/
 ├── app/
 │   ├── Console/Commands/         # CLI (plugin:install, etc.)
 │   ├── Core/                     # Code core (séparé du framework)
@@ -41,7 +41,7 @@ praxitests/
 │   └── Events/
 ├── bootstrap/
 ├── config/
-│   ├── praxitests.php           # Config principale
+│   ├── praxiquest.php           # Config principale
 │   ├── plugins.php              # Config plugin system
 │   ├── ai.php                   # Drivers IA
 │   └── gamification.php
@@ -124,7 +124,7 @@ audit_logs (id, user_id, action, resource, metadata, created_at)
   "version": "1.0.0",
   "author": "Praxis",
   "type": "test",
-  "requires": { "praxitests": ">=1.0.0" },
+  "requires": { "praxiquest": ">=1.0.0" },
   "provides": ["test", "scoring"],
   "service_provider": "Praxis\\TestMbti\\PluginServiceProvider",
   "permissions": ["read:profiles", "write:results"],

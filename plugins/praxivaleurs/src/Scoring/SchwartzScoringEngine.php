@@ -4,6 +4,7 @@ namespace Praxis\Plugins\PraxiValeurs\Scoring;
 
 use App\Models\TestAttempt;
 use Praxis\Core\TestEngine\Contracts\ScoringEngineContract;
+use Praxis\Core\TestEngine\NormInterpreter;
 use Praxis\Plugins\PraxiValeurs\Data\Values;
 
 class SchwartzScoringEngine implements ScoringEngineContract
@@ -52,9 +53,16 @@ class SchwartzScoringEngine implements ScoringEngineContract
         arsort($finals);
         $top5 = array_slice($finals, 0, 5, true);
 
+        // Étalonnage par valeur
+        $normScores = [];
+        foreach ($finals as $key => $score) {
+            $normScores[$key] = NormInterpreter::enrich('praxivaleurs-schwartz', $key, $score);
+        }
+
         return [
             'engine'        => $this->key(),
             'dimensions'    => $finals,
+            'norm_scores'   => $normScores,
             'top5'          => $top5,
             'meta'          => $dims,
             'likert_norm'   => $likertNorm,

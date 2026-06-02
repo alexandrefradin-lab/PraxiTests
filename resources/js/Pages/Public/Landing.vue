@@ -2,7 +2,7 @@
 import { Link, usePage } from '@inertiajs/vue3'
 import { computed } from 'vue'
 
-const branding = computed(() => usePage().props.branding ?? { name: 'PraxiTests' })
+const branding = computed(() => usePage().props.branding ?? { name: 'PraxiQuest' })
 
 const pillars = [
     {

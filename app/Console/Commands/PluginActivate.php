@@ -7,7 +7,7 @@ use Praxis\Core\Plugins\PluginManager;
 
 class PluginActivate extends Command
 {
-    protected $signature = 'praxitests:plugins:activate {slug}';
+    protected $signature = 'praxiquest:plugins:activate {slug}';
     protected $description = 'Active un plugin';
 
     public function handle(PluginManager $manager): int

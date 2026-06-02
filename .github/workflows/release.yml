@@ -1,4 +1,4 @@
-name: Build PraxiTests Release Zip
+name: Build PraxiQuest Release Zip
 
 on:
   push:
@@ -70,27 +70,27 @@ jobs:
       - name: Create zip
         run: |
           cd dist
-          zip -qr "../praxitests-${{ steps.version.outputs.version }}.zip" .
+          zip -qr "../praxiquest-${{ steps.version.outputs.version }}.zip" .
           cd ..
-          ls -lh praxitests-*.zip
+          ls -lh praxiquest-*.zip
 
       - name: Upload zip artifact (téléchargeable depuis GitHub Actions)
         uses: actions/upload-artifact@v4
         with:
-          name: praxitests-${{ steps.version.outputs.version }}
-          path: praxitests-${{ steps.version.outputs.version }}.zip
+          name: praxiquest-${{ steps.version.outputs.version }}
+          path: praxiquest-${{ steps.version.outputs.version }}.zip
           retention-days: 30
 
       - name: Create GitHub Release (si tag)
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: praxitests-${{ steps.version.outputs.version }}.zip
-          name: PraxiTests ${{ steps.version.outputs.version }}
+          files: praxiquest-${{ steps.version.outputs.version }}.zip
+          name: PraxiQuest ${{ steps.version.outputs.version }}
           body: |
             ## Distribution prête pour OVH
 
-            Téléchargez `praxitests-${{ steps.version.outputs.version }}.zip` ci-dessous, uploadez sur votre hébergement, puis ouvrez `/install.php`.
+            Téléchargez `praxiquest-${{ steps.version.outputs.version }}.zip` ci-dessous, uploadez sur votre hébergement, puis ouvrez `/install.php`.
 
             Voir [DEPLOY-OVH.md](DEPLOY-OVH.md) pour le guide complet.
           draft: false

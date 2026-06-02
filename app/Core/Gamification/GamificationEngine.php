@@ -14,14 +14,27 @@ class GamificationEngine
 
     public function awardXp(User $user, int $amount, string $reason, ?Test $test = null, array $context = []): GamificationProgress
     {
-        $progress = GamificationProgress::firstOrCreate(
+        // S'assurer que la ligne existe
+        GamificationProgress::firstOrCreate(
             ['user_id' => $user->id, 'test_id' => $test?->id],
             ['xp_total' => 0, 'level' => 1]
         );
 
-        $progress->xp_total = max(0, $progress->xp_total + $amount);
-        $progress->level    = $this->levelFromXp($progress->xp_total);
-        $progress->save();
+        // Incrément atomique (pas de race condition)
+        GamificationProgress::where('user_id', $user->id)
+            ->where('test_id', $test?->id)
+            ->when($amount >= 0, fn ($q) => $q->increment('xp_total', $amount))
+            ->when($amount < 0, fn ($q) => $q->decrement('xp_total', abs($amount)));
+
+        // Recharger pour avoir la valeur à jour et recalculer le level
+        $progress = GamificationProgress::where('user_id', $user->id)
+            ->where('test_id', $test?->id)
+            ->firstOrFail();
+        $newLevel = $this->levelFromXp($progress->xp_total);
+        if ($newLevel !== $progress->level) {
+            $progress->update(['level' => $newLevel]);
+            $progress->refresh();
+        }
 
         \DB::table('xp_events')->insert([
             'user_id' => $user->id,
@@ -40,7 +53,7 @@ class GamificationEngine
 
     public function levelFromXp(int $xp): int
     {
-        $levels = config('gamification.levels');
+        $levels = config('gamification.levels') ?? [];
         $current = 1;
         foreach ($levels as $level) {
             if ($xp >= $level['xp_required']) {
@@ -92,16 +105,4 @@ class GamificationEngine
     public function unlockInsight(User $user, Test $test, string $insightKey, mixed $payload = null): void
     {
         $progress = GamificationProgress::firstOrCreate(
-            ['user_id' => $user->id, 'test_id' => $test->id],
-            ['xp_total' => 0, 'level' => 1]
-        );
-
-        $insights = $progress->insights_unlocked ?? [];
-        if (!isset($insights[$insightKey])) {
-            $insights[$insightKey] = ['unlocked_at' => now()->toIso8601String(), 'payload' => $payload];
-            $progress->update(['insights_unlocked' => $insights]);
-            $this->awardXp($user, config('gamification.xp.unlock_insight', 25), "insight:{$insightKey}", $test);
-            PluginHooks::doAction('gamification.insight_unlocked', $user, $test, $insightKey, $payload);
-        }
-    }
-}
+            ['use

@@ -61,25 +61,21 @@ class Catalog
         ];
     }
 
-    /** Normes population française (mean/sd) — issu du WP plugin v1.4.1. */
+    /** Normes population française (mean/std_dev) — issu du WP plugin v1.4.1. */
     public static function normes(): array
     {
         return [
-            'O1_FAN' => ['mean' => 9.8,  'sd' => 2.7], 'O2_EST' => ['mean' => 10.4, 'sd' => 2.6],
-            'O3_SEN' => ['mean' => 10.9, 'sd' => 2.4], 'O4_ACT' => ['mean' => 9.5,  'sd' => 2.6],
-            'O5_IDE' => ['mean' => 10.1, 'sd' => 2.9], 'O6_VAL' => ['mean' => 9.1,  'sd' => 2.7],
-            'C1_COM' => ['mean' => 11.4, 'sd' => 2.4], 'C2_ORD' => ['mean' => 9.8,  'sd' => 2.8],
-            'C3_DEV' => ['mean' => 11.6, 'sd' => 2.3], 'C4_REA' => ['mean' => 10.7, 'sd' => 2.5],
-            'C5_DIS' => ['mean' => 10.2, 'sd' => 2.7], 'C6_DEL' => ['mean' => 9.7,  'sd' => 2.6],
-            'E1_CHA' => ['mean' => 11.0, 'sd' => 2.4], 'E2_GRE' => ['mean' => 9.4,  'sd' => 2.8],
-            'E3_ASS' => ['mean' => 9.6,  'sd' => 2.7], 'E4_ACT' => ['mean' => 10.1, 'sd' => 2.6],
-            'E5_STI' => ['mean' => 8.2,  'sd' => 2.8], 'E6_EMO' => ['mean' => 10.7, 'sd' => 2.5],
-            'A1_CON' => ['mean' => 10.8, 'sd' => 2.5], 'A2_DRO' => ['mean' => 11.2, 'sd' => 2.4],
-            'A3_ALT' => ['mean' => 11.6, 'sd' => 2.3], 'A4_COM' => ['mean' => 9.4,  'sd' => 2.8],
-            'A5_MOD' => ['mean' => 9.8,  'sd' => 2.7], 'A6_SEN' => ['mean' => 11.2, 'sd' => 2.4],
-            'N1_ANX' => ['mean' => 9.2,  'sd' => 2.7], 'N2_HOS' => ['mean' => 7.8,  'sd' => 2.6],
-            'N3_DEP' => ['mean' => 7.9,  'sd' => 2.9], 'N4_CON' => ['mean' => 8.6,  'sd' => 2.9],
-            'N5_IMP' => ['mean' => 9.4,  'sd' => 2.7], 'N6_VUL' => ['mean' => 7.5,  'sd' => 2.8],
-        ];
-    }
-}
+            'O1_FAN' => ['mean' => 9.8,  'std_dev' => 2.7], 'O2_EST' => ['mean' => 10.4, 'std_dev' => 2.6],
+            'O3_SEN' => ['mean' => 10.9, 'std_dev' => 2.4], 'O4_ACT' => ['mean' => 9.5,  'std_dev' => 2.6],
+            'O5_IDE' => ['mean' => 10.1, 'std_dev' => 2.9], 'O6_VAL' => ['mean' => 9.1,  'std_dev' => 2.7],
+            'C1_COM' => ['mean' => 11.4, 'std_dev' => 2.4], 'C2_ORD' => ['mean' => 9.8,  'std_dev' => 2.8],
+            'C3_DEV' => ['mean' => 11.6, 'std_dev' => 2.3], 'C4_REA' => ['mean' => 10.7, 'std_dev' => 2.5],
+            'C5_DIS' => ['mean' => 10.2, 'std_dev' => 2.7], 'C6_DEL' => ['mean' => 9.7,  'std_dev' => 2.6],
+            'E1_CHA' => ['mean' => 11.0, 'std_dev' => 2.4], 'E2_GRE' => ['mean' => 9.4,  'std_dev' => 2.8],
+            'E3_ASS' => ['mean' => 9.6,  'std_dev' => 2.7], 'E4_ACT' => ['mean' => 10.1, 'std_dev' => 2.6],
+            'E5_STI' => ['mean' => 8.2,  'std_dev' => 2.8], 'E6_EMO' => ['mean' => 10.7, 'std_dev' => 2.5],
+            'A1_CON' => ['mean' => 10.8, 'std_dev' => 2.5], 'A2_DRO' => ['mean' => 11.2, 'std_dev' => 2.4],
+            'A3_ALT' => ['mean' => 11.6, 'std_dev' => 2.3], 'A4_COM' => ['mean' => 9.4,  'std_dev' => 2.8],
+            'A5_MOD' => ['mean' => 9.8,  'std_dev' => 2.7], 'A6_SEN' => ['mean' => 11.2, 'std_dev' => 2.4],
+            'N1_ANX' => ['mean' => 9.2,  'std_dev' => 2.7], 'N2_HOS' => ['mean' => 7.8,  'std_dev' => 2.6],
+            'N3_DEP' => ['mean' => 7.9,  'std_dev' => 2.9], 'N4_CON' => ['mean' 

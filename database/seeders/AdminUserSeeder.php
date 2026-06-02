@@ -10,9 +10,9 @@ class AdminUserSeeder extends Seeder
 {
     public function run(): void
     {
-        $email    = env('PRAXITESTS_ADMIN_EMAIL', 'admin@praxitests.local');
-        $password = env('PRAXITESTS_ADMIN_PASSWORD', 'changeme123');
-        $name     = env('PRAXITESTS_ADMIN_NAME', 'Administrateur');
+        $email    = env('PRAXIQUEST_ADMIN_EMAIL', 'admin@praxiquest.local');
+        $password = env('PRAXIQUEST_ADMIN_PASSWORD', 'changeme123');
+        $name     = env('PRAXIQUEST_ADMIN_NAME', 'Administrateur');
 
         $admin = User::firstOrCreate(
             ['email' => $email],

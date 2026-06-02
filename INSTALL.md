@@ -1,4 +1,4 @@
-# Guide d'installation — PraxiTests
+# Guide d'installation — PraxiQuest
 
 ## 1. Prérequis serveur
 
@@ -19,16 +19,16 @@
 ### 2.1 Préparer le serveur
 
 ```bash
-# Apache : vhost pointant vers /chemin/praxitests/public
-# Nginx : root /chemin/praxitests/public; try_files $uri $uri/ /index.php?$query_string;
+# Apache : vhost pointant vers /chemin/praxiquest/public
+# Nginx : root /chemin/praxiquest/public; try_files $uri $uri/ /index.php?$query_string;
 ```
 
 ### 2.2 Permissions
 
 ```bash
-chown -R www-data:www-data praxitests
-chmod -R 755 praxitests
-chmod -R 775 praxitests/storage praxitests/bootstrap/cache
+chown -R www-data:www-data praxiquest
+chmod -R 755 praxiquest
+chmod -R 775 praxiquest/storage praxiquest/bootstrap/cache
 ```
 
 ### 2.3 Lancer l'assistant
@@ -48,8 +48,8 @@ Ouvre `https://ton-domaine.com/install.php` puis suis les 7 étapes :
 ## 3. Installation pour développement
 
 ```bash
-git clone https://github.com/praxis/praxitests.git
-cd praxitests
+git clone https://github.com/praxis/praxiquest.git
+cd praxiquest
 composer install
 npm install
 cp .env.example .env
@@ -100,7 +100,7 @@ rm storage/app/.installed
 
 ```bash
 # Base de données
-mysqldump praxitests > backup.sql
+mysqldump praxiquest > backup.sql
 
 # Storage (CV, exports)
 tar czf storage-backup.tar.gz storage/app

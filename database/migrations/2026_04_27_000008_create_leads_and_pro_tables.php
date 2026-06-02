@@ -30,7 +30,7 @@ return new class extends Migration {
             $table->string('role')->default('member'); // owner, admin, member, viewer
             $table->timestamps();
 
-            $table->unique(['professional_account_id', 'user_id']);
+            $table->unique(['professional_account_id', 'user_id'], 'pro_account_users_unique');
         });
 
         Schema::create('leads', function (Blueprint $table) {

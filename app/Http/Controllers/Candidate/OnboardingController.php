@@ -20,19 +20,19 @@ class OnboardingController extends Controller
 
         return Inertia::render('Candidate/Onboarding', [
             'profile'  => $profile,
-            'statuses' => config('praxitests.profile.statuses'),
-            'cv_max_size_kb'   => config('praxitests.profile.cv_max_size_kb'),
-            'cv_allowed_mimes' => config('praxitests.profile.cv_allowed_mimes'),
+            'statuses' => config('praxiquest.profile.statuses'),
+            'cv_max_size_kb'   => config('praxiquest.profile.cv_max_size_kb'),
+            'cv_allowed_mimes' => config('praxiquest.profile.cv_allowed_mimes'),
         ]);
     }
 
     public function store(Request $request, CvExtractionService $cv): RedirectResponse
     {
-        $maxKb = config('praxitests.profile.cv_max_size_kb');
-        $mimes = implode(',', config('praxitests.profile.cv_allowed_mimes'));
+        $maxKb = config('praxiquest.profile.cv_max_size_kb');
+        $mimes = implode(',', config('praxiquest.profile.cv_allowed_mimes'));
 
         $data = $request->validate([
-            'status'        => ['required', 'in:' . implode(',', array_keys(config('praxitests.profile.statuses')))],
+            'status'        => ['required', 'in:' . implode(',', array_keys(config('praxiquest.profile.statuses')))],
             'status_since'  => ['required', 'date', 'before_or_equal:today'],
             'current_role'  => ['nullable', 'string', 'max:120'],
             'industry'      => ['nullable', 'string', 'max:120'],
@@ -52,7 +52,7 @@ class OnboardingController extends Controller
                 'current_role'  => $data['current_role'] ?? null,
                 'industry'      => $data['industry'] ?? null,
                 'cv_path'       => $cvPath,
-                'cv_original_name' => $request->file('cv')->getClientOriginalName(),
+                'cv_original_name' => basename($request->file('cv')->getClientOriginalName()),
                 'consent_data'  => true,
                 'consent_marketing' => $data['consent_marketing'] ?? false,
                 'completed_at'  => now(),
@@ -64,6 +64,4 @@ class OnboardingController extends Controller
 
         PluginHooks::doAction('profile.completed', $profile);
 
-        return redirect()->route('tests.index')->with('success', 'Profil enregistré.');
-    }
-}
+        return redirect()->route('tests.index')->with('success', 'Profil enregistré.')

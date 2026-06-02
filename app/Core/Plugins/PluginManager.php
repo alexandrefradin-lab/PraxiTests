@@ -8,7 +8,7 @@ use Praxis\Core\Plugins\Contracts\PluginContract;
 
 /**
  * Charge et active dynamiquement les plugins activés en DB.
- * Appelé depuis PraxiTestsServiceProvider::register().
+ * Appelé depuis PraxiQuestServiceProvider::register().
  */
 class PluginManager
 {
@@ -32,7 +32,7 @@ class PluginManager
             try {
                 $this->loadPlugin($row);
             } catch (\Throwable $e) {
-                logger()->error("PraxiTests plugin boot failed [{$row->slug}]: {$e->getMessage()}");
+                logger()->error("PraxiQuest plugin boot failed [{$row->slug}]: {$e->getMessage()}");
                 $this->logToDb($row->id, 'error', 'boot.failed', $e->getMessage());
             }
         }

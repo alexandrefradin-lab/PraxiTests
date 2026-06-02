@@ -25,15 +25,14 @@ class PluginManifestValidator
             throw new InvalidArgumentException("Plugin slug invalid: '{$manifest['slug']}'");
         }
 
-        if (!preg_match('/^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.\-]+)?$/', $manifest['version'])) {
-            throw new InvalidArgumentException("Plugin version not semver: '{$manifest['version']}'");
+        $sp = $manifest['service_provider'] ?? '';
+        if (!preg_match('/^[A-Za-z_\\\\][A-Za-z0-9_\\\\]+$/', $sp)) {
+            throw new InvalidArgumentException("Invalid service_provider: {$sp}");
+        }
+        $ns = trim($manifest['namespace'] ?? '', '\\');
+        if ($ns && !str_starts_with($sp, $ns . '\\')) {
+            throw new InvalidArgumentException("service_provider must be within namespace {$ns}");
         }
 
-        $allowedPerms = config('plugins.available_permissions', []);
-        foreach ($manifest['permissions'] ?? [] as $perm) {
-            if ($allowedPerms && !in_array($perm, $allowedPerms, true)) {
-                throw new InvalidArgumentException("Permission '{$perm}' not allowed");
-            }
-        }
-    }
-}
+        if (!preg_match('/^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.\-]+)?$/', $manifest['version'])) {
+ 

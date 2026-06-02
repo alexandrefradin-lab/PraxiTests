@@ -1,10 +1,10 @@
-# Déploiement PraxiTests sur OVH
+# Déploiement PraxiQuest sur OVH
 
 Guide spécifique aux hébergements OVH (Mutualisé, Web Cloud, VPS, Dédié).
 
 ## Récap des plans OVH compatibles
 
-| Plan OVH | SSH ? | Composer | Node | PHP 8.2 | Compatible PraxiTests |
+| Plan OVH | SSH ? | Composer | Node | PHP 8.2 | Compatible PraxiQuest |
 |----------|-------|----------|------|---------|----------------------|
 | **Perso** | ✗ | ✗ | ✗ | ✓ | ⚠ Zip pré-buildé requis (build sur ta machine ou autre serveur) |
 | **Pro** | ✓ (limité) | ✓ | ✓ | ✓ | ✓ Idéal |
@@ -26,16 +26,16 @@ Dans OVH Manager → ton hébergement → onglet **Multisite** → ton domaine �
 ### 1.2 Créer une base MySQL
 
 OVH Manager → onglet **Bases de données** → **Créer une base** :
-- **Nom** : `praxitests` (ou ce que tu veux)
+- **Nom** : `praxiquest` (ou ce que tu veux)
 - **Mot de passe** : génère un mot de passe fort
 - **Utilisateur** : créé automatiquement avec le même nom que la base
 
-> **Note** les identifiants : nom de base, utilisateur, mot de passe, **et l'hôte** (typiquement `praxitestsXXX.mysql.db` chez OVH, pas `localhost` !).
+> **Note** les identifiants : nom de base, utilisateur, mot de passe, **et l'hôte** (typiquement `praxiquestXXX.mysql.db` chez OVH, pas `localhost` !).
 
 ### 1.3 Créer un sous-domaine (recommandé)
 
 OVH Manager → **Domaine** → ton domaine → **Sous-domaine** → **Ajouter** :
-- **Sous-domaine** : `praxitests` (ex : `praxitests.tonsite.com`)
+- **Sous-domaine** : `praxiquest` (ex : `praxiquest.tonsite.com`)
 - **Cible** : laisse vide pour le moment (on configurera après upload)
 
 ### 1.4 Activer SSH (Pro / Web Cloud / VPS)
@@ -66,23 +66,23 @@ cd ~/www                    # OVH range les sites dans ~/www
 ls
 ```
 
-### 2.3 Cloner ou uploader PraxiTests
+### 2.3 Cloner ou uploader PraxiQuest
 
 #### Option 1 — Cloner depuis git (si tu as un repo)
 
 ```bash
-git clone https://ton-repo.com/praxitests.git praxitests
-cd praxitests
+git clone https://ton-repo.com/praxiquest.git praxiquest
+cd praxiquest
 ```
 
 #### Option 2 — Uploader le zip via FileZilla puis SSH
 
-1. Upload `praxitests-source.zip` via FileZilla dans `~/www/`
+1. Upload `praxiquest-source.zip` via FileZilla dans `~/www/`
 2. En SSH :
    ```bash
    cd ~/www
-   unzip praxitests-source.zip -d praxitests
-   cd praxitests
+   unzip praxiquest-source.zip -d praxiquest
+   cd praxiquest
    ```
 
 ### 2.4 Installer composer (en local user, pas root)
@@ -120,20 +120,20 @@ Tu **builds en local sur ta machine** puis upload uniquement le dossier `public/
 
 ### 2.7 Configurer le sous-domaine
 
-OVH Manager → **Multisite** → **Modifier** ton sous-domaine `praxitests.tonsite.com` :
-- **Dossier racine** : `praxitests/public` (très important — pas `praxitests/` mais `praxitests/public`)
+OVH Manager → **Multisite** → **Modifier** ton sous-domaine `praxiquest.tonsite.com` :
+- **Dossier racine** : `praxiquest/public` (très important — pas `praxiquest/` mais `praxiquest/public`)
 
 Active SSL gratuit Let's Encrypt en cochant la case.
 
 ### 2.8 Lancer l'installeur web
 
-Ouvre dans ton navigateur : `https://praxitests.tonsite.com/install.php`
+Ouvre dans ton navigateur : `https://praxiquest.tonsite.com/install.php`
 
 Suis l'assistant en 7 étapes. À l'étape **base de données**, utilise :
-- **Hôte** : `praxitestsXXX.mysql.db` (pas `localhost` !)
+- **Hôte** : `praxiquestXXX.mysql.db` (pas `localhost` !)
 - **Port** : `3306`
-- **Base** : `praxitests`
-- **User** : `praxitests` (ou ce que OVH a généré)
+- **Base** : `praxiquest`
+- **User** : `praxiquest` (ou ce que OVH a généré)
 - **Password** : celui que tu as défini
 
 L'installeur fait tout le reste automatiquement.
@@ -149,11 +149,11 @@ Tu n'as pas SSH, donc tu dois **builder le zip sur ta machine ou sur une autre m
 > Si tu n'as ni PHP ni Node localement, saute à la section 3.2 (build cloud).
 
 ```cmd
-cd C:\Users\Fradin Alexandre\Documents\Claude\Projects\PraxiTests
+cd C:\Users\Fradin Alexandre\Documents\Claude\Projects\PraxiQuest
 make-release.bat
 ```
 
-Tu obtiens `praxitests-1.0.0-alpha.zip` (~50 Mo).
+Tu obtiens `praxiquest-1.0.0-alpha.zip` (~50 Mo).
 
 ### 3.2 Build cloud (sans rien installer en local)
 
@@ -167,7 +167,7 @@ Si tu n'as ni PHP ni Node localement, deux options :
 
 1. Connecte FileZilla à `ftp.ton-domaine.com` avec tes credentials FTP OVH
 2. Décompresse le zip sur ta machine
-3. Drag & drop tout le contenu dans `~/www/praxitests/` (créé sur le serveur)
+3. Drag & drop tout le contenu dans `~/www/praxiquest/` (créé sur le serveur)
 4. ⚠ **Patience** : ~50 Mo de fichiers prend 15-30 min via FTP
 
 ### 3.4 Configurer sous-domaine + lancer install
@@ -183,7 +183,7 @@ Pareil qu'en 2.7 et 2.8.
 OVH Manager → **Multisite** → onglet **Tâches Cron** → **Ajouter** :
 
 ```
-*/5 * * * * cd /home/ton-login/www/praxitests && /usr/bin/php artisan schedule:run >> /dev/null 2>&1
+*/5 * * * * cd /home/ton-login/www/praxiquest && /usr/bin/php artisan schedule:run >> /dev/null 2>&1
 ```
 
 (Adapte le chemin PHP : OVH utilise parfois `/usr/local/php8.2/bin/php`.)
@@ -195,7 +195,7 @@ Si tu utilises l'IA (synthèse + 15 métiers), un worker queue est nécessaire. 
 Sur Pro/Web Cloud, ajoute aussi en cron :
 
 ```
-*/1 * * * * cd /home/ton-login/www/praxitests && /usr/bin/php artisan queue:work --max-time=55 --tries=3 >> /dev/null 2>&1
+*/1 * * * * cd /home/ton-login/www/praxiquest && /usr/bin/php artisan queue:work --max-time=55 --tries=3 >> /dev/null 2>&1
 ```
 
 ### 4.3 Permissions correctes
@@ -213,7 +213,7 @@ OVH Manager → **Multisite** → **Modifier** sous-domaine → cocher **SSL gra
 Attends ~30 min que le certificat soit émis. Puis ajoute dans `.env` :
 
 ```dotenv
-APP_URL=https://praxitests.tonsite.com
+APP_URL=https://praxiquest.tonsite.com
 ```
 
 ### 4.5 Désactiver l'installeur après installation
@@ -222,7 +222,7 @@ Une fois installé, **renomme** ou **supprime** `public/install.php` pour sécur
 
 ```bash
 ssh ton-login@sshXX.cluster0XX.hosting.ovh.net
-cd ~/www/praxitests
+cd ~/www/praxiquest
 mv public/install.php public/install.php.disabled
 ```
 
@@ -249,11 +249,11 @@ chmod 644 .env
 
 ### Erreur SQL « Unknown database »
 
-→ La base n'existe pas sur l'host configuré. Vérifie l'**hôte** (souvent `praxitestsXXX.mysql.db`, pas `localhost`).
+→ La base n'existe pas sur l'host configuré. Vérifie l'**hôte** (souvent `praxiquestXXX.mysql.db`, pas `localhost`).
 
 ### Sous-domaine retourne « Index of » au lieu de la landing
 
-→ Document root mal configuré. Doit être `praxitests/public`, **pas** `praxitests/`.
+→ Document root mal configuré. Doit être `praxiquest/public`, **pas** `praxiquest/`.
 
 ### Installeur bloque sur étape 7 (install)
 
@@ -288,7 +288,7 @@ Ou utilise un VPS pour build, copie ensuite `vendor/` via FTP.
 ```
 /home/<ton-login>/                    # home utilisateur OVH
 ├── www/                              # racine de tous tes sites
-│   └── praxitests/                   # ton install
+│   └── praxiquest/                   # ton install
 │       ├── app/
 │       ├── bootstrap/
 │       ├── config/
@@ -330,7 +330,7 @@ Ou utilise un VPS pour build, copie ensuite `vendor/` via FTP.
 
 Une fois installé :
 
-1. Connecte-toi : `https://praxitests.tonsite.com/login`
+1. Connecte-toi : `https://praxiquest.tonsite.com/login`
 2. Email : ce que tu as défini à l'étape 4 du wizard
 3. Mot de passe : idem
 4. Onboarding profil → tester un test → vérifier la restitution

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Candidate;
 
 use App\Http\Controllers\Controller;
 use App\Models\Test;
+use App\Models\TestAttempt;
 use Inertia\Inertia;
 
 class TestController extends Controller
@@ -22,8 +23,23 @@ class TestController extends Controller
     {
         abort_unless($test->published, 404);
 
+        $user = auth()->user();
+
+        $inProgress = TestAttempt::where('user_id', $user->id)
+            ->where('test_id', $test->id)
+            ->where('status', 'in_progress')
+            ->first();
+
+        $alreadyCompleted = TestAttempt::where('user_id', $user->id)
+            ->where('test_id', $test->id)
+            ->where('status', 'completed')
+            ->exists();
+
         return Inertia::render('Candidate/TestShow', [
-            'test' => $test->load('sections.questions'),
+            'test'               => $test->load('sections.questions'),
+            'profile_complete'   => $user->profile?->isComplete() ?? false,
+            'already_attempted'  => $alreadyCompleted,
+            'attempt_in_progress' => $inProgress ? $inProgress->only('id') : null,
         ]);
     }
 }

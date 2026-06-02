@@ -25,7 +25,28 @@ class AttemptController extends Controller
         abort_unless($test->published, 404);
         abort_unless(auth()->user()->profile?->isComplete(), 403, 'Profil incomplet');
 
-        $attempt = $this->engine->startAttempt($request->user(), $test);
+        // Reprendre une tentative en cours plutôt qu'en créer une nouvelle.
+        $existing = TestAttempt::where('user_id', $request->user()->id)
+            ->where('test_id', $test->id)
+            ->where('status', 'in_progress')
+            ->first();
+
+        if ($existing) {
+            return redirect()->route('attempt.show', $existing);
+        }
+
+        // BUG-3 — récupérer l'invitation liée à cet utilisateur pour ce test
+        $invitationId = session()->pull('pending_invitation_id');
+
+        $attempt = $this->engine->startAttempt($request->user(), $test, $invitationId);
+
+        // Marquer l'invitation comme démarrée si elle existe
+        // Note : la colonne started_at n'existe pas dans test_invitations — on met juste le statut
+        if ($invitationId) {
+            \App\Models\TestInvitation::where('id', $invitationId)
+                ->where('test_id', $test->id)
+                ->update(['status' => 'started']);
+        }
 
         return redirect()->route('attempt.show', $attempt);
     }
@@ -34,8 +55,11 @@ class AttemptController extends Controller
     {
         $this->authorizeAttempt($attempt);
 
+        $attempt->load('test.sections.questions', 'answers', 'user.badges');
+        abort_unless($attempt->user !== null, 404, 'User not found');
+
         return Inertia::render('Candidate/AttemptPlay', [
-            'attempt'    => $attempt->load('test.sections.questions', 'answers'),
+            'attempt'    => $attempt,
             'progress'   => [
                 'percent' => $attempt->progressPercent(),
                 'narrative' => $this->narrative->microFeedback($attempt, $attempt->progressPercent()),
@@ -69,13 +93,6 @@ class AttemptController extends Controller
         $this->authorizeAttempt($attempt);
 
         $this->engine->complete($attempt);
-        GenerateAttemptInsights::dispatch($attempt->id);
 
-        return redirect()->route('results.show', $attempt);
-    }
-
-    protected function authorizeAttempt(TestAttempt $attempt): void
-    {
-        abort_unless($attempt->user_id === auth()->id(), 403);
-    }
-}
+        // Sur OVH (QUEUE_CONNECTION=sync) : le job s'exécute ici même, de façon
+        // synchrone. L'utilisateur attend 20-40s pendant que Claude génère la 
