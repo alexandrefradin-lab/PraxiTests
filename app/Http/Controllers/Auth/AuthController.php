@@ -131,4 +131,6 @@ class AuthController extends Controller
 
         return $status === Password::PASSWORD_RESET
             ? redirect()->route('login')->with('success', 'Mot de passe réinitialisé avec succès.')
-            : back()->withErrors(['email' => 'Ce lien de réinitialisation est invalide ou expiré.'])
+            : back()->withErrors(['email' => 'Ce lien de réinitialisation est invalide ou expiré.']);
+    }
+}

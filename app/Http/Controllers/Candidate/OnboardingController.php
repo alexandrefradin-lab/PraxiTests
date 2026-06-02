@@ -64,4 +64,6 @@ class OnboardingController extends Controller
 
         PluginHooks::doAction('profile.completed', $profile);
 
-        return redirect()->route('tests.index')->with('success', 'Profil enregistré.')
+        return redirect()->route('tests.index')->with('success', 'Profil enregistré.');
+    }
+}

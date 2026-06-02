@@ -105,4 +105,16 @@ class GamificationEngine
     public function unlockInsight(User $user, Test $test, string $insightKey, mixed $payload = null): void
     {
         $progress = GamificationProgress::firstOrCreate(
-            ['use
+            ['user_id' => $user->id, 'test_id' => $test->id],
+            ['xp_total' => 0, 'level' => 1]
+        );
+
+        $insights = $progress->insights_unlocked ?? [];
+        if (!isset($insights[$insightKey])) {
+            $insights[$insightKey] = ['unlocked_at' => now()->toIso8601String(), 'payload' => $payload];
+            $progress->update(['insights_unlocked' => $insights]);
+            $this->awardXp($user, config('gamification.xp.unlock_insight', 25), "insight:{$insightKey}", $test);
+            PluginHooks::doAction('gamification.insight_unlocked', $user, $test, $insightKey, $payload);
+        }
+    }
+}

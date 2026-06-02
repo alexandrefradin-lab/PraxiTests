@@ -22,4 +22,11 @@ class PluginServiceProvider extends AbstractPlugin
         ]);
     }
 
-    public
+    public function onActivate(): void
+    {
+        \Artisan::call('db:seed', [
+            '--class' => 'Praxis\\Plugins\\PraxiValeurs\\Database\\Seeders\\ValuesQuestionsSeeder',
+            '--force' => true,
+        ]);
+    }
+}

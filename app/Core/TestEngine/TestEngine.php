@@ -26,10 +26,17 @@ class TestEngine
         $this->scoringEngines[$engine->key()] = $engine;
     }
 
+    /** @return string[] Clés des moteurs de scoring enregistrés (pour l'éditeur de tests) */
+    public function availableEngines(): array
+    {
+        return array_keys($this->scoringEngines);
+    }
+
     public function startAttempt(User $user, Test $test, ?int $invitationId = null): TestAttempt
     {
+        // QC-14 : vérification + création sous transaction et lock pour éviter
+        // la création concurrente de deux tentatives (double-clic, double requête).
         return DB::transaction(function () use ($user, $test, $invitationId) {
-            // Vérification sous lock pour éviter la création concurrente
             $existing = TestAttempt::where('user_id', $user->id)
                 ->where('test_id', $test->id)
                 ->where('status', 'in_progress')
@@ -81,4 +88,23 @@ class TestEngine
         $scoring = PluginHooks::applyFilters('attempt.scoring', $scoring, $attempt);
 
         $attempt->result()->updateOrCreate(
-            
+            [],
+            [
+                'scoring'      => $scoring,
+                'generated_at' => now(),
+            ]
+        );
+
+        PluginHooks::doAction('attempt.completed', $attempt);
+        return $attempt->fresh('result');
+    }
+
+    public function resolveScoringEngine(Test $test): ScoringEngineContract
+    {
+        $key = $test->scoring_engine ?: 'default';
+        if (!isset($this->scoringEngines[$key])) {
+            throw new InvalidArgumentException("Unknown scoring engine: {$key}");
+        }
+        return $this->scoringEngines[$key];
+    }
+}

@@ -380,4 +380,18 @@ code{font-family:monospace;font-size:12px;background:#f1f5f9;padding:1px 5px;bor
         finalMsg.innerHTML = '<div class="banner banner-success">&#10003; <strong>PraxiQuest installe avec succes !</strong></div>'
           + '<a href="/" style="display:inline-block;margin-top:1rem;background:#4f46e5;color:#fff;padding:.8rem 1.5rem;border-radius:9px;font-weight:700;text-decoration:none">Ouvrir l\'application &rarr;</a>';
       } else {
-        finalMsg.innerHTML = '<div class="banner banner-error">Instal
+        finalMsg.innerHTML = '<div class="banner banner-error">&#10007; <strong>Installation interrompue.</strong> Consultez les messages ci-dessus, corrigez puis relancez.</div>'
+          + '<a href="install.php" style="display:inline-block;margin-top:1rem;background:#64748b;color:#fff;padding:.8rem 1.5rem;border-radius:9px;font-weight:700;text-decoration:none">&#8592; Retour</a>';
+      }
+    });
+  })();
+  </script>
+
+<?php endif; ?>
+<?php endif; ?>
+
+</div>
+</div>
+</div>
+</body>
+</html>

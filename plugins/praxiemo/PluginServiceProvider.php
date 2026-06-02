@@ -21,4 +21,11 @@ class PluginServiceProvider extends AbstractPlugin
         ]);
     }
 
-    public function o
+    public function onActivate(): void
+    {
+        \Artisan::call('db:seed', [
+            '--class' => 'Praxis\\Plugins\\PraxiEmo\\Database\\Seeders\\PraxiEmoQuestionsSeeder',
+            '--force' => true,
+        ]);
+    }
+}

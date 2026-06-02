@@ -64,3 +64,11 @@ class ResultController extends Controller
             ])
             ->where('user_id', auth()->id())
             ->select(['id', 'test_id', 'status', 'started_at', 'completed_at'])
+            ->latest('started_at')
+            ->get();
+
+        return Inertia::render('Candidate/History', [
+            'attempts' => $attempts,
+        ]);
+    }
+}

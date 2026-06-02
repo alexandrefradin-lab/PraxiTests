@@ -36,4 +36,17 @@ class DashboardController extends Controller
             ];
         });
 
-        $recent_atte
+        $recent_attempts = TestAttempt::with('user', 'test')
+            ->latest('completed_at')
+            ->limit(10)
+            ->get();
+
+        $recent_leads = Lead::latest()->limit(10)->get();
+
+        return Inertia::render('Admin/Dashboard', [
+            'stats'           => $stats,
+            'recent_attempts' => $recent_attempts,
+            'recent_leads'    => $recent_leads,
+        ]);
+    }
+}

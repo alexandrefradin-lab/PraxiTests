@@ -55,4 +55,10 @@ class AnthropicDriver extends AbstractDriver
         ];
 
         $text = $data['content'][0]['text'] ?? '';
-       
+
+        if ($text === '') {
+            throw new \RuntimeException('AnthropicDriver: réponse IA vide ou inattendue.');
+        }
+        return $text;
+    }
+}

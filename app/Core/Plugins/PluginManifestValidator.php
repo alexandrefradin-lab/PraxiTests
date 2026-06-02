@@ -25,6 +25,7 @@ class PluginManifestValidator
             throw new InvalidArgumentException("Plugin slug invalid: '{$manifest['slug']}'");
         }
 
+        // SEC-05 : service_provider doit être un FQCN, et rester dans le namespace déclaré du plugin
         $sp = $manifest['service_provider'] ?? '';
         if (!preg_match('/^[A-Za-z_\\\\][A-Za-z0-9_\\\\]+$/', $sp)) {
             throw new InvalidArgumentException("Invalid service_provider: {$sp}");
@@ -35,4 +36,14 @@ class PluginManifestValidator
         }
 
         if (!preg_match('/^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.\-]+)?$/', $manifest['version'])) {
- 
+            throw new InvalidArgumentException("Plugin version not semver: '{$manifest['version']}'");
+        }
+
+        $allowedPerms = config('plugins.available_permissions', []);
+        foreach ($manifest['permissions'] ?? [] as $perm) {
+            if ($allowedPerms && !in_array($perm, $allowedPerms, true)) {
+                throw new InvalidArgumentException("Permission '{$perm}' not allowed");
+            }
+        }
+    }
+}

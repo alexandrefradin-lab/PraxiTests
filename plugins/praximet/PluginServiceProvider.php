@@ -31,8 +31,16 @@ class PluginServiceProvider extends AbstractPlugin
         ]);
     }
 
+
     public function onActivate(): void
     {
         \Artisan::call('migrate', [
             '--path'  => 'plugins/praximet/database/migrations',
-            '-
+            '--force' => true,
+        ]);
+        \Artisan::call('db:seed', [
+            '--class' => 'Praxis\\Plugins\\PraxiMet\\Database\\Seeders\\RiasecQuestionsSeeder',
+            '--force' => true,
+        ]);
+    }
+}

@@ -94,4 +94,12 @@ class EqiScoringEngine implements ScoringEngineContract
                 'score'   => $sum,
                 'niveau'  => 'Biais fort',
                 'alerte'  => true,
-                'message' => "Vos réponses semblent orientées vers une image très positive de vous-même. Les scores reflètent peut-être davantage ce que vous souhaiteriez êt
+                'message' => "Vos réponses semblent orientées vers une image très positive de vous-même. Les scores reflètent peut-être davantage ce que vous souhaiteriez être que ce que vous vivez au quotidien.",
+            ];
+        }
+        if ($sum <= 18) {
+            return ['score' => $sum, 'niveau' => 'Biais modéré', 'alerte' => false, 'message' => ''];
+        }
+        return ['score' => $sum, 'niveau' => 'Fiable', 'alerte' => false, 'message' => ''];
+    }
+}

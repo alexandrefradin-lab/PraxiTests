@@ -45,4 +45,13 @@ class LeadController extends Controller
         return back();
     }
 
-    public fu
+    public function destroy(Lead $lead)
+    {
+        $lead->delete();
+        return back();
+    }
+
+    public function create() { abort(404); }
+    public function store() { abort(404); }
+    public function edit(Lead $lead) { return $this->show($lead); }
+}

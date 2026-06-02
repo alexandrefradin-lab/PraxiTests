@@ -21,4 +21,11 @@ class PluginServiceProvider extends AbstractPlugin
         ]);
     }
 
-    public fu
+    public function onActivate(): void
+    {
+        \Artisan::call('db:seed', [
+            '--class' => 'Praxis\\Plugins\\PraxiCare\\Database\\Seeders\\PraxiCareQuestionsSeeder',
+            '--force' => true,
+        ]);
+    }
+}

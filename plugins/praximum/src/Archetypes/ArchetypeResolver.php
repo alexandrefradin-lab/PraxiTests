@@ -68,3 +68,5 @@ class ArchetypeResolver
             }
         }
         return $best;
+    }
+}

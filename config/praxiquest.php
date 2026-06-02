@@ -43,4 +43,6 @@ return [
         'tagline' => 'Évaluer. Orienter. Transformer.',
         'logo'    => env('PRAXIQUEST_LOGO_URL'),
         'primary_color'   => env('PRAXIQUEST_COLOR_PRIMARY', '#4F46E5'),
-        'secondary_color' => env('PRAXI
+        'secondary_color' => env('PRAXIQUEST_COLOR_SECONDARY', '#10B981'),
+    ],
+];

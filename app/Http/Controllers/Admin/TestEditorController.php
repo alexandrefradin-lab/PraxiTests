@@ -154,4 +154,11 @@ class TestEditorController extends Controller
             'type'              => ['required', 'string'],
             'scoring_engine'    => ['required', 'string'],
             'estimated_minutes' => ['required', 'integer', 'min:1', 'max:120'],
-     
+            'published'         => ['boolean'],
+            'public'            => ['boolean'],
+            'gamification'      => ['nullable', 'array'],
+            'neuromarketing'    => ['nullable', 'array'],
+            'scoring_config'    => ['nullable', 'array'],
+        ]);
+    }
+}

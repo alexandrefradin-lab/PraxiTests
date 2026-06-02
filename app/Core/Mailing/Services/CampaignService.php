@@ -77,3 +77,12 @@ class CampaignService
         $q = User::query();
         if (!empty($filter['status']))      $q->whereHas('profile', fn ($p) => $p->where('status', $filter['status']));
         if (!empty($filter['has_completed_test'])) {
+            $q->whereHas('attempts', fn ($a) => $a->where('status', 'completed'));
+        }
+        if (!empty($filter['inactive_days'])) {
+            $q->where('last_login_at', '<', now()->subDays((int) $filter['inactive_days']));
+        }
+        // P-08 : curseur paresseux pour ne pas charger toute la table en mémoire
+        return $q->select(['id', 'email'])->cursor();
+    }
+}

@@ -78,6 +78,10 @@ const statusColor = {
         </div>
 
         <div v-if="leads.links" class="flex items-center justify-center gap-1 mt-6">
-            <!-- SEC-08 — trusted server-rendered pagination labels (Laravel Pagination: &laquo; / &raquo;) -->
+            <!-- SEC-08 : libellés rendus en texte (plus de v-html) -->
             <component :is="link.url ? Link : 'span'" v-for="link in leads.links" :key="link.label" :href="link.url ?? ''"
-                class="px-3 py-1 text-
+                class="px-3 py-1 text-xs rounded"
+                :class="[link.active ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-100', !link.url && 'opacity-40']">{{ link.label }}</component>
+        </div>
+    </AdminLayout>
+</template>

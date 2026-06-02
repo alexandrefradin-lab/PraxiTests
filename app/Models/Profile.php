@@ -30,4 +30,8 @@ class Profile extends Model
     public function isComplete(): bool
     {
         return $this->status
-            && $this->status_sinc
+            && $this->status_since
+            && $this->cv_path
+            && $this->consent_data;
+    }
+}

@@ -95,4 +95,15 @@ class AttemptController extends Controller
         $this->engine->complete($attempt);
 
         // Sur OVH (QUEUE_CONNECTION=sync) : le job s'exécute ici même, de façon
-        // synchrone. L'utilisateur attend 20-40s pendant que Claude génère la 
+        // synchrone. L'utilisateur attend 20-40s pendant que Claude génère la
+        // synthèse. afterResponse() libère la réponse HTTP avant l'appel IA (P-07).
+        GenerateAttemptInsights::dispatch($attempt->id)->afterResponse();
+
+        return redirect()->route('results.show', $attempt);
+    }
+
+    protected function authorizeAttempt(TestAttempt $attempt): void
+    {
+        abort_unless($attempt->user_id === auth()->id(), 403);
+    }
+}

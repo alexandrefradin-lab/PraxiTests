@@ -78,4 +78,8 @@ class Catalog
             'A3_ALT' => ['mean' => 11.6, 'std_dev' => 2.3], 'A4_COM' => ['mean' => 9.4,  'std_dev' => 2.8],
             'A5_MOD' => ['mean' => 9.8,  'std_dev' => 2.7], 'A6_SEN' => ['mean' => 11.2, 'std_dev' => 2.4],
             'N1_ANX' => ['mean' => 9.2,  'std_dev' => 2.7], 'N2_HOS' => ['mean' => 7.8,  'std_dev' => 2.6],
-            'N3_DEP' => ['mean' => 7.9,  'std_dev' => 2.9], 'N4_CON' => ['mean' 
+            'N3_DEP' => ['mean' => 7.9,  'std_dev' => 2.9], 'N4_CON' => ['mean' => 8.6,  'std_dev' => 2.9],
+            'N5_IMP' => ['mean' => 9.4,  'std_dev' => 2.7], 'N6_VUL' => ['mean' => 7.5,  'std_dev' => 2.8],
+        ];
+    }
+}

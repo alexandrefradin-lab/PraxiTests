@@ -133,4 +133,16 @@ class BigFiveScoringEngine implements ScoringEngineContract
         $clamped = max(20, min(80, $T));
         // Utiliser la vraie CDF normale de NormInterpreter (cohérent avec les autres engines)
         $norm = NormInterpreter::fromTScore($clamped);
-        return (int) round($norm['percentile'] ?? (($clamped - 20) * 100 
+        // Utiliser la vraie CDF normale (cohérent avec les autres moteurs) — QC-24
+        return (int) round($norm['percentile'] ?? (($clamped - 20) * 100 / 60));
+    }
+
+    protected function niveauT(int $T): string
+    {
+        if ($T < 35)  return 'tres_bas';
+        if ($T < 45)  return 'bas';
+        if ($T <= 55) return 'moyen';
+        if ($T <= 65) return 'haut';
+        return 'tres_haut';
+    }
+}

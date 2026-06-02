@@ -46,4 +46,10 @@ class Setting extends Model
         Cache::forget("settings.{$group}.{$key}");
     }
 
-    public static function setMany(string $g
+    public static function setMany(string $group, array $values, array $encryptKeys = []): void
+    {
+        foreach ($values as $key => $value) {
+            static::set($group, $key, $value, in_array($key, $encryptKeys, true));
+        }
+    }
+}

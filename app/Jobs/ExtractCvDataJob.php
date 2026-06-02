@@ -23,4 +23,9 @@ class ExtractCvDataJob implements ShouldQueue
     {
         $profile = Profile::find($this->profileId);
         if (!$profile) {
-            logger()->warning("ExtractCvDataJob: Profile
+            logger()->warning("ExtractCvDataJob: Profile {$this->profileId} introuvable, extraction ignorée.");
+            return;
+        }
+        $svc->structureProfile($profile);
+    }
+}
