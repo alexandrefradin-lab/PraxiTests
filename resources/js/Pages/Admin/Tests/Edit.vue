@@ -500,3 +500,6 @@ const moveQuestionDown = (si, qi) => {
                     {{ structureForm.processing ? 'Sauvegarde en cours…' : 'Sauvegarder la structure' }}
                 </button>
             </div>
+        </div>
+    </AdminLayout>
+</template>
