@@ -1,0 +1,23 @@
+{
+  "slug": "praxispeak",
+  "name": "PraxiSpeak — Prise de parole en public",
+  "version": "1.0.0",
+  "author": "Praxis Accompagnement",
+  "type": "mini-app",
+  "description": "20 exercices guidés (2-5 min) pour développer la confiance en prise de parole : désensibilisation systématique, visualisation positive, ancrage PNL, respiration, restructuration cognitive, posture de puissance, méthode PREP, diction et projection vocale.",
+  "namespace": "Praxis\\Plugins\\PraxiSpeak",
+  "service_provider": "Praxis\\Plugins\\PraxiSpeak\\PluginServiceProvider",
+  "permissions": ["read:profiles", "write:results"],
+  "requires": {
+    "praxiquest": ">=1.0.0",
+    "php": ">=8.2"
+  },
+  "test": {
+    "slug": "praxispeak",
+    "name": "PraxiSpeak — Prise de parole en public",
+    "description": "5 dimensions : gestion du trac, préparation mentale, présence physique, structure du discours, impact vocal. 20 exercices pratiques basés sur la recherche en psychologie cognitive et comportementale.",
+    "type": "exercises",
+    "scoring_engine": "praxispeak-scoring",
+    "estimated_minutes": 8
+  }
+}

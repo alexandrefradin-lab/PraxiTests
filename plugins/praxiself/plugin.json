@@ -1,0 +1,23 @@
+{
+  "slug": "praxiself",
+  "name": "PraxiSelf — Affirmation de soi",
+  "version": "1.0.0",
+  "author": "Praxis Accompagnement",
+  "type": "mini-app",
+  "description": "Module court d'entraînement à l'affirmation de soi : 20 exercices guidés basés sur la CNV, la théorie de l'auto-efficacité (Bandura) et les techniques assertives d'Alberti & Emmons. 5 dimensions évaluées, progression personnalisée.",
+  "namespace": "Praxis\\Plugins\\PraxiSelf",
+  "service_provider": "Praxis\\Plugins\\PraxiSelf\\PluginServiceProvider",
+  "permissions": ["read:profiles", "write:results"],
+  "requires": {
+    "praxiquest": ">=1.0.0",
+    "php": ">=8.2"
+  },
+  "test": {
+    "slug": "praxiself-affirmation",
+    "name": "PraxiSelf — Affirmation de soi",
+    "description": "Évalue et entraîne ton assertivité sur 5 dimensions : estime de soi, comportement affirmé, gestion du regard des autres, expression des besoins et résilience identitaire.",
+    "type": "mini-app",
+    "scoring_engine": "praxiself-scoring",
+    "estimated_minutes": 7
+  }
+}

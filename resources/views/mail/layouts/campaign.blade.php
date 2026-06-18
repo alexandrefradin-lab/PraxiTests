@@ -19,7 +19,7 @@
                     </tr>
                     <tr>
                         <td style="padding:24px 40px 40px 40px;line-height:1.6;font-size:15px">
-                            {!! $html !!}
+                            {!! strip_tags($html, '<p><br><a><b><i><strong><em><ul><ol><li><h2><h3><blockquote><span>') !!}
                         </td>
                     </tr>
                     <tr>

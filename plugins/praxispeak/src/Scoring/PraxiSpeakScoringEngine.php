@@ -1,0 +1,141 @@
+<?php
+
+namespace Praxis\Plugins\PraxiSpeak\Scoring;
+
+use App\Models\TestAttempt;
+use Praxis\Core\TestEngine\Contracts\ScoringEngineContract;
+use Praxis\Plugins\PraxiSpeak\Data\Exercises;
+
+class PraxiSpeakScoringEngine implements ScoringEngineContract
+{
+    public function key(): string
+    {
+        return 'praxispeak-scoring';
+    }
+
+    public function score(TestAttempt $attempt): array
+    {
+        $exercises  = Exercises::exercises();
+        $dimensions = Exercises::dimensions();
+        $quotes     = Exercises::quotes();
+
+        // Index des exercices par id
+        $exerciseMap = [];
+        foreach ($exercises as $ex) {
+            $exerciseMap[$ex['id']] = $ex;
+        }
+
+        // Calcul des scores bruts par dimension
+        $rawScores  = array_fill_keys(array_keys($dimensions), 0);
+        $maxScores  = array_fill_keys(array_keys($dimensions), 0);
+        $completed  = [];
+
+        foreach ($attempt->answers()->with('question')->get() as $answer) {
+            $exId = $answer->question->scoring['exercise_id'] ?? null;
+            if (! $exId || ! isset($exerciseMap[$exId])) {
+                continue;
+            }
+            $ex  = $exerciseMap[$exId];
+            $dim = $ex['scoring']['dimension'];
+            $pts = $ex['scoring']['points'];
+
+            // La valeur de la réponse est entre 0 (non fait) et 1 (complété)
+            $done = (int) filter_var($answer->value, FILTER_VALIDATE_BOOLEAN);
+            if ($done) {
+                $rawScores[$dim]  = ($rawScores[$dim]  ?? 0) + $pts;
+                $completed[]       = $exId;
+            }
+            $maxScores[$dim] = ($maxScores[$dim] ?? 0) + $pts;
+        }
+
+        // Calcul des scores normalisés (0-100) par dimension
+        $normScores = [];
+        foreach ($dimensions as $dimId => $dimInfo) {
+            $max = $maxScores[$dimId] ?? 0;
+            $raw = $rawScores[$dimId] ?? 0;
+            $normScores[$dimId] = $max > 0 ? (int) round(($raw / $max) * 100) : 0;
+        }
+
+        // Score global de l'orateur (0-100)
+        $totalRaw = array_sum($rawScores);
+        $totalMax = array_sum($maxScores);
+        $globalScore = $totalMax > 0 ? (int) round(($totalRaw / $totalMax) * 100) : 0;
+
+        // Interprétation du niveau
+        [$niveau, $phrase] = $this->interpretGlobal($globalScore);
+
+        // Dimension la plus forte et axe de développement prioritaire
+        $dimsByScore = $normScores;
+        arsort($dimsByScore);
+        $topDim    = array_key_first($dimsByScore);
+        $weakDim   = array_key_last($dimsByScore);
+
+        // Exercice recommandé du jour : premier exercice non complété de la dimension la plus faible
+        $recommendedExercise = null;
+        foreach ($exercises as $ex) {
+            if ($ex['scoring']['dimension'] === $weakDim && ! in_array($ex['id'], $completed, true)) {
+                $recommendedExercise = $ex;
+                break;
+            }
+        }
+
+        // Citation aléatoire déterministe (basée sur l'id de l'attempt)
+        $quoteIndex = $attempt->id % count($quotes);
+        $quote      = $quotes[$quoteIndex];
+
+        return [
+            'engine'               => $this->key(),
+            'dimensions'           => $dimensions,
+            'raw_scores'           => $rawScores,
+            'norm_scores'          => $normScores,
+            'global_score'         => $globalScore,
+            'niveau_orateur'       => $niveau,
+            'phrase_orateur'       => $phrase,
+            'top_dimension'        => $topDim,
+            'weak_dimension'       => $weakDim,
+            'completed_exercises'  => $completed,
+            'recommended_exercise' => $recommendedExercise,
+            'quote'                => $quote,
+            'meta'                 => [
+                'total_exercises'   => count($exercises),
+                'completed_count'   => count($completed),
+                'completion_pct'    => count($exercises) > 0
+                    ? (int) round((count($completed) / count($exercises)) * 100)
+                    : 0,
+            ],
+            'computed_at'          => now()->toIso8601String(),
+        ];
+    }
+
+    protected function interpretGlobal(int $score): array
+    {
+        if ($score < 20) {
+            return [
+                'Orateur en devenir',
+                "Tu as posé les premiers jalons. La prise de parole est une compétence qui se construit pas à pas — et tu viens de commencer.",
+            ];
+        }
+        if ($score < 45) {
+            return [
+                'Orateur en construction',
+                "Tu développes des bases solides. Quelques exercices ciblés vont libérer ton potentiel et te donner davantage de confiance.",
+            ];
+        }
+        if ($score < 70) {
+            return [
+                'Orateur confirmé',
+                "Tu maîtrises déjà plusieurs leviers essentiels. Avec de la régularité et quelques ajustements, tu peux passer au niveau supérieur.",
+            ];
+        }
+        if ($score < 90) {
+            return [
+                'Orateur accompli',
+                "Ton niveau de prise de parole est un vrai atout. Tu inspires confiance et clarté — continue à nourrir ta pratique.",
+            ];
+        }
+        return [
+            'Orateur expert',
+            "Tu es dans les profils d'orateurs qui marquent les esprits. Ta maîtrise technique et ta présence sont des ressources rares.",
+        ];
+    }
+}

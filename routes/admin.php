@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\Admin\PluginController;
 use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\SubscriptionController;
 use App\Http\Controllers\Admin\TestEditorController;
 use Illuminate\Support\Facades\Route;
 
@@ -29,4 +30,5 @@ Route::middleware(['auth', 'verified', 'role:admin'])
         Route::post('plugins/{plugin}/deactivate', [PluginController::class, 'deactivate'])->name('plugins.deactivate');
         Route::get('settings', [SettingsController::class, 'show'])->name('settings');
         Route::put('settings', [SettingsController::class, 'update'])->name('settings.update');
+        Route::get('subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions');
     });

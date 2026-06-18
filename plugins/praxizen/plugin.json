@@ -1,0 +1,23 @@
+{
+  "slug": "praxizen",
+  "name": "PraxiZen — Gestion du stress",
+  "version": "1.0.0",
+  "author": "Praxis Accompagnement",
+  "type": "test",
+  "description": "Module de gestion du stress professionnel : 20 questions Likert couvrant 5 dimensions validées (régulation émotionnelle, résilience, gestion somatique, mindfulness, recadrage cognitif). Génère un programme d'exercices guidés personnalisé basé sur les neurosciences.",
+  "namespace": "Praxis\\Plugins\\PraxiZen",
+  "service_provider": "Praxis\\Plugins\\PraxiZen\\PluginServiceProvider",
+  "permissions": ["read:profiles", "write:results"],
+  "requires": {
+    "praxiquest": ">=1.0.0",
+    "php": ">=8.2"
+  },
+  "test": {
+    "slug": "praxizen-stress",
+    "name": "PraxiZen — Évaluation & Gestion du stress",
+    "description": "20 questions Likert 4 niveaux couvrant 5 dimensions du stress professionnel. Chaque passation génère un programme d'exercices personnalisé basé sur les neurosciences (cohérence cardiaque, respiration 4-7-8, STOP, scan corporel, restructuration cognitive, ancrage sensoriel 5-4-3-2-1).",
+    "type": "questionnaire",
+    "scoring_engine": "praxizen-stress",
+    "estimated_minutes": 8
+  }
+}

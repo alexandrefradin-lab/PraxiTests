@@ -9,6 +9,7 @@ const form = useForm({
     email: props.email ?? '',
     password: '',
     password_confirmation: '',
+    terms: false,
 })
 
 const submit = () => form.post(route('register'), {
@@ -46,7 +47,28 @@ const submit = () => form.post(route('register'), {
                 <input type="password" v-model="form.password_confirmation" required autocomplete="new-password" class="pt-input">
             </div>
 
-            <button type="submit" :disabled="form.processing" class="pt-btn-primary w-full py-2.5">
+            <!-- Acceptation CGU -->
+            <div>
+                <label class="flex items-start gap-2.5 cursor-pointer">
+                    <input
+                        type="checkbox"
+                        v-model="form.terms"
+                        required
+                        class="mt-0.5 h-4 w-4 rounded border"
+                        style="accent-color: var(--pt-gold); flex-shrink: 0"
+                    >
+                    <span style="font-size:13px; color:var(--pt-text-muted); line-height:1.5">
+                        J'ai lu et j'accepte les
+                        <a :href="route('cgu')" target="_blank" rel="noopener"
+                           style="color:var(--pt-gold); font-weight:500; text-decoration:none"
+                           class="hover:underline">Conditions Générales d'Utilisation</a>
+                        et la politique de confidentialité.
+                    </span>
+                </label>
+                <p v-if="form.errors.terms" class="text-xs mt-1" style="color:var(--pt-error)">{{ form.errors.terms }}</p>
+            </div>
+
+            <button type="submit" :disabled="form.processing || !form.terms" class="pt-btn-primary w-full py-2.5">
                 <span v-if="form.processing">Création…</span>
                 <span v-else>Créer mon espace</span>
             </button>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Candidate;
 
 use App\Http\Controllers\Controller;
+use App\Models\JourneyProgress;
 use App\Models\TestAttempt;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Inertia\Inertia;
@@ -18,19 +19,76 @@ class ResultController extends Controller
         // Laisser chaque plugin overrider la page de résultats via un filtre.
         // Ex: PraxiCare enregistre 'results.inertia_page' → 'PraxiCareResult'
         $allowed = [
-            'Candidate/ResultsShow', 'PraximetResult', 'PraxiCareResult',
-            'PraxiEmoResult', 'PraxiMumResult', 'PraxiValeursResult',
+            'Candidate/ResultsShow',
+            'PraximetResult', 'PraxiCareResult', 'PraxiEmoResult', 'PraxiMumResult', 'PraxiValeursResult',
+            // Mini-apps
+            'PraxiZenResult', 'PraxiSelfResult', 'PraxiSpeakResult', 'PraxiFlowResult', 'PraxiLinkResult',
         ];
         $page = PluginHooks::applyFilters('results.inertia_page', 'Candidate/ResultsShow', $attempt);
         if (!in_array($page, $allowed, true)) {
             $page = 'Candidate/ResultsShow';
         }
 
-        return Inertia::render($page, [
+        // Injecter les props journey pour les mini-apps
+        $miniAppSlugs = ['praxizen', 'praxiself', 'praxispeak', 'praxiflow', 'praxilink'];
+        $testSlug     = $attempt->test->plugin_slug ?? $attempt->test->slug ?? '';
+
+        $journeyProps = [];
+        if (in_array($testSlug, $miniAppSlugs, true)) {
+            $userId = auth()->id();
+
+            $journeyClass = match($testSlug) {
+                'praxizen'   => \Praxis\Plugins\PraxiZen\Data\Journey::class,
+                'praxiself'  => \Praxis\Plugins\PraxiSelf\Data\Journey::class,
+                'praxispeak' => \Praxis\Plugins\PraxiSpeak\Data\Journey::class,
+                'praxiflow'  => \Praxis\Plugins\PraxiFlow\Data\Journey::class,
+                'praxilink'  => \Praxis\Plugins\PraxiLink\Data\Journey::class,
+                default      => null,
+            };
+
+            $currentDay    = JourneyProgress::currentDay($userId, $testSlug);
+            $streak        = JourneyProgress::streakFor($userId, $testSlug);
+            $completedArr  = JourneyProgress::completedDays($userId, $testSlug);
+            $completedList = array_keys(array_filter($completedArr)); // [1, 3, 5, …]
+            $rate          = JourneyProgress::completionRate($userId, $testSlug);
+            $todayEntry    = ($journeyClass && class_exists($journeyClass)) ? $journeyClass::day($currentDay) : null;
+            $allDays       = ($journeyClass && class_exists($journeyClass)) ? $journeyClass::days() : [];
+
+            // Props selon ce que chaque page Vue consomme réellement
+            // (basé sur les defineProps de chaque page)
+            $journeyProps = match($testSlug) {
+                'praxizen' => [
+                    'journeyDays'     => $allDays,        // Journey::days() — les 60 entrées
+                    'journeyProgress' => $completedList,  // jours complétés [1,3,5,…]
+                    'currentDay'      => $currentDay,
+                    'currentStreak'   => $streak,
+                ],
+                'praxiself' => [
+                    'journeyDays'      => $completedList,
+                    'journeyStreak'    => $streak,
+                    'journeyToday'     => $todayEntry,
+                    'journeyPhase'     => $this->journeyPhase($currentDay),
+                    'journeyPhaseMeta' => $this->journeyPhaseMeta($currentDay),
+                ],
+                // PraxiSpeak et PraxiFlow lisent depuis result.journey — pas de props séparées
+                'praxispeak', 'praxiflow' => [],
+                'praxilink' => [
+                    'journeyCurrentDay'     => $currentDay,
+                    'journeyStreak'         => $streak,
+                    'journeyCompletion'     => $rate,
+                    'journeyCompletedCount' => count($completedList),
+                    'journeyCompletedDays'  => $completedArr, // map { 1: true, 3: true, … }
+                    'todayJourney'          => $todayEntry,
+                ],
+                default => [],
+            };
+        }
+
+        return Inertia::render($page, array_merge([
             'attempt'    => $attempt,
             'result'     => $attempt->result,
             'ai_pending' => !$attempt->result?->ai_synthesis,
-        ]);
+        ], $journeyProps));
     }
 
     /**
@@ -42,8 +100,8 @@ class ResultController extends Controller
         abort_unless($attempt->user_id === auth()->id(), 403);
 
         return response()->json([
-            'ai_ready'     => (bool) $attempt->result?->ai_synthesis,
-            'jobs_ready'   => !empty($attempt->result?->suggested_jobs),
+            'ai_ready'   => (bool) $attempt->result?->ai_synthesis,
+            'jobs_ready' => !empty($attempt->result?->suggested_jobs),
         ]);
     }
 
@@ -70,5 +128,28 @@ class ResultController extends Controller
         return Inertia::render('Candidate/History', [
             'attempts' => $attempts,
         ]);
+    }
+
+    // ─── Helpers phase PraxiSelf ──────────────────────────────────────────────
+
+    private function journeyPhase(int $day): string
+    {
+        return match(true) {
+            $day <= 15 => 'decouverte',
+            $day <= 30 => 'installation',
+            $day <= 45 => 'renforcement',
+            default    => 'maitrise',
+        };
+    }
+
+    private function journeyPhaseMeta(int $day): array
+    {
+        $phases = [
+            'decouverte'   => ['label' => 'Découverte',   'days' => '1-15',  'emoji' => '🌱'],
+            'installation' => ['label' => 'Installation', 'days' => '16-30', 'emoji' => '🌿'],
+            'renforcement' => ['label' => 'Renforcement', 'days' => '31-45', 'emoji' => '🌳'],
+            'maitrise'     => ['label' => 'Maîtrise',     'days' => '46-60', 'emoji' => '✨'],
+        ];
+        return $phases[$this->journeyPhase($day)];
     }
 }
