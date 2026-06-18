@@ -22,7 +22,7 @@ APP_DIR="$HOME/praxiquest"
 if [ "$MODE" = "first" ]; then
   msg "Clonage du dépôt..."
   cd "$HOME"
-  git clone https://github.com/alexandrefradin-lab/PraxiQuest.git praxiquest || err "git clone échoué"
+  git clone https://github.com/alexandrefradin-lab/PraxiTests.git praxiquest || err "git clone échoué"
   ok "Dépôt cloné dans ~/praxiquest"
 
   msg "Création du .env..."
