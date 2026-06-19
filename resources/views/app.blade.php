@@ -10,8 +10,9 @@
     @routes
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
-        /* Override Vite compiled vars — thème Assassin's Creed Parchment */
+        /* Thème Assassin's Creed Parchment — override après Vite */
         :root {
+            /* Variables --pt-* utilisées par le CSS compilé */
             --pt-cream:           #F0E8D4;
             --pt-cream-dark:      #E5DAC2;
             --pt-white:           #FAF6ED;
@@ -33,6 +34,20 @@
             --pt-shadow-sm:       0 2px 8px rgba(42,30,8,0.12);
             --pt-shadow-md:       0 4px 16px rgba(42,30,8,0.15);
             --pt-shadow-lg:       0 8px 32px rgba(42,30,8,0.2);
+
+            /* Variables inline Landing.vue et autres composants */
+            --bg-base:            #F0E8D4;
+            --bg-surface:         #E5DAC2;
+            --bg-elevated:        #D8CEB5;
+            --color-primary:      #A67520;
+            --color-primary-dark: #7D5510;
+            --color-primary-light:#C99030;
+            --text-primary:       #2A1E08;
+            --text-secondary:     #5C4A1E;
+            --text-muted:         #8B7355;
+            --glass-bg:           rgba(240,232,212,0.88);
+            --glass-border:       rgba(166,117,32,0.3);
+            --shadow-gold:        0 4px 24px rgba(166,117,32,0.25);
         }
     </style>
     @inertiaHead
