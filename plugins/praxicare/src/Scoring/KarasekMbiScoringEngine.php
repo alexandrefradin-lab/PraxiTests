@@ -70,9 +70,9 @@ class KarasekMbiScoringEngine implements ScoringEngineContract
                 'has_superior' => $hasSuperior,
             ],
             'mbi'           => [
-                'ee' => $ee, 'ee_max' => 27, 'ee_severite' => $this->severite($ee, 17, 26),
-                'dp' => $dp, 'dp_max' => 15, 'dp_severite' => $this->severite($dp, 5, 9),
-                'ap' => $ap, 'ap_max' => 24, 'ap_severite' => $this->severite($ap, 9, 14),
+                'ee' => $ee, 'ee_max' => 27, 'ee_severite' => $this->severite($ee, 10, 18),
+                'dp' => $dp, 'dp_max' => 15, 'dp_severite' => $this->severite($dp, 4, 9),
+                'ap' => $ap, 'ap_max' => 24, 'ap_severite' => $this->severite($ap, 9, 16),
             ],
             'profile'       => $profile,
             'profile_label' => Questions::profiles()[$profile]['label'] ?? $profile,

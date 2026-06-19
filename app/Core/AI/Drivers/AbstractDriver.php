@@ -19,6 +19,15 @@ abstract class AbstractDriver implements AIDriverContract
         return $this->usage;
     }
 
+    /**
+     * Retourne le nom du modèle exact configuré pour ce driver.
+     * Utilisé pour la traçabilité IA dans ai_model sur TestResult.
+     */
+    public function model(): string
+    {
+        return $this->config['model'] ?? $this->key();
+    }
+
     public function generateJson(string $prompt, array $schema = [], array $options = []): array
     {
         $instruction = "Réponds STRICTEMENT en JSON valide, sans texte avant ni après, sans bloc ```json.";

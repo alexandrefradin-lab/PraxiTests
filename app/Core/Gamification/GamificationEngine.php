@@ -21,10 +21,13 @@ class GamificationEngine
         );
 
         // Incrément atomique (pas de race condition)
-        GamificationProgress::where('user_id', $user->id)
-            ->where('test_id', $test?->id)
-            ->when($amount >= 0, fn ($q) => $q->increment('xp_total', $amount))
-            ->when($amount < 0, fn ($q) => $q->decrement('xp_total', abs($amount)));
+        $query = GamificationProgress::where('user_id', $user->id)
+            ->where('test_id', $test?->id);
+        if ($amount >= 0) {
+            $query->increment('xp_total', $amount);
+        } else {
+            $query->decrement('xp_total', abs($amount));
+        }
 
         // Recharger pour avoir la valeur à jour et recalculer le level
         $progress = GamificationProgress::where('user_id', $user->id)

@@ -1,0 +1,1011 @@
+/* ═══════════════════════════════════════════════
+   PraxiMet – Design v2.1 "Luxury Editorial"
+   Polices : DM Serif Display (titres) + DM Sans (corps)
+   Couleurs : #1e3a5f (bleu marine) + #e86c2f (orange accent)
+   ═══════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap');
+
+:root {
+    --pm-blue:        #1e3a5f;
+    --pm-blue-mid:    #2d5a8e;
+    --pm-blue-light:  #e8f0fb;
+    --pm-blue-pale:   #f4f7fc;
+    --pm-orange:      #e86c2f;
+    --pm-orange-pale: #fdf1eb;
+    --pm-border:      #dde5f0;
+    --pm-border-fine: #eaeff8;
+    --pm-bg:          #f7f9fc;
+    --pm-white:       #ffffff;
+    --pm-text:        #0f1f35;
+    --pm-muted:       #5a7394;
+    --pm-muted-light: #8fa4be;
+    --pm-radius:      16px;
+    --pm-radius-sm:   10px;
+    --pm-radius-xs:   6px;
+    --pm-shadow:      0 2px 24px rgba(30,58,95,.08), 0 1px 4px rgba(30,58,95,.05);
+    --pm-shadow-md:   0 8px 40px rgba(30,58,95,.12), 0 2px 8px rgba(30,58,95,.06);
+    --pm-transition:  .22s cubic-bezier(.4,0,.2,1);
+    --pm-font-serif:  'Montserrat', sans-serif;
+    --pm-font-sans:   'Source Sans 3', system-ui, sans-serif;
+}
+
+/* ── Reset & base ─────────────────────────────── */
+.praximet-wrapper {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+    font-family: var(--pm-font-sans);
+    color: var(--pm-text);
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+}
+
+.praximet-wrapper *,
+.praximet-wrapper *::before,
+.praximet-wrapper *::after { box-sizing: inherit; }
+
+.praximet-hidden { display: none !important; }
+
+/* ══════════════════════════════════════════════
+   ÉTAPE 1 — QUIZ
+   ══════════════════════════════════════════════ */
+
+.praximet-header {
+    text-align: center;
+    padding: 52px 0 40px;
+    position: relative;
+}
+
+.praximet-header::after {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 2px;
+    background: var(--pm-orange);
+    margin: 20px auto 0;
+    border-radius: 2px;
+}
+
+.praximet-titre {
+    font-family: var(--pm-font-serif) !important;
+    font-size: 28px !important;
+    font-weight: 400 !important;
+    color: var(--pm-blue) !important;
+    margin: 0 0 12px !important;
+    line-height: 1.25 !important;
+    letter-spacing: -.3px !important;
+}
+
+.praximet-sous-titre {
+    font-size: 15px;
+    color: var(--pm-blue);
+    margin: 0;
+    line-height: 1.7;
+    font-weight: 400;
+}
+
+/* Badge PraxiMet */
+.praximet-badge-wrap {
+    text-align: right;
+    margin-bottom: 20px;
+}
+
+.praximet-badge {
+    display: inline-block;
+    background: var(--pm-orange);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 4px;
+    font-family: var(--pm-font-sans);
+}
+
+/* Barre de progression */
+.praximet-progress-container {
+    margin-bottom: 8px;
+}
+
+.praximet-progress-track {
+    height: 3px;
+    background: var(--pm-border-fine);
+    border-radius: 99px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.praximet-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--pm-blue-mid), var(--pm-orange));
+    border-radius: 99px;
+    transition: width .5s cubic-bezier(.4,0,.2,1);
+}
+
+.praximet-progress-label {
+    font-size: 12px;
+    color: var(--pm-muted-light);
+    display: block;
+    text-align: right;
+    font-weight: 400;
+    letter-spacing: .3px;
+}
+
+/* Numéro de question */
+.praximet-question-num {
+    font-size: 12px;
+    color: var(--pm-muted-light);
+    text-align: center;
+    margin: 20px 0 16px;
+    font-weight: 400;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* Card question */
+.praximet-question-card {
+    background: var(--pm-white);
+    border: 1px solid var(--pm-border-fine);
+    border-radius: var(--pm-radius);
+    padding: 44px 36px;
+    margin-bottom: 28px;
+    box-shadow: var(--pm-shadow);
+    min-height: 130px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.praximet-question-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: var(--pm-blue);
+    border-radius: 3px 0 0 3px;
+}
+
+.praximet-question-texte {
+    font-family: var(--pm-font-serif);
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--pm-text);
+    text-align: center;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Animation fade */
+@keyframes pm-fade-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.praximet-fade-in {
+    animation: pm-fade-in .28s cubic-bezier(.4,0,.2,1) both;
+}
+
+/* Boutons réponse */
+.praximet-btns-reponse {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.praximet-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: none;
+    border-radius: var(--pm-radius-sm);
+    cursor: pointer;
+    font-family: var(--pm-font-sans);
+    font-weight: 500;
+    font-size: 15px;
+    transition: all var(--pm-transition);
+    white-space: nowrap;
+    text-decoration: none;
+}
+
+.praximet-btn--non {
+    background: var(--pm-white);
+    color: var(--pm-muted);
+    border: 1.5px solid var(--pm-border);
+    padding: 16px 24px;
+}
+
+.praximet-btn--non:hover,
+.praximet-btn--non.praximet-btn--actif {
+    background: #fef4f0;
+    border-color: #f4a07a;
+    color: #c0502a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(232,108,47,.15);
+}
+
+.praximet-btn--oui {
+    background: var(--pm-blue);
+    color: #fff;
+    border: 1.5px solid var(--pm-blue);
+    padding: 16px 24px;
+}
+
+.praximet-btn--oui:hover,
+.praximet-btn--oui.praximet-btn--actif {
+    background: var(--pm-blue-mid);
+    border-color: var(--pm-blue-mid);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(30,58,95,.25);
+}
+
+/* Bouton précédent */
+.praximet-nav-prev {
+    text-align: center;
+    margin-top: 8px;
+}
+
+.praximet-btn--prev {
+    background: none;
+    color: var(--pm-muted-light);
+    border: none;
+    font-size: 13px;
+    padding: 8px 16px;
+    font-weight: 400;
+}
+
+.praximet-btn--prev:hover {
+    color: var(--pm-blue);
+}
+
+/* ══════════════════════════════════════════════
+   ÉTAPE 2 — FORMULAIRE
+   ══════════════════════════════════════════════ */
+
+.praximet-resultat-apercu {
+    text-align: center;
+    padding: 48px 24px 36px;
+    background: linear-gradient(160deg, var(--pm-blue) 0%, #163050 100%);
+    border-radius: var(--pm-radius);
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+}
+
+.praximet-resultat-apercu::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 180px; height: 180px;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 50%;
+}
+
+.praximet-resultat-apercu::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; left: -30px;
+    width: 220px; height: 220px;
+    border: 1px solid rgba(255,255,255,.05);
+    border-radius: 50%;
+}
+
+.praximet-code-flou {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.praximet-lettre-floue {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px; height: 56px;
+    background: rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.2);
+    border-radius: 12px;
+    font-family: var(--pm-font-serif);
+    font-size: 28px;
+    color: rgba(255,255,255,.5);
+    filter: blur(6px);
+    user-select: none;
+}
+
+.praximet-apercu-texte {
+    font-size: 15px;
+    color: rgba(255,255,255,.8);
+    margin: 0;
+    line-height: 1.6;
+    font-weight: 300;
+    position: relative;
+    z-index: 1;
+}
+
+.praximet-apercu-texte strong {
+    color: #fff;
+    font-weight: 500;
+    display: block;
+    margin-top: 6px;
+    font-size: 17px;
+}
+
+/* Formulaire */
+.praximet-form {
+    background: var(--pm-white);
+    border: 1px solid var(--pm-border-fine);
+    border-radius: var(--pm-radius);
+    padding: 36px;
+    box-shadow: var(--pm-shadow);
+}
+
+.praximet-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.praximet-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+
+.praximet-form-group:last-child { margin-bottom: 0; }
+
+.praximet-form-group label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--pm-blue);
+    letter-spacing: .8px;
+    text-transform: uppercase;
+}
+
+.praximet-form-group input[type="text"],
+.praximet-form-group input[type="email"] {
+    width: 100%;
+    padding: 13px 16px;
+    border: 1.5px solid var(--pm-border);
+    border-radius: var(--pm-radius-sm);
+    font-family: var(--pm-font-sans);
+    font-size: 15px;
+    color: var(--pm-text);
+    background: var(--pm-white);
+    transition: border-color var(--pm-transition), box-shadow var(--pm-transition);
+    outline: none;
+}
+
+.praximet-form-group input:focus {
+    border-color: var(--pm-blue-mid);
+    box-shadow: 0 0 0 3px rgba(45,90,142,.1);
+}
+
+.praximet-form-group input::placeholder { color: var(--pm-muted-light); }
+
+/* RGPD */
+.praximet-form-group--rgpd { margin-top: 4px; margin-bottom: 24px; }
+
+.praximet-label-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+}
+
+.praximet-label-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid var(--pm-border);
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    accent-color: var(--pm-blue);
+    cursor: pointer;
+}
+
+.praximet-label-checkbox span {
+    font-size: 13px;
+    color: var(--pm-muted);
+    line-height: 1.6;
+}
+
+.praximet-label-checkbox a {
+    color: var(--pm-blue-mid);
+    text-decoration: underline;
+}
+
+/* Erreur */
+.praximet-error {
+    background: #fff4f0;
+    border: 1px solid #fad0c0;
+    border-radius: var(--pm-radius-sm);
+    color: #c0502a;
+    font-size: 14px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+}
+
+/* Bouton submit */
+.praximet-btn--submit {
+    width: 100%;
+    background: var(--pm-blue);
+    color: #fff;
+    border: none;
+    padding: 18px 32px;
+    border-radius: var(--pm-radius-sm);
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: .3px;
+    cursor: pointer;
+    transition: all var(--pm-transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.praximet-btn--submit::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,.08));
+    pointer-events: none;
+}
+
+.praximet-btn--submit:hover {
+    background: var(--pm-blue-mid);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 24px rgba(30,58,95,.28);
+}
+
+.praximet-btn--submit:disabled {
+    opacity: .65;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ══════════════════════════════════════════════
+   ÉTAPE 3 — RÉSULTATS
+   ══════════════════════════════════════════════ */
+
+.praximet-resultat-header {
+    text-align: center;
+    padding: 52px 24px 36px;
+    background: linear-gradient(160deg, var(--pm-blue) 0%, #163050 100%);
+    border-radius: var(--pm-radius);
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+}
+
+.praximet-resultat-header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 240px; height: 240px;
+    border: 1px solid rgba(255,255,255,.06);
+    border-radius: 50%;
+}
+
+.praximet-resultat-intro {
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.5);
+    margin: 0 0 20px;
+    font-weight: 400;
+}
+
+.praximet-code-riasec {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.praximet-lettre-code {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px; height: 64px;
+    background: rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.25);
+    border-radius: 14px;
+    font-family: var(--pm-font-serif);
+    font-size: 32px;
+    color: #fff;
+    animation: pm-letter-in .4s cubic-bezier(.34,1.56,.64,1) both;
+    backdrop-filter: blur(4px);
+}
+
+@keyframes pm-letter-in {
+    from { opacity: 0; transform: scale(.6) translateY(10px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Profil detail */
+.praximet-profil-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+/* Intro prénom */
+.praximet-resultat-prenom {
+    font-family: var(--pm-font-serif);
+    font-size: 22px;
+    color: var(--pm-blue);
+    text-align: center;
+    margin: 0 0 8px;
+    font-weight: 400;
+}
+
+/* Radar */
+.praximet-radar-wrap {
+    background: var(--pm-white);
+    border: 1px solid var(--pm-border-fine);
+    border-radius: var(--pm-radius);
+    padding: 28px 24px;
+    box-shadow: var(--pm-shadow);
+    max-width: 380px;
+    margin: 0 auto;
+}
+
+.praximet-radar-titre {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--pm-muted-light);
+    text-align: center;
+    margin: 0 0 16px;
+    font-weight: 500;
+}
+
+.praximet-radar-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    overflow: visible;
+}
+
+/* Cartes profil */
+.praximet-type-card {
+    background: var(--pm-white);
+    border: 1px solid var(--pm-border-fine);
+    border-radius: var(--pm-radius);
+    padding: 28px 32px;
+    box-shadow: var(--pm-shadow);
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow var(--pm-transition), transform var(--pm-transition);
+}
+
+.praximet-type-card:hover {
+    box-shadow: var(--pm-shadow-md);
+    transform: translateY(-2px);
+}
+
+.praximet-type-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--pm-blue), var(--pm-blue-mid));
+}
+
+.praximet-type-rang {
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--pm-orange);
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.praximet-type-label {
+    font-family: var(--pm-font-serif);
+    font-size: 24px;
+    font-weight: 400;
+    color: var(--pm-blue);
+    margin: 0 0 12px;
+    line-height: 1.2;
+}
+
+.praximet-type-desc {
+    font-size: 14px;
+    color: var(--pm-blue);
+    line-height: 1.75;
+    margin: 0;
+    font-weight: 400;
+}
+
+/* Sous-domaines */
+.praximet-sd-wrap {
+    background: var(--pm-white);
+    border: 1px solid var(--pm-border-fine);
+    border-radius: var(--pm-radius);
+    padding: 32px;
+    box-shadow: var(--pm-shadow);
+    margin-bottom: 16px;
+}
+
+.praximet-sd-titre {
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--pm-muted-light);
+    margin: 0 0 28px;
+    font-weight: 500;
+}
+
+.praximet-sd-bloc {
+    margin-bottom: 28px;
+    opacity: .55;
+    transition: opacity .2s;
+}
+
+.praximet-sd-bloc--dominant {
+    opacity: 1;
+}
+
+.praximet-sd-bloc:last-child { margin-bottom: 0; }
+
+.praximet-sd-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--pm-border-fine);
+}
+
+.praximet-sd-lettre {
+    width: 32px; height: 32px;
+    background: var(--pm-blue);
+    color: #fff;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--pm-font-serif);
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.praximet-sd-bloc--dominant .praximet-sd-lettre {
+    background: var(--pm-orange);
+}
+
+.praximet-sd-type-label {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--pm-blue);
+    letter-spacing: .3px;
+}
+
+.praximet-sd-row {
+    margin-bottom: 16px;
+}
+
+.praximet-sd-row:last-child { margin-bottom: 0; }
+
+.praximet-sd-row-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 4px;
+}
+
+.praximet-sd-nom {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--pm-text);
+}
+
+.praximet-sd-pct {
+    font-size: 12px;
+    color: var(--pm-muted-light);
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+}
+
+.praximet-sd-desc {
+    font-size: 13px;
+    color: var(--pm-blue);
+    margin: 3px 0 8px;
+    line-height: 1.55;
+    font-style: italic;
+    font-weight: 400;
+}
+
+.praximet-sd-bar-track {
+    height: 4px;
+    background: var(--pm-border-fine);
+    border-radius: 99px;
+    overflow: hidden;
+}
+
+.praximet-sd-bar-fill {
+    height: 100%;
+    background: var(--pm-blue-mid);
+    border-radius: 99px;
+    transition: width .8s cubic-bezier(.4,0,.2,1);
+}
+
+.praximet-sd-bloc--dominant .praximet-sd-bar-fill {
+    background: linear-gradient(90deg, var(--pm-blue), var(--pm-orange));
+}
+
+/* CTA Bandeau */
+.praximet-cta-bandeau {
+    background: linear-gradient(160deg, var(--pm-blue) 0%, #163050 100%);
+    border-radius: var(--pm-radius);
+    padding: 36px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+}
+
+.praximet-cta-bandeau::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 180px; height: 180px;
+    border: 1px solid rgba(255,255,255,.06);
+    border-radius: 50%;
+}
+
+.praximet-cta-bandeau__icon {
+    font-size: 28px;
+    line-height: 1;
+    position: relative;
+    z-index: 1;
+}
+
+.praximet-cta-bandeau__titre {
+    font-family: var(--pm-font-serif);
+    font-size: 22px;
+    color: #fff;
+    margin: 0;
+    font-weight: 400;
+    position: relative;
+    z-index: 1;
+}
+
+.praximet-cta-bandeau__texte {
+    font-size: 14px;
+    color: rgba(255,255,255,.7);
+    margin: 0;
+    line-height: 1.7;
+    max-width: 480px;
+    font-weight: 300;
+    position: relative;
+    z-index: 1;
+}
+
+.praximet-btn--calendly {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--pm-orange);
+    color: #fff;
+    padding: 15px 32px;
+    border-radius: var(--pm-radius-sm);
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all var(--pm-transition);
+    border: none;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+}
+
+.praximet-btn--calendly:hover {
+    background: #d45e22;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(232,108,47,.4);
+}
+
+/* RGPD */
+.praximet-rgpd-wrap {
+    text-align: center;
+    margin: 24px 0 8px;
+    padding: 16px;
+    border-top: 1px solid var(--pm-border-fine);
+}
+
+.praximet-btn-supprimer {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    color: var(--pm-muted-light);
+    border: 1px solid var(--pm-border);
+    border-radius: var(--pm-radius-xs);
+    padding: 8px 18px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: var(--pm-font-sans);
+    transition: all var(--pm-transition);
+}
+
+.praximet-btn-supprimer:hover {
+    color: #c0502a;
+    border-color: #f4a07a;
+    background: #fef4f0;
+}
+
+.praximet-rgpd-note {
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--pm-muted-light);
+    line-height: 1.5;
+}
+
+.praximet-rgpd-confirm {
+    font-size: 13px;
+    color: #16a34a;
+    font-weight: 500;
+}
+
+/* Bouton danger admin */
+.praximet-btn-danger {
+    background: #dc2626;
+    color: #fff;
+    border: none;
+    padding: 6px 14px;
+    border-radius: var(--pm-radius-xs);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s;
+    font-family: var(--pm-font-sans);
+}
+.praximet-btn-danger:hover { background: #b91c1c; }
+
+/* Barres graphique */
+.praximet-bars-chart {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 8px 0 16px;
+}
+
+.praximet-bar-row {
+    display: grid;
+    grid-template-columns: 160px 1fr 48px;
+    align-items: center;
+    gap: 12px;
+    opacity: .55;
+    transition: opacity .2s;
+}
+
+.praximet-bar-row--dominant { opacity: 1; }
+
+.praximet-bar-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.praximet-bar-lettre {
+    font-size: 18px;
+    font-weight: 700;
+    width: 22px;
+    text-align: center;
+}
+
+.praximet-bar-nom {
+    font-size: 13px;
+    color: var(--pm-muted);
+    font-weight: 500;
+}
+
+.praximet-bar-track {
+    height: 4px;
+    background: var(--pm-border-fine);
+    border-radius: 99px;
+    overflow: hidden;
+}
+
+.praximet-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    width: 0%;
+}
+
+.praximet-bar-score {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--pm-muted);
+    text-align: right;
+    white-space: nowrap;
+}
+
+.praximet-bar-row--dominant .praximet-bar-score { color: var(--pm-blue); }
+
+.praximet-code-badge {
+    text-align: center;
+    font-size: 13px;
+    color: var(--pm-muted);
+    margin-top: 8px;
+    padding-top: 12px;
+    border-top: 1px solid var(--pm-border-fine);
+}
+
+.praximet-code-badge strong {
+    color: var(--pm-blue);
+    font-size: 15px;
+    letter-spacing: 2px;
+}
+
+/* ══════════════════════════════════════════════
+   RESPONSIVE
+   ══════════════════════════════════════════════ */
+
+@media (max-width: 560px) {
+    .praximet-wrapper { padding: 0 16px 40px; }
+    .praximet-header { padding: 36px 0 28px; }
+    .praximet-titre { font-size: 24px !important; }
+    .praximet-question-card { padding: 32px 24px; }
+    .praximet-question-texte { font-size: 17px; }
+    .praximet-form { padding: 24px 20px; }
+    .praximet-form-row { grid-template-columns: 1fr; gap: 0; }
+    .praximet-lettre-code { width: 52px; height: 52px; font-size: 26px; }
+    .praximet-type-card { padding: 24px 20px; }
+    .praximet-type-label { font-size: 20px; }
+    .praximet-sd-wrap { padding: 24px 16px; }
+    .praximet-cta-bandeau { padding: 28px 20px; }
+    .praximet-bar-row { grid-template-columns: 110px 1fr 40px; gap: 8px; }
+    .praximet-radar-wrap { max-width: 100%; }
+}
+
+/* ── Bandeau reprise localStorage ─────────────────────────── */
+.praximet-reprise-bandeau {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: var(--pm-blue-pale);
+    border: 1px solid var(--pm-border);
+    border-radius: var(--pm-radius-sm);
+    padding: 10px 16px;
+    margin-bottom: 20px;
+    font-size: 13px;
+}
+
+.praximet-reprise-texte {
+    color: var(--pm-blue);
+    font-weight: 500;
+}
+
+.praximet-reprise-reset {
+    background: none;
+    border: 1px solid var(--pm-border);
+    border-radius: var(--pm-radius-xs);
+    color: var(--pm-muted);
+    font-size: 12px;
+    padding: 5px 12px;
+    cursor: pointer;
+    font-family: var(--pm-font-sans);
+    white-space: nowrap;
+    transition: all var(--pm-transition);
+}
+
+.praximet-reprise-reset:hover {
+    border-color: var(--pm-orange);
+    color: var(--pm-orange);
+}

@@ -86,21 +86,23 @@ class EqiScoringEngine implements ScoringEngineContract
         for ($i = 80; $i <= 85; $i++) {
             $sum += $byIdx[$i] ?? 1;
         }
-        // Convention Bar-On : les 6 items DS (indices 80-85) sont formulés positivement.
-        // Un score ÉLEVÉ indique que le répondant se présente sous un jour très favorable = biais élevé.
+        // Items Marlowe-Crowne (indices 80-85) : ils décrivent des comportements humains
+        // normaux que presque tout le monde reconnaît avoir PARFOIS.
+        // Répondre « Jamais » (1) à ces items = présentation trop parfaite = biais probable.
+        // C'est donc un score BAS qui signale un biais, pas un score élevé.
         // Plage totale : 6 (min) à 24 (max).
-        //   >= 20 → Biais fort   (le répondant surreprésente systématiquement ses qualités)
-        //   >= 15 → Biais modéré (légère tendance à la présentation avantageuse)
-        //   <  15 → Fiable       (pas de distorsion significative détectée)
-        if ($sum >= 20) {
+        //   <= 12 → Biais fort   (réponses trop parfaites, image très positive de soi)
+        //   <= 18 → Biais modéré (légère tendance à la présentation avantageuse)
+        //   >  18 → Fiable       (admission de faiblesses humaines normales)
+        if ($sum <= 12) {
             return [
                 'score'   => $sum,
                 'niveau'  => 'Biais fort',
                 'alerte'  => true,
-                'message' => "Vos réponses indiquent une forte tendance à vous présenter sous un jour très favorable. Les scores obtenus reflètent peut-être davantage l'image que vous souhaitez donner que votre vécu émotionnel quotidien.",
+                'message' => "Vos réponses semblent orientées vers une image très positive de vous-même. Les scores ci-dessus reflètent peut-être davantage ce que vous souhaiteriez être que ce que vous vivez au quotidien. Un regard plus nuancé pourrait révéler des pistes de développement précieuses.",
             ];
         }
-        if ($sum >= 15) {
+        if ($sum <= 18) {
             return ['score' => $sum, 'niveau' => 'Biais modéré', 'alerte' => false, 'message' => ''];
         }
         return ['score' => $sum, 'niveau' => 'Fiable', 'alerte' => false, 'message' => ''];

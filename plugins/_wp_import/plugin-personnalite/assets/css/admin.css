@@ -1,0 +1,27 @@
+/* =============================================
+   Plugin Personnalité — Admin CSS
+   ============================================= */
+
+.pp-admin h1 { display: flex; align-items: center; gap: 12px; }
+.pp-badge {
+    background: #E8541A;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 20px;
+    padding: 3px 12px;
+}
+.pp-score { font-weight: 700; }
+.pp-ds-warn { color: #dc2626; }
+.pp-pagination { margin-top: 16px; display: flex; gap: 6px; }
+.pp-detail-meta { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px 20px; margin-bottom: 24px; }
+.pp-detail-meta p { margin: 4px 0; }
+
+.pp-profil-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-top: 16px; }
+.pp-profil-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px; }
+.pp-profil-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+.pp-profil-label { font-weight: 700; }
+.pp-profil-score { font-size: 18px; font-weight: 800; }
+.pp-bar-bg { background: #f3f4f6; border-radius: 999px; height: 8px; overflow: hidden; margin-bottom: 10px; }
+.pp-bar-fill { height: 100%; border-radius: 999px; }
+.pp-profil-texte { font-size: 13px; color: #4b5563; margin: 0; }

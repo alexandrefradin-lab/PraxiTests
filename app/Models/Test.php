@@ -13,7 +13,22 @@ class Test extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $guarded = [];
+    // #3 — $guarded=[] remplacé par $fillable explicite (protection mass assignment)
+    protected $fillable = [
+        'plugin_id',
+        'slug',
+        'name',
+        'description',
+        'type',
+        'scoring_engine',
+        'scoring_config',
+        'gamification',
+        'neuromarketing',
+        'estimated_minutes',
+        'published',
+        'public',
+        'metadata',
+    ];
 
     protected $casts = [
         'scoring_config'  => 'array',

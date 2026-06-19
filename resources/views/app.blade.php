@@ -71,11 +71,30 @@
         .from-amber-500         { --tw-gradient-from: #C99030 !important; }
         .to-rose-500            { --tw-gradient-to: #A67520 !important; }
 
+        /* Gradient text → or parchment (bg-clip-text) */
+        .bg-clip-text.text-transparent {
+            -webkit-text-fill-color: #A67520 !important;
+            background-image: none !important;
+        }
+
+        /* Hero section gradient background */
+        .bg-gradient-to-br, .bg-gradient-to-r {
+            background-image: none !important;
+        }
+
         /* Boutons Tailwind */
-        .bg-indigo-600          { background-color: #A67520 !important; }
+        .bg-indigo-600,
+        .bg-indigo-500          { background-color: #A67520 !important; }
         .hover\:bg-indigo-700:hover { background-color: #7D5510 !important; }
         .text-indigo-600        { color: #A67520 !important; }
         .border-indigo-600      { border-color: #A67520 !important; }
+        .ring-indigo-500        { --tw-ring-color: #A67520 !important; }
+
+        /* Pillar card accents */
+        .rounded-full.bg-gradient-to-br { background: #A67520 !important; }
+
+        /* Logo icon */
+        .from-indigo-500.to-emerald-500 { background: linear-gradient(135deg, #A67520, #C99030) !important; }
     </style>
     @inertiaHead
 </head>

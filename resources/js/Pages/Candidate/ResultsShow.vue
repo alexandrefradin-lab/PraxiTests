@@ -13,6 +13,61 @@ const revealed = ref(false)
 const typewriterText = ref('')
 const ctaVisible = ref(false)
 
+// ── Dimensions : libellés "parlants" + définitions au clic ──────────────
+// Dictionnaire de secours côté front. Si le moteur de scoring renvoie déjà
+// result.scoring.dimension_meta[key] = { label, description }, il a priorité.
+const DIM_META = {
+    // Dimensions génériques (écran actuel)
+    role:    { label: 'Posture & Rôle',   description: "Ta capacité à prendre ta place et à assumer un rôle clair : te positionner, porter des responsabilités et agir avec légitimité dans un groupe ou un projet." },
+    social:  { label: 'Aisance sociale',  description: "Ton aisance relationnelle : aller vers les autres, coopérer, écouter et créer du lien. Plus le score est élevé, plus tu es à l'aise dans les interactions humaines." },
+    values:  { label: 'Valeurs',          description: "L'alignement avec tes valeurs profondes — ce qui compte vraiment pour toi et oriente tes choix. Un score élevé signale une boussole intérieure forte et cohérente." },
+    context: { label: 'Lecture du contexte', description: "Ta capacité à capter les enjeux d'une situation, à t'adapter à ton environnement et à ajuster ton comportement selon les circonstances." },
+
+    // RIASEC (Holland)
+    r:            { label: 'Réaliste',      description: "Goût du concret, du manuel et du technique : construire, réparer, manipuler des objets ou des machines." },
+    realiste:     { label: 'Réaliste',      description: "Goût du concret, du manuel et du technique : construire, réparer, manipuler des objets ou des machines." },
+    i:            { label: 'Investigateur', description: "Curiosité intellectuelle et analyse : comprendre, expérimenter et résoudre des problèmes complexes." },
+    investigateur:{ label: 'Investigateur', description: "Curiosité intellectuelle et analyse : comprendre, expérimenter et résoudre des problèmes complexes." },
+    a:            { label: 'Artistique',    description: "Créativité, expression et originalité : imaginer, créer et sortir des cadres établis." },
+    artistique:   { label: 'Artistique',    description: "Créativité, expression et originalité : imaginer, créer et sortir des cadres établis." },
+    s:            { label: 'Social',        description: "Aime travailler avec les autres : informer, former, accompagner, soutenir. Profil empathique et coopératif." },
+    e:            { label: 'Entreprenant',  description: "Leadership, persuasion et initiative : convaincre, diriger et entreprendre." },
+    entreprenant: { label: 'Entreprenant',  description: "Leadership, persuasion et initiative : convaincre, diriger et entreprendre." },
+    c:            { label: 'Conventionnel', description: "Organisation, rigueur et méthode : structurer, classer et gérer avec précision." },
+    conventionnel:{ label: 'Conventionnel', description: "Organisation, rigueur et méthode : structurer, classer et gérer avec précision." },
+
+    // Compétences relationnelles (PraxiLink)
+    ecoute_active:          { label: 'Écoute active',          description: "Ta capacité à écouter vraiment : reformuler, clarifier et montrer à l'autre qu'il est compris." },
+    expression_assertive:   { label: 'Expression assertive',   description: "Dire ce que tu penses avec clarté et respect, sans agressivité ni effacement." },
+    empathie_relationnelle: { label: 'Empathie',               description: "Percevoir et prendre en compte les émotions et besoins des autres dans la relation." },
+    gestion_conflits:       { label: 'Gestion des conflits',   description: "Aborder les désaccords de façon constructive pour chercher une solution gagnant-gagnant." },
+    feedback_constructif:   { label: 'Feedback constructif',   description: "Donner un retour précis et bienveillant qui aide l'autre à progresser." },
+}
+
+const openDim = ref(null)
+function toggleDim(key) {
+    openDim.value = openDim.value === key ? null : key
+}
+function normKey(key) {
+    return String(key).toLowerCase().trim().replace(/[\s-]+/g, '_')
+}
+function dimMeta(key) {
+    const backend = props.result?.scoring?.dimension_meta?.[key]
+    if (backend && (backend.label || backend.description)) return backend
+    return DIM_META[normKey(key)] || null
+}
+function dimLabel(key) {
+    const meta = dimMeta(key)
+    if (meta?.label) return meta.label
+    // Repli : « ecoute_active » → « Ecoute active »
+    const pretty = String(key).replace(/[_-]+/g, ' ').trim()
+    return pretty.charAt(0).toUpperCase() + pretty.slice(1)
+}
+function dimDef(key) {
+    return dimMeta(key)?.description
+        || "Cette dimension mesure une facette de ton profil. Plus la barre est remplie, plus elle te caractérise."
+}
+
 onMounted(() => {
     if (!props.ai_pending && props.result?.ai_synthesis) {
         // Séquence cinématique :
@@ -106,19 +161,34 @@ onMounted(() => {
                 <!-- ── DIMENSIONS SCORING ─────────────────────────── -->
                 <section v-if="result.scoring?.dimensions" class="ac-card">
                     <h2 class="ac-card-title">Tes Dimensions</h2>
+                    <p class="ac-card-hint">Clique sur une dimension pour découvrir ce qu'elle mesure.</p>
                     <div class="ac-dimensions">
                         <div
                             v-for="(dimValue, key) in result.scoring.dimensions"
                             :key="key"
                             class="ac-dimension-row"
+                            :class="{ 'is-open': openDim === key }"
                         >
-                            <div class="ac-dimension-header">
-                                <span class="ac-dimension-name">{{ key }}</span>
+                            <button
+                                type="button"
+                                class="ac-dimension-header"
+                                @click="toggleDim(key)"
+                                :aria-expanded="openDim === key"
+                            >
+                                <span class="ac-dimension-name">
+                                    {{ dimLabel(key) }}
+                                    <span class="ac-dimension-info" aria-hidden="true">i</span>
+                                </span>
                                 <span class="ac-dimension-score">{{ dimValue }}/100</span>
-                            </div>
+                            </button>
                             <div class="ac-progress-track">
                                 <div class="ac-progress-fill" :style="{ width: dimValue + '%' }"></div>
                             </div>
+                            <transition name="ac-def">
+                                <p v-if="openDim === key" class="ac-dimension-def">
+                                    {{ dimDef(key) }}
+                                </p>
+                            </transition>
                         </div>
                     </div>
                 </section>
@@ -391,21 +461,92 @@ onMounted(() => {
     gap: 1.25rem;
 }
 
+.ac-card-hint {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin: -1rem 0 1.25rem;
+    letter-spacing: 0.02em;
+}
+
 .ac-dimension-row {}
 
 .ac-dimension-header {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
+    width: 100%;
     margin-bottom: 0.4rem;
+    padding: 0;
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    -webkit-appearance: none;
+            appearance: none;
+}
+
+.ac-dimension-header:hover .ac-dimension-name,
+.ac-dimension-header:focus-visible .ac-dimension-name {
+    color: var(--color-primary-dark);
 }
 
 .ac-dimension-name {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
     font-family: 'Space Grotesk', sans-serif;
     font-size: 13px;
     font-weight: 600;
     color: var(--text-primary);
-    text-transform: capitalize;
+    transition: color 0.2s ease;
+}
+
+.ac-dimension-info {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    border: 1px solid var(--glass-border);
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    font-style: italic;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--color-primary);
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.ac-dimension-row.is-open .ac-dimension-info,
+.ac-dimension-header:hover .ac-dimension-info {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--bg-base);
+}
+
+.ac-dimension-def {
+    font-family: 'Inter', sans-serif;
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--text-secondary);
+    margin: 0.6rem 0 0;
+    padding: 0.7rem 0.85rem;
+    background: var(--glass-bg);
+    border-left: 2px solid var(--color-primary);
+    border-radius: 0 6px 6px 0;
+}
+
+.ac-def-enter-active,
+.ac-def-leave-active {
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.ac-def-enter-from,
+.ac-def-leave-to {
+    opacity: 0;
+    transform: translateY(-4px);
 }
 
 .ac-dimension-score {

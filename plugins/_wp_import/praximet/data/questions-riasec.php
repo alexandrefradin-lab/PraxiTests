@@ -1,0 +1,226 @@
+<?php
+/**
+ * PraxiMet – Questions RIASEC v1.2.0
+ * 6 types × 2 sous-domaines × 7 questions = 84 questions
+ * Règle absolue : une seule idée par question, ancrée dans son sous-domaine
+ *
+ * Sous-domaines :
+ *   R = Travail manuel / Plein air & Nature
+ *   I = Curiosité & Exploration / Analyse & Raisonnement
+ *   A = Création & Invention / Sensibilité & Esthétique
+ *   S = Écoute & Soutien / Transmission & Pédagogie
+ *   E = Leadership & Décision / Persuasion & Influence
+ *   C = Organisation & Planification / Rigueur & Précision
+ */
+
+if ( ! defined( 'ABSPATH' ) ) exit;
+
+function praximet_get_questions() {
+    return [
+
+        // ── RÉALISTE — Travail manuel ─────────────────────────────────
+        // Mesure : goût pour le travail physique, la fabrication, la technique
+        [ 'id' => 'R1',  'type' => 'R', 'sous_domaine' => 'Activités manuelles et techniques',
+          'texte' => 'J\'aime travailler avec mes mains.' ],
+        [ 'id' => 'R2',  'type' => 'R', 'sous_domaine' => 'Activités manuelles et techniques',
+          'texte' => 'J\'aime réparer des objets.' ],
+        [ 'id' => 'R3',  'type' => 'R', 'sous_domaine' => 'Activités manuelles et techniques',
+          'texte' => 'J\'apprécie les activités techniques.' ],
+        [ 'id' => 'R4',  'type' => 'R', 'sous_domaine' => 'Activités manuelles et techniques',
+          'texte' => 'Je préfère un résultat concret et visible à la fin de ma journée.' ],
+        [ 'id' => 'R5',  'type' => 'R', 'sous_domaine' => 'Activités manuelles et techniques',
+          'texte' => 'J\'aime assembler ou construire des choses.' ],
+        [ 'id' => 'R6',  'type' => 'R', 'sous_domaine' => 'Activités manuelles et techniques',
+          'texte' => 'Je me sens à l\'aise avec les outils.' ],
+        [ 'id' => 'R7',  'type' => 'R', 'sous_domaine' => 'Activités manuelles et techniques',
+          'texte' => 'J\'aime les travaux qui demandent de la dextérité.' ],
+
+        // ── RÉALISTE — Plein air & Nature ─────────────────────────────
+        // Mesure : goût pour le terrain, les espaces extérieurs, le contact avec la nature
+        [ 'id' => 'R8',  'type' => 'R', 'sous_domaine' => 'Activités extérieures',
+          'texte' => 'J\'aime travailler en plein air.' ],
+        [ 'id' => 'R9',  'type' => 'R', 'sous_domaine' => 'Activités extérieures',
+          'texte' => 'J\'aime être en contact avec la nature dans mon travail.' ],
+        [ 'id' => 'R10', 'type' => 'R', 'sous_domaine' => 'Activités extérieures',
+          'texte' => 'Je préfère l\'action sur le terrain à un travail de bureau.' ],
+        [ 'id' => 'R11', 'type' => 'R', 'sous_domaine' => 'Activités extérieures',
+          'texte' => 'Je me sens plus à l\'aise dehors qu\'en intérieur.' ],
+        [ 'id' => 'R12', 'type' => 'R', 'sous_domaine' => 'Activités extérieures',
+          'texte' => 'J\'aime les activités physiques en extérieur.' ],
+        [ 'id' => 'R13', 'type' => 'R', 'sous_domaine' => 'Activités extérieures',
+          'texte' => 'Je suis attiré par les métiers qui se pratiquent sur le terrain.' ],
+        [ 'id' => 'R14', 'type' => 'R', 'sous_domaine' => 'Activités extérieures',
+          'texte' => 'J\'aime observer et comprendre le monde naturel.' ],
+
+        // ── INVESTIGATEUR — Curiosité & Exploration ───────────────────
+        // Mesure : appétit intellectuel, goût pour comprendre et questionner
+        [ 'id' => 'I1',  'type' => 'I', 'sous_domaine' => 'Curiosité intellectuelle et apprentissage',
+          'texte' => 'Je suis naturellement curieux.' ],
+        [ 'id' => 'I2',  'type' => 'I', 'sous_domaine' => 'Curiosité intellectuelle et apprentissage',
+          'texte' => 'J\'aime comprendre les mécanismes qui expliquent les phénomènes.' ],
+        [ 'id' => 'I3',  'type' => 'I', 'sous_domaine' => 'Curiosité intellectuelle et apprentissage',
+          'texte' => 'Je remets en question les idées reçues.' ],
+        [ 'id' => 'I4',  'type' => 'I', 'sous_domaine' => 'Curiosité intellectuelle et apprentissage',
+          'texte' => 'J\'aime faire des liens entre des domaines différents.' ],
+        [ 'id' => 'I5',  'type' => 'I', 'sous_domaine' => 'Curiosité intellectuelle et apprentissage',
+          'texte' => 'J\'aime lire ou me documenter sur des sujets variés.' ],
+        [ 'id' => 'I6',  'type' => 'I', 'sous_domaine' => 'Curiosité intellectuelle et apprentissage',
+          'texte' => 'Je pose facilement des questions que les autres ne pensent pas à poser.' ],
+        [ 'id' => 'I7',  'type' => 'I', 'sous_domaine' => 'Curiosité intellectuelle et apprentissage',
+          'texte' => 'J\'aime explorer des idées nouvelles.' ],
+
+        // ── INVESTIGATEUR — Analyse & Raisonnement ────────────────────
+        // Mesure : capacité et goût pour la logique, la déduction, la résolution de problèmes
+        [ 'id' => 'I8',  'type' => 'I', 'sous_domaine' => 'Sciences et technologie',
+          'texte' => 'J\'aime travailler sur des sujets scientifiques ou technologiques.' ],
+        [ 'id' => 'I9',  'type' => 'I', 'sous_domaine' => 'Sciences et technologie',
+          'texte' => 'Je suis attiré par les avancées technologiques et scientifiques.' ],
+        [ 'id' => 'I10', 'type' => 'I', 'sous_domaine' => 'Sciences et technologie',
+          'texte' => 'J\'aime comprendre comment fonctionnent les machines ou les systèmes.' ],
+        [ 'id' => 'I11', 'type' => 'I', 'sous_domaine' => 'Sciences et technologie',
+          'texte' => 'Je cherche à comprendre les causes avant de proposer des solutions.' ],
+        [ 'id' => 'I12', 'type' => 'I', 'sous_domaine' => 'Sciences et technologie',
+          'texte' => 'J\'aime résoudre des problèmes complexes.' ],
+        [ 'id' => 'I13', 'type' => 'I', 'sous_domaine' => 'Sciences et technologie',
+          'texte' => 'Je m\'intéresse aux sciences exactes, à la biologie ou à l\'informatique.' ],
+        [ 'id' => 'I14', 'type' => 'I', 'sous_domaine' => 'Sciences et technologie',
+          'texte' => 'J\'aime expérimenter et faire des tests pour comprendre comment ça marche.' ],
+
+        // ── ARTISTIQUE — Création & Invention ─────────────────────────
+        // Mesure : goût pour produire du neuf, concevoir, imaginer
+        [ 'id' => 'A1',  'type' => 'A', 'sous_domaine' => 'Créativité et conception',
+          'texte' => 'J\'aime créer des choses nouvelles.' ],
+        [ 'id' => 'A2',  'type' => 'A', 'sous_domaine' => 'Créativité et conception',
+          'texte' => 'J\'aime concevoir des projets originaux.' ],
+        [ 'id' => 'A3',  'type' => 'A', 'sous_domaine' => 'Créativité et conception',
+          'texte' => 'J\'aime les activités qui font appel à l\'imagination.' ],
+        [ 'id' => 'A4',  'type' => 'A', 'sous_domaine' => 'Créativité et conception',
+          'texte' => 'J\'aime inventer des solutions inédites.' ],
+        [ 'id' => 'A5',  'type' => 'A', 'sous_domaine' => 'Créativité et conception',
+          'texte' => 'Je suis attiré par les métiers où l\'on crée quelque chose.' ],
+        [ 'id' => 'A6',  'type' => 'A', 'sous_domaine' => 'Créativité et conception',
+          'texte' => 'J\'aime expérimenter de nouvelles façons de faire.' ],
+        [ 'id' => 'A7',  'type' => 'A', 'sous_domaine' => 'Créativité et conception',
+          'texte' => 'Je me sens épanoui quand j\'ai carte blanche.' ],
+
+        // ── ARTISTIQUE — Sensibilité & Esthétique ─────────────────────
+        // Mesure : rapport au beau, à l'expression, au ressenti
+        [ 'id' => 'A8',  'type' => 'A', 'sous_domaine' => 'Sens esthétique et expression',
+          'texte' => 'Je suis sensible à l\'esthétique.' ],
+        [ 'id' => 'A9',  'type' => 'A', 'sous_domaine' => 'Sens esthétique et expression',
+          'texte' => 'Je m\'exprime facilement à travers l\'écriture ou les arts.' ],
+        [ 'id' => 'A10', 'type' => 'A', 'sous_domaine' => 'Sens esthétique et expression',
+          'texte' => 'Je suis attiré par les métiers qui font appel à la sensibilité.' ],
+        [ 'id' => 'A11', 'type' => 'A', 'sous_domaine' => 'Sens esthétique et expression',
+          'texte' => 'Je remarque facilement quand quelque chose est beau ou harmonieux.' ],
+        [ 'id' => 'A12', 'type' => 'A', 'sous_domaine' => 'Sens esthétique et expression',
+          'texte' => 'J\'accorde une grande importance à l\'ambiance d\'un lieu.' ],
+        [ 'id' => 'A13', 'type' => 'A', 'sous_domaine' => 'Sens esthétique et expression',
+          'texte' => 'J\'aime que les choses soient belles autant que fonctionnelles.' ],
+        [ 'id' => 'A14', 'type' => 'A', 'sous_domaine' => 'Sens esthétique et expression',
+          'texte' => 'Je perçois facilement les nuances d\'une image, d\'un texte ou d\'une musique.' ],
+
+        // ── SOCIAL — Écoute & Soutien ─────────────────────────────────
+        // Mesure : empathie, disponibilité, accompagnement individuel
+        [ 'id' => 'S1',  'type' => 'S', 'sous_domaine' => 'Dévouement aux autres',
+          'texte' => 'Je suis à l\'aise pour écouter les gens sans les juger.' ],
+        [ 'id' => 'S2',  'type' => 'S', 'sous_domaine' => 'Dévouement aux autres',
+          'texte' => 'Je perçois facilement ce que les autres ressentent.' ],
+        [ 'id' => 'S3',  'type' => 'S', 'sous_domaine' => 'Dévouement aux autres',
+          'texte' => 'J\'aime accompagner quelqu\'un qui traverse une difficulté.' ],
+        [ 'id' => 'S4',  'type' => 'S', 'sous_domaine' => 'Dévouement aux autres',
+          'texte' => 'Je me sens utile quand j\'aide quelqu\'un à aller mieux.' ],
+        [ 'id' => 'S5',  'type' => 'S', 'sous_domaine' => 'Dévouement aux autres',
+          'texte' => 'Les gens se confient facilement à moi.' ],
+        [ 'id' => 'S6',  'type' => 'S', 'sous_domaine' => 'Dévouement aux autres',
+          'texte' => 'Je prends le temps de comprendre la situation de l\'autre avant de réagir.' ],
+        [ 'id' => 'S7',  'type' => 'S', 'sous_domaine' => 'Dévouement aux autres',
+          'texte' => 'J\'aime les métiers où l\'on prend soin des autres.' ],
+
+        // ── SOCIAL — Transmission & Pédagogie ─────────────────────────
+        // Mesure : goût pour former, expliquer, faire progresser les autres
+        [ 'id' => 'S8',  'type' => 'S', 'sous_domaine' => 'Relations personnelles',
+          'texte' => 'J\'aime créer des liens avec des personnes très différentes de moi.' ],
+        [ 'id' => 'S9',  'type' => 'S', 'sous_domaine' => 'Relations personnelles',
+          'texte' => 'Je me sens à l\'aise en groupe et j\'aime les échanges informels.' ],
+        [ 'id' => 'S10', 'type' => 'S', 'sous_domaine' => 'Relations personnelles',
+          'texte' => 'Je tire satisfaction à voir quelqu\'un progresser grâce à mon aide.' ],
+        [ 'id' => 'S11', 'type' => 'S', 'sous_domaine' => 'Relations personnelles',
+          'texte' => 'J\'aime entretenir des relations durables et de confiance avec les gens.' ],
+        [ 'id' => 'S12', 'type' => 'S', 'sous_domaine' => 'Relations personnelles',
+          'texte' => 'Je suis patient quand quelqu\'un met du temps à comprendre.' ],
+        [ 'id' => 'S13', 'type' => 'S', 'sous_domaine' => 'Relations personnelles',
+          'texte' => 'J\'aime partager mes connaissances.' ],
+        [ 'id' => 'S14', 'type' => 'S', 'sous_domaine' => 'Relations personnelles',
+          'texte' => 'Je suis attiré par les métiers où les relations humaines sont au cœur du travail.' ],
+
+        // ── ENTREPRENEUR — Leadership & Décision ─────────────────────
+        // Mesure : goût pour la responsabilité, la direction, l'initiative
+        [ 'id' => 'E1',  'type' => 'E', 'sous_domaine' => 'Leadership',
+          'texte' => 'Je me sens à l\'aise pour prendre des décisions.' ],
+        [ 'id' => 'E2',  'type' => 'E', 'sous_domaine' => 'Leadership',
+          'texte' => 'J\'aime diriger une équipe vers un objectif.' ],
+        [ 'id' => 'E3',  'type' => 'E', 'sous_domaine' => 'Leadership',
+          'texte' => 'J\'aime lancer de nouveaux projets.' ],
+        [ 'id' => 'E4',  'type' => 'E', 'sous_domaine' => 'Leadership',
+          'texte' => 'J\'aime relever des défis ambitieux.' ],
+        [ 'id' => 'E5',  'type' => 'E', 'sous_domaine' => 'Leadership',
+          'texte' => 'Je prends facilement des initiatives.' ],
+        [ 'id' => 'E6',  'type' => 'E', 'sous_domaine' => 'Leadership',
+          'texte' => 'Je me sens à l\'aise dans un rôle de responsable.' ],
+        [ 'id' => 'E7',  'type' => 'E', 'sous_domaine' => 'Leadership',
+          'texte' => 'J\'aime fixer des objectifs et mobiliser les gens pour les atteindre.' ],
+
+        // ── ENTREPRENEUR — Persuasion & Influence ─────────────────────
+        // Mesure : goût pour convaincre, vendre, impacter les autres
+        [ 'id' => 'E8',  'type' => 'E', 'sous_domaine' => 'Entrepreneur',
+          'texte' => 'J\'aime convaincre les autres.' ],
+        [ 'id' => 'E9',  'type' => 'E', 'sous_domaine' => 'Entrepreneur',
+          'texte' => 'J\'aime négocier.' ],
+        [ 'id' => 'E10', 'type' => 'E', 'sous_domaine' => 'Entrepreneur',
+          'texte' => 'J\'aime évoluer dans un environnement compétitif.' ],
+        [ 'id' => 'E11', 'type' => 'E', 'sous_domaine' => 'Entrepreneur',
+          'texte' => 'Je suis à l\'aise pour défendre un point de vue.' ],
+        [ 'id' => 'E12', 'type' => 'E', 'sous_domaine' => 'Entrepreneur',
+          'texte' => 'J\'aime les situations où je dois faire changer d\'avis quelqu\'un.' ],
+        [ 'id' => 'E13', 'type' => 'E', 'sous_domaine' => 'Entrepreneur',
+          'texte' => 'J\'aime prendre des risques calculés pour saisir des opportunités.' ],
+        [ 'id' => 'E14', 'type' => 'E', 'sous_domaine' => 'Entrepreneur',
+          'texte' => 'J\'aime influencer positivement les décisions d\'un groupe.' ],
+
+        // ── CONVENTIONNEL — Organisation & Planification ──────────────
+        // Mesure : goût pour la structure, l'anticipation, la gestion du temps
+        [ 'id' => 'C1',  'type' => 'C', 'sous_domaine' => 'Méthodique',
+          'texte' => 'J\'aime organiser et classer les informations.' ],
+        [ 'id' => 'C2',  'type' => 'C', 'sous_domaine' => 'Méthodique',
+          'texte' => 'Je préfère suivre une procédure claire plutôt qu\'improviser.' ],
+        [ 'id' => 'C3',  'type' => 'C', 'sous_domaine' => 'Méthodique',
+          'texte' => 'J\'aime planifier à l\'avance.' ],
+        [ 'id' => 'C4',  'type' => 'C', 'sous_domaine' => 'Méthodique',
+          'texte' => 'Je me sens efficace quand je suis un planning.' ],
+        [ 'id' => 'C5',  'type' => 'C', 'sous_domaine' => 'Méthodique',
+          'texte' => 'J\'aime structurer mon travail avant de commencer.' ],
+        [ 'id' => 'C6',  'type' => 'C', 'sous_domaine' => 'Méthodique',
+          'texte' => 'Je suis à l\'aise pour gérer plusieurs tâches en même temps.' ],
+        [ 'id' => 'C7',  'type' => 'C', 'sous_domaine' => 'Méthodique',
+          'texte' => 'J\'aime les environnements de travail où chaque chose est à sa place.' ],
+
+        // ── CONVENTIONNEL — Rigueur & Précision ───────────────────────
+        // Mesure : attention aux détails, exactitude, fiabilité
+        [ 'id' => 'C8',  'type' => 'C', 'sous_domaine' => 'Données et nombres',
+          'texte' => 'J\'aime travailler avec des chiffres, des tableaux ou des statistiques.' ],
+        [ 'id' => 'C9',  'type' => 'C', 'sous_domaine' => 'Données et nombres',
+          'texte' => 'Je suis à l\'aise avec les chiffres.' ],
+        [ 'id' => 'C10', 'type' => 'C', 'sous_domaine' => 'Données et nombres',
+          'texte' => 'J\'aime vérifier qu\'il n\'y a pas d\'erreur dans mon travail.' ],
+        [ 'id' => 'C11', 'type' => 'C', 'sous_domaine' => 'Données et nombres',
+          'texte' => 'Je trouve de la satisfaction dans l\'analyse de données et les calculs précis.' ],
+        [ 'id' => 'C12', 'type' => 'C', 'sous_domaine' => 'Données et nombres',
+          'texte' => 'J\'aime les tâches où il faut être exact.' ],
+        [ 'id' => 'C13', 'type' => 'C', 'sous_domaine' => 'Données et nombres',
+          'texte' => 'J\'aime produire des rapports, des tableaux de bord ou des analyses chiffrées.' ],
+        [ 'id' => 'C14', 'type' => 'C', 'sous_domaine' => 'Données et nombres',
+          'texte' => 'Je suis à l\'aise pour utiliser des logiciels de traitement de données.' ],
+
+    ];
+}

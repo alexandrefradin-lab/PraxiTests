@@ -6,6 +6,7 @@ use App\Http\Controllers\Candidate\OnboardingController;
 use App\Http\Controllers\Candidate\ResultController;
 use App\Http\Controllers\Candidate\TestController;
 use App\Http\Controllers\BillingController;
+use App\Http\Controllers\GdprController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LegalController;
 use Illuminate\Support\Facades\Route;
@@ -16,7 +17,10 @@ Route::get('/cgu', [LegalController::class, 'cgu'])->name('cgu');
 // NOTE : Le middleware 'subscribed' (EnsureSubscribed) est disponible mais
 // non appliqué ici — accès libre en phase bêta. Pour activer le paywall,
 // ajouter 'subscribed' au middleware group ci-dessous.
-Route::middleware(['auth', 'verified'])->group(function () {
+// NOTE : Le middleware 'verified' a été retiré car aucun flux de vérification
+// d'email n'est implémenté (route verification.notice inexistante → 500).
+// À réintroduire avec les routes/contrôleur/mail de vérification si besoin.
+Route::middleware(['auth'])->group(function () {
     // Onboarding profil (statut, ancienneté, CV)
     Route::get('/onboarding', [OnboardingController::class, 'show'])->name('onboarding.show');
     Route::post('/onboarding', [OnboardingController::class, 'store'])->name('onboarding.store');
@@ -42,10 +46,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Journey 60 jours
     Route::post('/journey/complete', [JourneyController::class, 'completeDay'])->name('journey.complete');
     Route::get('/journey/today',     [JourneyController::class, 'todayData'])->name('journey.today');
+
+    // ─── RGPD — Droits des personnes (Art. 15, 17, 20) ────────────────────────
+    Route::prefix('account/gdpr')->name('gdpr.')->group(function () {
+        Route::get('/',          [GdprController::class, 'show'])->name('show');
+        Route::get('/export',    [GdprController::class, 'export'])->name('export');
+        Route::delete('/delete', [GdprController::class, 'destroy'])->name('destroy');
+    });
+
+    // Édition du profil (mise à jour post-onboarding)
+    Route::get('/profile/edit',   [OnboardingController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile',        [OnboardingController::class, 'update'])->name('profile.update');
 });
 
 // ─── Billing / Stripe ────────────────────────────────────────────────────────
-Route::middleware(['auth', 'verified'])->prefix('billing')->name('billing.')->group(function () {
+Route::middleware(['auth'])->prefix('billing')->name('billing.')->group(function () {
     Route::get('/plans',    [BillingController::class, 'plans'])->name('plans');
     Route::post('/checkout',[BillingController::class, 'checkout'])->name('checkout');
     Route::get('/manage',   [BillingController::class, 'manage'])->name('manage');

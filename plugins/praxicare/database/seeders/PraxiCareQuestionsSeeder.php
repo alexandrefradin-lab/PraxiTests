@@ -32,7 +32,7 @@ class PraxiCareQuestionsSeeder extends Seeder
         ];
         $mbiScale = [
             'min_label' => 'Jamais',
-            'max_label' => 'Souvent',
+            'max_label' => 'Toujours',
             'max'       => 4,
         ];
 

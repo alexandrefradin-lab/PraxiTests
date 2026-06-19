@@ -18,4 +18,7 @@ interface AIDriverContract
 
     /** Compte de tokens utilisés sur la dernière requête */
     public function lastUsage(): array;
+
+    /** Nom du modèle exact utilisé (ex: claude-sonnet-4-6, gpt-4o-mini) — pour traçabilité IA */
+    public function model(): string;
 }

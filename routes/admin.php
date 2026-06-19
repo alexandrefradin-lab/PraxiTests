@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\CampaignController;
+use App\Http\Controllers\Admin\ConseillerDashboardController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\Admin\PluginController;
@@ -14,6 +15,7 @@ Route::middleware(['auth', 'verified', 'role:admin|professional'])
     ->prefix('admin')->name('admin.')
     ->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/conseiller', [ConseillerDashboardController::class, 'index'])->name('conseiller');
         Route::resource('leads', LeadController::class);
         Route::resource('campaigns', CampaignController::class);
         Route::post('campaigns/{campaign}/send', [CampaignController::class, 'send'])->name('campaigns.send');

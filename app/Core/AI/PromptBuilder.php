@@ -135,9 +135,50 @@ TXT;
             'mots_clés'   => 'array',
         ];
 
+        // #10 — Sanitiser le texte brut du CV avant envoi au LLM pour éviter le prompt injection.
+        $safeText = $this->sanitizeUserContent($cvText, maxChars: 20000);
+
         return [
             ['role' => 'system', 'content' => $system],
-            ['role' => 'user',   'content' => "Schéma : " . json_encode($schema, JSON_UNESCAPED_UNICODE) . "\n\nCV :\n---\n{$cvText}\n---"],
+            ['role' => 'user',   'content' => "Schéma : " . json_encode($schema, JSON_UNESCAPED_UNICODE) . "\n\nCV :\n---\n{$safeText}\n---"],
         ];
+    }
+
+    /**
+     * Sanitise un texte utilisateur avant envoi au LLM.
+     *
+     * Protections appliquées :
+     * 1. Troncature à $maxChars pour limiter les coûts et les injections longues.
+     * 2. Détection et neutralisation des patterns de prompt injection courants
+     *    (ex : "ignore previous instructions", "act as", "you are now"…).
+     *    On ne supprime pas la phrase, on la neutralise en la faisant précéder d'un
+     *    marqueur [FILTERED] afin de ne pas déformer silencieusement un vrai CV.
+     *
+     * #10 — Protection contre le prompt injection dans les entrées utilisateur.
+     */
+    protected function sanitizeUserContent(string $text, int $maxChars = 10000): string
+    {
+        // 1. Tronquer
+        if (mb_strlen($text) > $maxChars) {
+            $text = mb_substr($text, 0, $maxChars) . "\n[... contenu tronqué ...]";
+        }
+
+        // 2. Neutraliser les patterns d'injection courants (insensible à la casse)
+        $injectionPatterns = [
+            // Commandes directes au LLM
+            '/\b(ignore|oublie|forget|disregard)\b.{0,60}\b(instructions?|consignes?|directives?|everything|all)\b/iu',
+            '/\b(tu es maintenant|you are now|act as|agis comme|maintenant tu es)\b/iu',
+            // Tentatives de ré-initialisation du rôle
+            '/\bsystem\s*:/iu',
+            '/\bprompt\s*:/iu',
+            // Demandes de sortie du rôle
+            '/\b(switch to|passe en mode|change de rôle|nouveau rôle)\b/iu',
+        ];
+
+        foreach ($injectionPatterns as $pattern) {
+            $text = preg_replace($pattern, '[FILTERED]', $text);
+        }
+
+        return $text;
     }
 }

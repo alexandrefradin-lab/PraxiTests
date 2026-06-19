@@ -7,7 +7,23 @@ use Illuminate\Database\Eloquent\Model;
 
 class Plugin extends Model
 {
-    protected $guarded = [];
+    // #3 — $guarded=[] remplacé par $fillable explicite (protection mass assignment)
+    protected $fillable = [
+        'slug',
+        'name',
+        'version',
+        'author',
+        'type',
+        'description',
+        'service_provider',
+        'manifest',
+        'config',
+        'permissions',
+        'enabled',
+        'core',
+        'installed_at',
+        'last_activated_at',
+    ];
 
     protected $casts = [
         'manifest'          => 'array',

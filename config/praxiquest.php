@@ -24,7 +24,8 @@ return [
         ],
         'cv_required' => true,
         'cv_max_size_kb' => 5120,
-        'cv_allowed_mimes' => ['pdf', 'doc', 'docx'],
+        // A4 — doc/docx retirés : CvExtractionService ne les extrait pas (prévoir phpoffice/phpword)
+        'cv_allowed_mimes' => ['pdf'],
     ],
 
     'results' => [
@@ -42,7 +43,42 @@ return [
         'name'    => env('APP_NAME', 'PraxiQuest'),
         'tagline' => 'Évaluer. Orienter. Transformer.',
         'logo'    => env('PRAXIQUEST_LOGO_URL'),
-        'primary_color'   => env('PRAXIQUEST_COLOR_PRIMARY', '#4F46E5'),
-        'secondary_color' => env('PRAXIQUEST_COLOR_SECONDARY', '#10B981'),
+        'primary_color'   => env('PRAXIQUEST_COLOR_PRIMARY', '#A67520'),   // Or de la Fraternité
+        'secondary_color' => env('PRAXIQUEST_COLOR_SECONDARY', '#7B1515'), // Cramoisi
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Rapport PDF — personnalisation
+    |--------------------------------------------------------------------------
+    | Pilote le rendu de resources/views/pdf/results.blade.php.
+    | - sections : activer / désactiver chaque bloc du rapport
+    | - footer   : coordonnées du cabinet / conseiller + mention légale
+    | - paper    : format & orientation DomPDF
+    | Les couleurs et le logo sont repris depuis 'branding' ci-dessus, et peuvent
+    | être surchargés par tenant via la table settings (group = 'pdf').
+    */
+    'pdf' => [
+        'paper'       => env('PRAXIQUEST_PDF_PAPER', 'a4'),
+        'orientation' => env('PRAXIQUEST_PDF_ORIENTATION', 'portrait'),
+
+        'sections' => [
+            'cover'      => true,
+            'profile'    => true,
+            'synthesis'  => true,
+            'strengths'  => true,
+            'dimensions' => true,
+            'jobs'       => true,
+            'footer'     => true,
+        ],
+
+        'footer' => [
+            'advisor' => env('PRAXIQUEST_PDF_ADVISOR'),
+            'email'   => env('PRAXIQUEST_PDF_EMAIL'),
+            'phone'   => env('PRAXIQUEST_PDF_PHONE'),
+            'website' => env('PRAXIQUEST_PDF_WEBSITE'),
+            'address' => env('PRAXIQUEST_PDF_ADDRESS'),
+            'legal'   => 'Document confidentiel — usage personnel. Données traitées conformément au RGPD.',
+        ],
     ],
 ];

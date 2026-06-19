@@ -74,11 +74,11 @@ class Catalog
             'E1_CHA' => ['mean' => 11.0, 'std_dev' => 2.4], 'E2_GRE' => ['mean' => 9.4,  'std_dev' => 2.8],
             'E3_ASS' => ['mean' => 9.6,  'std_dev' => 2.7], 'E4_ACT' => ['mean' => 10.1, 'std_dev' => 2.6],
             'E5_STI' => ['mean' => 8.2,  'std_dev' => 2.8], 'E6_EMO' => ['mean' => 10.7, 'std_dev' => 2.5],
-            'A1_CON' => ['mean' => 10.8, 'std_dev' => 2.5], 'A2_DRO' => ['mean' => 11.2, 'std_dev' => 2.4],
-            'A3_ALT' => ['mean' => 11.6, 'std_dev' => 2.3], 'A4_COM' => ['mean' => 9.4,  'std_dev' => 2.8],
-            'A5_MOD' => ['mean' => 9.8,  'std_dev' => 2.7], 'A6_SEN' => ['mean' => 11.2, 'std_dev' => 2.4],
-            'N1_ANX' => ['mean' => 9.2,  'std_dev' => 2.7], 'N2_HOS' => ['mean' => 7.8,  'std_dev' => 2.6],
-            'N3_DEP' => ['mean' => 7.9,  'std_dev' => 2.9], 'N4_CON' => ['mean' => 8.6,  'std_dev' => 2.9],
+            'A1_CON' => ['mean' => 10.6, 'std_dev' => 2.5], 'A2_DRO' => ['mean' => 11.4, 'std_dev' => 2.3],
+            'A3_ALT' => ['mean' => 11.7, 'std_dev' => 2.2], 'A4_COM' => ['mean' => 9.9,  'std_dev' => 2.6],
+            'A5_MOD' => ['mean' => 10.0, 'std_dev' => 2.7], 'A6_SEN' => ['mean' => 11.0, 'std_dev' => 2.4],
+            'N1_ANX' => ['mean' => 8.8,  'std_dev' => 3.0], 'N2_HOS' => ['mean' => 7.4,  'std_dev' => 2.7],
+            'N3_DEP' => ['mean' => 7.8,  'std_dev' => 2.9], 'N4_CON' => ['mean' => 8.6,  'std_dev' => 2.9],
             'N5_IMP' => ['mean' => 9.4,  'std_dev' => 2.7], 'N6_VUL' => ['mean' => 7.5,  'std_dev' => 2.8],
         ];
     }

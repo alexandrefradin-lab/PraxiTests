@@ -158,8 +158,8 @@ const formatDate = (iso) => {
                         :key="a.id"
                         class="pt-card p-5 flex items-center justify-between gap-4"
                         style="transition: box-shadow 0.15s, transform 0.15s;"
-                        @mouseenter="($event.currentTarget as HTMLElement).style.cssText += '; box-shadow: var(--shadow-elevated); transform: translateY(-1px);'"
-                        @mouseleave="($event.currentTarget as HTMLElement).style.boxShadow = 'var(--shadow-card)'; ($event.currentTarget as HTMLElement).style.transform = ''"
+                        @mouseenter="$event.currentTarget.style.cssText += '; box-shadow: var(--shadow-elevated); transform: translateY(-1px);'"
+                        @mouseleave="$event.currentTarget.style.boxShadow = 'var(--shadow-card)'; $event.currentTarget.style.transform = ''"
                     >
                         <!-- Gauche : nom + date + score -->
                         <div class="flex-1 min-w-0">

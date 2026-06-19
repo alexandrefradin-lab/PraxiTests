@@ -5,7 +5,7 @@ Test d'orientation Holland RIASEC porté depuis WordPress vers PraxiQuest.
 ## Caractéristiques
 
 - 84 questions binaires (oui/non)
-- 6 types : Réaliste · Investigateur · Artistique · Social · Entreprenant · Conventionnel
+- 6 types : Réaliste · Investigateur · Artistique · Social · Entrepreneur · Conventionnel
 - 2 sous-domaines par type × 7 questions
 - Code 3 lettres dominant (Holland standard)
 - Génération automatique de leads qualifiés

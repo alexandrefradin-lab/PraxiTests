@@ -1,58 +1,417 @@
+{{--
+  ════════════════════════════════════════════════════════════════════════════
+  PraxiQuest — Rapport de synthèse PDF « Codex »
+  Direction artistique : palette Assassin's Creed du site (parchemin / or de la
+  Fraternité / cramoisi / encre ancienne). Titres en DejaVu Serif (manuscrit),
+  corps en DejaVu Sans, données en DejaVu Sans Mono — toutes livrées avec DomPDF
+  (accents OK, aucun chargement de police distant).
+  Moteur : barryvdh/laravel-dompdf (CSS 2.1 → mise en page par <table>).
+
+  Variables (toutes optionnelles, valeurs par défaut gérées ici) :
+    $attempt   App\Models\TestAttempt (->test, ->result, ->user.profile)
+    $brand     ['name','tagline','logo','primary','secondary','accent']
+    $org       ['name','advisor','email','phone','website','address','legal']
+    $sections  ['cover','profile','synthesis','strengths','dimensions','jobs','footer']
+    $statuses  map code => libellé (config praxiquest.profile.statuses)
+  ════════════════════════════════════════════════════════════════════════════
+--}}
+@php
+    /* ---- Palette « Codex » par défaut (alignée sur le design system) ------ */
+    $brand = array_merge([
+        'name'      => config('praxiquest.branding.name', 'PraxiQuest'),
+        'tagline'   => config('praxiquest.branding.tagline', "Deviens le personnage que tu n'avais pas encore nommé"),
+        'logo'      => config('praxiquest.branding.logo'),
+        'primary'   => config('praxiquest.branding.primary_color', '#A67520'),   // Or de la Fraternité
+        'secondary' => config('praxiquest.branding.secondary_color', '#7B1515'), // Cramoisi
+        'accent'    => '#1C1408',                                                // Encre ancienne
+    ], $brand ?? []);
+
+    $org = array_merge([
+        'name'    => $brand['name'],
+        'advisor' => null, 'email' => null, 'phone' => null,
+        'website' => null, 'address' => null,
+        'legal'   => 'Document confidentiel — usage personnel. Données traitées conformément au RGPD.',
+    ], $org ?? []);
+
+    $sections = array_merge([
+        'cover' => true, 'profile' => true, 'synthesis' => true,
+        'strengths' => true, 'dimensions' => true, 'jobs' => true, 'footer' => true,
+    ], $sections ?? []);
+
+    $statuses = $statuses ?? config('praxiquest.profile.statuses', []);
+
+    /* ---- Données dérivées ----------------------------------------------- */
+    $result    = $attempt->result;
+    $profile   = $attempt->user->profile ?? null;
+    $test      = $attempt->test;
+    $candidate = $attempt->user->name ?? 'Candidat';
+    $dateDone  = $attempt->completed_at ?? $attempt->updated_at ?? now();
+
+    $primary   = $brand['primary'];     // or
+    $secondary = $brand['secondary'];   // cramoisi
+    $accent    = $brand['accent'];      // encre
+
+    /* Tokens issus du design brief */
+    $ink        = '#2A1E08';   // texte principal
+    $inkSoft    = '#6B5A3E';   // texte secondaire / labels
+    $parchment  = '#F0E8D4';   // fond base
+    $velin      = '#E5DAC2';   // surface cards
+    $stone      = '#D8CEB5';   // fond élevé / tracks
+    $goldDark   = '#7D5510';   // or brûlé
+    $eagle      = '#3A6B48';   // vert Eagle Vision (succès / matching)
+    $hair       = '#CBBE9E';   // filet discret sur parchemin
+
+    $synthesis  = $result?->ai_synthesis;
+    $dimensions = $result?->scoring['dimensions'] ?? [];
+    $jobs       = $result?->suggested_jobs ?? [];
+    $strengths  = is_array($result?->strengths) ? $result->strengths : [];
+    $growth     = is_array($result?->growth_areas) ? $result->growth_areas : [];
+
+    /* Helpers locaux */
+    $statusLabel = $profile?->status ? ($statuses[$profile->status] ?? $profile->status) : null;
+    $seniority = null;
+    if ($profile?->status_months !== null) {
+        $m = (int) $profile->status_months;
+        $y = intdiv($m, 12); $rem = $m % 12;
+        $seniority = trim(($y ? "{$y} an" . ($y > 1 ? 's' : '') . ' ' : '') . ($rem ? "{$rem} mois" : '')) ?: "moins d'un mois";
+    }
+    /* Échelle de correspondance — vert Eagle Vision → or → cramoisi */
+    $fitColor = function ($score) use ($eagle, $primary, $goldDark, $secondary) {
+        $s = (int) $score;
+        if ($s >= 80) return $eagle;
+        if ($s >= 60) return $primary;
+        if ($s >= 40) return $goldDark;
+        return $secondary;
+    };
+@endphp
 <!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>{{ $attempt->test->name }} — Résultats</title>
+<title>{{ $test->name }} — {{ $candidate }}</title>
 <style>
-body{font-family:DejaVu Sans,sans-serif;color:#0f172a;font-size:12px;line-height:1.55;margin:0;padding:30px}
-h1{font-size:22px;margin:0 0 6px}
-h2{font-size:15px;margin:24px 0 10px;color:#4f46e5;border-bottom:1px solid #e2e8f0;padding-bottom:4px}
-.meta{color:#64748b;font-size:11px}
-.dim{display:flex;justify-content:space-between;margin:6px 0}
-.bar{background:#e2e8f0;height:6px;border-radius:3px;overflow:hidden;width:200px}
-.fill{background:#4f46e5;height:6px}
-.job{padding:10px 0;border-bottom:1px solid #f1f5f9}
-.job .title{font-weight:600}
-.job .sector{color:#64748b;font-size:10px;text-transform:uppercase;letter-spacing:.5px}
-.job .why{margin-top:4px}
-.fit{display:inline-block;background:#ecfdf5;color:#065f46;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600}
+    @page { margin: 132px 0 96px 0; }
+    * { box-sizing: border-box; }
+    html { background: {{ $parchment }}; }
+    body {
+        font-family: "DejaVu Sans", sans-serif;
+        background: {{ $parchment }};
+        color: {{ $ink }};
+        font-size: 11px;
+        line-height: 1.6;
+        margin: 0;
+    }
+    .serif { font-family: "DejaVu Serif", serif; }
+    .px { padding-left: 50px; padding-right: 50px; }
+
+    /* ── En-tête répété ───────────────────────────────────────────────── */
+    .run-header { position: fixed; top: -112px; left: 0; right: 0; height: 74px; padding: 0 50px; }
+    .run-header .mark {
+        font-family: "DejaVu Serif", serif; font-size: 13px; font-weight: bold;
+        color: {{ $accent }}; letter-spacing: .5px;
+    }
+    .run-header .mark .q { color: {{ $primary }}; }
+    .run-header .doc { font-size: 8.5px; color: {{ $inkSoft }}; text-align: right;
+        text-transform: uppercase; letter-spacing: 1.2px; padding-top: 4px; }
+    /* double filet or — épais + fin */
+    .run-rule  { position: fixed; top: -52px; left: 50px; right: 50px; border-top: 2px solid {{ $primary }}; }
+    .run-rule2 { position: fixed; top: -48px; left: 50px; right: 50px; border-top: 0.5px solid {{ $hair }}; }
+
+    /* ── Pied répété ──────────────────────────────────────────────────── */
+    .run-footer {
+        position: fixed; bottom: -74px; left: 0; right: 0; height: 64px;
+        padding: 10px 50px 0; font-size: 7.8px; color: {{ $inkSoft }};
+        border-top: 0.75px solid {{ $hair }};
+    }
+
+    /* ── Titres de section ────────────────────────────────────────────── */
+    .kicker {
+        font-size: 8px; letter-spacing: 3px; text-transform: uppercase;
+        color: {{ $primary }}; font-weight: bold; margin: 0; font-family: "DejaVu Sans Mono", monospace;
+    }
+    h2.section {
+        font-family: "DejaVu Serif", serif; font-size: 17px; color: {{ $accent }};
+        margin: 4px 0 0; padding: 0; letter-spacing: .2px;
+    }
+    .section-rule { border-bottom: 1.5px solid {{ $primary }}; margin: 9px 0 0; width: 46px; }
+    .section-hair { border-bottom: 0.75px solid {{ $hair }}; margin: 4px 0 16px; }
+    .sec { margin-top: 26px; }
+    .avoid-break { page-break-inside: avoid; }
+
+    /* ── Cartes / blocs ───────────────────────────────────────────────── */
+    .card { background: {{ $velin }}; border: 0.75px solid {{ $hair }}; border-radius: 10px; }
+    .lead-gold { border-left: 4px solid {{ $primary }}; }
+
+    /* Profil — table d'identité */
+    table.kv { width: 100%; border-collapse: collapse; }
+    table.kv td { padding: 8px 14px; vertical-align: top; border-bottom: 0.75px solid {{ $hair }}; }
+    table.kv td.k { width: 34%; color: {{ $inkSoft }}; font-size: 8.5px; text-transform: uppercase;
+        letter-spacing: 1.2px; font-family: "DejaVu Sans Mono", monospace; }
+    table.kv td.v { font-size: 11.5px; font-weight: bold; color: {{ $accent }}; }
+
+    /* Dimensions — barres */
+    table.dims { width: 100%; border-collapse: collapse; }
+    table.dims td { padding: 7px 0; vertical-align: middle; }
+    .dim-name { font-size: 10.5px; text-transform: capitalize; color: {{ $ink }}; }
+    .track { background: {{ $stone }}; height: 10px; border-radius: 6px; width: 100%; border: 0.5px solid {{ $hair }}; }
+    .fill { height: 10px; border-radius: 6px; }
+    .dim-score { font-family: "DejaVu Sans Mono", monospace; font-size: 11px; font-weight: bold;
+        text-align: right; color: {{ $goldDark }}; }
+
+    /* Métiers */
+    .job { padding: 13px 16px; margin-bottom: 11px; }
+    .job-rank {
+        display: inline-block; width: 26px; height: 26px; line-height: 26px;
+        text-align: center; border-radius: 13px; color: {{ $parchment }}; font-weight: bold;
+        font-size: 12px; background: {{ $primary }}; font-family: "DejaVu Serif", serif;
+    }
+    .job-sector { font-size: 8px; text-transform: uppercase; letter-spacing: 1.5px; color: {{ $inkSoft }};
+        font-family: "DejaVu Sans Mono", monospace; }
+    .job-title { font-family: "DejaVu Serif", serif; font-size: 13px; font-weight: bold; color: {{ $accent }}; }
+    .job-why  { font-size: 10.5px; color: {{ $ink }}; margin: 5px 0 0; }
+    .job-next { font-size: 10px; color: {{ $secondary }}; margin-top: 6px; font-weight: bold; }
+    .fit-pill { font-family: "DejaVu Sans Mono", monospace; font-size: 11px; font-weight: bold;
+        color: {{ $parchment }}; padding: 4px 10px; border-radius: 11px; }
+
+    .chip { display: inline-block; padding: 5px 11px; margin: 0 5px 6px 0; border-radius: 13px;
+        font-size: 10px; border: 0.5px solid; }
+    .chip-up   { background: #EAF1E9; color: {{ $eagle }};     border-color: #BcD3BE; }
+    .chip-grow { background: #F3E4DF; color: {{ $secondary }}; border-color: #E0BFb6; }
 </style>
 </head>
 <body>
-<h1>{{ $attempt->test->name }}</h1>
-<p class="meta">{{ $attempt->user->name }} — {{ $attempt->completed_at?->format('d/m/Y') }}</p>
 
-<h2>Synthèse</h2>
-<div style="white-space:pre-line">{{ $attempt->result?->ai_synthesis }}</div>
-
-@if($attempt->result?->scoring['dimensions'] ?? null)
-<h2>Dimensions</h2>
-@foreach($attempt->result->scoring['dimensions'] as $name => $score)
-<div class="dim">
-    <span style="width:140px;text-transform:capitalize">{{ $name }}</span>
-    <div class="bar"><div class="fill" style="width: {{ $score }}%"></div></div>
-    <span style="width:40px;text-align:right">{{ $score }}</span>
+{{-- ═══════════════ EN-TÊTE & PIED RÉPÉTÉS ═══════════════ --}}
+<div class="run-header">
+    <table style="width:100%"><tr>
+        <td class="mark serif">Praxi<span class="q">Quest</span></td>
+        <td class="doc">{{ $test->name }} · {{ $candidate }}</td>
+    </tr></table>
 </div>
-@endforeach
+<div class="run-rule"></div>
+<div class="run-rule2"></div>
+
+@if($sections['footer'])
+<div class="run-footer">
+    <table style="width:100%"><tr>
+        <td style="width:68%">{{ $org['legal'] }}</td>
+        <td style="width:32%; text-align:right">{{ $org['website'] ?? $brand['name'] }} · {{ $dateDone->format('d/m/Y') }}</td>
+    </tr></table>
+</div>
 @endif
 
-@if($attempt->result?->suggested_jobs)
-<h2>{{ count($attempt->result->suggested_jobs) }} métiers à explorer</h2>
-@foreach($attempt->result->suggested_jobs as $job)
-<div class="job">
-    <div style="display:flex;justify-content:space-between">
-        <span class="title">{{ $job['titre'] ?? $job['title'] ?? '' }}</span>
-        <span class="fit">{{ $job['fit_score'] ?? '' }}%</span>
+{{-- Numérotation de page (méthode DomPDF native) --}}
+<script type="text/php">
+    if (isset($pdf)) {
+        $font = $fontMetrics->get_font("DejaVu Sans Mono", "normal");
+        $pdf->page_text(500, 812, "— {PAGE_NUM} / {PAGE_COUNT} —", $font, 7.5, array(0.42,0.35,0.24));
+    }
+</script>
+
+{{-- ═══════════════ PAGE DE GARDE — PLAQUE CODEX ═══════════════ --}}
+@if($sections['cover'])
+<div style="height: 26px;"></div>
+<div class="px">
+    {{-- Plaque d'encre encadrée d'or, façon planche de manuscrit --}}
+    <table style="width:100%; border-collapse:separate; background:{{ $accent }}; border:1.5px solid {{ $primary }}; border-radius:14px;">
+        <tr><td style="padding:42px 40px 38px;">
+            {{-- filet or intérieur --}}
+            <div style="border-top:0.75px solid {{ $primary }}; width:54px; margin-bottom:22px;"></div>
+
+            @if(!empty($brand['logo']))
+                <img src="{{ $brand['logo'] }}" alt="{{ $brand['name'] }}" style="max-height:48px; margin-bottom:18px;">
+            @else
+                <div class="serif" style="font-size:24px; font-weight:bold; color:{{ $parchment }}; letter-spacing:.5px;">
+                    Praxi<span style="color:{{ $primary }};">Quest</span>
+                </div>
+            @endif
+            <div style="font-size:9px; color:#B9A87E; margin-top:4px; font-style:italic;">{{ $brand['tagline'] }}</div>
+
+            <div style="height:30px;"></div>
+            <div class="kicker" style="color:{{ $primary }};">Rapport de synthèse &amp; orientation</div>
+            <div class="serif" style="font-size:30px; font-weight:bold; color:{{ $parchment }}; line-height:1.18; margin-top:8px;">
+                {{ $test->name }}
+            </div>
+
+            <div style="height:26px;"></div>
+            <table style="width:100%; border-collapse:collapse;">
+                <tr>
+                    <td style="vertical-align:top; border-top:0.75px solid #463a22; padding-top:14px; width:55%;">
+                        <div class="kicker" style="color:#9C8A60;">Établi pour</div>
+                        <div class="serif" style="font-size:17px; font-weight:bold; color:{{ $parchment }}; margin-top:4px;">{{ $candidate }}</div>
+                        @if($statusLabel)
+                            <div style="font-size:10px; color:#B9A87E; margin-top:3px;">{{ $statusLabel }}@if($seniority) · {{ $seniority }} d'ancienneté @endif</div>
+                        @endif
+                    </td>
+                    <td style="vertical-align:top; border-top:0.75px solid #463a22; padding-top:14px; padding-left:18px; text-align:right;">
+                        <div class="kicker" style="color:#9C8A60;">Date</div>
+                        <div class="serif" style="font-size:15px; font-weight:bold; color:{{ $parchment }}; margin-top:4px;">{{ $dateDone->format('d/m/Y') }}</div>
+                        @if(count($jobs))
+                            <div style="font-size:10px; color:#B9A87E; margin-top:3px;">{{ count($jobs) }} pistes métiers</div>
+                        @endif
+                    </td>
+                </tr>
+            </table>
+        </td></tr>
+    </table>
+
+    @if($org['advisor'] || $org['email'] || $org['phone'])
+    <div style="margin-top:20px; font-size:10px; color:{{ $inkSoft }};">
+        Accompagné par
+        <strong style="color:{{ $accent }}">{{ $org['advisor'] ?? $org['name'] }}</strong>@if($org['email']) · {{ $org['email'] }}@endif @if($org['phone']) · {{ $org['phone'] }}@endif
     </div>
-    <div class="sector">{{ $job['secteur'] ?? $job['sector'] ?? '' }}</div>
-    <div class="why">{{ $job['pourquoi'] ?? $job['why'] ?? '' }}</div>
-    @if($job['prochaine_étape'] ?? $job['next_step'] ?? null)
-    <div style="color:#4f46e5;font-size:11px;margin-top:3px">→ {{ $job['prochaine_étape'] ?? $job['next_step'] }}</div>
     @endif
 </div>
-@endforeach
+<div style="page-break-after: always;"></div>
 @endif
 
-<p class="meta" style="margin-top:30px">Généré par PraxiQuest le {{ now()->format('d/m/Y H:i') }}</p>
+{{-- ═══════════════ PROFIL DU CANDIDAT ═══════════════ --}}
+@if($sections['profile'] && $profile)
+<div class="px avoid-break sec">
+    <p class="kicker">Contexte</p>
+    <h2 class="section serif">Profil du candidat</h2>
+    <div class="section-rule"></div>
+    <div class="section-hair"></div>
+    <table class="kv">
+        <tr><td class="k">Nom</td><td class="v">{{ $candidate }}</td></tr>
+        @if($statusLabel)<tr><td class="k">Statut</td><td class="v">{{ $statusLabel }}</td></tr>@endif
+        @if($seniority)<tr><td class="k">Ancienneté</td><td class="v">{{ $seniority }}</td></tr>@endif
+        @if($profile->current_role)<tr><td class="k">Poste actuel</td><td class="v">{{ $profile->current_role }}</td></tr>@endif
+        @if($profile->industry)<tr><td class="k">Secteur</td><td class="v">{{ $profile->industry }}</td></tr>@endif
+        @if($profile->cv_original_name)<tr><td class="k">CV fourni</td><td class="v">{{ $profile->cv_original_name }}</td></tr>@endif
+        <tr><td class="k">Évaluation</td><td class="v">{{ $test->name }}</td></tr>
+    </table>
+</div>
+@endif
+
+{{-- ═══════════════ SYNTHÈSE IA ═══════════════ --}}
+@if($sections['synthesis'] && $synthesis)
+<div class="px sec">
+    <p class="kicker">Lecture du profil</p>
+    <h2 class="section serif">Synthèse</h2>
+    <div class="section-rule"></div>
+    <div class="section-hair"></div>
+    <table class="card lead-gold" style="width:100%; border-collapse:separate;">
+        <tr><td style="padding:18px 22px;">
+            <div style="white-space:pre-line; font-size:11.5px; line-height:1.78; color:{{ $ink }};">{{ $synthesis }}</div>
+        </td></tr>
+    </table>
+</div>
+@endif
+
+{{-- ═══════════════ FORCES & AXES DE PROGRESSION ═══════════════ --}}
+@if($sections['strengths'] && (count($strengths) || count($growth)))
+<div class="px avoid-break sec">
+    <p class="kicker">Leviers</p>
+    <h2 class="section serif">Points forts &amp; axes de progression</h2>
+    <div class="section-rule"></div>
+    <div class="section-hair"></div>
+    <table style="width:100%; border-collapse:separate;">
+        <tr>
+            @if(count($strengths))
+            <td style="width:50%; vertical-align:top; padding-right:10px;">
+                <div class="kicker" style="color:{{ $eagle }}; margin-bottom:9px;">● Points forts</div>
+                @foreach($strengths as $s)
+                    <span class="chip chip-up">{{ is_array($s) ? ($s['label'] ?? $s['name'] ?? reset($s)) : $s }}</span>
+                @endforeach
+            </td>
+            @endif
+            @if(count($growth))
+            <td style="width:50%; vertical-align:top; padding-left:10px;">
+                <div class="kicker" style="color:{{ $secondary }}; margin-bottom:9px;">▲ Axes de progression</div>
+                @foreach($growth as $g)
+                    <span class="chip chip-grow">{{ is_array($g) ? ($g['label'] ?? $g['name'] ?? reset($g)) : $g }}</span>
+                @endforeach
+            </td>
+            @endif
+        </tr>
+    </table>
+</div>
+@endif
+
+{{-- ═══════════════ DIMENSIONS ═══════════════ --}}
+@if($sections['dimensions'] && count($dimensions))
+<div class="px avoid-break sec">
+    <p class="kicker">Mesures</p>
+    <h2 class="section serif">Profil par dimension</h2>
+    <div class="section-rule"></div>
+    <div class="section-hair"></div>
+    <table class="dims">
+        @foreach($dimensions as $name => $score)
+            @php $sc = max(0, min(100, (int) $score)); @endphp
+            <tr>
+                <td style="width:30%;"><span class="dim-name">{{ str_replace('_', ' ', $name) }}</span></td>
+                <td style="width:58%; padding-left:12px; padding-right:12px;">
+                    <div class="track"><div class="fill" style="width:{{ $sc }}%; background:{{ $primary }};"></div></div>
+                </td>
+                <td style="width:12%;"><div class="dim-score">{{ $sc }}</div></td>
+            </tr>
+        @endforeach
+    </table>
+</div>
+@endif
+
+{{-- ═══════════════ MÉTIERS À EXPLORER ═══════════════ --}}
+@if($sections['jobs'] && count($jobs))
+<div style="page-break-before: always;"></div>
+<div class="px sec">
+    <p class="kicker">Orientation</p>
+    <h2 class="section serif">{{ count($jobs) }} métiers à explorer</h2>
+    <div class="section-rule"></div>
+    <div class="section-hair"></div>
+
+    @foreach($jobs as $i => $job)
+        @php
+            $titre   = $job['titre'] ?? $job['title'] ?? '';
+            $secteur = $job['secteur'] ?? $job['sector'] ?? '';
+            $fit     = $job['fit_score'] ?? $job['fit'] ?? null;
+            $why     = $job['pourquoi'] ?? $job['why'] ?? '';
+            $next    = $job['prochaine_étape'] ?? $job['prochaine_etape'] ?? $job['next_step'] ?? null;
+        @endphp
+        <table class="card job avoid-break" style="width:100%; border-collapse:separate;">
+            <tr>
+                <td style="width:34px; vertical-align:top; padding-top:1px;">
+                    <span class="job-rank">{{ $i + 1 }}</span>
+                </td>
+                <td style="vertical-align:top;">
+                    <div class="job-sector">{{ $secteur }}</div>
+                    <div class="job-title serif">{{ $titre }}</div>
+                    @if($why)<div class="job-why">{{ $why }}</div>@endif
+                    @if($next)<div class="job-next">→ {{ $next }}</div>@endif
+                </td>
+                @if($fit !== null)
+                <td style="width:56px; text-align:right; vertical-align:top;">
+                    <span class="fit-pill" style="background:{{ $fitColor($fit) }};">{{ (int) $fit }}%</span>
+                </td>
+                @endif
+            </tr>
+        </table>
+    @endforeach
+</div>
+@endif
+
+{{-- ═══════════════ BLOC COORDONNÉES / CONTACT ═══════════════ --}}
+@if($sections['footer'] && ($org['advisor'] || $org['email'] || $org['phone'] || $org['website'] || $org['address']))
+<div class="px avoid-break sec">
+    <table class="card" style="width:100%; border-collapse:separate; background:{{ $stone }};">
+        <tr><td style="padding:18px 22px;">
+            <div class="kicker" style="margin-bottom:8px;">Pour aller plus loin</div>
+            <table style="width:100%"><tr>
+                <td style="vertical-align:top;">
+                    <div class="serif" style="font-size:13px; font-weight:bold; color:{{ $accent }};">{{ $org['name'] }}</div>
+                    @if($org['advisor'])<div style="font-size:10.5px; color:{{ $ink }};">{{ $org['advisor'] }}</div>@endif
+                    @if($org['address'])<div style="font-size:10px; color:{{ $inkSoft }}; margin-top:3px;">{{ $org['address'] }}</div>@endif
+                </td>
+                <td style="vertical-align:top; text-align:right; font-size:10.5px; color:{{ $ink }};">
+                    @if($org['email'])<div>{{ $org['email'] }}</div>@endif
+                    @if($org['phone'])<div>{{ $org['phone'] }}</div>@endif
+                    @if($org['website'])<div style="color:{{ $goldDark }}; font-weight:bold;">{{ $org['website'] }}</div>@endif
+                </td>
+            </tr></table>
+        </td></tr>
+    </table>
+</div>
+@endif
+
 </body>
 </html>

@@ -48,6 +48,18 @@
             "Praxis\\Plugins\\PraxiEmo\\Database\\Seeders\\": "plugins/praxiemo/database/seeders/",
             "Praxis\\Plugins\\PraxiMum\\": "plugins/praximum/src/",
             "Praxis\\Plugins\\PraxiMum\\Database\\Seeders\\": "plugins/praximum/database/seeders/",
+            "Praxis\\Plugins\\PraxiZen\\": "plugins/praxizen/src/",
+            "Praxis\\Plugins\\PraxiZen\\Database\\Seeders\\": "plugins/praxizen/database/seeders/",
+            "Praxis\\Plugins\\PraxiSelf\\": "plugins/praxiself/src/",
+            "Praxis\\Plugins\\PraxiSelf\\Database\\Seeders\\": "plugins/praxiself/database/seeders/",
+            "Praxis\\Plugins\\PraxiSpeak\\": "plugins/praxispeak/src/",
+            "Praxis\\Plugins\\PraxiSpeak\\Database\\Seeders\\": "plugins/praxispeak/database/seeders/",
+            "Praxis\\Plugins\\PraxiFlow\\": "plugins/praxiflow/src/",
+            "Praxis\\Plugins\\PraxiFlow\\Database\\Seeders\\": "plugins/praxiflow/database/seeders/",
+            "Praxis\\Plugins\\PraxiLink\\": "plugins/praxilink/src/",
+            "Praxis\\Plugins\\PraxiLink\\Database\\Seeders\\": "plugins/praxilink/database/seeders/",
+            "Praxis\\Plugins\\Praxis360\\": "plugins/praxis360/src/",
+            "Praxis\\Plugins\\Praxis360\\Database\\Seeders\\": "plugins/praxis360/database/seeders/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         },
@@ -56,7 +68,13 @@
             "plugins/praxivaleurs/PluginServiceProvider.php",
             "plugins/praxicare/PluginServiceProvider.php",
             "plugins/praxiemo/PluginServiceProvider.php",
-            "plugins/praximum/PluginServiceProvider.php"
+            "plugins/praximum/PluginServiceProvider.php",
+            "plugins/praxizen/PluginServiceProvider.php",
+            "plugins/praxiself/PluginServiceProvider.php",
+            "plugins/praxispeak/PluginServiceProvider.php",
+            "plugins/praxiflow/PluginServiceProvider.php",
+            "plugins/praxilink/PluginServiceProvider.php",
+            "plugins/praxis360/PluginServiceProvider.php"
         ]
     },
     "autoload-dev": {

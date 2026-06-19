@@ -11,7 +11,19 @@ class ProfessionalAccount extends Model
 {
     use SoftDeletes;
 
-    protected $guarded = [];
+    // #3 — $guarded=[] remplacé par $fillable explicite (protection mass assignment)
+    protected $fillable = [
+        'owner_user_id',
+        'company_name',
+        'subdomain',
+        'custom_domain',
+        'plan',
+        'branding',
+        'settings',
+        'seats_limit',
+        'trial_ends_at',
+        'subscribed_until',
+    ];
 
     protected $casts = [
         'branding'         => 'array',

@@ -25,3 +25,10 @@ yarn-error.log
 /_ide_helper.php
 /_ide_helper_models.php
 /.phpstorm.meta.php
+
+# Artefacts historiques et imports — exclure du dépôt (Audit A9)
+/_imports/
+/_praxiemo-source-calculator.php
+/extracted/
+/templates/
+/*.zip
