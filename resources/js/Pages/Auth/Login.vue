@@ -13,51 +13,114 @@ const submit = () => form.post(route('login'), { onFinish: () => form.reset('pas
 
 <template>
     <AuthLayout>
-        <Head title="Connexion" />
+        <Head title="Entrer dans la Quête — PraxiQuest" />
 
-        <div class="mb-8">
-            <h1 class="text-2xl font-semibold tracking-tight" style="font-family:'Playfair Display',serif">Bon retour</h1>
-            <p class="mt-1" style="font-size:14px;color:var(--pt-text-muted)">Connectez-vous pour reprendre votre parcours.</p>
+        <!-- En-tête -->
+        <div style="margin-bottom:2rem">
+            <h1 style="
+                font-family:'Space Grotesk',sans-serif;
+                font-size:1.625rem;font-weight:700;
+                letter-spacing:-0.02em;line-height:1.15;
+                color:var(--color-accent);margin:0 0 0.5rem;
+            ">Entrer dans la Quête</h1>
+            <p style="
+                font-family:'Inter',sans-serif;
+                font-size:14px;color:var(--text-secondary);margin:0;line-height:1.5;
+            ">Reprenez là où vous en étiez.</p>
         </div>
 
-        <div v-if="$page.props.flash?.success" class="pt-flash-success mb-5">
+        <!-- Flash success -->
+        <div v-if="$page.props.flash?.success" class="pt-flash-success" style="margin-bottom:1.25rem">
             {{ $page.props.flash.success }}
         </div>
 
-        <form @submit.prevent="submit" class="space-y-4">
+        <form @submit.prevent="submit" style="display:flex;flex-direction:column;gap:1rem">
+
+            <!-- Email -->
             <div>
-                <label class="block text-sm font-medium" style="color:var(--pt-text-muted)">Adresse email</label>
-                <input type="email" v-model="form.email" autofocus required autocomplete="username" class="pt-input mt-1.5">
-                <p v-if="form.errors.email" class="text-xs mt-1" style="color:var(--pt-error)">{{ form.errors.email }}</p>
+                <label style="
+                    display:block;
+                    font-family:'Inter',sans-serif;font-size:13px;font-weight:500;
+                    color:var(--text-secondary);margin-bottom:0.4rem;
+                ">Adresse du Héros</label>
+                <input
+                    type="email"
+                    v-model="form.email"
+                    autofocus
+                    required
+                    autocomplete="username"
+                    class="pt-input"
+                    placeholder="vous@exemple.fr"
+                >
+                <p v-if="form.errors.email" style="
+                    font-family:'Inter',sans-serif;font-size:12px;
+                    color:var(--color-secondary);margin:0.35rem 0 0;
+                ">{{ form.errors.email }}</p>
             </div>
 
+            <!-- Mot de passe -->
             <div>
-                <div class="flex items-center justify-between mb-1.5">
-                    <label class="block text-sm font-medium" style="color:var(--pt-text-muted)">Mot de passe</label>
-                    <Link :href="route('password.request')" style="font-size:12px;color:var(--pt-gold);text-decoration:none" class="hover:underline">
-                        Mot de passe oublié ?
-                    </Link>
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem">
+                    <label style="
+                        font-family:'Inter',sans-serif;font-size:13px;font-weight:500;
+                        color:var(--text-secondary);
+                    ">Sceau secret</label>
+                    <Link :href="route('password.request')" style="
+                        font-family:'Inter',sans-serif;font-size:12px;
+                        color:var(--color-primary);text-decoration:none;
+                    " class="hover:underline">Sceau oublié ?</Link>
                 </div>
-                <input type="password" v-model="form.password" required autocomplete="current-password" class="pt-input">
-                <p v-if="form.errors.password" class="text-xs mt-1" style="color:var(--pt-error)">{{ form.errors.password }}</p>
+                <input
+                    type="password"
+                    v-model="form.password"
+                    required
+                    autocomplete="current-password"
+                    class="pt-input"
+                    placeholder="••••••••"
+                >
+                <p v-if="form.errors.password" style="
+                    font-family:'Inter',sans-serif;font-size:12px;
+                    color:var(--color-secondary);margin:0.35rem 0 0;
+                ">{{ form.errors.password }}</p>
             </div>
 
-            <label class="flex items-center gap-2 text-sm" style="color:var(--pt-text-muted)">
-                <input type="checkbox" v-model="form.remember" class="rounded" style="accent-color:var(--pt-navy)">
-                Rester connecté
+            <!-- Remember me -->
+            <label style="
+                display:flex;align-items:center;gap:0.625rem;cursor:pointer;
+                font-family:'Inter',sans-serif;font-size:13px;color:var(--text-secondary);
+            ">
+                <input
+                    type="checkbox"
+                    v-model="form.remember"
+                    style="
+                        width:16px;height:16px;border-radius:4px;flex-shrink:0;
+                        accent-color:var(--color-primary);cursor:pointer;
+                    "
+                >
+                Rester dans la Quête
             </label>
 
-            <button type="submit" :disabled="form.processing" class="pt-btn-primary w-full py-2.5">
-                <span v-if="form.processing">Connexion…</span>
-                <span v-else>Se connecter</span>
+            <!-- Submit -->
+            <button
+                type="submit"
+                :disabled="form.processing"
+                class="pt-btn-primary"
+                style="width:100%;padding:0.7rem 1.5rem;justify-content:center;margin-top:0.25rem"
+            >
+                <span v-if="form.processing">Connexion en cours…</span>
+                <span v-else>Entrer dans la Quête</span>
             </button>
         </form>
 
-        <p class="text-center mt-6" style="font-size:13px;color:var(--pt-text-muted)">
-            Pas encore de compte ?
-            <Link :href="route('register')" style="color:var(--pt-gold);font-weight:500;text-decoration:none" class="hover:underline">
-                Créer mon espace
-            </Link>
+        <!-- Lien inscription -->
+        <p style="
+            text-align:center;margin-top:1.5rem;
+            font-family:'Inter',sans-serif;font-size:13px;color:var(--text-secondary);
+        ">
+            Pas encore inscrit ?
+            <Link :href="route('register')" style="
+                color:var(--color-primary);font-weight:600;text-decoration:none;
+            " class="hover:underline">→ Créer mon Identité</Link>
         </p>
     </AuthLayout>
 </template>

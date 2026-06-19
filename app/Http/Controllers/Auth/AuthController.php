@@ -41,18 +41,27 @@ class AuthController extends Controller
         return Inertia::render('Auth/Register', ['email' => $request->query('email')]);
     }
 
+    /** Version des CGU actuellement en vigueur — à incrémenter à chaque nouvelle version */
+    private const CGU_VERSION = '1.0';
+
     public function register(Request $request)
     {
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:120'],
-            'email' => ['required', 'email', 'unique:users,email'],
+            'name'     => ['required', 'string', 'max:120'],
+            'email'    => ['required', 'email', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'terms'    => ['required', 'accepted'],
+        ], [
+            'terms.required' => 'Vous devez accepter les Conditions Générales d\'Utilisation.',
+            'terms.accepted' => 'Vous devez accepter les Conditions Générales d\'Utilisation.',
         ]);
 
         $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
+            'name'              => $data['name'],
+            'email'             => $data['email'],
+            'password'          => Hash::make($data['password']),
+            'terms_accepted_at' => now(),
+            'terms_version'     => self::CGU_VERSION,
         ]);
 
         event(new Registered($user));

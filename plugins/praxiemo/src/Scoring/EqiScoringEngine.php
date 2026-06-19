@@ -86,18 +86,21 @@ class EqiScoringEngine implements ScoringEngineContract
         for ($i = 80; $i <= 85; $i++) {
             $sum += $byIdx[$i] ?? 1;
         }
-        // FIXME: Valider la direction des items DS (indices 80-85) avec un expert psychométrique.
-        // Convention Bar-On/Goleman : score élevé = biais élevé (items formulés positivement).
-        // Si les items sont formulés négativement, la condition devrait être >= 22 au lieu de <= 12.
-        if ($sum <= 12) {
+        // Convention Bar-On : les 6 items DS (indices 80-85) sont formulés positivement.
+        // Un score ÉLEVÉ indique que le répondant se présente sous un jour très favorable = biais élevé.
+        // Plage totale : 6 (min) à 24 (max).
+        //   >= 20 → Biais fort   (le répondant surreprésente systématiquement ses qualités)
+        //   >= 15 → Biais modéré (légère tendance à la présentation avantageuse)
+        //   <  15 → Fiable       (pas de distorsion significative détectée)
+        if ($sum >= 20) {
             return [
                 'score'   => $sum,
                 'niveau'  => 'Biais fort',
                 'alerte'  => true,
-                'message' => "Vos réponses semblent orientées vers une image très positive de vous-même. Les scores reflètent peut-être davantage ce que vous souhaiteriez être que ce que vous vivez au quotidien.",
+                'message' => "Vos réponses indiquent une forte tendance à vous présenter sous un jour très favorable. Les scores obtenus reflètent peut-être davantage l'image que vous souhaitez donner que votre vécu émotionnel quotidien.",
             ];
         }
-        if ($sum <= 18) {
+        if ($sum >= 15) {
             return ['score' => $sum, 'niveau' => 'Biais modéré', 'alerte' => false, 'message' => ''];
         }
         return ['score' => $sum, 'niveau' => 'Fiable', 'alerte' => false, 'message' => ''];

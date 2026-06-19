@@ -1,229 +1,333 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* ═══════════════════════════════════════════════════════════════
-   PRAXIQUEST — Design System Premium
-   Marine profond · Or chaud · Crème · Typographie experte
-   Inspiré des portails de cabinets conseil haut de gamme
+   PRAXIQUEST — Design System Assassin's Creed Parchment
+   Parchemin clair · Or de la Fraternité · Cramoisi · Encre
    ═══════════════════════════════════════════════════════════════ */
 
 :root {
-    /* Palette principale */
-    --pt-navy:          #1B2B3A;
-    --pt-navy-mid:      #253A4D;
-    --pt-navy-light:    #334E63;
-    --pt-gold:          #B8913A;
-    --pt-gold-hover:    #9A7830;
-    --pt-gold-pale:     #FBF5E8;
-    --pt-gold-border:   rgba(184, 145, 58, 0.25);
+    /* Fonds */
+    --bg-base:              #F0E8D4;
+    --bg-surface:           #E5DAC2;
+    --bg-elevated:          #D8CEB5;
 
-    /* Surfaces */
-    --pt-cream:         #F7F5F0;
-    --pt-cream-dark:    #EEEbE4;
-    --pt-white:         #FFFFFF;
+    /* Couleurs primaires */
+    --color-primary:        #A67520;
+    --color-primary-dark:   #7D5510;
+    --color-secondary:      #7B1515;
+    --color-accent:         #1C1408;
+    --color-success:        #3A6B48;
+    --color-danger:         #B03020;
+    --color-signal:         #0A7FA0;
 
     /* Texte */
-    --pt-text:          #1A2332;
-    --pt-text-muted:    #6B7280;
-    --pt-text-light:    #9CA3AF;
-    --pt-text-ghost:    #C4C0B8;
+    --text-primary:         #2A1E08;
+    --text-secondary:       #6B5A3E;
+    --text-muted:           #8C7A5E;
+    --text-ghost:           #B0A08A;
 
     /* Bordures */
-    --pt-border:        #E4E0D8;
-    --pt-border-mid:    #CEC9BF;
-    --pt-border-strong: #B5AFA5;
-
-    /* Sémantique */
-    --pt-success:       #1A5C38;
-    --pt-success-bg:    #E6F4ED;
-    --pt-success-border:#A7D9BA;
-    --pt-error:         #9B1C1C;
-    --pt-error-bg:      #FEE2E2;
-    --pt-warning:       #92400E;
-    --pt-warning-bg:    #FEF3C7;
+    --border-light:         rgba(166,117,32,0.15);
+    --border-mid:           rgba(166,117,32,0.25);
+    --border-strong:        rgba(166,117,32,0.45);
 
     /* Ombres */
-    --pt-shadow-xs: 0 1px 2px rgba(27,43,58,.04);
-    --pt-shadow-sm: 0 1px 4px rgba(27,43,58,.06), 0 1px 2px rgba(27,43,58,.04);
-    --pt-shadow-md: 0 4px 16px rgba(27,43,58,.08), 0 2px 4px rgba(27,43,58,.04);
-    --pt-shadow-lg: 0 8px 32px rgba(27,43,58,.10), 0 4px 8px rgba(27,43,58,.06);
+    --shadow-primary:       0 4px 20px rgba(166,117,32,0.25);
+    --shadow-card:          0 2px 12px rgba(42,30,8,0.10);
+    --shadow-elevated:      0 8px 32px rgba(42,30,8,0.15);
+    --shadow-xs:            0 1px 3px rgba(42,30,8,0.06);
+
+    /* Glassmorphism */
+    --glass-bg:             rgba(240,232,212,0.85);
+    --glass-blur:           blur(14px);
+    --glass-border:         rgba(166,117,32,0.25);
 
     /* Radius */
-    --pt-r-sm:  6px;
-    --pt-r:     8px;
-    --pt-r-lg:  12px;
-    --pt-r-xl:  16px;
+    --r-sm:  6px;
+    --r:     8px;
+    --r-lg:  12px;
+    --r-xl:  16px;
+
+    /* Typographie */
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-body:    'Inter', sans-serif;
+    --font-data:    'Space Mono', monospace;
 }
 
 /* ─── Base ──────────────────────────────────────────────────────── */
 
 body {
-    font-family: 'DM Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
-    color: var(--pt-text);
-    background: var(--pt-cream);
+    font-family: var(--font-body);
+    color: var(--text-primary);
+    background: var(--bg-base);
     font-size: 15px;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
-/* Playfair Display pour les titres principaux */
-h1, .font-display {
-    font-family: 'Playfair Display', ui-serif, Georgia, serif;
+h1, h2, h3, h4, .font-display {
+    font-family: var(--font-display);
     font-weight: 600;
     line-height: 1.2;
     letter-spacing: -0.02em;
-    color: var(--pt-text);
+    color: var(--text-primary);
 }
 
 /* ─── Composants ─────────────────────────────────────────────────── */
 
 @layer components {
 
-    /* Boutons */
+    /* ── Boutons ── */
+    .ac-btn-primary {
+        @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
+        font-family: var(--font-display);
+        border-radius: var(--r);
+        background: var(--color-primary);
+        color: #F0E8D4;
+        box-shadow: var(--shadow-primary);
+        border: 1px solid var(--color-primary-dark);
+    }
+    .ac-btn-primary:hover:not(:disabled) {
+        background: var(--color-primary-dark);
+        box-shadow: var(--shadow-elevated);
+    }
+
+    /* Alias legacy */
     .pt-btn-primary {
-        @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium text-white transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
-        border-radius: var(--pt-r);
-        background: var(--pt-navy);
-        box-shadow: var(--pt-shadow-xs);
+        @apply ac-btn-primary;
     }
-    .pt-btn-primary:hover:not(:disabled) {
-        background: var(--pt-navy-mid);
-        box-shadow: var(--pt-shadow-sm);
-    }
-
-    .pt-btn-gold {
-        @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium text-white transition-all duration-150 disabled:opacity-50;
-        border-radius: var(--pt-r);
-        background: var(--pt-gold);
-        box-shadow: var(--pt-shadow-xs);
-    }
-    .pt-btn-gold:hover:not(:disabled) { background: var(--pt-gold-hover); }
-
     .pt-btn-ghost {
+        @apply ac-btn-ghost;
+    }
+
+    .ac-btn-ghost {
         @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium transition-all duration-150 disabled:opacity-50;
-        border-radius: var(--pt-r);
+        font-family: var(--font-display);
+        border-radius: var(--r);
         background: transparent;
-        border: 1px solid var(--pt-border-mid);
-        color: var(--pt-text);
+        border: 1px solid var(--border-mid);
+        color: var(--text-secondary);
     }
-    .pt-btn-ghost:hover:not(:disabled) {
-        background: var(--pt-cream);
-        border-color: var(--pt-border-strong);
-    }
-
-    /* Cards */
-    .pt-card {
-        background: var(--pt-white);
-        border-radius: var(--pt-r-lg);
-        box-shadow: var(--pt-shadow-sm);
-        border: 0.5px solid var(--pt-border);
-    }
-    .pt-card-cream {
-        background: var(--pt-cream);
-        border-radius: var(--pt-r-lg);
-        border: 0.5px solid var(--pt-border);
-    }
-    .pt-card-navy {
-        background: var(--pt-navy);
-        border-radius: var(--pt-r-lg);
-        color: white;
-    }
-    .pt-card-gold {
-        background: var(--pt-gold-pale);
-        border-radius: var(--pt-r-lg);
-        border: 0.5px solid var(--pt-gold-border);
+    .ac-btn-ghost:hover:not(:disabled) {
+        background: var(--bg-elevated);
+        border-color: var(--border-strong);
+        color: var(--text-primary);
     }
 
-    /* Inputs */
-    .pt-input {
+    .ac-btn-danger {
+        @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium transition-all duration-150;
+        font-family: var(--font-display);
+        border-radius: var(--r);
+        background: transparent;
+        border: 1px solid rgba(176,48,32,0.35);
+        color: var(--color-danger);
+    }
+    .ac-btn-danger:hover:not(:disabled) {
+        background: rgba(176,48,32,0.08);
+        border-color: var(--color-danger);
+    }
+
+    /* ── Cards ── */
+    .pt-card, .ac-card {
+        background: var(--bg-surface);
+        border-radius: var(--r-lg);
+        box-shadow: var(--shadow-card);
+        border: 1px solid var(--border-light);
+    }
+    .ac-card-elevated {
+        background: var(--bg-elevated);
+        border-radius: var(--r-lg);
+        box-shadow: var(--shadow-elevated);
+        border: 1px solid var(--border-mid);
+    }
+    .ac-card-accent {
+        background: var(--color-accent);
+        border-radius: var(--r-lg);
+        color: #F0E8D4;
+        box-shadow: var(--shadow-elevated);
+    }
+
+    /* ── Glassmorphism ── */
+    .ac-glass {
+        background: var(--glass-bg);
+        backdrop-filter: var(--glass-blur);
+        -webkit-backdrop-filter: var(--glass-blur);
+        border-bottom: 1px solid var(--glass-border);
+    }
+
+    /* ── Inputs ── */
+    .pt-input, .ac-input {
         @apply block w-full text-sm transition-all duration-150;
-        border-radius: var(--pt-r);
-        border: 1px solid var(--pt-border-mid);
-        background: var(--pt-white);
-        color: var(--pt-text);
+        font-family: var(--font-body);
+        border-radius: var(--r);
+        border: 1px solid var(--border-mid);
+        background: rgba(240,232,212,0.6);
+        color: var(--text-primary);
         padding: 9px 12px;
         line-height: 1.5;
     }
-    .pt-input:hover { border-color: var(--pt-border-strong); }
-    .pt-input:focus {
-        outline: none;
-        border-color: var(--pt-navy);
-        box-shadow: 0 0 0 3px rgba(27,43,58,.10);
+    .pt-input:hover, .ac-input:hover {
+        border-color: var(--border-strong);
+        background: var(--bg-base);
     }
-    .pt-input::placeholder { color: var(--pt-text-ghost); }
+    .pt-input:focus, .ac-input:focus {
+        outline: none;
+        border-color: var(--color-primary);
+        background: var(--bg-base);
+        box-shadow: 0 0 0 3px rgba(166,117,32,0.15);
+    }
+    .pt-input::placeholder, .ac-input::placeholder {
+        color: var(--text-ghost);
+    }
 
-    /* Progress */
-    .pt-progress-track {
+    /* ── Barre XP / Progress ── */
+    .pt-progress-track, .ac-progress-track {
         @apply overflow-hidden;
         height: 5px;
         border-radius: 99px;
-        background: var(--pt-cream-dark);
+        background: var(--bg-elevated);
     }
-    .pt-progress-fill {
+    .pt-progress-fill, .ac-progress-fill {
         @apply h-full transition-all duration-700;
         border-radius: 99px;
-        background: linear-gradient(90deg, var(--pt-gold), #D4A855);
+        background: linear-gradient(90deg, var(--color-primary), #C99030);
     }
 
-    /* Badges */
-    .pt-badge {
-        @apply inline-flex items-center gap-1.5 text-xs font-medium tracking-wide;
-        padding: 3px 10px;
-        border-radius: var(--pt-r-sm);
-        background: var(--pt-gold-pale);
-        color: var(--pt-gold-hover);
-        border: 0.5px solid var(--pt-gold-border);
+    /* Barre XP fine (sous header) */
+    .xp-bar {
+        height: 4px;
+        background: var(--bg-elevated);
+        position: relative;
+        overflow: hidden;
     }
-    .pt-badge-navy {
-        @apply inline-flex items-center gap-1.5 text-xs font-medium tracking-wide;
-        padding: 3px 10px;
-        border-radius: var(--pt-r-sm);
-        background: rgba(27,43,58,.07);
-        color: var(--pt-navy);
-        border: 0.5px solid rgba(27,43,58,.12);
+    .xp-bar__fill {
+        height: 100%;
+        border-radius: 0 99px 99px 0;
+        background: linear-gradient(90deg, var(--color-primary-dark), var(--color-primary), #C99030);
+        transition: width 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        box-shadow: 0 0 8px rgba(166,117,32,0.5);
     }
-    .pt-badge-success {
-        @apply inline-flex items-center gap-1.5 text-xs font-medium tracking-wide;
-        padding: 3px 10px;
-        border-radius: var(--pt-r-sm);
-        background: var(--pt-success-bg);
-        color: var(--pt-success);
-        border: 0.5px solid var(--pt-success-border);
+    .xp-bar__label {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-family: var(--font-data);
+        font-size: 10px;
+        color: var(--text-secondary);
+        white-space: nowrap;
+        pointer-events: none;
     }
 
-    /* Flash */
-    .pt-flash-success {
+    /* ── Badges / Emblèmes ── */
+    .pt-badge, .ac-badge {
+        @apply inline-flex items-center gap-1.5 text-xs font-medium tracking-wide;
+        font-family: var(--font-data);
+        padding: 3px 10px;
+        border-radius: var(--r-sm);
+        background: rgba(166,117,32,0.12);
+        color: var(--color-primary-dark);
+        border: 1px solid var(--border-mid);
+    }
+    .ac-badge-success {
+        @apply inline-flex items-center gap-1.5 text-xs font-medium;
+        font-family: var(--font-data);
+        padding: 3px 10px;
+        border-radius: var(--r-sm);
+        background: rgba(58,107,72,0.12);
+        color: var(--color-success);
+        border: 1px solid rgba(58,107,72,0.25);
+    }
+    .ac-badge-danger {
+        @apply inline-flex items-center gap-1.5 text-xs font-medium;
+        font-family: var(--font-data);
+        padding: 3px 10px;
+        border-radius: var(--r-sm);
+        background: rgba(176,48,32,0.10);
+        color: var(--color-danger);
+        border: 1px solid rgba(176,48,32,0.25);
+    }
+    .ac-badge-signal {
+        @apply inline-flex items-center gap-1.5 text-xs font-medium;
+        font-family: var(--font-data);
+        padding: 3px 10px;
+        border-radius: var(--r-sm);
+        background: rgba(10,127,160,0.10);
+        color: var(--color-signal);
+        border: 1px solid rgba(10,127,160,0.25);
+    }
+
+    /* Emblème RPG (badge décoratif hexagonal-style) */
+    .ac-emblem {
+        @apply inline-flex items-center justify-center;
+        font-family: var(--font-data);
+        font-size: 11px;
+        font-weight: 700;
+        padding: 6px 14px;
+        border-radius: var(--r-sm);
+        background: linear-gradient(135deg, var(--color-accent), #2E2010);
+        color: var(--color-primary);
+        border: 1px solid var(--color-primary-dark);
+        box-shadow: 0 2px 8px rgba(42,30,8,0.3), inset 0 1px 0 rgba(166,117,32,0.2);
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+
+    /* ── Flash messages ── */
+    .pt-flash-success, .ac-flash-success {
         @apply text-sm;
+        font-family: var(--font-body);
         padding: 10px 16px;
-        border-radius: var(--pt-r);
-        background: var(--pt-success-bg);
-        border: 0.5px solid var(--pt-success-border);
-        color: var(--pt-success);
+        border-radius: var(--r);
+        background: rgba(58,107,72,0.12);
+        border: 1px solid rgba(58,107,72,0.3);
+        color: var(--color-success);
     }
-    .pt-flash-error {
+    .pt-flash-error, .ac-flash-error {
         @apply text-sm;
+        font-family: var(--font-body);
         padding: 10px 16px;
-        border-radius: var(--pt-r);
-        background: var(--pt-error-bg);
-        border: 0.5px solid #FCA5A5;
-        color: var(--pt-error);
+        border-radius: var(--r);
+        background: rgba(176,48,32,0.10);
+        border: 1px solid rgba(176,48,32,0.3);
+        color: var(--color-danger);
+    }
+    .ac-flash-warning {
+        @apply text-sm;
+        font-family: var(--font-body);
+        padding: 10px 16px;
+        border-radius: var(--r);
+        background: rgba(166,117,32,0.12);
+        border: 1px solid var(--border-mid);
+        color: var(--color-primary-dark);
     }
 
-    /* Divers */
-    .pt-divider { border: none; border-top: 0.5px solid var(--pt-border); }
-    .pt-section-label {
+    /* ── Divers ── */
+    .ac-divider {
+        border: none;
+        border-top: 1px solid var(--border-light);
+    }
+    .ac-section-label {
         @apply text-xs font-semibold uppercase;
-        color: var(--pt-text-light);
-        letter-spacing: 0.08em;
+        font-family: var(--font-data);
+        color: var(--text-muted);
+        letter-spacing: 0.1em;
+    }
+    .ac-data {
+        font-family: var(--font-data);
+        color: var(--text-secondary);
     }
 }
 
 /* ─── Select natif ───────────────────────────────────────────────── */
-select.pt-input {
+select.pt-input, select.ac-input {
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B5A3E' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 10px center;
     padding-right: 36px;
@@ -232,26 +336,51 @@ select.pt-input {
 /* ─── Scrollbar ──────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--pt-border-mid); border-radius: 99px; }
-::-webkit-scrollbar-thumb:hover { background: var(--pt-border-strong); }
+::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-strong); }
 
 /* ─── Focus visible ──────────────────────────────────────────────── */
-:focus-visible { outline: 2px solid var(--pt-gold); outline-offset: 2px; }
+:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
 
-/* FE-03 — focus visible explicite sur les boutons (remplace focus:outline-none) */
-.pt-btn-primary:focus-visible,
-.pt-btn-ghost:focus-visible {
-    outline: 2px solid var(--pt-navy);
+.ac-btn-primary:focus-visible,
+.ac-btn-ghost:focus-visible,
+.pt-btn-primary:focus-visible {
+    outline: 2px solid var(--color-primary);
     outline-offset: 2px;
-    border-radius: 6px;
+    border-radius: var(--r);
 }
 
-/* ─── Animation d'entrée ─────────────────────────────────────────── */
-@keyframes pt-fade-in {
+/* ─── Animations ─────────────────────────────────────────────────── */
+@keyframes ac-fade-in {
     from { opacity: 0; transform: translateY(8px); }
     to   { opacity: 1; transform: translateY(0); }
 }
+@keyframes ac-slide-in {
+    from { opacity: 0; transform: translateX(-12px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes xp-glow {
+    0%, 100% { box-shadow: 0 0 6px rgba(166,117,32,0.4); }
+    50%       { box-shadow: 0 0 14px rgba(166,117,32,0.7); }
+}
 
-.pt-fade-in {
-    animation: pt-fade-in 0.4s ease-out both;
+.ac-fade-in  { animation: ac-fade-in  0.4s ease-out both; }
+.ac-slide-in { animation: ac-slide-in 0.35s ease-out both; }
+.pt-fade-in  { animation: ac-fade-in  0.4s ease-out both; }
+
+.xp-bar__fill.animate { animation: xp-glow 2s ease-in-out infinite; }
+
+/* ─── Texture parchemin (optionnel overlay) ──────────────────────── */
+.ac-parchment {
+    position: relative;
+}
+.ac-parchment::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        radial-gradient(ellipse at 20% 20%, rgba(166,117,32,0.04) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 80%, rgba(123,21,21,0.03) 0%, transparent 60%);
+    pointer-events: none;
+    border-radius: inherit;
 }

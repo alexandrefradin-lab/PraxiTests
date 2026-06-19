@@ -1,0 +1,1750 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PraxiQuest — Découvrez votre potentiel professionnel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #0C0B09;
+      --bg-warm:    #131109;
+      --bg-card:    #181510;
+      --gold:       #C9A252;
+      --gold-light: #E2C07A;
+      --gold-dim:   #7A6130;
+      --cream:      #F2EBD9;
+      --cream-dim:  #B8AD99;
+      --cream-faint:#4A4438;
+      --white:      #FAFAF8;
+      --accent:     #D4B96A;
+      --font-display: 'Cormorant Garamond', Georgia, serif;
+      --font-body:    'Outfit', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--cream);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── Noise overlay ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1000;
+      opacity: 0.4;
+    }
+
+    /* ─────────────────────────────────────────
+       NAV
+    ───────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 900;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.4rem 4rem;
+      background: linear-gradient(180deg, rgba(12,11,9,0.95) 0%, transparent 100%);
+      backdrop-filter: blur(2px);
+      border-bottom: 1px solid rgba(201,162,82,0.08);
+    }
+
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: 0.05em;
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--cream); }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+    .nav-links a {
+      font-family: var(--font-body);
+      font-size: 0.82rem;
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--cream-dim);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover { color: var(--gold); }
+
+    .nav-cta {
+      font-family: var(--font-body);
+      font-size: 0.82rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--bg);
+      background: var(--gold);
+      border: none;
+      padding: 0.65rem 1.6rem;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+      text-decoration: none;
+    }
+    .nav-cta:hover { background: var(--gold-light); transform: translateY(-1px); }
+
+    /* ─────────────────────────────────────────
+       HERO — Zeigarnik hook
+    ───────────────────────────────────────── */
+    #hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      padding: 8rem 4rem 4rem;
+      position: relative;
+      overflow: hidden;
+      gap: 4rem;
+    }
+
+    /* Background gradient mesh */
+    #hero::before {
+      content: '';
+      position: absolute;
+      top: -20%; right: -10%;
+      width: 70vw; height: 80vh;
+      background: radial-gradient(ellipse at 60% 40%, rgba(201,162,82,0.07) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    #hero::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 100%; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(201,162,82,0.3), transparent);
+    }
+
+    /* Left side — Zeigarnik arc */
+    .hero-arc-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .arc-container {
+      position: relative;
+      width: 380px;
+      height: 380px;
+    }
+
+    .arc-container svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .arc-track {
+      fill: none;
+      stroke: rgba(201,162,82,0.1);
+      stroke-width: 3;
+    }
+
+    .arc-fill {
+      fill: none;
+      stroke: var(--gold);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-dasharray: 1005;
+      stroke-dashoffset: 1005;
+      animation: arcFill 2.4s cubic-bezier(0.4, 0, 0.2, 1) 0.8s forwards;
+      filter: drop-shadow(0 0 8px rgba(201,162,82,0.5));
+    }
+
+    /* 34% of circumference ≈ 341.7 offset remaining from 1005 total = dashoffset 663 */
+    @keyframes arcFill {
+      0%   { stroke-dashoffset: 1005; }
+      70%  { stroke-dashoffset: 663; }
+      80%  { stroke-dashoffset: 648; }
+      85%  { stroke-dashoffset: 658; }
+      100% { stroke-dashoffset: 663; }
+    }
+
+    .arc-inner {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.3rem;
+    }
+
+    .arc-pct {
+      font-family: var(--font-display);
+      font-size: 5.5rem;
+      font-weight: 300;
+      color: var(--gold);
+      line-height: 1;
+      opacity: 0;
+      animation: fadeUp 0.6s ease 3s forwards;
+    }
+
+    .arc-pct-symbol {
+      font-family: var(--font-display);
+      font-size: 2.5rem;
+      color: var(--gold-dim);
+      vertical-align: super;
+    }
+
+    .arc-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--cream-dim);
+      opacity: 0;
+      animation: fadeUp 0.6s ease 3.2s forwards;
+    }
+
+    /* Tick marks around the arc */
+    .arc-ticks {
+      position: absolute;
+      inset: 0;
+      animation: fadeIn 1s ease 1.5s both;
+    }
+
+    /* Decorative dots scattered */
+    .arc-dot {
+      position: absolute;
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: var(--gold);
+      opacity: 0.3;
+    }
+
+    /* Completion marker */
+    .arc-marker {
+      position: absolute;
+      top: 50%; right: -40px;
+      transform: translateY(-50%);
+      opacity: 0;
+      animation: fadeIn 0.4s ease 3.5s forwards;
+    }
+    .arc-marker::before {
+      content: '← votre profil actuel';
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      color: var(--gold-dim);
+      white-space: nowrap;
+    }
+
+    /* Right side — Text */
+    .hero-text {
+      padding-left: 2rem;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeUp 0.9s ease 0.3s forwards;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.8rem;
+      font-size: 0.72rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.6rem;
+    }
+    .hero-eyebrow::before {
+      content: '';
+      display: block;
+      width: 32px; height: 1px;
+      background: var(--gold);
+    }
+
+    .hero-h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2.8rem, 4.5vw, 4.2rem);
+      font-weight: 300;
+      line-height: 1.1;
+      color: var(--cream);
+      margin-bottom: 1.8rem;
+      letter-spacing: -0.01em;
+    }
+    .hero-h1 em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .hero-sub {
+      font-size: 1.05rem;
+      font-weight: 300;
+      color: var(--cream-dim);
+      line-height: 1.7;
+      margin-bottom: 2.8rem;
+      max-width: 38ch;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.8rem;
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--bg);
+      background: var(--gold);
+      border: none;
+      padding: 1.1rem 2.6rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-primary::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.5s;
+    }
+    .btn-primary:hover { background: var(--gold-light); transform: translateY(-2px); box-shadow: 0 12px 32px rgba(201,162,82,0.25); }
+    .btn-primary:hover::after { transform: translateX(100%); }
+
+    .btn-ghost {
+      font-size: 0.82rem;
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      color: var(--cream-dim);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: color 0.3s;
+    }
+    .btn-ghost:hover { color: var(--cream); }
+    .btn-ghost svg { transition: transform 0.3s; }
+    .btn-ghost:hover svg { transform: translateX(4px); }
+
+    .hero-trust {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(201,162,82,0.12);
+      display: flex;
+      gap: 2.5rem;
+    }
+    .trust-item { text-align: left; }
+    .trust-num {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 500;
+      color: var(--gold);
+      line-height: 1;
+    }
+    .trust-label {
+      font-size: 0.72rem;
+      color: var(--cream-faint);
+      letter-spacing: 0.06em;
+      margin-top: 0.2rem;
+    }
+
+    /* ─────────────────────────────────────────
+       SECTION WRAPPER
+    ───────────────────────────────────────── */
+    .section {
+      padding: 7rem 4rem;
+      position: relative;
+    }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.7rem;
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.2rem;
+    }
+    .section-label::before {
+      content: '';
+      width: 24px; height: 1px;
+      background: var(--gold);
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.4rem, 3.5vw, 3.4rem);
+      font-weight: 300;
+      color: var(--cream);
+      line-height: 1.15;
+      margin-bottom: 1.2rem;
+    }
+    .section-title em { font-style: italic; color: var(--gold); }
+
+    .section-sub {
+      font-size: 1rem;
+      color: var(--cream-dim);
+      max-width: 55ch;
+      line-height: 1.7;
+    }
+
+    /* ─────────────────────────────────────────
+       STEPS SECTION
+    ───────────────────────────────────────── */
+    #steps {
+      background: var(--bg-warm);
+      border-top: 1px solid rgba(201,162,82,0.08);
+      border-bottom: 1px solid rgba(201,162,82,0.08);
+    }
+
+    .steps-header { max-width: 520px; margin-bottom: 5rem; }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+    }
+
+    .step-card {
+      background: var(--bg-card);
+      padding: 3rem 2.5rem;
+      position: relative;
+      transition: background 0.4s;
+      overflow: hidden;
+    }
+    .step-card::before {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 0; height: 2px;
+      background: var(--gold);
+      transition: width 0.5s ease;
+    }
+    .step-card:hover { background: #1C1812; }
+    .step-card:hover::before { width: 100%; }
+
+    .step-num {
+      font-family: var(--font-display);
+      font-size: 4.5rem;
+      font-weight: 300;
+      color: rgba(201,162,82,0.15);
+      line-height: 1;
+      margin-bottom: 1.5rem;
+    }
+
+    .step-icon {
+      width: 44px; height: 44px;
+      margin-bottom: 1.5rem;
+      color: var(--gold);
+    }
+
+    .step-title {
+      font-family: var(--font-display);
+      font-size: 1.45rem;
+      font-weight: 500;
+      color: var(--cream);
+      margin-bottom: 0.8rem;
+      line-height: 1.3;
+    }
+
+    .step-body {
+      font-size: 0.88rem;
+      color: var(--cream-dim);
+      line-height: 1.7;
+    }
+
+    .step-badge {
+      display: inline-block;
+      margin-top: 1.5rem;
+      font-size: 0.68rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold);
+      border: 1px solid rgba(201,162,82,0.3);
+      padding: 0.3rem 0.9rem;
+    }
+
+    /* ─────────────────────────────────────────
+       FEATURES
+    ───────────────────────────────────────── */
+    #features {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      padding: 0;
+    }
+
+    .features-left {
+      padding: 7rem 4rem;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .features-right {
+      padding: 5rem 3rem;
+      background: var(--bg-warm);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+      align-content: center;
+    }
+
+    .feat-card {
+      background: var(--bg-card);
+      padding: 2rem;
+      transition: transform 0.3s;
+    }
+    .feat-card:hover { transform: translateY(-4px); }
+
+    .feat-icon {
+      width: 36px; height: 36px;
+      color: var(--gold);
+      margin-bottom: 1.2rem;
+    }
+
+    .feat-title {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 500;
+      color: var(--cream);
+      margin-bottom: 0.5rem;
+    }
+
+    .feat-body {
+      font-size: 0.82rem;
+      color: var(--cream-dim);
+      line-height: 1.65;
+    }
+
+    .features-list {
+      margin-top: 2.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+
+    .feat-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      font-size: 0.9rem;
+      color: var(--cream-dim);
+      line-height: 1.5;
+    }
+    .feat-item::before {
+      content: '↗';
+      color: var(--gold);
+      font-size: 0.9rem;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* ─────────────────────────────────────────
+       AI SECTION
+    ───────────────────────────────────────── */
+    #ai-section {
+      background: var(--bg-warm);
+      border-top: 1px solid rgba(201,162,82,0.08);
+    }
+
+    .ai-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: 6rem;
+      align-items: center;
+    }
+
+    .ai-visual {
+      position: relative;
+    }
+
+    .career-cards-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .career-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(201,162,82,0.1);
+      padding: 1.2rem 1.4rem;
+      transition: all 0.3s;
+      cursor: default;
+    }
+    .career-card:hover {
+      border-color: rgba(201,162,82,0.35);
+      background: #1C1812;
+      transform: translateY(-3px);
+    }
+
+    .career-card-label {
+      font-size: 0.68rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      margin-bottom: 0.4rem;
+    }
+
+    .career-card-title {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--cream);
+      margin-bottom: 0.3rem;
+    }
+
+    .career-card-score {
+      font-size: 0.75rem;
+      color: var(--cream-dim);
+    }
+
+    .career-score-bar {
+      margin-top: 0.6rem;
+      height: 2px;
+      background: rgba(201,162,82,0.1);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .career-score-fill {
+      height: 100%;
+      background: var(--gold);
+      border-radius: 2px;
+      transition: width 1s ease;
+    }
+
+    .career-more {
+      grid-column: span 2;
+      text-align: center;
+      padding: 1.2rem;
+      border: 1px dashed rgba(201,162,82,0.2);
+      font-size: 0.8rem;
+      color: var(--gold-dim);
+      letter-spacing: 0.1em;
+    }
+
+    /* ─────────────────────────────────────────
+       RÉALITÉ SECTION
+    ───────────────────────────────────────── */
+    #realite {
+      background: var(--bg);
+      border-top: 1px solid rgba(201,162,82,0.08);
+      padding: 7rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #realite::before {
+      content: '';
+      position: absolute;
+      bottom: -10%; left: -5%;
+      width: 50vw; height: 50vw;
+      background: radial-gradient(ellipse, rgba(201,162,82,0.04) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .realite-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.6fr;
+      gap: 7rem;
+      align-items: center;
+    }
+
+    .realite-pillars {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .realite-pillar {
+      background: var(--bg-card);
+      padding: 2rem 2.2rem;
+      border-left: 2px solid transparent;
+      transition: border-color 0.4s, background 0.4s;
+      position: relative;
+      overflow: hidden;
+    }
+    .realite-pillar:hover {
+      border-left-color: var(--gold);
+      background: #1A1710;
+    }
+
+    .realite-pillar-num {
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      color: var(--gold-dim);
+      text-transform: uppercase;
+      margin-bottom: 0.6rem;
+    }
+
+    .realite-pillar-title {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: var(--cream);
+      margin-bottom: 0.5rem;
+    }
+
+    .realite-pillar-body {
+      font-size: 0.85rem;
+      color: var(--cream-dim);
+      line-height: 1.65;
+    }
+
+    .realite-badge-wrap {
+      margin-top: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .realite-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--gold);
+      flex-shrink: 0;
+    }
+
+    .realite-badge-text {
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .realite-statement {
+      position: relative;
+    }
+
+    .realite-quote-mark {
+      font-family: var(--font-display);
+      font-size: 8rem;
+      line-height: 0.8;
+      color: rgba(201,162,82,0.08);
+      margin-bottom: -1rem;
+      display: block;
+    }
+
+    .realite-headline {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 3vw, 2.9rem);
+      font-weight: 300;
+      color: var(--cream);
+      line-height: 1.2;
+      margin-bottom: 1.5rem;
+    }
+    .realite-headline em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .realite-body {
+      font-size: 0.95rem;
+      color: var(--cream-dim);
+      line-height: 1.75;
+      max-width: 48ch;
+      margin-bottom: 2.2rem;
+    }
+
+    .realite-body strong {
+      color: var(--cream);
+      font-weight: 500;
+    }
+
+    .realite-proof {
+      display: flex;
+      gap: 2.5rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(201,162,82,0.1);
+    }
+
+    .realite-proof-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .realite-proof-val {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 500;
+      color: var(--gold);
+      line-height: 1;
+    }
+
+    .realite-proof-label {
+      font-size: 0.72rem;
+      color: var(--cream-faint);
+      letter-spacing: 0.06em;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 900px) {
+      .realite-grid { grid-template-columns: 1fr; gap: 3rem; }
+      #realite { padding: 4rem 2rem; }
+    }
+
+    /* ─────────────────────────────────────────
+       TESTIMONIALS
+    ───────────────────────────────────────── */
+    #testimonials {
+      background: var(--bg);
+      border-top: 1px solid rgba(201,162,82,0.08);
+    }
+
+    .testi-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 4rem;
+    }
+
+    .testi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+    }
+
+    .testi-card {
+      background: var(--bg-card);
+      padding: 2.5rem;
+      position: relative;
+      transition: background 0.3s;
+    }
+    .testi-card:hover { background: #191510; }
+
+    .testi-quote {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 400;
+      font-style: italic;
+      color: var(--cream);
+      line-height: 1.65;
+      margin-bottom: 2rem;
+    }
+
+    .testi-quote::before {
+      content: '\201C';
+      font-family: var(--font-display);
+      font-size: 3.5rem;
+      color: var(--gold-dim);
+      line-height: 0;
+      vertical-align: -1rem;
+      margin-right: 0.2rem;
+    }
+
+    .testi-author {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .testi-avatar {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold-dim), rgba(201,162,82,0.3));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 1rem;
+      color: var(--gold);
+      font-weight: 600;
+    }
+
+    .testi-name {
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--cream);
+    }
+
+    .testi-role {
+      font-size: 0.75rem;
+      color: var(--cream-dim);
+      margin-top: 0.15rem;
+    }
+
+    .testi-tag {
+      position: absolute;
+      top: 2.5rem; right: 2.5rem;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold);
+      border: 1px solid rgba(201,162,82,0.25);
+      padding: 0.25rem 0.7rem;
+    }
+
+    /* ─────────────────────────────────────────
+       STATS BANNER
+    ───────────────────────────────────────── */
+    #stats {
+      background: var(--gold);
+      padding: 4rem;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2px;
+    }
+
+    .stat-block {
+      background: var(--gold);
+      padding: 2.5rem 2rem;
+      text-align: center;
+      border-right: 1px solid rgba(12,11,9,0.15);
+    }
+    .stat-block:last-child { border-right: none; }
+
+    .stat-num {
+      font-family: var(--font-display);
+      font-size: 3.5rem;
+      font-weight: 300;
+      color: var(--bg);
+      line-height: 1;
+    }
+
+    .stat-unit {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      color: rgba(12,11,9,0.5);
+    }
+
+    .stat-label {
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(12,11,9,0.65);
+      margin-top: 0.5rem;
+    }
+
+    /* ─────────────────────────────────────────
+       FINAL CTA
+    ───────────────────────────────────────── */
+    #cta {
+      background: var(--bg-warm);
+      border-top: 1px solid rgba(201,162,82,0.08);
+      text-align: center;
+      padding: 8rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #cta::before {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60vw; height: 60vw;
+      background: radial-gradient(ellipse, rgba(201,162,82,0.06) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .cta-eyebrow {
+      font-size: 0.72rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.5rem;
+      display: block;
+    }
+
+    .cta-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.8rem, 5vw, 5rem);
+      font-weight: 300;
+      color: var(--cream);
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+    }
+    .cta-title em { font-style: italic; color: var(--gold); }
+
+    .cta-sub {
+      font-size: 1rem;
+      color: var(--cream-dim);
+      max-width: 50ch;
+      margin: 0 auto 3rem;
+      line-height: 1.7;
+    }
+
+    .cta-form {
+      display: flex;
+      gap: 0;
+      max-width: 480px;
+      margin: 0 auto 2rem;
+    }
+
+    .cta-input {
+      flex: 1;
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      color: var(--cream);
+      background: rgba(201,162,82,0.06);
+      border: 1px solid rgba(201,162,82,0.2);
+      border-right: none;
+      padding: 1rem 1.4rem;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    .cta-input::placeholder { color: var(--cream-faint); }
+    .cta-input:focus { border-color: rgba(201,162,82,0.5); }
+
+    .cta-btn {
+      font-family: var(--font-body);
+      font-size: 0.82rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--bg);
+      background: var(--gold);
+      border: none;
+      padding: 1rem 2rem;
+      cursor: pointer;
+      transition: background 0.3s;
+      white-space: nowrap;
+    }
+    .cta-btn:hover { background: var(--gold-light); }
+
+    .cta-note {
+      font-size: 0.75rem;
+      color: var(--cream-faint);
+      letter-spacing: 0.05em;
+    }
+
+    .cta-note a { color: var(--gold-dim); text-decoration: none; }
+
+    /* ─────────────────────────────────────────
+       FOOTER
+    ───────────────────────────────────────── */
+    footer {
+      background: var(--bg);
+      border-top: 1px solid rgba(201,162,82,0.1);
+      padding: 4rem 4rem 2.5rem;
+    }
+
+    .footer-top {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 1fr;
+      gap: 4rem;
+      margin-bottom: 3.5rem;
+    }
+
+    .footer-brand .nav-logo { font-size: 1.4rem; display: block; margin-bottom: 1rem; }
+
+    .footer-tagline {
+      font-size: 0.85rem;
+      color: var(--cream-dim);
+      line-height: 1.65;
+      max-width: 28ch;
+    }
+
+    .footer-col-title {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.2rem;
+    }
+
+    .footer-links { list-style: none; display: flex; flex-direction: column; gap: 0.65rem; }
+    .footer-links a {
+      font-size: 0.85rem;
+      color: var(--cream-dim);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .footer-links a:hover { color: var(--cream); }
+
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(201,162,82,0.08);
+      font-size: 0.75rem;
+      color: var(--cream-faint);
+    }
+
+    .footer-bottom a { color: var(--cream-faint); text-decoration: none; }
+    .footer-bottom a:hover { color: var(--gold-dim); }
+
+    /* ─────────────────────────────────────────
+       ANIMATIONS
+    ───────────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    /* Intersection observer reveals */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* Counter animation */
+    .count-up { display: inline-block; }
+
+    /* ─────────────────────────────────────────
+       DIVIDER
+    ───────────────────────────────────────── */
+    .gold-rule {
+      border: none;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(201,162,82,0.3), transparent);
+      margin: 0;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+
+    /* ─────────────────────────────────────────
+       MOBILE RESPONSIVE (basic)
+    ───────────────────────────────────────── */
+    @media (max-width: 900px) {
+      nav { padding: 1.2rem 2rem; }
+      .nav-links { display: none; }
+      #hero { grid-template-columns: 1fr; padding: 6rem 2rem 3rem; gap: 2rem; }
+      .hero-arc-wrap { order: 2; }
+      .hero-text { order: 1; padding-left: 0; }
+      .arc-container { width: 260px; height: 260px; }
+      .arc-pct { font-size: 4rem; }
+      .section { padding: 4rem 2rem; }
+      .steps-grid { grid-template-columns: 1fr; gap: 2px; }
+      #features { grid-template-columns: 1fr; }
+      .features-right { padding: 3rem 2rem; }
+      .ai-grid { grid-template-columns: 1fr; gap: 3rem; }
+      .career-cards-wrap { grid-template-columns: 1fr 1fr; }
+      .testi-grid { grid-template-columns: 1fr; gap: 2px; }
+      #stats { grid-template-columns: repeat(2, 1fr); padding: 2rem; }
+      .cta-form { flex-direction: column; }
+      .cta-input { border-right: 1px solid rgba(201,162,82,0.2); }
+      .footer-top { grid-template-columns: 1fr 1fr; gap: 2.5rem; }
+      .testi-header { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="nav-logo">Praxi<span>Quest</span></a>
+    <ul class="nav-links">
+      <li><a href="#steps">Comment ça marche</a></li>
+      <li><a href="#features">Fonctionnalités</a></li>
+      <li><a href="#testimonials">Témoignages</a></li>
+    </ul>
+    <a href="#cta" class="nav-cta">Commencer gratuitement</a>
+  </nav>
+
+  <!-- ═══════════════════════════════════════
+       HERO — ZEIGARNIK HOOK
+  ════════════════════════════════════════ -->
+  <section id="hero">
+
+    <!-- Arc Zeigarnik -->
+    <div class="hero-arc-wrap">
+      <div class="arc-container">
+        <!-- SVG Arc -->
+        <svg viewBox="0 0 340 340" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Outer decoration rings -->
+          <circle cx="170" cy="170" r="165" stroke="rgba(201,162,82,0.04)" stroke-width="1"/>
+          <circle cx="170" cy="170" r="150" stroke="rgba(201,162,82,0.06)" stroke-width="1"/>
+          <!-- Tick marks (24 ticks) -->
+          <g stroke="rgba(201,162,82,0.25)" stroke-width="1.5">
+            <line x1="170" y1="18" x2="170" y2="30" transform="rotate(0 170 170)"/>
+            <line x1="170" y1="18" x2="170" y2="26" transform="rotate(15 170 170)"/>
+            <line x1="170" y1="18" x2="170" y2="26" transform="rotate(30 170 170)"/>
+            <line x1="170" y1="18" x2="170" y2="30" transform="rotate(45 170 170)"/>
+            <line x1="170" y1="18" x2="170" y2="26" transform="rotate(60 170 170)"/>
+            <line x1="170" y1="18" x2="170" y2="26" transform="rotate(75 170 170)"/>
+            <line x1="170" y1="18" x2="170" y2="30" transform="rotate(90 170 170)"/>
+            <line x1="170" y1="18" x2="170" y2="26" transform="rotate(105 170 170)"/>
+            <line x1="170" y1="18" x2="170" y2="26" transform="rotate(120 170 170)"/>
+            <line x1="170" y1="18" x2="170" y2="30" transform="rotate(135 170 170)"/>
+            <line x1="170" y1="18" x2="170" y2="26" transform="rotate(150 170 170)"/>
+            <line x1="170" y1="18" x2="170" y2="26" transform="rotate(165 170 170)"/>
+            <line x1="170" y1="18" x2="170" y2="30" transform="rotate(180 170 170)"/>
+            <line x1="170" y1="18" x2="170" y2="26" transform="rotate(195 170 170)"/>
+            <line x1="170" y1="18" x2="170" y2="26" transform="rotate(210 170 170)"/>
+            <line x1="170" y1="18" x2="170" y2="30" transform="rotate(225 170 170)"/>
+            <line x1="170" y1="18" x2="170" y2="26" transform="rotate(240 170 170)"/>
+            <line x1="170" y1="18" x2="170" y2="26" transform="rotate(255 170 170)"/>
+            <line x1="170" y1="18" x2="170" y2="30" transform="rotate(270 170 170)"/>
+            <line x1="170" y1="18" x2="170" y2="26" transform="rotate(285 170 170)"/>
+            <line x1="170" y1="18" x2="170" y2="26" transform="rotate(300 170 170)"/>
+            <line x1="170" y1="18" x2="170" y2="30" transform="rotate(315 170 170)"/>
+            <line x1="170" y1="18" x2="170" y2="26" transform="rotate(330 170 170)"/>
+            <line x1="170" y1="18" x2="170" y2="26" transform="rotate(345 170 170)"/>
+          </g>
+          <!-- Main track -->
+          <circle class="arc-track" cx="170" cy="170" r="130" stroke-dasharray="817" stroke-dashoffset="0"/>
+          <!-- Animated fill (34% = dashoffset 540 from 817) -->
+          <circle class="arc-fill" cx="170" cy="170" r="130"/>
+          <!-- Dot at tip of arc (~34%) -->
+          <circle id="arc-tip" cx="170" cy="40" r="5" fill="var(--gold)" style="transform-origin:170px 170px; transform:rotate(122.4deg); opacity:0; animation: fadeIn 0.3s ease 3.4s forwards; filter: drop-shadow(0 0 6px var(--gold));"/>
+        </svg>
+
+        <!-- Inner text -->
+        <div class="arc-inner">
+          <div class="arc-pct"><span class="count-up" data-target="34" data-delay="800">0</span><span class="arc-pct-symbol">%</span></div>
+          <div class="arc-label">de votre potentiel</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Text -->
+    <div class="hero-text">
+      <div class="hero-eyebrow">Bilan de compétences augmenté</div>
+
+      <h1 class="hero-h1">
+        Et si vous ne<br>
+        connaissiez que<br>
+        <em>34% de vous-même&nbsp;?</em>
+      </h1>
+
+      <p class="hero-sub">
+        Votre potentiel professionnel est bien plus vaste que votre parcours actuel.
+        PraxiQuest révèle ce que votre CV ne dit pas — et vous propose <strong style="color:var(--cream);font-weight:500">15 métiers faits pour vous</strong>, certifiés par l'IA.
+      </p>
+
+      <div class="hero-actions">
+        <a href="#cta" class="btn-primary">
+          Révéler mon profil complet
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <a href="#steps" class="btn-ghost">
+          Comment ça marche
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+
+      <div class="hero-trust">
+        <div class="trust-item">
+          <div class="trust-num">4 783</div>
+          <div class="trust-label">profils révélés</div>
+        </div>
+        <div class="trust-item">
+          <div class="trust-num">96%</div>
+          <div class="trust-label">de satisfaction</div>
+        </div>
+        <div class="trust-item">
+          <div class="trust-num">15</div>
+          <div class="trust-label">métiers proposés</div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <hr class="gold-rule" />
+
+  <!-- ═══════════════════════════════════════
+       STATS BANNER
+  ════════════════════════════════════════ -->
+  <div id="stats">
+    <div class="stat-block">
+      <div class="stat-num"><span class="count-up" data-target="4783" data-delay="0">0</span></div>
+      <div class="stat-label">Bilans complétés</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-num"><span class="count-up" data-target="96" data-delay="100">0</span><span class="stat-unit">%</span></div>
+      <div class="stat-label">Satisfaction</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-num"><span class="count-up" data-target="15" data-delay="200">0</span></div>
+      <div class="stat-label">Métiers identifiés</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-num"><span class="count-up" data-target="48" data-delay="300">0</span><span class="stat-unit">h</span></div>
+      <div class="stat-label">Rapport IA livré en</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       STEPS
+  ════════════════════════════════════════ -->
+  <section id="steps" class="section">
+    <div class="steps-header">
+      <div class="section-label">Processus</div>
+      <h2 class="section-title">Trois étapes pour<br><em>tout changer</em></h2>
+      <p class="section-sub" style="margin-top:1rem">Un parcours guidé, pensé pour les actifs en transition — qu'ils soient salariés, entrepreneurs ou en recherche d'emploi.</p>
+    </div>
+
+    <div class="steps-grid">
+
+      <div class="step-card reveal">
+        <div class="step-num">01</div>
+        <svg class="step-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        <h3 class="step-title">Votre portrait de départ</h3>
+        <p class="step-body">Renseignez votre statut professionnel, votre ancienneté et uploadez votre CV. Notre IA lit entre les lignes pour extraire ce que vous n'avez pas écrit.</p>
+        <span class="step-badge">Analyse CV intelligente</span>
+      </div>
+
+      <div class="step-card reveal reveal-delay-2">
+        <div class="step-num">02</div>
+        <svg class="step-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M9 11l3 3L22 4"/>
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+        </svg>
+        <h3 class="step-title">Les tests qui vous révèlent</h3>
+        <p class="step-body">Une série d'évaluations scientifiques : personnalité, aptitudes, valeurs professionnelles, intelligence émotionnelle. Pas un test de plus — un miroir de précision.</p>
+        <span class="step-badge">Évaluations scientifiques</span>
+      </div>
+
+      <div class="step-card reveal reveal-delay-3">
+        <div class="step-num">03</div>
+        <svg class="step-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
+        <h3 class="step-title">Votre synthèse sur-mesure</h3>
+        <p class="step-body">L'IA génère un rapport de 20+ pages : analyse de personnalité, cartographie de compétences, et <strong style="color:var(--cream)">15 métiers</strong> parfaitement alignés à votre profil réel.</p>
+        <span class="step-badge">Rapport IA personnalisé</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       FEATURES SPLIT
+  ════════════════════════════════════════ -->
+  <div id="features">
+    <div class="features-left">
+      <div class="section-label">Fonctionnalités</div>
+      <h2 class="section-title">Tout ce dont<br>vous avez <em>besoin</em></h2>
+      <p class="section-sub" style="margin-top:1rem">PraxiQuest va bien au-delà du simple test de personnalité. Une plateforme complète pour les professionnels sérieux.</p>
+      <div class="features-list">
+        <div class="feat-item">Synthèse IA complète de votre profil professionnel unique</div>
+        <div class="feat-item">15 pistes métier argumentées et classées par compatibilité</div>
+        <div class="feat-item">Analyse CV par intelligence artificielle avancée</div>
+        <div class="feat-item">Parcours gamifié avec progression visible et récompenses</div>
+        <div class="feat-item">Invitations groupées — idéal pour RH et organismes de formation</div>
+        <div class="feat-item">Rapport PDF premium téléchargeable immédiatement</div>
+      </div>
+    </div>
+
+    <div class="features-right">
+      <div class="feat-card reveal">
+        <svg class="feat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M12 2a10 10 0 1 0 10 10"/>
+          <path d="M12 6v6l4 2"/>
+          <path d="M22 2 12 12"/>
+          <circle cx="22" cy="2" r="2" fill="currentColor"/>
+        </svg>
+        <h4 class="feat-title">Rapport en 48h</h4>
+        <p class="feat-body">Votre synthèse complète générée et livrée rapidement après la fin de vos évaluations.</p>
+      </div>
+
+      <div class="feat-card reveal reveal-delay-1">
+        <svg class="feat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+        <h4 class="feat-title">Suivi de progression</h4>
+        <p class="feat-body">Visualisez votre avancement en temps réel avec des badges et un système de points motivant.</p>
+      </div>
+
+      <div class="feat-card reveal reveal-delay-2">
+        <svg class="feat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        <h4 class="feat-title">Mode B2B & RH</h4>
+        <p class="feat-body">Invitez des collaborateurs par email. Gérez les évaluations de toute une équipe en une interface.</p>
+      </div>
+
+      <div class="feat-card reveal reveal-delay-3">
+        <svg class="feat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <path d="M3 9h18M9 21V9"/>
+        </svg>
+        <h4 class="feat-title">Tests extensibles</h4>
+        <p class="feat-body">Système de plugins ouvert. Ajoutez vos propres évaluations ou connectez des outils tiers.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       AI CAREER SECTION
+  ════════════════════════════════════════ -->
+  <section id="ai-section" class="section">
+    <div class="ai-grid">
+
+      <div>
+        <div class="section-label reveal">Intelligence artificielle</div>
+        <h2 class="section-title reveal">L'IA qui voit<br><em>plus loin</em> que vous</h2>
+        <p class="section-sub reveal" style="margin-top:1.2rem">
+          Notre moteur d'IA croise votre profil psychologique, vos compétences déclarées et votre parcours réel pour proposer des pistes que vous n'aviez jamais envisagées — mais qui vous correspondent parfaitement.
+        </p>
+        <div style="margin-top:2.5rem" class="reveal">
+          <a href="#cta" class="btn-primary">Découvrir mes 15 métiers</a>
+        </div>
+      </div>
+
+      <div class="ai-visual reveal">
+        <div style="font-size:0.7rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);margin-bottom:1.2rem;">Exemple de résultats — Profil fictif</div>
+        <div class="career-cards-wrap">
+
+          <div class="career-card">
+            <div class="career-card-label">Compatibilité #1</div>
+            <div class="career-card-title">Consultant en transformation</div>
+            <div class="career-card-score">Score : 94 / 100</div>
+            <div class="career-score-bar"><div class="career-score-fill" style="width:94%"></div></div>
+          </div>
+
+          <div class="career-card">
+            <div class="career-card-label">Compatibilité #2</div>
+            <div class="career-card-title">Directeur de projet digital</div>
+            <div class="career-card-score">Score : 91 / 100</div>
+            <div class="career-score-bar"><div class="career-score-fill" style="width:91%"></div></div>
+          </div>
+
+          <div class="career-card">
+            <div class="career-card-label">Compatibilité #3</div>
+            <div class="career-card-title">Coach professionnel certifié</div>
+            <div class="career-card-score">Score : 88 / 100</div>
+            <div class="career-score-bar"><div class="career-score-fill" style="width:88%"></div></div>
+          </div>
+
+          <div class="career-card">
+            <div class="career-card-label">Compatibilité #4</div>
+            <div class="career-card-title">Entrepreneur SaaS B2B</div>
+            <div class="career-card-score">Score : 85 / 100</div>
+            <div class="career-score-bar"><div class="career-score-fill" style="width:85%"></div></div>
+          </div>
+
+          <div class="career-more">+ 11 autres pistes révélées dans votre rapport complet</div>
+
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       PRINCIPE DE RÉALITÉ
+  ════════════════════════════════════════ -->
+  <section id="realite">
+    <div class="realite-grid">
+
+      <!-- Pillars gauche -->
+      <div class="realite-pillars">
+
+        <div class="realite-pillar reveal">
+          <div class="realite-pillar-num">Ancrage 01</div>
+          <h3 class="realite-pillar-title">Validé par les données du marché</h3>
+          <p class="realite-pillar-body">Chaque piste est croisée avec les réalités du marché de l'emploi actuel : tensions sectorielles, niveaux de rémunération, accessibilité sans remise à zéro.</p>
+          <div class="realite-badge-wrap">
+            <div class="realite-dot"></div>
+            <span class="realite-badge-text">Pas de rêves — des réalités accessibles</span>
+          </div>
+        </div>
+
+        <div class="realite-pillar reveal reveal-delay-1">
+          <div class="realite-pillar-num">Ancrage 02</div>
+          <h3 class="realite-pillar-title">Calibré à votre situation réelle</h3>
+          <p class="realite-pillar-body">Votre ancienneté, votre statut, votre CV : l'IA ne vous propose pas ce qui serait "bien en théorie", mais ce qui est <strong style="color:var(--cream);font-weight:500">réaliste pour vous, maintenant</strong>.</p>
+          <div class="realite-badge-wrap">
+            <div class="realite-dot"></div>
+            <span class="realite-badge-text">Votre profil actuel comme point de départ</span>
+          </div>
+        </div>
+
+        <div class="realite-pillar reveal reveal-delay-2">
+          <div class="realite-pillar-num">Ancrage 03</div>
+          <h3 class="realite-pillar-title">Transition sans prise de risque</h3>
+          <p class="realite-pillar-body">Chaque métier identifié s'accompagne d'un chemin de transition concret — formation, passerelles, délais. Vous avancez informé, sans sauter dans le vide.</p>
+          <div class="realite-badge-wrap">
+            <div class="realite-dot"></div>
+            <span class="realite-badge-text">Des pas mesurés, pas des paris</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Statement droite -->
+      <div class="realite-statement reveal">
+        <span class="realite-quote-mark">&ldquo;</span>
+        <div class="section-label" style="margin-bottom:1.2rem">Principe de réalité</div>
+        <h2 class="realite-headline">
+          Des métiers faits pour vous —<br>
+          <em>pas pour un autre vous</em>
+        </h2>
+        <p class="realite-body">
+          L'IA n'est pas là pour vous vendre du rêve. Elle part de qui vous êtes <strong>vraiment</strong> — vos compétences transferables, votre contexte de vie, votre niveau d'appétit au changement — pour identifier des pistes que vous pouvez <strong>concrètement atteindre</strong>.
+        </p>
+        <p class="realite-body" style="margin-bottom:0">
+          Chaque proposition intègre une évaluation de la <strong>faisabilité réelle</strong> : est-ce que ce métier recrute ? Est-il accessible depuis votre profil sans reprendre des études longues ? Le rapport vous dit tout, sans filtre.
+        </p>
+
+        <div class="realite-proof" style="margin-top:2.2rem">
+          <div class="realite-proof-item">
+            <span class="realite-proof-val">92%</span>
+            <span class="realite-proof-label">des pistes proposées<br>sans rupture brutale</span>
+          </div>
+          <div class="realite-proof-item">
+            <span class="realite-proof-val">3 ans</span>
+            <span class="realite-proof-label">délai moyen estimé<br>pour une transition réussie</span>
+          </div>
+          <div class="realite-proof-item">
+            <span class="realite-proof-val">0 €</span>
+            <span class="realite-proof-label">de formation requise<br>pour 40% des pistes proposées</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       TESTIMONIALS
+  ════════════════════════════════════════ -->
+  <section id="testimonials" class="section">
+    <div class="testi-header">
+      <div>
+        <div class="section-label">Témoignages</div>
+        <h2 class="section-title">Ils ont complété<br>leur <em>arc</em></h2>
+      </div>
+      <p style="max-width:34ch;font-size:0.9rem;color:var(--cream-dim);line-height:1.65;">Des milliers de professionnels ont déjà découvert ce que leur parcours leur cachait.</p>
+    </div>
+
+    <div class="testi-grid">
+
+      <div class="testi-card reveal">
+        <span class="testi-tag">Salarié → Transition</span>
+        <p class="testi-quote">PraxiQuest m'a révélé une appétence pour le coaching que je n'aurais jamais imaginée. Six mois après, j'ai signé mes premiers clients.</p>
+        <div class="testi-author">
+          <div class="testi-avatar">ML</div>
+          <div>
+            <div class="testi-name">Marie-Laure D.</div>
+            <div class="testi-role">Ancienne responsable marketing, 14 ans d'expérience</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testi-card reveal reveal-delay-2">
+        <span class="testi-tag">Demandeur d'emploi</span>
+        <p class="testi-quote">Le rapport de 28 pages que j'ai reçu était d'une précision déconcertante. Mon conseiller Pôle Emploi en est resté bouche bée.</p>
+        <div class="testi-author">
+          <div class="testi-avatar">TK</div>
+          <div>
+            <div class="testi-name">Thomas K.</div>
+            <div class="testi-role">Ingénieur en reconversion, 8 ans d'expérience</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testi-card reveal reveal-delay-3">
+        <span class="testi-tag">Entrepreneur</span>
+        <p class="testi-quote">J'ai utilisé PraxiQuest pour l'onboarding de 12 collaborateurs. Les managers ont enfin des mots pour parler des forces de chacun.</p>
+        <div class="testi-author">
+          <div class="testi-avatar">SB</div>
+          <div>
+            <div class="testi-name">Sophie B.</div>
+            <div class="testi-role">CEO d'une agence de 35 personnes</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       FINAL CTA
+  ════════════════════════════════════════ -->
+  <section id="cta">
+    <span class="cta-eyebrow">Prêt à voir le reste de l'arc ?</span>
+    <h2 class="cta-title">
+      Complétez votre<br><em>potentiel professionnel</em>
+    </h2>
+    <p class="cta-sub">
+      Laissez votre email pour commencer votre bilan. C'est gratuit, sans engagement, et votre rapport arrive en 48h.
+    </p>
+
+    <form class="cta-form" onsubmit="return false;">
+      <input type="email" class="cta-input" placeholder="votre@email.fr" />
+      <button type="submit" class="cta-btn">Je commence →</button>
+    </form>
+
+    <p class="cta-note">Sans carte bancaire. Données protégées. <a href="#">Politique de confidentialité</a></p>
+  </section>
+
+  <!-- ═══════════════════════════════════════
+       FOOTER
+  ════════════════════════════════════════ -->
+  <footer>
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="#" class="nav-logo">Praxi<span>Quest</span></a>
+        <p class="footer-tagline">La plateforme qui révèle ce que votre parcours ne dit pas encore.</p>
+      </div>
+
+      <div>
+        <div class="footer-col-title">Produit</div>
+        <ul class="footer-links">
+          <li><a href="#">Comment ça marche</a></li>
+          <li><a href="#">Fonctionnalités</a></li>
+          <li><a href="#">Tarifs</a></li>
+          <li><a href="#">API & Plugins</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="footer-col-title">Ressources</div>
+        <ul class="footer-links">
+          <li><a href="#">Centre d'aide</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Partenaires</a></li>
+          <li><a href="#">Presse</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="footer-col-title">Légal</div>
+        <ul class="footer-links">
+          <li><a href="#">Confidentialité</a></li>
+          <li><a href="#">CGU</a></li>
+          <li><a href="#">Cookies</a></li>
+          <li><a href="#">RGPD</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span>© 2026 PraxiQuest — Tous droits réservés</span>
+      <span style="color:var(--cream-faint);font-size:0.7rem;letter-spacing:0.08em;">Fait avec rigueur en France 🇫🇷</span>
+    </div>
+  </footer>
+
+  <!-- ═══════════════════════════════════════
+       JS
+  ════════════════════════════════════════ -->
+  <script>
+    // ── Intersection Observer for .reveal elements ──
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // ── Counter animations ──
+    function animateCounter(el, target, duration = 1800, delay = 0) {
+      setTimeout(() => {
+        const start = performance.now();
+        const update = (time) => {
+          const elapsed = time - start;
+          const progress = Math.min(elapsed / duration, 1);
+          // Ease out cubic
+          const eased = 1 - Math.pow(1 - progress, 3);
+          el.textContent = Math.round(eased * target).toLocaleString('fr-FR');
+          if (progress < 1) requestAnimationFrame(update);
+          else el.textContent = target.toLocaleString('fr-FR');
+        };
+        requestAnimationFrame(update);
+      }, delay);
+    }
+
+    // Stats section counter (trigger on visibility)
+    const statsSection = document.getElementById('stats');
+    let statsTriggered = false;
+    const statsObserver = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && !statsTriggered) {
+        statsTriggered = true;
+        document.querySelectorAll('#stats .count-up').forEach(el => {
+          animateCounter(el, parseInt(el.dataset.target), 2000, parseInt(el.dataset.delay || 0));
+        });
+      }
+    }, { threshold: 0.4 });
+    statsObserver.observe(statsSection);
+
+    // Hero arc counter (auto-starts with animation)
+    const heroCounter = document.querySelector('.hero-arc-wrap .count-up');
+    if (heroCounter) {
+      setTimeout(() => {
+        animateCounter(heroCounter, 34, 2200, 800);
+      }, 0);
+    }
+
+    // ── Score bar animation on visibility ──
+    const careerSection = document.getElementById('ai-section');
+    let barsTriggered = false;
+    const barsObserver = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && !barsTriggered) {
+        barsTriggered = true;
+        document.querySelectorAll('.career-score-fill').forEach((bar, i) => {
+          const w = bar.style.width;
+          bar.style.width = '0%';
+          setTimeout(() => { bar.style.width = w; }, 300 + i * 150);
+        });
+      }
+    }, { threshold: 0.3 });
+    barsObserver.observe(careerSection);
+
+    // ── Smooth parallax on hero arc ──
+    document.addEventListener('mousemove', (e) => {
+      const arc = document.querySelector('.hero-arc-wrap');
+      if (!arc) return;
+      const x = (e.clientX / window.innerWidth - 0.5) * 12;
+      const y = (e.clientY / window.innerHeight - 0.5) * 8;
+      arc.style.transform = `translate(${x}px, ${y}px)`;
+    });
+  </script>
+
+</body>
+</html>

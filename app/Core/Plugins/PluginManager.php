@@ -38,6 +38,31 @@ class PluginManager
         }
     }
 
+    /**
+     * SEC-05 : valide que le service_provider est un FQCN autorisé
+     * (Praxis\Plugins\*) pour éviter toute RCE si la DB est compromise.
+     */
+    protected function validateProviderClass(string $class): void
+    {
+        // Doit être un FQCN valide (lettres, chiffres, antislashs)
+        if (!preg_match('/^[A-Za-z0-9\\\\]+$/', $class)) {
+            throw new \RuntimeException("Invalid service_provider class name: {$class}");
+        }
+
+        // Doit appartenir au namespace autorisé
+        $allowed = config('plugins.allowed_namespaces', ['Praxis\\Plugins\\']);
+        foreach ($allowed as $ns) {
+            if (str_starts_with($class, $ns)) {
+                return;
+            }
+        }
+
+        throw new \RuntimeException(
+            "Service provider '{$class}' is outside the allowed namespaces. " .
+            "Update config/plugins.php to add it explicitly."
+        );
+    }
+
     protected function loadPlugin(PluginModel $row): void
     {
         $manifest = $row->manifest ?? $this->registry->findManifest($row->slug);
@@ -46,6 +71,10 @@ class PluginManager
         }
 
         $providerClass = $manifest['service_provider'];
+
+        // SEC-05 : valider le namespace avant tout chargement
+        $this->validateProviderClass($providerClass);
+
         if (!class_exists($providerClass)) {
             $this->autoloadPlugin($manifest);
             if (!class_exists($providerClass)) {

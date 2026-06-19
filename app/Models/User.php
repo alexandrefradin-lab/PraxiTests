@@ -9,21 +9,23 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Cashier\Billable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, HasRoles, Notifiable, SoftDeletes;
+    use Billable, HasApiTokens, HasFactory, HasRoles, Notifiable, SoftDeletes;
 
-    protected $fillable = ['name', 'email', 'password', 'locale', 'avatar_path'];
+    protected $fillable = ['name', 'email', 'password', 'locale', 'avatar_path', 'terms_accepted_at', 'terms_version'];
 
     protected $hidden = ['password', 'remember_token', 'two_factor_secret', 'two_factor_recovery_codes'];
 
     protected $casts = [
-        'email_verified_at' => 'datetime',
-        'last_login_at'     => 'datetime',
-        'password'          => 'hashed',
+        'email_verified_at'  => 'datetime',
+        'last_login_at'      => 'datetime',
+        'terms_accepted_at'  => 'datetime',
+        'password'           => 'hashed',
     ];
 
     public function profile(): HasOne

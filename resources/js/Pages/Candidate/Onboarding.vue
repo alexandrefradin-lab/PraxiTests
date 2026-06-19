@@ -1,5 +1,6 @@
 <script setup>
-import { useForm } from '@inertiajs/vue3'
+import { ref } from 'vue'
+import { useForm, Link, Head } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 
 defineProps({
@@ -17,68 +18,267 @@ const form = useForm({
     cv: null,
     consent_data: false,
     consent_marketing: false,
+    cv_mode: 'file',
+    cv_job_title: '',
+    cv_sector: '',
+    cv_years: '',
 })
 
+const isDragging = ref(false)
+
 const submit = () => form.post(route('onboarding.store'), { forceFormData: true })
+
+const onDrop = (e) => {
+    isDragging.value = false
+    const file = e.dataTransfer?.files?.[0]
+    if (file) form.cv = file
+}
+
+const onFileChange = (e) => {
+    form.cv = e.target.files[0] ?? null
+}
 </script>
 
 <template>
     <CandidateLayout>
-        <Head title="Avant de commencer" />
+        <Head title="Forge ton Identité du Héros" />
 
-        <div class="max-w-2xl mx-auto">
-            <h1 class="text-3xl font-semibold tracking-tight">Avant de commencer</h1>
-            <p class="mt-2 text-slate-600">Quelques infos sur toi pour personnaliser tes résultats. Ça prend 2 minutes.</p>
+        <div class="max-w-[680px] mx-auto px-4 py-8">
 
-            <form @submit.prevent="submit" class="pt-card mt-8 p-8 space-y-6">
-                <div>
-                    <label class="block text-sm font-medium text-slate-700">Ton statut actuel</label>
-                    <select v-model="form.status" class="pt-input mt-2" required>
-                        <option value="" disabled>— Choisir —</option>
-                        <option v-for="(label, key) in statuses" :key="key" :value="key">{{ label }}</option>
-                    </select>
-                    <p v-if="form.errors.status" class="text-xs text-rose-600 mt-1">{{ form.errors.status }}</p>
+            <!-- ── En-tête ── -->
+            <div class="text-center mb-8">
+                <span
+                    class="inline-block px-3 py-1 rounded-full border text-xs tracking-widest uppercase mb-4"
+                    style="font-family:'Space Mono',monospace; color:var(--color-primary); border-color:var(--color-primary); background:var(--bg-surface);"
+                >
+                    Identité du Héros — Étape 1/1
+                </span>
+
+                <!-- Ligne décorative or -->
+                <div class="flex items-center gap-3 justify-center mb-5">
+                    <div class="h-px flex-1 max-w-[80px]" style="background:linear-gradient(to right, transparent, var(--color-primary));"></div>
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 0L9.6 6.4L16 8L9.6 9.6L8 16L6.4 9.6L0 8L6.4 6.4L8 0Z" fill="var(--color-primary)"/>
+                    </svg>
+                    <div class="h-px flex-1 max-w-[80px]" style="background:linear-gradient(to left, transparent, var(--color-primary));"></div>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-slate-700">Depuis quand ?</label>
-                    <input type="date" v-model="form.status_since" class="pt-input mt-2" required>
-                    <p v-if="form.errors.status_since" class="text-xs text-rose-600 mt-1">{{ form.errors.status_since }}</p>
-                </div>
+                <h1
+                    class="text-3xl font-bold tracking-tight mb-2"
+                    style="font-family:'Space Grotesk',sans-serif; color:var(--text-primary);"
+                >
+                    Forge ton Identité du Héros
+                </h1>
+                <p class="text-sm" style="color:var(--text-secondary); font-family:'Inter',sans-serif;">
+                    Ces informations personnalisent ton Grimoire de Synthèse.
+                </p>
+            </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700">Poste actuel (optionnel)</label>
-                        <input type="text" v-model="form.current_role" class="pt-input mt-2" placeholder="Ex : Chef de projet">
+            <!-- ── Formulaire ── -->
+            <form @submit.prevent="submit" class="pt-card p-8 space-y-8">
+
+                <!-- Section 1 : Statut -->
+                <div class="space-y-5">
+                    <div class="flex items-center gap-3">
+                        <span
+                            class="text-xs font-bold uppercase tracking-widest whitespace-nowrap"
+                            style="font-family:'Space Mono',monospace; color:var(--color-primary);"
+                        >I — Statut</span>
+                        <div class="h-px flex-1" style="background:var(--glass-border);"></div>
                     </div>
+
                     <div>
-                        <label class="block text-sm font-medium text-slate-700">Secteur (optionnel)</label>
-                        <input type="text" v-model="form.industry" class="pt-input mt-2" placeholder="Ex : Industrie">
+                        <label class="block text-sm font-medium mb-1.5" style="color:var(--text-primary); font-family:'Inter',sans-serif;">
+                            Ton statut actuel de Héros <span style="color:var(--color-secondary);">*</span>
+                        </label>
+                        <select v-model="form.status" class="pt-input" required>
+                            <option value="" disabled>— Choisir ton statut —</option>
+                            <option v-for="(label, key) in statuses" :key="key" :value="key">{{ label }}</option>
+                        </select>
+                        <p v-if="form.errors.status" class="text-xs mt-1" style="color:var(--color-secondary);">{{ form.errors.status }}</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-1.5" style="color:var(--text-primary); font-family:'Inter',sans-serif;">
+                            Depuis quand ? <span style="color:var(--color-secondary);">*</span>
+                        </label>
+                        <input type="date" v-model="form.status_since" class="pt-input" required>
+                        <p v-if="form.errors.status_since" class="text-xs mt-1" style="color:var(--color-secondary);">{{ form.errors.status_since }}</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-1.5" style="color:var(--text-primary); font-family:'Inter',sans-serif;">
+                                Poste actuel
+                                <span class="font-normal text-xs" style="color:var(--text-secondary);">(optionnel)</span>
+                            </label>
+                            <input type="text" v-model="form.current_role" class="pt-input" placeholder="Ex : Chef de projet">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1.5" style="color:var(--text-primary); font-family:'Inter',sans-serif;">
+                                Secteur
+                                <span class="font-normal text-xs" style="color:var(--text-secondary);">(optionnel)</span>
+                            </label>
+                            <input type="text" v-model="form.industry" class="pt-input" placeholder="Ex : Industrie">
+                        </div>
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-slate-700">CV</label>
-                    <input type="file" :accept="cv_allowed_mimes.map(m => '.' + m).join(',')" @change="form.cv = $event.target.files[0]" class="block w-full text-sm mt-2 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" required>
-                    <p class="text-xs text-slate-500 mt-1">{{ cv_allowed_mimes.join(', ').toUpperCase() }} — max {{ Math.round(cv_max_size_kb / 1024) }} Mo</p>
-                    <p v-if="form.errors.cv" class="text-xs text-rose-600 mt-1">{{ form.errors.cv }}</p>
+                <!-- Section 2 : CV / Codex de Compétences -->
+                <div class="space-y-4">
+                    <div class="flex items-center gap-3">
+                        <span
+                            class="text-xs font-bold uppercase tracking-widest whitespace-nowrap"
+                            style="font-family:'Space Mono',monospace; color:var(--color-primary);"
+                        >II — Codex de Compétences</span>
+                        <div class="h-px flex-1" style="background:var(--glass-border);"></div>
+                    </div>
+
+                    <!-- Mode : upload fichier -->
+                    <template v-if="form.cv_mode === 'file'">
+                        <label
+                            class="flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed cursor-pointer transition-all duration-200 py-10 px-6 text-center"
+                            :style="{
+                                background: isDragging ? 'var(--bg-elevated)' : 'var(--bg-surface)',
+                                borderColor: isDragging ? 'var(--color-primary)' : 'rgba(166,117,32,0.4)',
+                            }"
+                            @dragover.prevent="isDragging = true"
+                            @dragleave.prevent="isDragging = false"
+                            @drop.prevent="onDrop"
+                        >
+                            <input
+                                type="file"
+                                class="sr-only"
+                                :accept="cv_allowed_mimes.map(m => '.' + m).join(',')"
+                                @change="onFileChange"
+                            >
+                            <i class="ti ti-file-upload text-4xl" style="color:var(--color-primary);"></i>
+                            <div>
+                                <p class="text-sm font-medium" style="color:var(--text-primary); font-family:'Inter',sans-serif;">
+                                    Dépose ton <span style="color:var(--color-primary);">Codex de Compétences</span> (PDF/DOCX)
+                                </p>
+                                <p class="text-xs mt-1" style="color:var(--text-secondary);">
+                                    {{ cv_allowed_mimes.join(', ').toUpperCase() }} — max {{ Math.round(cv_max_size_kb / 1024) }} Mo
+                                </p>
+                                <p v-if="form.cv" class="text-xs mt-2 font-semibold" style="color:var(--color-success);">
+                                    ✓ {{ form.cv.name }}
+                                </p>
+                            </div>
+                        </label>
+                        <p v-if="form.errors.cv" class="text-xs" style="color:var(--color-secondary);">{{ form.errors.cv }}</p>
+
+                        <p class="text-center">
+                            <span
+                                class="cursor-pointer transition-opacity hover:opacity-70"
+                                style="font-size:12px; color:var(--color-primary); font-family:'Inter',sans-serif; text-decoration:underline; text-underline-offset:3px; text-decoration-color:rgba(166,117,32,0.5);"
+                                @click="form.cv_mode = 'manual'"
+                            >
+                                Tu n'as pas ton CV sous la main ? → Saisis 3 infos
+                            </span>
+                        </p>
+                    </template>
+
+                    <!-- Mode : saisie manuelle -->
+                    <template v-else>
+                        <p class="text-xs" style="color:var(--text-secondary); font-family:'Inter',sans-serif;">
+                            Renseigne ces 3 informations — elles alimenteront ton Grimoire de Synthèse.
+                        </p>
+
+                        <div>
+                            <label class="block text-sm font-medium mb-1.5" style="color:var(--text-primary); font-family:'Inter',sans-serif;">
+                                Métier actuel ou dernier poste
+                            </label>
+                            <input type="text" v-model="form.cv_job_title" class="pt-input" placeholder="Ex : Développeur Full Stack">
+                            <p v-if="form.errors.cv_job_title" class="text-xs mt-1" style="color:var(--color-secondary);">{{ form.errors.cv_job_title }}</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-1.5" style="color:var(--text-primary); font-family:'Inter',sans-serif;">
+                                    Secteur d'activité
+                                </label>
+                                <input type="text" v-model="form.cv_sector" class="pt-input" placeholder="Ex : Tech, Santé, Finance…">
+                                <p v-if="form.errors.cv_sector" class="text-xs mt-1" style="color:var(--color-secondary);">{{ form.errors.cv_sector }}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1.5" style="color:var(--text-primary); font-family:'Inter',sans-serif;">
+                                    Durée d'expérience totale
+                                </label>
+                                <input type="text" v-model="form.cv_years" class="pt-input" placeholder="Ex : 5 ans">
+                                <p v-if="form.errors.cv_years" class="text-xs mt-1" style="color:var(--color-secondary);">{{ form.errors.cv_years }}</p>
+                            </div>
+                        </div>
+
+                        <p class="text-center">
+                            <span
+                                class="cursor-pointer transition-opacity hover:opacity-70"
+                                style="font-size:12px; color:var(--color-primary); font-family:'Inter',sans-serif; text-decoration:underline; text-underline-offset:3px; text-decoration-color:rgba(166,117,32,0.5);"
+                                @click="form.cv_mode = 'file'; form.cv = null"
+                            >
+                                ← Finalement, je préfère uploader mon CV
+                            </span>
+                        </p>
+                    </template>
                 </div>
 
-                <div class="space-y-3 border-t border-slate-100 pt-6">
-                    <label class="flex items-start gap-3 text-sm">
-                        <input type="checkbox" v-model="form.consent_data" class="mt-1 rounded border-slate-300 text-indigo-600">
-                        <span>J'accepte que mes données soient analysées par l'IA pour produire ma synthèse et mes recommandations métiers. <span class="text-rose-500">*</span></span>
+                <!-- Section 3 : Consentements / Serments -->
+                <div class="space-y-4">
+                    <div class="flex items-center gap-3">
+                        <span
+                            class="text-xs font-bold uppercase tracking-widest whitespace-nowrap"
+                            style="font-family:'Space Mono',monospace; color:var(--color-primary);"
+                        >III — Serments</span>
+                        <div class="h-px flex-1" style="background:var(--glass-border);"></div>
+                    </div>
+
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            v-model="form.consent_data"
+                            class="mt-0.5 rounded shrink-0"
+                            style="accent-color:var(--color-primary);"
+                            required
+                        >
+                        <span class="text-sm leading-relaxed" style="color:var(--text-primary); font-family:'Inter',sans-serif;">
+                            J'accepte l'analyse de mon Identité par l'IA pour révéler mon Grimoire.
+                            <span style="color:var(--color-secondary);">*</span>
+                        </span>
                     </label>
-                    <label class="flex items-start gap-3 text-sm">
-                        <input type="checkbox" v-model="form.consent_marketing" class="mt-1 rounded border-slate-300 text-indigo-600">
-                        <span>Je veux recevoir des conseils personnalisés par email (optionnel).</span>
+                    <p v-if="form.errors.consent_data" class="text-xs pl-7" style="color:var(--color-secondary);">{{ form.errors.consent_data }}</p>
+
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input
+                            type="checkbox"
+                            v-model="form.consent_marketing"
+                            class="mt-0.5 rounded shrink-0"
+                            style="accent-color:var(--color-primary);"
+                        >
+                        <span class="text-sm leading-relaxed" style="color:var(--text-secondary); font-family:'Inter',sans-serif;">
+                            Je veux recevoir des Convocations personnalisées par email
+                            <span class="text-xs">(optionnel)</span>.
+                        </span>
                     </label>
                 </div>
 
-                <button type="submit" :disabled="form.processing" class="pt-btn-primary w-full">
-                    <span v-if="form.processing">Envoi…</span>
-                    <span v-else>Continuer</span>
-                </button>
+                <!-- Bouton submit -->
+                <div class="pt-2">
+                    <button
+                        type="submit"
+                        :disabled="form.processing"
+                        class="pt-btn-primary w-full py-3 text-base font-semibold tracking-wide"
+                        style="font-family:'Space Grotesk',sans-serif;"
+                    >
+                        <span v-if="form.processing" class="flex items-center justify-center gap-2">
+                            <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                            </svg>
+                            Forge en cours…
+                        </span>
+                        <span v-else>⚔ Forger mon Identité</span>
+                    </button>
+                </div>
+
             </form>
         </div>
     </CandidateLayout>

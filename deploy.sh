@@ -22,7 +22,7 @@ APP_DIR="$HOME/praxiquest"
 if [ "$MODE" = "first" ]; then
   msg "Clonage du dépôt..."
   cd "$HOME"
-  git clone https://github.com/alexandrefradin-lab/PraxiQuest.git praxiquest || err "git clone échoué"
+  git clone https://github.com/alexandrefradin-lab/PraxiTests.git praxiquest || err "git clone échoué"
   ok "Dépôt cloné dans ~/praxiquest"
 
   msg "Création du .env..."
@@ -52,7 +52,12 @@ ok "Code à jour"
 
 msg "Composer install (production)..."
 composer install --no-dev --optimize-autoloader --no-interaction 2>&1 | tail -5
-ok "Dépendances installées"
+ok "Dépendances PHP installées"
+
+msg "Build assets front-end (Vite)..."
+npm ci --prefer-offline 2>&1 | tail -3
+npm run build 2>&1 | tail -8
+ok "Assets compilés"
 
 msg "Génération de la clé APP_KEY (si absente)..."
 php artisan key:generate --no-interaction 2>/dev/null && ok "Clé générée" || ok "Clé déjà présente"
