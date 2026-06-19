@@ -10,9 +10,9 @@
     @routes
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
-        /* Thème Assassin's Creed Parchment — override après Vite */
+        /* === Thème Assassin's Creed Parchment — override après Vite === */
         :root {
-            /* Variables --pt-* utilisées par le CSS compilé */
+            /* Variables --pt-* du CSS compilé */
             --pt-cream:           #F0E8D4;
             --pt-cream-dark:      #E5DAC2;
             --pt-white:           #FAF6ED;
@@ -35,13 +35,14 @@
             --pt-shadow-md:       0 4px 16px rgba(42,30,8,0.15);
             --pt-shadow-lg:       0 8px 32px rgba(42,30,8,0.2);
 
-            /* Variables inline Landing.vue et autres composants */
+            /* Variables inline Landing.vue / composants */
             --bg-base:            #F0E8D4;
             --bg-surface:         #E5DAC2;
             --bg-elevated:        #D8CEB5;
             --color-primary:      #A67520;
             --color-primary-dark: #7D5510;
             --color-primary-light:#C99030;
+            --color-accent:       #A67520;
             --text-primary:       #2A1E08;
             --text-secondary:     #5C4A1E;
             --text-muted:         #8B7355;
@@ -49,6 +50,32 @@
             --glass-border:       rgba(166,117,32,0.3);
             --shadow-gold:        0 4px 24px rgba(166,117,32,0.25);
         }
+
+        /* === Override Tailwind classes de l'ancien bundle compilé === */
+        .bg-white               { background-color: #F0E8D4 !important; }
+        .bg-slate-50            { background-color: #E5DAC2 !important; }
+        .bg-slate-100           { background-color: #E5DAC2 !important; }
+        .text-slate-900         { color: #2A1E08 !important; }
+        .text-slate-700         { color: #3D2E0F !important; }
+        .text-slate-600         { color: #5C4A1E !important; }
+        .text-slate-500         { color: #8B7355 !important; }
+        .text-slate-400         { color: #B8A88A !important; }
+        .border-slate-100       { border-color: rgba(166,117,32,0.2) !important; }
+        .border-slate-200       { border-color: rgba(166,117,32,0.3) !important; }
+
+        /* Gradient accents → or parchment */
+        .from-indigo-500        { --tw-gradient-from: #A67520 !important; }
+        .to-violet-500          { --tw-gradient-to: #C99030 !important; }
+        .from-emerald-500       { --tw-gradient-from: #7D5510 !important; }
+        .to-teal-500            { --tw-gradient-to: #A67520 !important; }
+        .from-amber-500         { --tw-gradient-from: #C99030 !important; }
+        .to-rose-500            { --tw-gradient-to: #A67520 !important; }
+
+        /* Boutons Tailwind */
+        .bg-indigo-600          { background-color: #A67520 !important; }
+        .hover\:bg-indigo-700:hover { background-color: #7D5510 !important; }
+        .text-indigo-600        { color: #A67520 !important; }
+        .border-indigo-600      { border-color: #A67520 !important; }
     </style>
     @inertiaHead
 </head>
