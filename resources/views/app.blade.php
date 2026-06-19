@@ -7,11 +7,8 @@
     <title inertia>{{ config('app.name', 'PraxiQuest') }}</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=playfair-display:400,500,600,700|dm-sans:300,400,500,600&display=swap" rel="stylesheet">
-    @routes
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @inertiaHead
-</head>
-<body class="font-sans antialiased">
-    @inertia
-</body>
-</html>
+    <style>
+        :root {
+            --bg-base:              #F0E8D4;
+            --bg-surface:           #E5DAC2;
+            --bg-elevated:          #D8CEB5;
