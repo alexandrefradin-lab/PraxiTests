@@ -30,13 +30,13 @@ class Profile extends Model
     ];
 
     protected $casts = [
-        'preferences'      => 'array',
-        'metadata'         => 'array',
-        'cv_structured'    => 'array',
-        'consent_data'     => 'boolean',
+        'preferences'       => 'array',
+        'metadata'          => 'array',
+        'cv_structured'     => 'array',
+        'consent_data'      => 'boolean',
         'consent_marketing' => 'boolean',
-        'status_since'     => 'date',
-        'completed_at'     => 'datetime',
+        'status_since'      => 'date',
+        'completed_at'      => 'datetime',
     ];
 
     public function user(): BelongsTo
@@ -44,11 +44,18 @@ class Profile extends Model
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Un profil est complet si le candidat a renseigné son statut, son
+     * ancienneté, déposé son CV et accepté le traitement des données.
+     * (Onboarding obligatoire avant de passer un test.)
+     */
     public function isComplete(): bool
     {
-        return $this->status
+        return (bool) (
+            $this->status
             && $this->status_since
             && $this->cv_path
-            && $this->consent_data;
+            && $this->consent_data
+        );
     }
 }
