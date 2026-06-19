@@ -19,7 +19,8 @@
                     </tr>
                     <tr>
                         <td style="padding:24px 40px 40px 40px;line-height:1.6;font-size:15px">
-                            {!! strip_tags($html, '<p><br><a><b><i><strong><em><ul><ol><li><h2><h3><blockquote><span>') !!}
+                            {{-- SEC-07 : assainissement HTML via HtmlSanitizer (supprime balises ET attributs dangereux) --}}
+                            {!! \Praxis\Core\Mailing\HtmlSanitizer::clean($html) !!}
                         </td>
                     </tr>
                     <tr>

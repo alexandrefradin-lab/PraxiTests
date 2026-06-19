@@ -1,74 +1,566 @@
 <script setup>
+import { ref, onMounted } from 'vue'
 import { Link } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 
-defineProps({
+const props = defineProps({
     attempt: Object,
     result: Object,
     ai_pending: Boolean,
 })
+
+const revealed = ref(false)
+const typewriterText = ref('')
+const ctaVisible = ref(false)
+
+onMounted(() => {
+    if (!props.ai_pending && props.result?.ai_synthesis) {
+        // Séquence cinématique :
+        // 800ms → fade in "Ton Grimoire se révèle..."
+        // 1400ms → typewriter synthèse (40ms/char, max 300 chars)
+        // Après typewriter → afficher tout le contenu
+        // +90s → afficher CTA download PDF (règle neuromarketing)
+        setTimeout(() => { revealed.value = true }, 800)
+        setTimeout(() => {
+            const text = props.result.ai_synthesis?.slice(0, 300) ?? ''
+            let i = 0
+            const interval = setInterval(() => {
+                if (i < text.length) { typewriterText.value += text[i]; i++ }
+                else { clearInterval(interval) }
+            }, 40)
+        }, 1400)
+        setTimeout(() => { ctaVisible.value = true }, 90000)
+    }
+})
 </script>
 
 <template>
-    <CandidateLayout>
-        <Head title="Tes résultats" />
+    <!-- ═══ CAS AI_PENDING ═══════════════════════════════════════════════ -->
+    <div v-if="ai_pending" class="ac-pending-shell">
+        <Head title="Révélation en cours…" />
+        <meta http-equiv="refresh" content="10">
 
-        <div class="max-w-3xl mx-auto">
-            <div class="text-center mb-12">
-                <span class="pt-badge">Profil cartographié</span>
-                <h1 class="text-4xl font-semibold tracking-tight mt-4">Voilà ce qui te ressemble.</h1>
-                <p class="text-slate-600 mt-2">Synthèse personnalisée par notre IA, à partir de tes réponses et de ton CV.</p>
+        <div class="ac-pending-inner">
+            <!-- Ligne décorative -->
+            <div class="ac-deco-line"></div>
+
+            <!-- Points pulsants -->
+            <div class="ac-pulse-dots">
+                <span></span>
+                <span></span>
+                <span></span>
             </div>
 
-            <div v-if="ai_pending" class="pt-card p-12 text-center">
-                <div class="inline-block h-10 w-10 rounded-full border-4 border-indigo-200 border-t-indigo-600 animate-spin"></div>
-                <p class="mt-4 text-slate-600">Génération en cours… (1 à 2 min)</p>
-                <p class="text-xs text-slate-400 mt-2">Cette page se mettra à jour automatiquement.</p>
+            <h1 class="ac-pending-title">Ton Grimoire se révèle…</h1>
+            <p class="ac-pending-sub">L'IA analyse ton Épreuve · 1 à 2 minutes</p>
+
+            <!-- Ligne décorative bas -->
+            <div class="ac-deco-line" style="margin-top: 2rem;"></div>
+        </div>
+    </div>
+
+    <!-- ═══ CAS RÉSULTATS DISPONIBLES ════════════════════════════════════ -->
+    <CandidateLayout v-else>
+        <Head title="Ta Révélation" />
+
+        <div class="ac-results-shell">
+
+            <!-- ── PHASE CINÉMATIQUE (avant reveal) ────────────────── -->
+            <div v-if="!revealed" class="ac-reveal-phase">
+                <div class="ac-deco-line"></div>
+                <h2 class="ac-reveal-title fade-in">Ton Grimoire se révèle…</h2>
+                <div class="ac-deco-line" style="margin-top: 1.5rem;"></div>
             </div>
 
-            <template v-else>
-                <!-- Synthèse -->
-                <section class="pt-card p-8 mb-8">
-                    <h2 class="text-xl font-semibold mb-4">Ta synthèse</h2>
-                    <div class="prose prose-slate max-w-none whitespace-pre-line text-[15px] leading-relaxed">{{ result.ai_synthesis }}</div>
+            <!-- ── CONTENU PRINCIPAL (après reveal) ───────────────── -->
+            <div v-show="revealed" class="ac-content fade-in">
+
+                <!-- EN-TÊTE RÉSULTATS -->
+                <header class="ac-results-header">
+                    <span class="ac-revelation-badge">Révélation</span>
+                    <h1 class="ac-results-h1">Voilà ce qui te ressemble.</h1>
+                    <p class="ac-results-subtitle">Grimoire de Synthèse personnalisé par l'IA</p>
+                </header>
+
+                <!-- ── GRIMOIRE DE SYNTHÈSE (typewriter) ─────────── -->
+                <section class="ac-card ac-synthesis-card">
+                    <h2 class="ac-card-title">Ton Grimoire de Synthèse</h2>
+
+                    <!-- Texte typewriter (premiers 300 chars) -->
+                    <div class="ac-typewriter-text">
+                        {{ typewriterText }}<span
+                            v-if="typewriterText.length < (result.ai_synthesis?.slice(0, 300).length ?? 0)"
+                            class="ac-cursor"
+                        >|</span>
+                    </div>
+
+                    <!-- Texte complet après typewriter terminé -->
+                    <div
+                        v-if="typewriterText.length >= Math.min(300, result.ai_synthesis?.length ?? 0)"
+                        class="ac-synthesis-full"
+                    >
+                        {{ result.ai_synthesis }}
+                    </div>
                 </section>
 
-                <!-- Scoring dimensions -->
-                <section v-if="result.scoring?.dimensions" class="pt-card p-8 mb-8">
-                    <h2 class="text-xl font-semibold mb-6">Tes dimensions</h2>
-                    <div class="space-y-4">
-                        <div v-for="(value, key) in result.scoring.dimensions" :key="key">
-                            <div class="flex justify-between text-sm mb-1">
-                                <span class="font-medium capitalize">{{ key }}</span>
-                                <span class="text-slate-500">{{ value }}/100</span>
+                <!-- ── DIMENSIONS SCORING ─────────────────────────── -->
+                <section v-if="result.scoring?.dimensions" class="ac-card">
+                    <h2 class="ac-card-title">Tes Dimensions</h2>
+                    <div class="ac-dimensions">
+                        <div
+                            v-for="(dimValue, key) in result.scoring.dimensions"
+                            :key="key"
+                            class="ac-dimension-row"
+                        >
+                            <div class="ac-dimension-header">
+                                <span class="ac-dimension-name">{{ key }}</span>
+                                <span class="ac-dimension-score">{{ dimValue }}/100</span>
                             </div>
-                            <div class="pt-progress-track">
-                                <div class="pt-progress-fill" :style="{ width: value + '%' }"></div>
+                            <div class="ac-progress-track">
+                                <div class="ac-progress-fill" :style="{ width: dimValue + '%' }"></div>
                             </div>
                         </div>
                     </div>
                 </section>
 
-                <!-- Métiers suggérés -->
-                <section v-if="result.suggested_jobs?.length" class="pt-card p-8 mb-8">
-                    <h2 class="text-xl font-semibold mb-6">{{ result.suggested_jobs.length }} métiers à explorer</h2>
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <article v-for="(job, i) in result.suggested_jobs" :key="i" class="border border-slate-100 rounded-xl p-5 hover:border-indigo-300 transition">
-                            <div class="flex items-start justify-between gap-3 mb-2">
-                                <h3 class="font-semibold">{{ job.titre || job.title }}</h3>
-                                <span class="text-xs px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 font-medium whitespace-nowrap">{{ job.fit_score }}%</span>
+                <!-- ── VOIES POSSIBLES (métiers) ───────────────────── -->
+                <section v-if="result.suggested_jobs?.length" class="ac-card">
+                    <h2 class="ac-card-title">{{ result.suggested_jobs.length }} Voies Possibles</h2>
+                    <div class="ac-jobs-grid">
+                        <article
+                            v-for="(job, i) in result.suggested_jobs"
+                            :key="i"
+                            class="ac-job-card"
+                        >
+                            <!-- Numéro -->
+                            <span class="ac-job-num">{{ String(i + 1).padStart(2, '0') }}</span>
+
+                            <!-- Header métier -->
+                            <div class="ac-job-header">
+                                <h3 class="ac-job-title">{{ job.titre || job.title }}</h3>
+                                <span class="ac-job-fit">{{ job.fit_score }}%</span>
                             </div>
-                            <p class="text-xs uppercase tracking-wide text-slate-400 mb-3">{{ job.secteur || job.sector }}</p>
-                            <p class="text-sm text-slate-700">{{ job.pourquoi || job.why }}</p>
-                            <p v-if="job.prochaine_étape || job.next_step" class="text-xs text-indigo-700 mt-3 font-medium">→ {{ job.prochaine_étape || job.next_step }}</p>
+
+                            <!-- Secteur -->
+                            <p class="ac-job-sector">{{ job.secteur || job.sector }}</p>
+
+                            <!-- Description -->
+                            <p class="ac-job-desc">{{ job.pourquoi || job.why }}</p>
+
+                            <!-- Prochaine étape -->
+                            <p v-if="job.prochaine_étape || job.next_step" class="ac-job-step">
+                                → {{ job.prochaine_étape || job.next_step }}
+                            </p>
                         </article>
                     </div>
                 </section>
 
-                <div class="text-center mt-12">
-                    <a :href="route('results.pdf', attempt.id)" class="pt-btn-ghost">Télécharger en PDF</a>
+                <!-- ── CTA PDF (règle neuromarketing — 90s) ─────────── -->
+                <div v-if="ctaVisible" class="ac-cta-pdf fade-in">
+                    <p class="ac-cta-label">Ton Grimoire complet t'attend.</p>
+                    <a :href="route('results.pdf', attempt.id)" class="ac-btn-primary">
+                        Télécharger mon Grimoire de Synthèse (PDF)
+                    </a>
                 </div>
-            </template>
+
+            </div>
         </div>
     </CandidateLayout>
 </template>
+
+<style scoped>
+/* ── TOKENS AC ────────────────────────────────── */
+.ac-pending-shell,
+.ac-results-shell {
+    --bg-base:           #F0E8D4;
+    --bg-surface:        #E5DAC2;
+    --bg-elevated:       #D8CEB5;
+    --color-primary:     #A67520;
+    --color-primary-dark:#7D5510;
+    --color-secondary:   #7B1515;
+    --color-accent:      #1C1408;
+    --color-success:     #3A6B48;
+    --color-danger:      #B03020;
+    --color-signal:      #0A7FA0;
+    --text-primary:      #2A1E08;
+    --text-secondary:    #6B5A3E;
+    --glass-bg:          rgba(240,232,212,0.85);
+    --glass-border:      rgba(166,117,32,0.25);
+    --shadow-card:       0 2px 12px rgba(42,30,8,0.1);
+}
+
+/* ── ANIMATIONS ───────────────────────────────── */
+.fade-in {
+    animation: fadeIn 0.8s ease forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0; }
+}
+
+@keyframes pulse-dot {
+    0%, 100% { opacity: 0.3; transform: scale(0.8); }
+    50%       { opacity: 1;   transform: scale(1.2); }
+}
+
+/* ═══ PAGE PENDING ═══════════════════════════════════════════════════════ */
+.ac-pending-shell {
+    min-height: 100vh;
+    background-color: var(--bg-base);
+    background-image:
+        radial-gradient(ellipse at 50% 30%, rgba(166,117,32,0.08) 0%, transparent 70%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter', sans-serif;
+}
+
+.ac-pending-inner {
+    text-align: center;
+    padding: 3rem 2rem;
+    max-width: 420px;
+}
+
+.ac-deco-line {
+    width: 80px;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--color-primary), transparent);
+    margin: 0 auto;
+}
+
+.ac-pulse-dots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 2rem 0 1.5rem;
+}
+
+.ac-pulse-dots span {
+    display: block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    animation: pulse-dot 1.4s ease-in-out infinite;
+}
+
+.ac-pulse-dots span:nth-child(2) { animation-delay: 0.2s; }
+.ac-pulse-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+.ac-pending-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 0.75rem;
+}
+
+.ac-pending-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--text-secondary);
+    letter-spacing: 0.03em;
+}
+
+/* ═══ PAGE RÉSULTATS ═════════════════════════════════════════════════════ */
+.ac-results-shell {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 2.5rem 1.25rem 5rem;
+    font-family: 'Inter', sans-serif;
+    color: var(--text-primary);
+}
+
+/* Phase cinématique */
+.ac-reveal-phase {
+    min-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 1rem;
+    text-align: center;
+}
+
+.ac-reveal-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 1.5rem 0 0;
+}
+
+/* En-tête résultats */
+.ac-results-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.ac-revelation-badge {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-primary);
+    background: rgba(166,117,32,0.1);
+    border: 1px solid var(--glass-border);
+    padding: 4px 12px;
+    border-radius: 20px;
+}
+
+.ac-results-h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.15;
+    margin: 1rem 0 0.5rem;
+    letter-spacing: -0.02em;
+}
+
+.ac-results-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+/* ── CARTES ──────────────────────────────────── */
+.ac-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 1.75rem;
+    box-shadow: var(--shadow-card);
+}
+
+.ac-card-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+/* ── SYNTHÈSE TYPEWRITER ─────────────────────── */
+.ac-synthesis-card {
+    position: relative;
+}
+
+.ac-typewriter-text {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--text-primary);
+    white-space: pre-wrap;
+    min-height: 2rem;
+}
+
+.ac-cursor {
+    display: inline-block;
+    color: var(--color-primary);
+    font-weight: 700;
+    animation: blink 1s infinite;
+}
+
+.ac-synthesis-full {
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--text-primary);
+    white-space: pre-line;
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--glass-border);
+}
+
+/* ── DIMENSIONS ──────────────────────────────── */
+.ac-dimensions {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.ac-dimension-row {}
+
+.ac-dimension-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.4rem;
+}
+
+.ac-dimension-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-transform: capitalize;
+}
+
+.ac-dimension-score {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.ac-progress-track {
+    width: 100%;
+    height: 8px;
+    background: var(--bg-elevated);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.ac-progress-fill {
+    height: 100%;
+    background: var(--color-primary);
+    border-radius: 4px;
+    transition: width 1s ease;
+}
+
+/* ── VOIES POSSIBLES ─────────────────────────── */
+.ac-jobs-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+@media (max-width: 600px) {
+    .ac-jobs-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.ac-job-card {
+    position: relative;
+    background: var(--bg-base);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 1.25rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ac-job-card:hover {
+    border-color: var(--color-primary);
+    box-shadow: 0 4px 16px rgba(166,117,32,0.12);
+}
+
+.ac-job-num {
+    position: absolute;
+    top: 0.875rem;
+    right: 0.875rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text-secondary);
+    opacity: 0.6;
+}
+
+.ac-job-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.375rem;
+    padding-right: 1.5rem;
+}
+
+.ac-job-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.3;
+}
+
+.ac-job-fit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: var(--color-success);
+    color: #fff;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.ac-job-sector {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-secondary);
+    margin: 0.5rem 0 0.625rem;
+}
+
+.ac-job-desc {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: var(--text-primary);
+    line-height: 1.5;
+}
+
+.ac-job-step {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: var(--color-primary);
+    font-weight: 500;
+    margin-top: 0.75rem;
+}
+
+/* ── CTA PDF ─────────────────────────────────── */
+.ac-cta-pdf {
+    text-align: center;
+    margin-top: 3rem;
+    padding: 2rem;
+    background: var(--bg-elevated);
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+}
+
+.ac-cta-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+}
+
+.ac-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.875rem 2rem;
+    background: var(--color-accent);
+    color: var(--bg-base);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.2s ease, transform 0.1s ease;
+    letter-spacing: 0.01em;
+}
+
+.ac-btn-primary:hover {
+    background: var(--color-primary-dark);
+    transform: translateY(-1px);
+}
+
+.ac-btn-primary:active {
+    transform: translateY(0);
+}
+</style>

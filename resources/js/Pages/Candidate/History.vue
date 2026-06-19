@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue'
-import { Link } from '@inertiajs/vue3'
+import { Link, Head } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 
 const props = defineProps({
@@ -18,69 +18,253 @@ const formatDate = (iso) => {
 
 <template>
     <CandidateLayout>
-        <Head title="Mon historique" />
+        <Head title="Chroniques du Héros" />
 
         <div class="max-w-3xl mx-auto">
-            <div class="flex items-end justify-between mb-8">
+
+            <!-- ── En-tête ──────────────────────────────────────────── -->
+            <div class="flex items-end justify-between mb-10">
                 <div>
-                    <h1 class="text-3xl font-semibold tracking-tight">Mon historique</h1>
-                    <p class="text-slate-600 mt-1">Tous tes tests et résultats.</p>
+                    <h1
+                        style="
+                            font-family: var(--font-display);
+                            font-size: 2.2rem;
+                            font-weight: 700;
+                            color: var(--text-primary);
+                            letter-spacing: -0.02em;
+                            line-height: 1.1;
+                        "
+                    >
+                        Chroniques du Héros
+                    </h1>
+                    <p
+                        class="mt-2"
+                        style="
+                            font-family: var(--font-body);
+                            font-size: 0.9rem;
+                            color: var(--text-secondary);
+                        "
+                    >
+                        Toutes tes Épreuves passées et en progression.
+                    </p>
                 </div>
-                <Link :href="route('tests.index')" class="pt-btn-ghost text-sm">
-                    Voir les tests disponibles →
+
+                <Link :href="route('tests.index')" class="pt-btn-ghost text-sm flex-shrink-0">
+                    L'Armurerie →
                 </Link>
             </div>
 
-            <!-- Tentatives en cours -->
+            <!-- ── Section "En progression" ────────────────────────── -->
             <section v-if="inProgress.length" class="mb-10">
-                <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-4">En cours</h2>
-                <div class="space-y-3">
-                    <div v-for="a in inProgress" :key="a.id" class="pt-card p-5 flex items-center justify-between gap-4 border-l-4 border-indigo-400">
-                        <div>
-                            <p class="font-medium">{{ a.test_name }}</p>
-                            <p class="text-xs text-slate-500 mt-1">Commencé le {{ formatDate(a.started_at) }}</p>
-                        </div>
-                        <Link :href="route('attempt.show', a.id)" class="pt-btn-primary text-sm flex-shrink-0">
-                            Reprendre →
-                        </Link>
-                    </div>
-                </div>
-            </section>
 
-            <!-- Tests complétés -->
-            <section v-if="completed.length">
-                <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-4">Complétés</h2>
+                <!-- Titre de section -->
+                <p
+                    class="mb-4"
+                    style="
+                        font-family: var(--font-data);
+                        font-size: 10px;
+                        text-transform: uppercase;
+                        letter-spacing: 0.12em;
+                        color: var(--text-secondary);
+                    "
+                >
+                    En progression · {{ inProgress.length }}
+                </p>
+
                 <div class="space-y-3">
-                    <div v-for="a in completed" :key="a.id" class="pt-card p-5 flex items-center justify-between gap-4">
+                    <div
+                        v-for="a in inProgress"
+                        :key="a.id"
+                        class="pt-card p-5 flex items-center justify-between gap-4"
+                        style="
+                            border-left: 3px solid var(--color-primary);
+                            background: var(--bg-surface);
+                        "
+                    >
+                        <!-- Gauche : nom + date -->
                         <div class="flex-1 min-w-0">
-                            <p class="font-medium">{{ a.test_name }}</p>
-                            <p class="text-xs text-slate-500 mt-1">Complété le {{ formatDate(a.completed_at) }}</p>
+                            <p
+                                style="
+                                    font-family: var(--font-display);
+                                    font-size: 14px;
+                                    font-weight: 700;
+                                    color: var(--text-primary);
+                                "
+                            >
+                                {{ a.test_name }}
+                            </p>
+                            <p
+                                class="mt-1"
+                                style="
+                                    font-family: var(--font-data);
+                                    font-size: 11px;
+                                    color: var(--text-secondary);
+                                "
+                            >
+                                Commencé le {{ formatDate(a.started_at) }}
+                            </p>
                         </div>
 
+                        <!-- Droite : badge + bouton -->
                         <div class="flex items-center gap-3 flex-shrink-0">
-                            <!-- Badge IA -->
-                            <span v-if="a.ai_ready && a.jobs_count" class="text-xs px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 font-medium">
-                                {{ a.jobs_count }} métiers
-                            </span>
-                            <span v-else-if="!a.ai_ready" class="text-xs px-2 py-1 rounded-full bg-amber-50 text-amber-700">
-                                IA en cours…
+                            <span
+                                style="
+                                    font-family: var(--font-data);
+                                    font-size: 10px;
+                                    text-transform: uppercase;
+                                    letter-spacing: 0.08em;
+                                    padding: 3px 9px;
+                                    border-radius: 4px;
+                                    background: rgba(10,127,160,0.10);
+                                    color: var(--color-signal);
+                                    border: 1px solid rgba(10,127,160,0.25);
+                                "
+                            >
+                                En cours
                             </span>
 
-                            <Link :href="route('results.show', a.id)" class="pt-btn-ghost text-sm">
-                                Voir les résultats
+                            <Link
+                                :href="route('attempt.show', a.id)"
+                                class="pt-btn-primary"
+                                style="font-size: 13px; padding: 6px 14px;"
+                            >
+                                Reprendre l'Épreuve →
                             </Link>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- Aucun résultat -->
-            <div v-if="!attempts.length" class="pt-card p-12 text-center">
-                <p class="text-slate-500">Tu n'as pas encore passé de test.</p>
-                <Link :href="route('tests.index')" class="pt-btn-primary mt-4 inline-block">
-                    Découvrir les tests →
+            <!-- ── Section "Chroniques complètes" ──────────────────── -->
+            <section v-if="completed.length">
+
+                <!-- Titre de section -->
+                <p
+                    class="mb-4"
+                    style="
+                        font-family: var(--font-data);
+                        font-size: 10px;
+                        text-transform: uppercase;
+                        letter-spacing: 0.12em;
+                        color: var(--text-secondary);
+                    "
+                >
+                    Chroniques complètes · {{ completed.length }}
+                </p>
+
+                <div class="space-y-3">
+                    <div
+                        v-for="a in completed"
+                        :key="a.id"
+                        class="pt-card p-5 flex items-center justify-between gap-4"
+                        style="transition: box-shadow 0.15s, transform 0.15s;"
+                        @mouseenter="($event.currentTarget as HTMLElement).style.cssText += '; box-shadow: var(--shadow-elevated); transform: translateY(-1px);'"
+                        @mouseleave="($event.currentTarget as HTMLElement).style.boxShadow = 'var(--shadow-card)'; ($event.currentTarget as HTMLElement).style.transform = ''"
+                    >
+                        <!-- Gauche : nom + date + score -->
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <p
+                                    style="
+                                        font-family: var(--font-display);
+                                        font-size: 14px;
+                                        font-weight: 700;
+                                        color: var(--text-primary);
+                                    "
+                                >
+                                    {{ a.test_name }}
+                                </p>
+
+                                <!-- Badge score Éclats -->
+                                <span
+                                    v-if="(a.score ?? a.score_eclat ?? a.eclat ?? null) !== null"
+                                    style="
+                                        font-family: var(--font-data);
+                                        font-size: 11px;
+                                        font-weight: 700;
+                                        color: var(--color-primary);
+                                        padding: 2px 8px;
+                                        border-radius: 4px;
+                                        background: rgba(166,117,32,0.12);
+                                        border: 1px solid rgba(166,117,32,0.25);
+                                    "
+                                >
+                                    {{ a.score ?? a.score_eclat ?? a.eclat }} Éclats ✦
+                                </span>
+                            </div>
+
+                            <p
+                                class="mt-1"
+                                style="
+                                    font-family: var(--font-data);
+                                    font-size: 11px;
+                                    color: var(--text-secondary);
+                                "
+                            >
+                                Complété le {{ formatDate(a.completed_at) }}
+                            </p>
+                        </div>
+
+                        <!-- Droite : boutons -->
+                        <div class="flex items-center gap-2 flex-shrink-0">
+                            <Link
+                                v-if="a.result_id"
+                                :href="route('results.show', a.result_id)"
+                                class="pt-btn-ghost"
+                                style="font-size: 13px; padding: 6px 14px;"
+                            >
+                                Voir la Révélation
+                            </Link>
+
+                            <!-- Bouton PDF si la route existe -->
+                            <Link
+                                v-if="a.result_id && $page.props.routes && $page.props.routes['results.pdf']"
+                                :href="route('results.pdf', a.result_id)"
+                                class="ac-btn-ghost"
+                                style="font-size: 12px; padding: 5px 12px;"
+                                target="_blank"
+                            >
+                                PDF
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── État vide ─────────────────────────────────────────── -->
+            <div
+                v-if="!attempts.length"
+                class="pt-card p-16 text-center flex flex-col items-center gap-4"
+            >
+                <i
+                    class="ti ti-scroll"
+                    style="
+                        font-size: 48px;
+                        color: var(--text-secondary);
+                        opacity: 0.6;
+                    "
+                ></i>
+
+                <p
+                    style="
+                        font-family: var(--font-display);
+                        font-size: 16px;
+                        font-weight: 600;
+                        color: var(--text-secondary);
+                    "
+                >
+                    Aucune Chronique pour le moment.
+                </p>
+
+                <Link
+                    :href="route('tests.index')"
+                    class="pt-btn-primary mt-2"
+                    style="font-size: 14px;"
+                >
+                    → Commencer ma première Épreuve
                 </Link>
             </div>
+
         </div>
     </CandidateLayout>
 </template>

@@ -52,7 +52,12 @@ ok "Code à jour"
 
 msg "Composer install (production)..."
 composer install --no-dev --optimize-autoloader --no-interaction 2>&1 | tail -5
-ok "Dépendances installées"
+ok "Dépendances PHP installées"
+
+msg "Build assets front-end (Vite)..."
+npm ci --prefer-offline 2>&1 | tail -3
+npm run build 2>&1 | tail -8
+ok "Assets compilés"
 
 msg "Génération de la clé APP_KEY (si absente)..."
 php artisan key:generate --no-interaction 2>/dev/null && ok "Clé générée" || ok "Clé déjà présente"

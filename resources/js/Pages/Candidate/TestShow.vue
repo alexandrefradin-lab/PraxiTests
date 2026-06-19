@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue'
-import { router } from '@inertiajs/vue3'
+import { router, Link, Head } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 
 const props = defineProps({
@@ -27,107 +27,215 @@ const start = () => {
     <CandidateLayout>
         <Head :title="test.name" />
 
-        <div class="max-w-2xl mx-auto">
+        <div class="max-w-2xl mx-auto px-4 py-6">
 
-            <!-- Fil d'Ariane -->
-            <Link :href="route('tests.index')" class="text-sm text-slate-500 hover:text-slate-800 transition">
-                ← Tous les tests
+            <!-- ── Fil d'Ariane ── -->
+            <Link
+                :href="route('tests.index')"
+                class="inline-flex items-center gap-1.5 text-sm transition-colors mb-8"
+                style="color:var(--text-secondary); font-family:'Inter',sans-serif;"
+                onmouseover="this.style.color='var(--text-primary)'"
+                onmouseout="this.style.color='var(--text-secondary)'"
+            >
+                ← L'Armurerie
             </Link>
 
-            <!-- En-tête -->
-            <div class="mt-6 mb-8">
-                <span class="pt-badge mb-3">{{ test.type }}</span>
-                <h1 class="text-3xl font-semibold tracking-tight mt-2">{{ test.name }}</h1>
-                <p v-if="test.description" class="text-slate-600 mt-3 text-base leading-relaxed">{{ test.description }}</p>
-            </div>
-
-            <!-- Infos pratiques -->
-            <div class="pt-card p-6 mb-6 grid grid-cols-3 gap-4 text-center">
-                <div>
-                    <p class="text-2xl font-bold text-indigo-600">≈ {{ test.estimated_minutes }}</p>
-                    <p class="text-xs text-slate-500 mt-1">minutes</p>
-                </div>
-                <div>
-                    <p class="text-2xl font-bold text-indigo-600">{{ totalQuestions }}</p>
-                    <p class="text-xs text-slate-500 mt-1">questions</p>
-                </div>
-                <div>
-                    <p class="text-2xl font-bold text-emerald-600">IA</p>
-                    <p class="text-xs text-slate-500 mt-1">synthèse incluse</p>
-                </div>
-            </div>
-
-            <!-- Sections -->
-            <div v-if="test.sections?.length" class="pt-card p-6 mb-6">
-                <h2 class="font-semibold mb-4 text-sm uppercase tracking-wide text-slate-500">Contenu du test</h2>
-                <ul class="space-y-3">
-                    <li v-for="(section, i) in test.sections" :key="section.id" class="flex items-start gap-3">
-                        <span class="mt-0.5 h-5 w-5 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold flex items-center justify-center flex-shrink-0">{{ i + 1 }}</span>
-                        <div>
-                            <p class="text-sm font-medium">{{ section.title }}</p>
-                            <p v-if="section.description" class="text-xs text-slate-500 mt-0.5">{{ section.description }}</p>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-
-            <!-- Ce que tu vas obtenir -->
-            <div class="pt-card p-6 mb-8 bg-indigo-50 border-indigo-100">
-                <h2 class="font-semibold mb-3">Ce que tu vas obtenir</h2>
-                <ul class="space-y-2 text-sm text-slate-700">
-                    <li class="flex items-center gap-2">
-                        <span class="text-emerald-600 font-bold">✓</span>
-                        Une synthèse personnalisée de ton profil (générée par IA)
-                    </li>
-                    <li class="flex items-center gap-2">
-                        <span class="text-emerald-600 font-bold">✓</span>
-                        15 métiers adaptés à tes résultats
-                    </li>
-                    <li class="flex items-center gap-2">
-                        <span class="text-emerald-600 font-bold">✓</span>
-                        Un rapport PDF téléchargeable
-                    </li>
-                </ul>
-            </div>
-
-            <!-- Alerte profil incomplet -->
-            <div v-if="!profile_complete" class="pt-card p-5 mb-6 border-l-4 border-amber-400 bg-amber-50">
-                <p class="text-sm text-amber-900 font-medium">Ton profil est incomplet.</p>
-                <p class="text-sm text-amber-800 mt-1">Tu dois renseigner ton statut et uploader ton CV avant de commencer.</p>
-                <Link :href="route('onboarding.show')" class="mt-3 inline-flex items-center text-sm font-semibold text-amber-900 underline">
-                    Compléter mon profil →
-                </Link>
-            </div>
-
-            <!-- Tentative en cours -->
-            <div v-else-if="attempt_in_progress" class="pt-card p-5 mb-6 border-l-4 border-indigo-400 bg-indigo-50">
-                <p class="text-sm text-indigo-900 font-medium">Tu as une tentative en cours sur ce test.</p>
-                <p class="text-sm text-indigo-700 mt-1">Reprends là où tu t'es arrêté·e.</p>
-            </div>
-
-            <!-- Déjà complété -->
-            <div v-else-if="already_attempted" class="pt-card p-5 mb-6 border-l-4 border-emerald-400 bg-emerald-50">
-                <p class="text-sm text-emerald-900 font-medium">Tu as déjà complété ce test.</p>
-                <p class="text-sm text-emerald-700 mt-1">Tu peux le repasser pour obtenir une nouvelle analyse.</p>
-            </div>
-
-            <!-- CTA -->
-            <div class="flex flex-col sm:flex-row gap-3">
-                <button
-                    v-if="profile_complete"
-                    @click="start"
-                    class="pt-btn-primary flex-1 py-3 text-base"
+            <!-- ── En-tête ── -->
+            <div class="mb-8">
+                <!-- Badge type -->
+                <span
+                    class="inline-block px-2.5 py-0.5 rounded text-[11px] uppercase tracking-widest mb-3"
+                    style="font-family:'Space Mono',monospace; color:var(--text-secondary); background:var(--bg-elevated); border:1px solid var(--glass-border);"
                 >
-                    <span v-if="attempt_in_progress">Reprendre le test →</span>
-                    <span v-else-if="already_attempted">Repasser le test →</span>
-                    <span v-else>Commencer le test →</span>
-                </button>
+                    {{ test.type ?? 'Épreuve' }}
+                </span>
 
-                <Link :href="route('tests.index')" class="pt-btn-ghost flex-1 py-3 text-base text-center">
-                    Voir tous les tests
-                </Link>
+                <h1
+                    class="font-bold tracking-tight leading-tight mt-1 mb-3"
+                    style="font-family:'Space Grotesk',sans-serif; font-size:2rem; color:var(--text-primary);"
+                >
+                    {{ test.name }}
+                </h1>
+
+                <p
+                    v-if="test.description"
+                    class="text-base leading-relaxed"
+                    style="color:var(--text-secondary); font-family:'Inter',sans-serif;"
+                >
+                    {{ test.description }}
+                </p>
             </div>
+
+            <!-- ── Carte infos pratiques ── -->
+            <div class="pt-card mb-6 overflow-hidden">
+                <div class="grid grid-cols-3 divide-x text-center py-6" style="--tw-divide-opacity:1; border-color:var(--glass-border);">
+
+                    <!-- Minutes -->
+                    <div class="px-4">
+                        <p
+                            class="font-bold leading-none"
+                            style="font-family:'Space Mono',monospace; font-size:2rem; color:var(--color-primary);"
+                        >
+                            {{ test.estimated_minutes }}
+                        </p>
+                        <p class="text-xs mt-2" style="color:var(--text-secondary); font-family:'Inter',sans-serif;">
+                            minutes d'Épreuve
+                        </p>
+                    </div>
+
+                    <!-- Séparateur + Questions -->
+                    <div class="px-4" style="border-left:1px solid var(--glass-border);">
+                        <p
+                            class="font-bold leading-none"
+                            style="font-family:'Space Mono',monospace; font-size:2rem; color:var(--color-primary);"
+                        >
+                            {{ totalQuestions }}
+                        </p>
+                        <p class="text-xs mt-2" style="color:var(--text-secondary); font-family:'Inter',sans-serif;">
+                            Questions
+                        </p>
+                    </div>
+
+                    <!-- Séparateur + IA -->
+                    <div class="px-4" style="border-left:1px solid var(--glass-border);">
+                        <p
+                            class="font-bold leading-none"
+                            style="font-family:'Space Mono',monospace; font-size:2rem; color:var(--color-success);"
+                        >
+                            IA
+                        </p>
+                        <p class="text-xs mt-2" style="color:var(--text-secondary); font-family:'Inter',sans-serif;">
+                            Grimoire inclus
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ── Sections du test ── -->
+            <div v-if="test.sections?.length" class="pt-card p-6 mb-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <span
+                        class="text-xs font-bold uppercase tracking-widest"
+                        style="font-family:'Space Mono',monospace; color:var(--color-primary);"
+                    >Parchemins de l'Épreuve</span>
+                    <div class="h-px flex-1" style="background:var(--glass-border);"></div>
+                </div>
+                <ul class="space-y-3">
+                    <li
+                        v-for="section in test.sections"
+                        :key="section.id"
+                        class="flex items-center gap-3"
+                    >
+                        <i class="ti ti-scroll text-base shrink-0" style="color:var(--color-primary);"></i>
+                        <span
+                            class="font-semibold flex-1"
+                            style="font-family:'Space Grotesk',sans-serif; font-size:13px; color:var(--text-primary);"
+                        >
+                            {{ section.title }}
+                        </span>
+                        <span
+                            v-if="section.questions?.length"
+                            class="text-xs"
+                            style="font-family:'Space Mono',monospace; color:var(--text-secondary);"
+                        >
+                            {{ section.questions.length }} q.
+                        </span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- ── Zone CTA ── -->
+
+            <!-- Déjà complété (et pas en cours) -->
+            <template v-if="already_attempted && !attempt_in_progress">
+                <div class="pt-card p-6 mb-4 flex items-center gap-3" style="border-color:var(--color-success);">
+                    <span
+                        class="inline-flex items-center gap-2 text-sm font-semibold"
+                        style="color:var(--color-success); font-family:'Space Grotesk',sans-serif;"
+                    >
+                        <i class="ti ti-circle-check text-lg"></i>
+                        Épreuve complétée ✓
+                    </span>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <Link
+                        v-if="already_attempted.result_id"
+                        :href="route('results.show', already_attempted.result_id)"
+                        class="pt-btn-ghost flex-1 py-3 text-sm text-center"
+                        style="font-family:'Space Grotesk',sans-serif;"
+                    >
+                        Voir ma Révélation
+                    </Link>
+                    <button
+                        @click="start"
+                        class="pt-btn-primary flex-1 py-3 text-sm font-semibold"
+                        style="font-family:'Space Grotesk',sans-serif;"
+                    >
+                        Repasser l'Épreuve →
+                    </button>
+                </div>
+            </template>
+
+            <!-- Épreuve en cours -->
+            <template v-else-if="attempt_in_progress">
+                <div
+                    class="rounded-xl border-2 p-5 mb-4 flex items-start gap-4"
+                    style="background:var(--bg-elevated); border-color:var(--color-primary);"
+                >
+                    <i class="ti ti-clock-play text-xl mt-0.5 shrink-0" style="color:var(--color-primary);"></i>
+                    <div>
+                        <p class="text-sm font-semibold mb-0.5" style="color:var(--text-primary); font-family:'Space Grotesk',sans-serif;">
+                            Tu as une Épreuve en cours.
+                        </p>
+                        <p class="text-xs" style="color:var(--text-secondary); font-family:'Inter',sans-serif;">
+                            Reprends là où tu t'es arrêté·e — ta progression est sauvegardée.
+                        </p>
+                    </div>
+                </div>
+                <button
+                    @click="start"
+                    class="pt-btn-primary w-full py-3 text-base font-semibold"
+                    style="font-family:'Space Grotesk',sans-serif;"
+                >
+                    Reprendre l'Épreuve →
+                </button>
+            </template>
+
+            <!-- Démarrage initial -->
+            <template v-else>
+                <div class="flex flex-col gap-3">
+                    <button
+                        v-if="profile_complete"
+                        @click="start"
+                        class="pt-btn-primary w-full py-3 text-base font-semibold"
+                        style="font-family:'Space Grotesk',sans-serif;"
+                    >
+                        Commencer l'Épreuve
+                    </button>
+                    <Link
+                        v-else
+                        :href="route('onboarding.show')"
+                        class="pt-btn-primary w-full py-3 text-base font-semibold text-center"
+                        style="font-family:'Space Grotesk',sans-serif;"
+                    >
+                        Forger mon Identité pour commencer
+                    </Link>
+                    <p
+                        class="text-center text-xs"
+                        style="color:var(--text-secondary); font-family:'Inter',sans-serif;"
+                    >
+                        Tu peux faire une pause à tout moment.
+                    </p>
+                </div>
+            </template>
 
         </div>
     </CandidateLayout>
 </template>
+
+<style scoped>
+.pt-card {
+    transition: border-color 0.2s ease;
+}
+</style>

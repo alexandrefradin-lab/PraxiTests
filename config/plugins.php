@@ -36,4 +36,15 @@ return [
     'core_plugins' => [
         // plugins fournis dans la base
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Namespaces autorisés pour les service providers de plugins (SEC-05)
+    |--------------------------------------------------------------------------
+    | Seuls les FQCN commençant par l'un de ces préfixes seront acceptés.
+    | Ajouter ici tout namespace tiers de confiance si besoin.
+    */
+    'allowed_namespaces' => [
+        'Praxis\\Plugins\\',
+    ],
 ];
