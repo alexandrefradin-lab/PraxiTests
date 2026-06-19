@@ -9,7 +9,20 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class TestAttempt extends Model
 {
-    protected $guarded = [];
+    // #3 — $guarded=[] remplacé par $fillable explicite (protection mass assignment)
+    protected $fillable = [
+        'user_id',
+        'test_id',
+        'invitation_id',
+        'status',
+        'current_section',
+        'current_question',
+        'time_spent_seconds',
+        'progress',
+        'started_at',
+        'completed_at',
+        'last_activity_at',
+    ];
 
     protected $casts = [
         'progress'         => 'array',

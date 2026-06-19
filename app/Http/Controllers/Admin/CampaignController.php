@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -12,8 +13,15 @@ class CampaignController extends Controller
 {
     public function index()
     {
+        // A10 — Cloisonnement multi-tenant : les professionnels ne voient que leurs campagnes
+        $query = DB::table('email_campaigns')->latest();
+        if (!auth()->user()->hasRole('admin')) {
+            $accountIds = auth()->user()->professionalAccounts()->pluck('professional_accounts.id');
+            $query->whereIn('professional_account_id', $accountIds);
+        }
+
         return Inertia::render('Admin/Campaigns/Index', [
-            'campaigns' => DB::table('email_campaigns')->latest()->get(),
+            'campaigns' => $query->get(),
         ]);
     }
 
@@ -30,18 +38,19 @@ class CampaignController extends Controller
             'created_at' => now(),
             'updated_at' => now(),
         ]));
+        AuditLog::record('campaign.created', null, ['id' => $id, 'name' => $data['name']]); // #9
         return redirect()->route('admin.campaigns.edit', $id);
     }
 
     public function edit($id)
     {
-        return Inertia::render('Admin/Campaigns/Edit', [
-            'campaign' => DB::table('email_campaigns')->find($id),
-        ]);
+        $campaign = $this->findAndAuthorizeCampaign($id);
+        return Inertia::render('Admin/Campaigns/Edit', ['campaign' => $campaign]);
     }
 
     public function update(Request $request, $id)
     {
+        $this->findAndAuthorizeCampaign($id);
         DB::table('email_campaigns')->where('id', $id)->update(array_merge(
             $this->validatePayload($request),
             ['updated_at' => now()],
@@ -51,14 +60,32 @@ class CampaignController extends Controller
 
     public function destroy($id)
     {
+        $campaign = $this->findAndAuthorizeCampaign($id);
+        AuditLog::record('campaign.destroyed', null, ['id' => $id, 'name' => $campaign->name]); // #9
         DB::table('email_campaigns')->where('id', $id)->delete();
         return redirect()->route('admin.campaigns.index');
     }
 
     public function send($id, CampaignService $svc)
     {
+        $this->findAndAuthorizeCampaign($id);
         $stats = $svc->sendCampaign($id);
+        AuditLog::record('campaign.sent', null, ['id' => $id, 'queued' => $stats['queued']]); // #9
         return back()->with('success', "Campagne envoyée — {$stats['queued']} mails en file");
+    }
+
+    /** Récupère la campagne et vérifie le cloisonnement tenant (A10). */
+    protected function findAndAuthorizeCampaign(int|string $id): object
+    {
+        $campaign = DB::table('email_campaigns')->find($id);
+        abort_if($campaign === null, 404);
+
+        if (!auth()->user()->hasRole('admin')) {
+            $accountIds = auth()->user()->professionalAccounts()->pluck('professional_accounts.id');
+            abort_unless($accountIds->contains($campaign->professional_account_id), 403);
+        }
+
+        return $campaign;
     }
 
     protected function validatePayload(Request $request): array

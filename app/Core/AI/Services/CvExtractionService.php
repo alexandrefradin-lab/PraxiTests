@@ -3,6 +3,7 @@
 namespace Praxis\Core\AI\Services;
 
 use App\Models\Profile;
+use Illuminate\Support\Facades\Storage;
 use Praxis\Core\AI\AIManager;
 use Praxis\Core\AI\PromptBuilder;
 use Smalot\PdfParser\Parser as PdfParser;
@@ -37,12 +38,28 @@ class CvExtractionService
 
     public function structureProfile(Profile $profile): array
     {
+        // A5 — Vérifier l'existence du fichier avant tout accès
+        if (!$profile->cv_extracted_text) {
+            if (!$profile->cv_path || !Storage::disk('local')->exists($profile->cv_path)) {
+                logger()->warning("CvExtractionService: fichier CV introuvable pour le profil {$profile->id}", [
+                    'cv_path' => $profile->cv_path,
+                ]);
+                return [];
+            }
+        }
+
         $text = $profile->cv_extracted_text ?: $this->extractFromFile(storage_path('app/' . $profile->cv_path));
         if (!$text) return [];
 
         $messages = $this->prompts->cvExtraction($text);
-        $driver = $this->ai->forTask('cv_extract');
-        $raw = $driver->chat($messages, ['temperature' => 0.1, 'max_tokens' => 2000]);
+
+        try {
+            $driver = $this->ai->forTask('cv_extract');
+            $raw = $driver->chat($messages, ['temperature' => 0.1, 'max_tokens' => 2000]);
+        } catch (\Throwable $e) {
+            logger()->warning("CV structureProfile AI failed: {$e->getMessage()}");
+            return [];
+        }
 
         $first = strpos($raw, '{'); $last = strrpos($raw, '}');
         $structured = ($first !== false && $last !== false)

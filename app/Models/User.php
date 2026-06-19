@@ -13,11 +13,11 @@ use Laravel\Cashier\Billable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use Billable, HasApiTokens, HasFactory, HasRoles, Notifiable, SoftDeletes;
 
-    protected $fillable = ['name', 'email', 'password', 'locale', 'avatar_path', 'terms_accepted_at', 'terms_version'];
+    protected $fillable = ['name', 'email', 'password', 'locale', 'avatar_path', 'terms_accepted_at', 'terms_version', 'last_login_at', 'last_login_ip'];
 
     protected $hidden = ['password', 'remember_token', 'two_factor_secret', 'two_factor_recovery_codes'];
 

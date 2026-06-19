@@ -1,0 +1,617 @@
+/* ═══════════════════════════════════════════════════════════
+   PraxiCare — CSS v3 — Valeurs exactes extraites de PraxiMum
+   Police : "Exo 2" (titres) + system-ui (corps)
+   Bleu : #002345 | Orange : #E8541A
+═══════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --pc-orange:    #E8541A;
+  --pc-orange-lt: #FFF0EB;
+  --pc-bleu:      #002345;
+  --pc-bleu-dk:   #1E2A3A;
+  --pc-bleu-lt:   #EEF3F8;
+  --pc-gris-bord: #DDE8F0;
+  --pc-gris-txt:  #6B7280;
+  --pc-blanc:     #FFFFFF;
+  --pc-vert:      #2E7D32;
+  --pc-vert-lt:   #F1F8F1;
+  --pc-jaune:     #F59E0B;
+  --pc-jaune-lt:  #FFFBEB;
+  --pc-rouge:     #DC2626;
+  --pc-rouge-lt:  #FEF2F2;
+  --pc-critique:  #B91C1C;
+}
+
+/* ── Reset ciblé — ne pas toucher au thème Avada ── */
+#praxicare-app,
+#praxicare-app * {
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+#praxicare-app { color: var(--pc-bleu); background: transparent; }
+#praxicare-app a { color: var(--pc-orange); text-decoration: none; }
+
+/* ── Écrans ── */
+#praxicare-app .pc-screen     { display: none; }
+#praxicare-app .pc-screen.pc-active { display: block; }
+#praxicare-app .pc-hidden     { display: none !important; }
+
+/* ══════════════════════════════════════════
+   INTRO — identique PraxiMum
+══════════════════════════════════════════ */
+#praxicare-app .pc-intro-wrap {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 40px 40px 60px;
+  margin-top: 0;
+}
+
+/* Gate email — écran dédié, pas de margin négatif */
+#praxicare-app #pc-gate-email .pc-intro-wrap {
+  padding-top: 48px;
+}
+
+#praxicare-app .pc-titre-hero {
+  font-family: "Exo 2", sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--pc-bleu-dk);
+  margin-bottom: 20px;
+  line-height: 1.3;
+}
+
+#praxicare-app .pc-bienvenue {
+  font-family: "Exo 2", sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--pc-bleu-dk);
+  margin-bottom: 10px;
+}
+
+#praxicare-app .pc-sous-titre {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--pc-bleu);
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+
+/* Bloc info — fond bleu clair, bordure gauche orange */
+#praxicare-app .pc-bloc-info {
+  background: var(--pc-bleu-lt);
+  border: 1.33px solid #C8D9E8;
+  border-left: 3px solid var(--pc-orange);
+  border-radius: 12px;
+  padding: 14px 20px;
+  margin-bottom: 24px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+#praxicare-app .pc-bloc-info-icon  { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+#praxicare-app .pc-bloc-info-titre { font-size: 14px; font-weight: 700; color: var(--pc-orange); margin-bottom: 4px; }
+#praxicare-app .pc-bloc-info-texte { font-size: 14px; font-weight: 500; color: var(--pc-bleu); line-height: 1.6; }
+#praxicare-app .pc-bloc-info strong { color: var(--pc-bleu-dk); }
+
+#praxicare-app .pc-disclaimer {
+  font-size: 13px;
+  color: var(--pc-gris-txt);
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+#praxicare-app .pc-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+#praxicare-app .pc-badge {
+  background: var(--pc-bleu-lt);
+  color: var(--pc-bleu);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--pc-gris-bord);
+}
+
+#praxicare-app .pc-form-intro {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 460px;
+}
+
+#praxicare-app .pc-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--pc-bleu);
+  margin-bottom: 2px;
+  display: block;
+}
+
+/* Input — exactement comme PraxiMum : radius 12px, border #DDE8F0 */
+#praxicare-app .pc-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.33px solid var(--pc-gris-bord);
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--pc-bleu);
+  background: var(--pc-blanc);
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  -webkit-appearance: none;
+}
+#praxicare-app .pc-input:focus {
+  border-color: var(--pc-orange);
+  box-shadow: 0 0 0 3px rgba(232, 84, 26, .1);
+}
+#praxicare-app .pc-input::placeholder { color: #B0BEC5; font-weight: 400; }
+
+/* Bouton CTA — exactement comme PraxiMum : radius 999px, padding 13px 32px */
+#praxicare-app .pc-btn-cta {
+  background: var(--pc-orange);
+  color: var(--pc-blanc);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 13px 32px;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: opacity .2s, transform .1s;
+  display: block;
+  width: 100%;
+  text-align: center;
+  -webkit-appearance: none;
+  letter-spacing: 0;
+  text-transform: none;
+}
+#praxicare-app .pc-btn-cta:hover  { opacity: .88; transform: translateY(-1px); box-shadow: rgba(232,84,26,.25) 0 4px 12px; }
+#praxicare-app .pc-btn-cta:active { transform: scale(.98); }
+
+#praxicare-app .pc-social-proof {
+  font-size: 13px;
+  color: var(--pc-gris-txt);
+  margin-top: 2px;
+}
+
+/* ══════════════════════════════════════════
+   BARRE DE PROGRESSION — exactement PraxiMum
+══════════════════════════════════════════ */
+#praxicare-app .pc-progress-bar-wrap {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--pc-blanc);
+  padding: 12px 40px 10px;
+  border-bottom: 1px solid var(--pc-gris-bord);
+}
+
+#praxicare-app .pc-progress-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+#praxicare-app .pc-progress-top span {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--pc-gris-txt);
+}
+#praxicare-app .pc-pct { color: var(--pc-orange) !important; font-weight: 700 !important; }
+
+/* Track gris clair */
+#praxicare-app .pc-progress-track {
+  height: 6px;
+  background: var(--pc-bleu-lt);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+/* Fill orange — radius 999px comme PraxiMum */
+#praxicare-app .pc-progress-fill {
+  height: 100%;
+  background: var(--pc-orange);
+  border-radius: 999px;
+  transition: width .4s ease;
+}
+
+#praxicare-app .pc-progress-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#praxicare-app .pc-btn-retour {
+  background: none;
+  border: none;
+  color: var(--pc-orange);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  -webkit-appearance: none;
+  text-transform: none;
+  letter-spacing: 0;
+}
+#praxicare-app .pc-btn-retour:hover { text-decoration: underline; }
+
+#praxicare-app .pc-compteur {
+  background: var(--pc-bleu-lt);
+  color: var(--pc-gris-txt);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 3px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--pc-gris-bord);
+}
+
+/* ══════════════════════════════════════════
+   QUESTION — exactement PraxiMum
+══════════════════════════════════════════ */
+#praxicare-app .pc-question-wrap {
+  max-width: 780px;
+  margin: 32px auto 0;
+  padding: 0 40px;
+}
+
+/* Carte question — fond bleu très clair, bordure fine, radius 12px */
+#praxicare-app .pc-question-card {
+  background: var(--pc-bleu-lt);
+  border: 1.33px solid #C8D9E8;
+  border-radius: 12px;
+  padding: 48px 40px 40px;
+  text-align: center;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+}
+
+/* Texte question — Exo 2, gras, bleu nuit */
+#praxicare-app .pc-question-texte {
+  font-family: "Exo 2", sans-serif;
+  font-size: clamp(18px, 2.5vw, 22px);
+  font-weight: 700;
+  color: var(--pc-bleu-dk);
+  line-height: 1.5;
+  max-width: 560px;
+}
+
+/* Boutons réponse — pill outline gris, comme PraxiMum */
+#praxicare-app .pc-choix {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+#praxicare-app .pc-choix-btn {
+  padding: 11px 22px;
+  border: 1.33px solid #C8D9E8;
+  border-radius: 999px;
+  background: var(--pc-blanc);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--pc-bleu);
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+  min-width: 120px;
+  -webkit-appearance: none;
+  text-transform: none;
+  letter-spacing: 0;
+}
+#praxicare-app .pc-choix-btn:hover {
+  border-color: var(--pc-orange);
+  color: var(--pc-orange);
+}
+#praxicare-app .pc-choix-btn.selected {
+  border-color: var(--pc-orange);
+  background: var(--pc-orange-lt);
+  color: var(--pc-orange);
+  font-weight: 700;
+}
+
+/* Transition entre sections */
+#praxicare-app .pc-transition {
+  max-width: 500px;
+  margin: 48px auto;
+  padding: 0 40px;
+  text-align: center;
+}
+#praxicare-app .pc-transition-texte {
+  font-size: 18px;
+  font-style: italic;
+  color: var(--pc-gris-txt);
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+/* ══════════════════════════════════════════
+   RÉSULTATS
+══════════════════════════════════════════ */
+#praxicare-app .pc-results-wrap {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 32px 40px 60px;
+}
+
+#praxicare-app .pc-results-titre {
+  font-family: "Exo 2", sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--pc-bleu-dk);
+  margin-bottom: 10px;
+}
+
+#praxicare-app .pc-disclaimer-results {
+  font-size: 13px;
+  color: var(--pc-gris-txt);
+  font-style: italic;
+  margin-bottom: 24px;
+  padding: 10px 16px;
+  background: var(--pc-bleu-lt);
+  border-left: 3px solid var(--pc-orange);
+  border-radius: 8px;
+}
+
+/* Graphiques */
+#praxicare-app .pc-graphs-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+#praxicare-app .pc-graph-block {
+  background: var(--pc-blanc);
+  border: 1.33px solid #C8D9E8;
+  border-radius: 12px;
+  padding: 18px;
+}
+#praxicare-app .pc-graph-container { min-height: 320px; }
+#praxicare-app .pc-graph-titre {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--pc-gris-txt);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+#praxicare-app .pc-graph-container { position: relative; }
+#praxicare-app .pc-karasek-labels { position: absolute; inset: 0; pointer-events: none; }
+#praxicare-app .pc-kl { position: absolute; font-size: 9px; color: #C0C8D0; line-height: 1.3; }
+#praxicare-app .pc-kl-tl { top:6px; left:6px; }
+#praxicare-app .pc-kl-tr { top:6px; right:6px; text-align:right; }
+#praxicare-app .pc-kl-bl { bottom:6px; left:6px; }
+#praxicare-app .pc-kl-br { bottom:6px; right:6px; text-align:right; }
+
+/* Profil */
+#praxicare-app .pc-profil-block {
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+  border-left: 4px solid var(--pc-gris-bord);
+  background: var(--pc-bleu-lt);
+}
+#praxicare-app .pc-profil-block.niveau-vert     { border-color: var(--pc-vert);    background: var(--pc-vert-lt); }
+#praxicare-app .pc-profil-block.niveau-jaune    { border-color: var(--pc-jaune);   background: var(--pc-jaune-lt); }
+#praxicare-app .pc-profil-block.niveau-orange   { border-color: var(--pc-orange);  background: var(--pc-orange-lt); }
+#praxicare-app .pc-profil-block.niveau-rouge    { border-color: var(--pc-rouge);   background: var(--pc-rouge-lt); }
+#praxicare-app .pc-profil-block.niveau-critique { border-color: var(--pc-critique);background: var(--pc-rouge-lt); }
+
+#praxicare-app .pc-profil-emoji { font-size: 24px; margin-bottom: 8px; }
+#praxicare-app .pc-profil-titre {
+  font-family: "Exo 2", sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--pc-bleu-dk);
+  margin-bottom: 8px;
+}
+#praxicare-app .pc-profil-texte { font-size: 14px; font-weight: 500; color: var(--pc-bleu); line-height: 1.7; }
+
+/* Urgence */
+#praxicare-app .pc-urgence-block {
+  background: #EEF3F8;
+  border: 1.33px solid #C8D9E8;
+  border-left: 4px solid #5B8DB8;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+#praxicare-app .pc-urgence-titre { font-size: 15px; font-weight: 600; color: var(--pc-bleu-dk); margin-bottom: 6px; }
+#praxicare-app .pc-urgence-sous  { font-size: 13px; color: var(--pc-gris-txt); line-height: 1.6; }
+
+/* Préconisations */
+#praxicare-app .pc-preco-block {
+  background: var(--pc-blanc);
+  border: 1.33px solid #C8D9E8;
+  border-radius: 12px;
+  padding: 18px 22px;
+  margin-bottom: 20px;
+}
+#praxicare-app .pc-preco-titre { font-size: 14px; font-weight: 700; color: var(--pc-bleu-dk); margin-bottom: 12px; }
+#praxicare-app .pc-preco-list  { padding-left: 0; list-style: none; }
+#praxicare-app .pc-preco-list li { font-size: 14px; font-weight: 400; color: var(--pc-bleu); line-height: 1.7; margin-bottom: 10px; padding-left: 20px; position: relative; }
+#praxicare-app .pc-preco-list li::before { content: ""; position: absolute; left: 0; top: 10px; width: 6px; height: 6px; border-radius: 50%; background: var(--pc-orange); flex-shrink: 0; }
+
+/* Email */
+#praxicare-app .pc-email-block {
+  background: var(--pc-bleu-lt);
+  border: 1.33px solid #C8D9E8;
+  border-left: 3px solid var(--pc-orange);
+  border-radius: 12px;
+  padding: 24px 28px;
+}
+#praxicare-app .pc-email-titre {
+  font-family: "Exo 2", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--pc-bleu-dk);
+  margin-bottom: 6px;
+}
+#praxicare-app .pc-email-sous { font-size: 13px; color: var(--pc-gris-txt); margin-bottom: 16px; line-height: 1.6; }
+
+#praxicare-app #pc-email-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 420px;
+}
+
+#praxicare-app .pc-rgpd-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--pc-gris-txt);
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  cursor: pointer;
+  line-height: 1.5;
+}
+#praxicare-app .pc-rgpd-label input { margin-top: 2px; flex-shrink: 0; accent-color: var(--pc-orange); }
+#praxicare-app .pc-rgpd-note { font-size: 12px; color: #9CA3AF; }
+
+#praxicare-app .pc-success-msg {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--pc-vert);
+  padding: 14px 18px;
+  background: var(--pc-vert-lt);
+  border-radius: 8px;
+  text-align: center;
+}
+
+/* ── Mobile ── */
+@media (max-width: 600px) {
+  #praxicare-app .pc-intro-wrap,
+  #praxicare-app .pc-question-wrap,
+  #praxicare-app .pc-transition,
+  #praxicare-app .pc-results-wrap { padding-left: 16px; padding-right: 16px; }
+  #praxicare-app .pc-progress-bar-wrap { padding-left: 16px; padding-right: 16px; }
+  #praxicare-app .pc-question-card { padding: 28px 16px; }
+  #praxicare-app .pc-choix-btn { min-width: 90px; font-size: 13px; padding: 9px 14px; }
+}
+
+/* Gate email */
+#praxicare-app .pc-rgpd-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--pc-gris-txt);
+  line-height: 1.5;
+  cursor: pointer;
+}
+#praxicare-app .pc-rgpd-label input { margin-top: 2px; flex-shrink: 0; }
+#praxicare-app .pc-link-orange { color: var(--pc-orange); }
+#praxicare-app .pc-rgpd-note { font-size: 12px; color: var(--pc-gris-txt); text-align: center; margin-top: 4px; }
+
+/* Confirmation email sur résultats */
+#praxicare-app .pc-email-success-block {
+  background: #F1F8F1;
+  border: 1.33px solid #A5D6A7;
+  border-radius: 12px;
+  padding: 14px 20px;
+  text-align: center;
+  font-size: 14px;
+  color: #2E7D32;
+  margin-top: 16px;
+}
+
+/* ── MBI Cards ── */
+#praxicare-app .pc-mbi-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 600px) {
+  #praxicare-app .pc-mbi-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Analyse détaillée ── */
+#praxicare-app .pc-analyse-block {
+  margin: 32px 0;
+}
+#praxicare-app .pc-analyse-titre {
+  font-family: "Exo 2", sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--pc-bleu-dk);
+  margin-bottom: 16px;
+}
+#praxicare-app .pc-analyse-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+#praxicare-app .pc-analyse-item {
+  background: var(--pc-blanc);
+  border: 1.33px solid var(--pc-gris-bord);
+  border-radius: 12px;
+  padding: 16px 20px;
+}
+#praxicare-app .pc-analyse-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 12px;
+}
+#praxicare-app .pc-analyse-dim {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--pc-bleu-dk);
+}
+#praxicare-app .pc-analyse-badge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+#praxicare-app .pc-analyse-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+#praxicare-app .pc-analyse-bar-wrap > div:first-child {
+  flex: 1;
+  background: var(--pc-gris-bord);
+  border-radius: 999px;
+  height: 5px;
+  overflow: hidden;
+}
+#praxicare-app .pc-analyse-bar {
+  height: 5px;
+  border-radius: 999px;
+  transition: width .4s ease;
+}
+#praxicare-app .pc-analyse-score {
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+#praxicare-app .pc-analyse-texte {
+  font-size: 14px;
+  color: #444;
+  line-height: 1.7;
+  margin: 0;
+}

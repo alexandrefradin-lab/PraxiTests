@@ -123,9 +123,10 @@ class BigFiveScoringEngine implements ScoringEngineContract
     protected function computeT(int|float $brut, float $mean, float $sd): int
     {
         if ($sd <= 0) return 50;
-        $z = ($brut - $mean) / $sd;
-        $T = (int) round(50 + 10 * $z);
-        return max(20, min(80, $T));
+        $T = 50 + 10 * (($brut - $mean) / $sd);
+        // Légère amplification pour profils plus contrastés (parité WP PP_Calculator).
+        $T = 50 + ($T - 50) * 1.15;
+        return (int) round(max(20, min(80, $T)));
     }
 
     protected function tToPct(int $T): int

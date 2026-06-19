@@ -7,7 +7,21 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Lead extends Model
 {
-    protected $guarded = [];
+    // #3 — $guarded=[] remplacé par $fillable explicite (protection mass assignment)
+    protected $fillable = [
+        'professional_account_id',
+        'user_id',
+        'email',
+        'first_name',
+        'last_name',
+        'phone',
+        'source',
+        'score',
+        'status',
+        'utm',
+        'metadata',
+        'last_activity_at',
+    ];
 
     protected $casts = [
         'utm'              => 'array',

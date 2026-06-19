@@ -10,7 +10,24 @@ class Profile extends Model
 {
     use HasFactory;
 
-    protected $guarded = [];
+    // #3 — $guarded=[] remplacé par $fillable explicite (protection mass assignment)
+    protected $fillable = [
+        'user_id',
+        'status',
+        'status_since',
+        'status_months',
+        'current_role',
+        'industry',
+        'cv_path',
+        'cv_original_name',
+        'cv_extracted_text',
+        'cv_structured',
+        'preferences',
+        'metadata',
+        'consent_data',
+        'consent_marketing',
+        'completed_at',
+    ];
 
     protected $casts = [
         'preferences'      => 'array',

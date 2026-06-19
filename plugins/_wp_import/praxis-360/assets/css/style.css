@@ -1,0 +1,214 @@
+/* ============================================================
+   Praxis 360 — Feuille de style
+   Palette centralisée : modifiez ces variables pour reskinner.
+   ============================================================ */
+:root {
+    --praxis-accent: #E95A00;       /* Orange Praxis (CTA, sélection, accents) */
+    --praxis-accent-dark: #c44d00;
+    --praxis-navy: #002345;         /* Bleu nuit (titres, barre, profondeur) */
+    --praxis-text: #212934;
+    --praxis-text-soft: #6d6968;
+    --praxis-bg: #ffffff;
+    --praxis-bg-soft: #f9f9fb;
+    --praxis-border: #e2e2e2;
+    --praxis-radius: 12px;
+    --praxis-shadow: 0 6px 24px rgba(0, 35, 69, 0.08);
+}
+
+/* ---- Conteneur passation ---- */
+.p360-app {
+    max-width: 680px;
+    margin: 0 auto;
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    color: var(--praxis-text);
+}
+
+.p360-card {
+    background: var(--praxis-bg);
+    border: 1px solid var(--praxis-border);
+    border-radius: var(--praxis-radius);
+    box-shadow: var(--praxis-shadow);
+    padding: 32px;
+}
+
+.p360-info { max-width: 680px; margin: 24px auto; }
+
+/* ---- Barre de progression fixe ---- */
+.p360-progress {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--praxis-bg);
+    border-bottom: 1px solid var(--praxis-border);
+    padding: 14px 0;
+    margin-bottom: 24px;
+}
+.p360-progress-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    color: var(--praxis-navy);
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+.p360-progress-counter { color: var(--praxis-text-soft); font-weight: 500; }
+.p360-progress-bar {
+    height: 8px;
+    background: var(--praxis-bg-soft);
+    border-radius: 99px;
+    overflow: hidden;
+}
+.p360-progress-fill {
+    height: 100%;
+    width: 0;
+    background: var(--praxis-accent);
+    transition: width .3s ease;
+    border-radius: 99px;
+}
+
+/* ---- Intro ---- */
+.p360-intro h1 { color: var(--praxis-navy); font-size: 28px; margin: 0 0 12px; }
+.p360-intro p { font-size: 17px; line-height: 1.6; }
+.p360-meta {
+    display: inline-block;
+    background: var(--praxis-bg-soft);
+    border-radius: 99px;
+    padding: 6px 14px;
+    font-size: 14px;
+    color: var(--praxis-text-soft);
+    margin: 8px 0 20px;
+}
+
+/* ---- Question ---- */
+.p360-question { animation: p360fade .25s ease; }
+@keyframes p360fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.p360-question-text {
+    font-size: 22px;
+    line-height: 1.4;
+    color: var(--praxis-navy);
+    margin: 8px 0 28px;
+    min-height: 64px;
+}
+
+/* ---- Boutons de réponse (échelle) ---- */
+.p360-options { display: flex; flex-direction: column; gap: 10px; }
+.p360-opt {
+    text-align: left;
+    background: var(--praxis-bg);
+    border: 2px solid var(--praxis-border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    font-size: 17px;
+    color: var(--praxis-text);
+    cursor: pointer;
+    transition: all .15s ease;
+}
+.p360-opt:hover { border-color: var(--praxis-accent); }
+.p360-opt.is-selected {
+    background: var(--praxis-accent);
+    border-color: var(--praxis-accent);
+    color: #fff;
+}
+.p360-na {
+    margin-top: 14px;
+    background: none;
+    border: none;
+    color: var(--praxis-text-soft);
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+/* ---- Boutons génériques ---- */
+.p360-btn {
+    background: var(--praxis-accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 14px 28px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.p360-btn:hover { background: var(--praxis-accent-dark); }
+.p360-btn-ghost {
+    background: none;
+    border: none;
+    color: var(--praxis-navy);
+    cursor: pointer;
+    font-size: 15px;
+    padding: 8px;
+}
+.p360-back { display: inline-flex; align-items: center; gap: 6px; }
+.p360-back[disabled] { opacity: .3; cursor: default; }
+
+/* ---- Relation / identification ---- */
+.p360-choices { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0; }
+.p360-choice {
+    border: 2px solid var(--praxis-border);
+    border-radius: 8px;
+    padding: 12px 18px;
+    cursor: pointer;
+    background: #fff;
+}
+.p360-choice.is-selected { background: var(--praxis-navy); color: #fff; border-color: var(--praxis-navy); }
+.p360-input {
+    width: 100%;
+    padding: 14px;
+    border: 2px solid var(--praxis-border);
+    border-radius: 8px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+.p360-textarea { min-height: 110px; resize: vertical; }
+
+/* ---- Restitution ---- */
+.p360-report { max-width: 880px; margin: 0 auto; font-family: "Inter", system-ui, sans-serif; color: var(--praxis-text); }
+.p360-report h1 { color: var(--praxis-navy); }
+.p360-report h2 { color: var(--praxis-navy); margin-top: 36px; }
+.p360-legend {
+    background: var(--praxis-bg-soft);
+    border-left: 4px solid var(--praxis-accent);
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin: 18px 0;
+    font-size: 15px;
+}
+.p360-radar-wrap { text-align: center; margin: 20px 0; }
+.p360-table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+.p360-table th, .p360-table td { border: 1px solid var(--praxis-border); padding: 10px 12px; text-align: center; }
+.p360-table th { background: var(--praxis-navy); color: #fff; }
+.p360-table td:first-child, .p360-table th:first-child { text-align: left; }
+.p360-gap-pos { color: var(--praxis-accent); font-weight: 700; }
+.p360-gap-neg { color: var(--praxis-navy); font-weight: 700; }
+
+.p360-cards { display: flex; flex-wrap: wrap; gap: 16px; margin: 16px 0; }
+.p360-block {
+    flex: 1 1 240px;
+    border: 1px solid var(--praxis-border);
+    border-radius: 10px;
+    padding: 18px;
+    background: #fff;
+}
+.p360-block.strengths { border-top: 4px solid var(--praxis-accent); }
+.p360-block.improve   { border-top: 4px solid var(--praxis-navy); }
+.p360-block.blind     { border-top: 4px solid var(--praxis-text-soft); }
+.p360-block h3 { margin-top: 0; color: var(--praxis-navy); font-size: 16px; }
+.p360-block ul { margin: 8px 0 0; padding-left: 18px; }
+
+.p360-verbatim { background: var(--praxis-bg-soft); border-radius: 8px; padding: 12px 16px; margin: 8px 0; }
+.p360-verbatim .rel { font-size: 12px; color: var(--praxis-text-soft); text-transform: uppercase; letter-spacing: .04em; }
+
+/* ---- Responsive ---- */
+@media (max-width: 600px) {
+    .p360-card { padding: 22px; }
+    .p360-question-text { font-size: 19px; }
+    .p360-opt { font-size: 16px; padding: 14px; }
+}
+
+/* ---- Impression du rapport ---- */
+@media print {
+    .p360-no-print { display: none !important; }
+    .p360-report { max-width: none; }
+}

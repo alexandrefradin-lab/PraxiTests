@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use App\Models\Test;
 use App\Models\TestQuestion;
 use App\Models\TestSection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Praxis\Core\TestEngine\TestEngine;
 
@@ -31,8 +33,9 @@ class TestEditorController extends Controller
 
     public function store(Request $request)
     {
-        $data = $this->validatePayload($request);
+        $data = $this->validatePayload($request, null);
         $test = Test::create($data);
+        AuditLog::record('test.created', $test, ['slug' => $test->slug, 'name' => $test->name]); // #9
         return redirect()->route('admin.tests.edit', $test);
     }
 
@@ -46,12 +49,14 @@ class TestEditorController extends Controller
 
     public function update(Request $request, Test $test)
     {
-        $test->update($this->validatePayload($request));
+        $test->update($this->validatePayload($request, $test));
+        AuditLog::record('test.updated', $test, ['slug' => $test->slug]); // #9
         return back()->with('success', 'Test mis à jour');
     }
 
     public function destroy(Test $test)
     {
+        AuditLog::record('test.destroyed', $test, ['slug' => $test->slug, 'name' => $test->name]); // #9
         $test->delete();
         return redirect()->route('admin.tests.index');
     }
@@ -103,14 +108,32 @@ class TestEditorController extends Controller
                         ? TestQuestion::where('section_id', $section->id)->findOrFail((int) $qData['id'])
                         : new TestQuestion(['section_id' => $section->id]);
 
-                    // options peut arriver en string JSON (textarea) ou déjà décodé
+                    // A7 — options/scoring peuvent arriver en string JSON (textarea) ou déjà décodés.
+                    // Si c'est une string non vide, on valide le JSON explicitement.
                     $options = $qData['options'] ?? null;
-                    if (is_string($options)) {
-                        $options = json_decode($options, true) ?: null;
+                    if (is_string($options) && $options !== '') {
+                        $decoded = json_decode($options, true);
+                        if (json_last_error() !== JSON_ERROR_NONE) {
+                            throw \Illuminate\Validation\ValidationException::withMessages([
+                                'options' => 'Le champ options contient un JSON invalide : ' . json_last_error_msg(),
+                            ]);
+                        }
+                        $options = $decoded;
+                    } elseif ($options === '') {
+                        $options = null;
                     }
+
                     $scoring = $qData['scoring'] ?? null;
-                    if (is_string($scoring)) {
-                        $scoring = json_decode($scoring, true) ?: null;
+                    if (is_string($scoring) && $scoring !== '') {
+                        $decoded = json_decode($scoring, true);
+                        if (json_last_error() !== JSON_ERROR_NONE) {
+                            throw \Illuminate\Validation\ValidationException::withMessages([
+                                'scoring' => 'Le champ scoring contient un JSON invalide : ' . json_last_error_msg(),
+                            ]);
+                        }
+                        $scoring = $decoded;
+                    } elseif ($scoring === '') {
+                        $scoring = null;
                     }
 
                     $question->fill([
@@ -142,13 +165,22 @@ class TestEditorController extends Controller
             }
         });
 
+        AuditLog::record('test.structure_saved', $test, [ // #9
+            'sections_count' => count($data['sections']),
+        ]);
+
         return back()->with('success', 'Structure sauvegardée — ' . count($data['sections']) . ' section(s)');
     }
 
-    protected function validatePayload(Request $request): array
+    protected function validatePayload(Request $request, ?Test $test = null): array
     {
+        // A8 — Unicité du slug en excluant le test courant lors d'un update
+        $slugRule = $test
+            ? Rule::unique('tests', 'slug')->ignore($test->id)
+            : Rule::unique('tests', 'slug');
+
         return $request->validate([
-            'slug'              => ['required', 'string', 'max:120'],
+            'slug'              => ['required', 'string', 'max:120', $slugRule],
             'name'              => ['required', 'string', 'max:200'],
             'description'       => ['nullable', 'string'],
             'type'              => ['required', 'string'],

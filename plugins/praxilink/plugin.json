@@ -1,26 +1,23 @@
 {
     "slug": "praxilink",
-    "class": "PraxiLink",
     "name": "PraxiLink — Communication assertive",
     "version": "1.0.0",
+    "author": "Praxis Accompagnement",
+    "type": "mini-app",
     "description": "Module de développement de la communication assertive : CNV, écoute active, gestion des conflits, feedback constructif et empathie relationnelle.",
-    "author": "PraxiTests",
-    "category": "soft-skills",
-    "scoring_engine": "praxilink-scoring",
-    "entry": "PluginServiceProvider.php",
-    "dimensions": [
-        "ecoute_active",
-        "expression_assertive",
-        "gestion_conflits",
-        "empathie_relationnelle",
-        "feedback_constructif"
-    ],
-    "tags": ["communication", "assertivite", "cnv", "ecoute", "feedback", "conflits"],
-    "min_duration_minutes": 2,
-    "max_duration_minutes": 5,
-    "exercise_count": 20,
+    "namespace": "Praxis\\Plugins\\PraxiLink",
+    "service_provider": "Praxis\\Plugins\\PraxiLink\\PluginServiceProvider",
+    "permissions": ["read:profiles", "write:results"],
     "requires": {
-        "php": ">=8.2",
-        "laravel": ">=11.0"
+        "praxiquest": ">=1.0.0",
+        "php": ">=8.2"
+    },
+    "test": {
+        "slug": "praxilink-assertivite",
+        "name": "PraxiLink — Communication assertive",
+        "description": "20 exercices guidés sur 5 dimensions : écoute active, expression assertive, gestion des conflits, empathie relationnelle, feedback constructif.",
+        "type": "exercises",
+        "scoring_engine": "praxilink-scoring",
+        "estimated_minutes": 4
     }
 }

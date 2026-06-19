@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Jobs\GenerateAttemptInsights;
 use App\Models\Test;
 use App\Models\TestAttempt;
+use App\Models\TestQuestion;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Praxis\Core\Gamification\GamificationEngine;
@@ -55,7 +56,16 @@ class AttemptController extends Controller
     {
         $this->authorizeAttempt($attempt);
 
-        $attempt->load('test.sections.questions', 'answers', 'user.badges');
+        // A6 — Sélection explicite des colonnes pour éviter de transmettre scoring/validation
+        // au frontend (données lourdes inutiles côté candidat).
+        // Un lazy-loading section par section nécessiterait une refonte du composant Vue.
+        $attempt->load([
+            'test',
+            'test.sections'           => fn ($q) => $q->select('id', 'test_id', 'title', 'description', 'order')->orderBy('order'),
+            'test.sections.questions' => fn ($q) => $q->select('id', 'section_id', 'order', 'type', 'prompt', 'helper', 'options', 'required')->orderBy('order'),
+            'answers'                 => fn ($q) => $q->select('id', 'attempt_id', 'question_id', 'value'),
+            'user.badges',
+        ]);
         abort_unless($attempt->user !== null, 404, 'User not found');
 
         return Inertia::render('Candidate/AttemptPlay', [
@@ -83,7 +93,29 @@ class AttemptController extends Controller
             'time_spent'  => ['nullable', 'integer'],
         ]);
 
-        $this->engine->recordAnswer($attempt, (int) $data['question_id'], $data['value'], (int) ($data['time_spent'] ?? 0));
+        // BUG-2 — Vérifier que la question appartient bien au test de cette tentative
+        $question = TestQuestion::where('id', (int) $data['question_id'])
+            ->whereHas('section', fn ($q) => $q->where('test_id', $attempt->test_id))
+            ->first();
+
+        abort_unless($question !== null, 422, 'Question invalide pour cette tentative.');
+
+        // A5 — Validation du type de la valeur selon le type de question
+        $valueRules = match ($question->type) {
+            'scale'             => ['required', 'numeric'],
+            'text'              => ['required', 'string', 'max:5000'],
+            'multi', 'ranking'  => ['required', 'array', 'min:1'],
+            default             => ['required', function ($attr, $val, $fail) {
+                // Pour single/situational et tout type inconnu : refuser les tableaux
+                if (is_array($val)) {
+                    $fail('La valeur doit être une donnée scalaire pour ce type de question.');
+                }
+            }],
+        };
+
+        validator(['value' => $data['value']], ['value' => $valueRules])->validate();
+
+        $this->engine->recordAnswer($attempt, $question->id, $data['value'], (int) ($data['time_spent'] ?? 0));
 
         return back();
     }

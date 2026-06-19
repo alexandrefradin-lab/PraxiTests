@@ -7,6 +7,20 @@ return [
 
     'manifest_file' => 'plugin.json',
 
+    /*
+    |--------------------------------------------------------------------------
+    | Dossiers exclus de la découverte automatique
+    |--------------------------------------------------------------------------
+    | Les dossiers dont le nom est dans cette liste (ou commençant par _)
+    | ne seront jamais chargés comme plugins.
+    */
+    'excluded_directories' => [
+        '_template',
+        'stubs',
+        'examples',
+        '_examples',
+    ],
+
     'cache_key' => 'praxiquest.plugins.registry',
 
     'available_types' => [

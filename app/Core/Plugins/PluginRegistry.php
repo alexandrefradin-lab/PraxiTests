@@ -34,8 +34,16 @@ class PluginRegistry
             return $this->cached = collect();
         }
 
+        // Dossiers à exclure du mécanisme de découverte (templates, exemples, stubs)
+        $excluded = config('plugins.excluded_directories', ['_template', 'stubs', 'examples', '_examples']);
+
         $manifests = collect();
         foreach (File::directories($path) as $dir) {
+            $dirName = basename($dir);
+            if (in_array($dirName, $excluded, true) || str_starts_with($dirName, '_')) {
+                continue;
+            }
+
             $manifestFile = $dir . DIRECTORY_SEPARATOR . config('plugins.manifest_file');
             if (!File::exists($manifestFile)) {
                 continue;

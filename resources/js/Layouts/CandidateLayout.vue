@@ -46,6 +46,13 @@ const xpTotal = computed(() => page.props.gamification?.xp_total ?? 0)
                         </div>
                         <span style="font-size: 13px; color: var(--text-secondary); font-family: var(--font-body)">{{ user.name }}</span>
 
+                        <Link :href="route('gdpr.show')"
+                            class="cand-nav-link"
+                            style="font-family: var(--font-display); font-size: 12px; font-weight: 500; color: var(--text-muted); text-decoration: none; padding: 5px 10px; border-radius: var(--r-sm); transition: color 0.15s, background 0.15s"
+                            title="Mes données & confidentialité">
+                            🔒
+                        </Link>
+
                         <Link :href="route('logout')" method="post" as="button"
                             class="ac-btn-danger"
                             style="font-size: 12px; padding: 5px 12px; border-radius: var(--r-sm)">
@@ -82,9 +89,25 @@ const xpTotal = computed(() => page.props.gamification?.xp_total ?? 0)
 
         <!-- Footer -->
         <footer style="border-top: 1px solid var(--glass-border); padding: 1.25rem 2rem; text-align: center">
-            <p style="font-family: var(--font-data); font-size: 11px; color: var(--text-muted); letter-spacing: 0.03em">
-                {{ branding.tagline || 'Évaluer. Orienter. Transformer.' }}
-            </p>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap">
+                <p style="font-family: var(--font-data); font-size: 11px; color: var(--text-muted); letter-spacing: 0.03em">
+                    {{ branding.tagline || 'Évaluer. Orienter. Transformer.' }}
+                </p>
+                <span style="color: var(--border-mid)">·</span>
+                <Link
+                    v-if="user"
+                    :href="route('gdpr.show')"
+                    style="font-family: var(--font-data); font-size: 11px; color: var(--text-muted); text-decoration: none; letter-spacing: 0.03em; transition: color 0.15s"
+                    onmouseenter="this.style.color='var(--text-secondary)'"
+                    onmouseleave="this.style.color='var(--text-muted)'"
+                >
+                    🔒 Mes données & RGPD
+                </Link>
+                <span style="color: var(--border-mid)">·</span>
+                <Link :href="route('cgu')" style="font-family: var(--font-data); font-size: 11px; color: var(--text-muted); text-decoration: none; letter-spacing: 0.03em">
+                    CGU
+                </Link>
+            </div>
         </footer>
     </div>
 </template>
