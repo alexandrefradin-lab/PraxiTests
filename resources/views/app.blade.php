@@ -12,3 +12,33 @@
             --bg-base:              #F0E8D4;
             --bg-surface:           #E5DAC2;
             --bg-elevated:          #D8CEB5;
+            --color-primary:        #A67520;
+            --color-primary-dark:   #7D5510;
+            --color-primary-light:  #C99030;
+            --text-primary:         #2A1E08;
+            --text-secondary:       #5C4A1E;
+            --text-muted:           #8B7355;
+            --glass-bg:             rgba(240,232,212,0.85);
+            --glass-border:         rgba(166,117,32,0.3);
+            --shadow-gold:          0 4px 24px rgba(166,117,32,0.25);
+            --border-radius:        12px;
+            --font-heading:         'Playfair Display', serif;
+            --font-body:            'DM Sans', sans-serif;
+        }
+        html, body {
+            background: var(--bg-base);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-heading);
+        }
+    </style>
+    @routes
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @inertiaHead
+</head>
+<body class="font-sans antialiased">
+    @inertia
+</body>
+</html>
