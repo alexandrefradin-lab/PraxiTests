@@ -6,17 +6,27 @@
 # Pré-requis : avoir lancé deploy-ovh.ps1 en local (push GitHub) avant.
 # ================================================================
 set -e
-GREEN="\033[32m"; YELLOW="\033[33m"; RESET="\033[0m"
+set -o pipefail   # un échec dans un pipe (ex: composer | tail) fait planter le script
+GREEN="\033[32m"; YELLOW="\033[33m"; RED="\033[31m"; RESET="\033[0m"
 ok() { echo -e "${GREEN}✓ $1${RESET}"; }
 msg() { echo -e "${YELLOW}→ $1${RESET}"; }
+err() { echo -e "${RED}✗ $1${RESET}"; exit 1; }
 
 cd "$HOME/praxiquest" || { echo "✗ ~/praxiquest introuvable"; exit 1; }
 
+# Résolution de composer (PATH non chargé en shell non-interactif)
+COMPOSER_BIN="$(command -v composer || command -v composer2 || true)"
+if [ -z "$COMPOSER_BIN" ] && [ -f "$HOME/composer.phar" ]; then
+  COMPOSER_BIN="php $HOME/composer.phar"
+fi
+[ -z "$COMPOSER_BIN" ] && err "composer introuvable (PATH ou ~/composer.phar)"
+
 # Le .env du serveur (bon DB_PASSWORD) est gitignoré : il ne sera PAS touché.
 
-msg "Remise à l'état git des 2 fichiers patchés à la main (corrigés dans le repo)..."
+msg "Remise à l'état git des fichiers patchés à la main (corrigés dans le repo)..."
 git checkout -- app/Http/Controllers/Candidate/OnboardingController.php \
-                app/Core/Gamification/GamificationEngine.php 2>/dev/null || true
+                app/Core/Gamification/GamificationEngine.php \
+                composer.json 2>/dev/null || true
 ok "Fichiers patchés réinitialisés"
 
 msg "Pull du code..."
@@ -24,8 +34,8 @@ rm -rf public/build/
 git pull origin main
 ok "Code à jour"
 
-msg "Composer install (composer.json a changé)..."
-composer install --no-dev --optimize-autoloader --no-interaction 2>&1 | tail -4
+msg "Composer install ($COMPOSER_BIN)..."
+$COMPOSER_BIN install --no-dev --optimize-autoloader --no-interaction
 ok "Dépendances PHP OK"
 
 msg "Migrations (nouvelles tables/colonnes)..."

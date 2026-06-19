@@ -103,7 +103,8 @@
             "@php artisan praxiquest:plugins:activate praxivaleurs",
             "@php artisan praxiquest:plugins:activate praxicare",
             "@php artisan praxiquest:plugins:activate praxiemo",
-            "@php artisan praxiquest:plugins:activate praximum"
+            "@php artisan praxiquest:plugins:activate praximum",
+            "@php artisan praxiquest:plugins:activate praxis360"
         ],
         "test": "pest",
         "lint": "pint"

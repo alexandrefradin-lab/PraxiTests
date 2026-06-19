@@ -28,6 +28,7 @@ yarn-error.log
 
 # Artefacts historiques et imports — exclure du dépôt (Audit A9)
 /_imports/
+/plugins/_wp_import/
 /_praxiemo-source-calculator.php
 /extracted/
 /templates/
