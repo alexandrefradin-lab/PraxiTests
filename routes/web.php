@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Candidate\AttemptController;
+use App\Http\Controllers\Candidate\GrimoireController;
 use App\Http\Controllers\Candidate\JourneyController;
 use App\Http\Controllers\Candidate\OnboardingController;
 use App\Http\Controllers\Candidate\ResultController;
@@ -42,6 +43,12 @@ Route::middleware(['auth'])->group(function () {
 
     // Historique des tentatives du candidat
     Route::get('/history', [ResultController::class, 'history'])->name('history');
+
+    // Le Grimoire — relecture globale transversale de tous les tests
+    Route::get('/grimoire',          [GrimoireController::class, 'show'])->name('grimoire.show');
+    Route::get('/grimoire/status',   [GrimoireController::class, 'status'])->name('grimoire.status');
+    Route::get('/grimoire/pdf',      [GrimoireController::class, 'pdf'])->name('grimoire.pdf');
+    Route::post('/grimoire/refresh', [GrimoireController::class, 'refresh'])->name('grimoire.refresh');
 
     // Journey 60 jours
     Route::post('/journey/complete', [JourneyController::class, 'completeDay'])->name('journey.complete');

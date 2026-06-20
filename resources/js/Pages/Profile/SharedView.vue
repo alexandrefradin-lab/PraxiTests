@@ -17,14 +17,14 @@
           {{ profile.name }}
         </h1>
         <p v-if="profile.status" class="mt-2 text-sm text-gray-500">
-          {{ statusLabel }} · bilan complété le {{ profile.completed_at }}
+          {{ statusLabel }} · {{ profile.is_grimoire ? 'relecture globale du' : 'bilan complété le' }} {{ profile.completed_at }}
         </p>
       </div>
 
       <!-- Synthèse IA -->
       <section class="rounded-2xl border border-indigo-100 bg-white p-6 shadow-sm">
         <h2 class="text-base font-semibold text-gray-800 mb-3 flex items-center gap-2">
-          <span class="text-2xl">✨</span> Synthèse de personnalité
+          <span class="text-2xl">✨</span> {{ profile.is_grimoire ? 'Le fil conducteur' : 'Synthèse de personnalité' }}
         </h2>
         <p class="text-gray-700 leading-relaxed whitespace-pre-line">{{ profile.synthesis }}</p>
       </section>
@@ -53,7 +53,7 @@
       <!-- 15 métiers -->
       <section class="rounded-2xl border border-indigo-100 bg-white p-6 shadow-sm">
         <h2 class="text-base font-semibold text-gray-800 mb-4 flex items-center gap-2">
-          <span class="text-2xl">🚀</span> Pistes de métiers suggérées
+          <span class="text-2xl">🚀</span> {{ profile.is_grimoire ? 'Voies possibles' : 'Pistes de métiers suggérées' }}
         </h2>
         <ol class="space-y-2">
           <li
@@ -65,8 +65,8 @@
               {{ i + 1 }}
             </span>
             <div>
-              <p class="font-semibold text-gray-800">{{ career.title ?? career }}</p>
-              <p v-if="career.description" class="text-gray-500 mt-0.5">{{ career.description }}</p>
+              <p class="font-semibold text-gray-800">{{ career.titre ?? career.title ?? career }}</p>
+              <p v-if="career.pourquoi ?? career.description" class="text-gray-500 mt-0.5">{{ career.pourquoi ?? career.description }}</p>
             </div>
           </li>
         </ol>

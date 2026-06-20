@@ -38,6 +38,17 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(TestAttempt::class);
     }
 
+    public function profileGrimoire(): HasOne
+    {
+        return $this->hasOne(ProfileGrimoire::class);
+    }
+
+    /** Récupère le Grimoire global du candidat, en le créant si absent. */
+    public function grimoire(): ProfileGrimoire
+    {
+        return $this->profileGrimoire()->firstOrCreate(['user_id' => $this->id]);
+    }
+
     public function badges()
     {
         return $this->belongsToMany(Badge::class, 'user_badges')->withPivot(['earned_at', 'context']);

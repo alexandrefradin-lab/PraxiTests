@@ -3,9 +3,72 @@
 namespace Praxis\Core\AI;
 
 use App\Models\TestAttempt;
+use App\Models\User;
+use Illuminate\Support\Collection;
 
 class PromptBuilder
 {
+    /**
+     * Le Grimoire global : relecture transversale de TOUS les tests d'un candidat.
+     * Produit un seul appel IA renvoyant un JSON { synthese, voies[] }.
+     *
+     * @param  Collection<int,TestAttempt>  $attempts  tentatives complétées (avec test + result)
+     */
+    public function globalGrimoire(User $user, Collection $attempts, int $count = 15): array
+    {
+        $profile = $user->profile;
+
+        $system = <<<TXT
+Tu es un consultant en orientation professionnelle senior, formé aux approches RIASEC, MBTI, Big Five, bilan de compétences et intelligence émotionnelle.
+Ton rôle : produire une RELECTURE GLOBALE qui CROISE plusieurs tests entre eux — pas une simple juxtaposition de synthèses individuelles.
+Tu mets en évidence les convergences (ce qui se confirme d'un test à l'autre), les tensions (ce qui semble se contredire) et le fil conducteur du profil.
+Style : chaleureux, professionnel, français, sans jargon, sans flatterie creuse, phrases courtes.
+Tu ne donnes JAMAIS de conseils médicaux, juridiques ou financiers. Tu n'inventes pas de scores qu'on ne t'a pas donnés.
+Tu réponds STRICTEMENT en JSON valide, sans texte hors-JSON, sans bloc ```.
+TXT;
+
+        // Une entrée par test : labels qualitatifs (jamais de chiffres bruts) + synthèse du test
+        $tests = $attempts->map(function (TestAttempt $a) {
+            return [
+                'nom'                          => $a->test?->name,
+                'type'                         => $a->test?->type,
+                'interprétation_par_dimension' => $this->enrichScoringForPrompt($a->result?->scoring)['interprétation_par_dimension']
+                                                    ?? $this->enrichScoringForPrompt($a->result?->scoring),
+                'synthèse_du_test'             => $a->result?->ai_synthesis,
+            ];
+        })->values()->all();
+
+        $context = [
+            'profil' => [
+                'statut'     => $profile?->status,
+                'depuis'     => $profile?->status_since?->format('Y-m'),
+                'rôle'       => $profile?->current_role,
+                'industrie'  => $profile?->industry,
+                'cv_extrait' => $profile?->cv_structured,
+            ],
+            'tests'  => $tests,
+        ];
+
+        $user_msg = "Voici l'ensemble des tests passés par le candidat :\n\n"
+            . json_encode($context, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
+            . "\n\nProduis un JSON STRICT avec deux clés :\n"
+            . "1) \"synthese\" : 400-600 mots, 3 à 4 paragraphes, en CROISANT les tests "
+            . "(convergences, tensions, fil conducteur). Ne recopie pas les synthèses individuelles. "
+            . "N'utilise jamais de chiffres ni de percentiles — appuie-toi sur les labels qualitatifs.\n"
+            . "2) \"voies\" : EXACTEMENT {$count} pistes de métiers réalistes et accessibles sur le marché "
+            . "francophone actuel, classées du plus pertinent au moins pertinent, en variant les secteurs et "
+            . "les modèles (salariat / entrepreneuriat / freelance). Pour chaque piste : "
+            . "{ \"titre\", \"secteur\", \"fit_score\" (0-100), \"pourquoi\" (50 mots max), "
+            . "\"appui_tests\" (liste des noms de tests qui soutiennent cette piste), "
+            . "\"prochaine_etape\" (action concrète) }.\n\n"
+            . "Format attendu : { \"synthese\": \"...\", \"voies\": [ { ... }, ... ] }";
+
+        return [
+            ['role' => 'system', 'content' => $system],
+            ['role' => 'user',   'content' => $user_msg],
+        ];
+    }
+
     public function profileSynthesis(TestAttempt $attempt): array
     {
         $user    = $attempt->user;

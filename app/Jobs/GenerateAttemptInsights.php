@@ -9,6 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use App\Jobs\GenerateGlobalGrimoire;
 use Praxis\Core\AI\Services\JobSuggestionService;
 use Praxis\Core\AI\Services\ProfileSynthesisService;
 use Praxis\Core\Plugins\PluginHooks;
@@ -45,6 +46,11 @@ class GenerateAttemptInsights implements ShouldQueue, ShouldBeUnique
             $synthesis->synthesize($attempt);
             $jobs->suggest($attempt);
             PluginHooks::doAction('insights.generated', $attempt->fresh('result'));
+
+            // Une fois la synthèse de CE test en base, on (re)génère la relecture
+            // globale (Le Grimoire) qui croise tous les tests du candidat.
+            // afterResponse() garde la requête HTTP rapide (queues sync OVH).
+            GenerateGlobalGrimoire::dispatch($attempt->user_id)->afterResponse();
         } catch (\Throwable $e) {
             // Une panne IA (clé absente, HTTP 4xx/5xx, JSON invalide, timeout) ne doit
             // PAS laisser le candidat sur un écran de chargement infini (ai_pending).

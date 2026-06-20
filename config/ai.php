@@ -40,6 +40,11 @@ return [
             'system_prompt_view' => 'ai.prompts.jobs-system',
             'count' => 15,
         ],
+        'global_grimoire' => [
+            'driver' => null,            // = défaut (anthropic)
+            'prompt_version' => '1.0',
+            'count' => 15,               // nombre de "Voies Possibles" consolidées
+        ],
         'cv_extract' => [
             'driver' => null,
             'system_prompt_view' => 'ai.prompts.cv-extract-system',

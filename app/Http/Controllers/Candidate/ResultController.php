@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Candidate;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Concerns\BuildsBrandedPdf;
 use App\Models\JourneyProgress;
 use App\Models\TestAttempt;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -11,6 +12,8 @@ use Praxis\Core\Plugins\PluginHooks;
 
 class ResultController extends Controller
 {
+    use BuildsBrandedPdf;
+
     public function show(TestAttempt $attempt)
     {
         abort_unless($attempt->user_id === auth()->id(), 403);
@@ -125,44 +128,6 @@ class ResultController extends Controller
 
         $slug = \Illuminate\Support\Str::slug($opts['brand']['name'] ?? 'praxiquest');
         return $pdf->download("{$slug}-synthese-{$attempt->id}.pdf");
-    }
-
-    /**
-     * Assemble les options de personnalisation du rapport PDF.
-     * Ordre de priorité : config par défaut → surcharge tenant (settings group 'pdf').
-     */
-    private function pdfOptions(): array
-    {
-        $s = \App\Models\Setting::getGroup('pdf');   // surcharges éventuelles par tenant
-
-        $brand = [
-            'name'      => $s['brand_name']      ?? config('praxiquest.branding.name'),
-            'tagline'   => $s['brand_tagline']   ?? config('praxiquest.branding.tagline'),
-            'logo'      => $s['brand_logo']      ?? config('praxiquest.branding.logo'),
-            'primary'   => $s['color_primary']   ?? config('praxiquest.branding.primary_color', '#4F46E5'),
-            'secondary' => $s['color_secondary'] ?? config('praxiquest.branding.secondary_color', '#10B981'),
-            'accent'    => $s['color_accent']    ?? '#0F172A',
-        ];
-
-        $org = [
-            'name'    => $brand['name'],
-            'advisor' => $s['advisor'] ?? config('praxiquest.pdf.footer.advisor'),
-            'email'   => $s['email']   ?? config('praxiquest.pdf.footer.email'),
-            'phone'   => $s['phone']   ?? config('praxiquest.pdf.footer.phone'),
-            'website' => $s['website'] ?? config('praxiquest.pdf.footer.website'),
-            'address' => $s['address'] ?? config('praxiquest.pdf.footer.address'),
-            'legal'   => $s['legal']   ?? config('praxiquest.pdf.footer.legal'),
-        ];
-
-        // Sections : un réglage tenant 'section_<clé>' = '0' désactive le bloc.
-        $sections = config('praxiquest.pdf.sections', []);
-        foreach ($sections as $key => $default) {
-            if (array_key_exists("section_{$key}", $s)) {
-                $sections[$key] = filter_var($s["section_{$key}"], FILTER_VALIDATE_BOOLEAN);
-            }
-        }
-
-        return compact('brand', 'org', 'sections');
     }
 
     public function history()
