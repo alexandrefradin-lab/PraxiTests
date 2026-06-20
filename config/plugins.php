@@ -25,6 +25,8 @@ return [
 
     'available_types' => [
         'test',          // ajoute des types de tests
+        'assessment',    // tests d'auto-évaluation (ex. Praxis360 soft skills)
+        'mini-app',      // modules d'exercices / parcours (ex. PraxiLink, PraxiSelf, PraxiSpeak)
         'scoring',       // moteurs de scoring
         'ai',            // drivers IA
         'mail',          // drivers mail / templates

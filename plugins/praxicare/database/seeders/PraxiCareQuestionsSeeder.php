@@ -15,8 +15,8 @@ class PraxiCareQuestionsSeeder extends Seeder
         $test = Test::updateOrCreate(
             ['slug' => 'praxicare'],
             [
-                'name'              => 'PraxiCare — Souffrance au travail',
-                'description'       => "Karasek (demandes / latitude / soutien) + MBI (épuisement, dépersonnalisation, accomplissement). 48 questions, 10 minutes. Outil de prise de conscience, pas de diagnostic médical.",
+                'name'              => "La Sentinelle Intérieure — Mesure de la souffrance au travail",
+                'description'       => "Ce que ce test mesure : ton niveau de souffrance au travail. D'un côté la pression que tu subis (exigences du poste, marge de manœuvre, soutien — modèle Karasek), de l'autre les signes d'épuisement professionnel (fatigue émotionnelle, mise à distance, accomplissement — modèle MBI). 48 questions, 10 min. Outil de prise de conscience, pas un diagnostic médical.",
                 'type'              => 'questionnaire',
                 'scoring_engine'    => 'praxicare-karasek-mbi',
                 'estimated_minutes' => 10,

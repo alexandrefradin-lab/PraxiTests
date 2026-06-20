@@ -15,8 +15,8 @@ class ExercisesSeeder extends Seeder
         $test = Test::updateOrCreate(
             ['slug' => 'praxispeak'],
             [
-                'name'              => 'PraxiSpeak — Prise de parole en public',
-                'description'       => '20 exercices guidés (2-5 min) pour développer la confiance en prise de parole. 5 dimensions : gestion du trac, préparation mentale, présence physique, structure du discours, impact vocal.',
+                'name'              => "La Voix du Héros — Prise de parole en public",
+                'description'       => "Ce que ce test mesure : ton aisance en prise de parole en public, sur 5 dimensions — gestion du trac, préparation mentale, présence physique, structure du discours et impact vocal. 20 exercices guidés (2-5 min) pour gagner en confiance.",
                 'type'              => 'exercises',
                 'scoring_engine'    => 'praxispeak-scoring',
                 'estimated_minutes' => 8,

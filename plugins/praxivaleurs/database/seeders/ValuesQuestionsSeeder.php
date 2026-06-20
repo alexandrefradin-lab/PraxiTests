@@ -15,8 +15,8 @@ class ValuesQuestionsSeeder extends Seeder
         $test = Test::updateOrCreate(
             ['slug' => 'praxivaleurs'],
             [
-                'name'              => 'Test des Valeurs Professionnelles',
-                'description'       => "40 valeurs à évaluer sur une échelle de 1 à 6. Découvre tes 5 valeurs prioritaires.",
+                'name'              => "La Source des Valeurs — Valeurs professionnelles (Schwartz)",
+                'description'       => "Ce que ce test mesure : tes valeurs professionnelles. Il révèle tes 5 valeurs prioritaires parmi les 10 valeurs universelles du modèle de Schwartz, pour aligner tes choix de carrière sur ce qui compte vraiment pour toi. 40 valeurs à évaluer de 1 à 6.",
                 'type'              => 'questionnaire',
                 'scoring_engine'    => 'praxivaleurs-schwartz',
                 'estimated_minutes' => 8,

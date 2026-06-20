@@ -15,8 +15,8 @@ class RiasecQuestionsSeeder extends Seeder
         $test = Test::updateOrCreate(
             ['slug' => 'praximet-riasec'],
             [
-                'name'              => 'Test RIASEC PraxiMet',
-                'description'       => "Cartographie tes affinités professionnelles selon le modèle Holland : 84 questions binaires.",
+                'name'              => "La Quête de la Voie — Test d'orientation RIASEC",
+                'description'       => "Ce que ce test mesure : tes intérêts professionnels selon le modèle Holland (RIASEC). Il révèle, via un code de 3 lettres dominantes, les grandes familles de métiers et d'environnements de travail qui te correspondent le mieux. 84 questions.",
                 'type'              => 'questionnaire',
                 'scoring_engine'    => 'praximet-riasec',
                 'estimated_minutes' => 12,

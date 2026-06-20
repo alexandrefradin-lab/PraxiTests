@@ -71,4 +71,29 @@ abstract class AbstractPlugin extends ServiceProvider implements PluginContract
         $base = config('plugins.path') . DIRECTORY_SEPARATOR . $this->slug();
         return $path ? $base . DIRECTORY_SEPARATOR . ltrim($path, DIRECTORY_SEPARATOR) : $base;
     }
+
+    /**
+     * Surcharge : n'enregistre les vues que si le dossier existe vraiment.
+     * Les plugins Vue/Inertia n'ont pas de dossier resources/views ; sans ce
+     * garde-fou, `php artisan view:cache` plante (Finder lève une exception
+     * sur un dossier absent) et casse tout le déploiement.
+     */
+    protected function loadViewsFrom($path, $namespace)
+    {
+        $paths = array_values(array_filter((array) $path, 'is_dir'));
+        if (! empty($paths)) {
+            parent::loadViewsFrom($paths, $namespace);
+        }
+    }
+
+    /**
+     * Surcharge : idem pour les migrations (dossier optionnel selon le plugin).
+     */
+    protected function loadMigrationsFrom($paths)
+    {
+        $existing = array_values(array_filter((array) $paths, 'is_dir'));
+        if (! empty($existing)) {
+            parent::loadMigrationsFrom($existing);
+        }
+    }
 }

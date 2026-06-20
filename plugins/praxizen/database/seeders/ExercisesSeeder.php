@@ -16,8 +16,8 @@ class ExercisesSeeder extends Seeder
         $test = Test::updateOrCreate(
             ['slug' => 'praxizen-stress'],
             [
-                'name'              => 'PraxiZen — Évaluation & Gestion du stress',
-                'description'       => 'Évalue 5 dimensions du stress professionnel (régulation émotionnelle, résilience, gestion somatique, pleine conscience, recadrage cognitif) en 20 questions Likert. Génère un programme d\'exercices personnalisé.',
+                'name'              => "Le Refuge Intérieur — Évaluation & gestion du stress",
+                'description'       => "Ce que ce test mesure : ta gestion du stress professionnel, sur 5 dimensions — régulation émotionnelle, résilience, gestion des tensions physiques, pleine conscience et recadrage cognitif. 20 questions Likert, puis un programme d'exercices personnalisé.",
                 'type'              => 'questionnaire',
                 'scoring_engine'    => 'praxizen-stress',
                 'estimated_minutes' => 8,
