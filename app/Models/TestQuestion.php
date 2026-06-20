@@ -13,6 +13,7 @@ class TestQuestion extends Model
         'options'    => 'array',
         'validation' => 'array',
         'scoring'    => 'array',
+        'meta'       => 'array',
         'required'   => 'boolean',
     ];
 
