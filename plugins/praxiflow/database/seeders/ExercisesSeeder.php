@@ -16,8 +16,8 @@ class ExercisesSeeder extends Seeder
         $test = Test::updateOrCreate(
             ['slug' => 'praxiflow-productivite'],
             [
-                'name'              => 'PraxiFlow — Évaluation de ta productivité',
-                'description'       => '20 questions Likert 4 niveaux couvrant 5 dimensions de la gestion du temps et de la productivité.',
+                'name'              => "Le Maître du Temps — Évaluation de ta productivité",
+                'description'       => "Ce que ce test mesure : ta gestion du temps et ta productivité, sur 5 leviers — planification, concentration, gestion des priorités, gestion de l'énergie et lutte contre la procrastination. Tu repars avec un plan d'action personnalisé sur 7 jours.",
                 'type'              => 'questionnaire',
                 'scoring_engine'    => 'praxiflow-scoring',
                 'estimated_minutes' => 7,

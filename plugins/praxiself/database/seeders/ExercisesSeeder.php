@@ -37,8 +37,8 @@ class ExercisesSeeder extends Seeder
         $test = Test::updateOrCreate(
             ['slug' => 'praxiself-affirmation'],
             [
-                'name'              => 'PraxiSelf — Affirmation de soi',
-                'description'       => 'Évalue ton assertivité sur 5 dimensions et reçois des exercices personnalisés basés sur la CNV, la théorie de l\'auto-efficacité et les techniques d\'Alberti & Emmons.',
+                'name'              => "La Forge du Soi — Affirmation de soi",
+                'description'       => "Ce que ce test mesure : ton affirmation de soi (assertivité), sur 5 dimensions — estime de soi, comportement affirmé, gestion du regard des autres, expression de tes besoins et résilience identitaire. 20 exercices guidés pour la renforcer.",
                 'type'              => 'mini-app',
                 'scoring_engine'    => 'praxiself-scoring',
                 'estimated_minutes' => 7,

@@ -15,8 +15,8 @@ class PraxiMumQuestionsSeeder extends Seeder
         $test = Test::updateOrCreate(
             ['slug' => 'praximum'],
             [
-                'name'              => 'PraxiMum — Test Big Five',
-                'description'       => "Cartographie ta personnalité en 5 dimensions OCEAN et 30 facettes. 128 questions Likert 4.",
+                'name'              => "La Grande Cartographie — Test de personnalité Big Five",
+                'description'       => "Ce que ce test mesure : ta personnalité, selon le modèle scientifique de référence, le Big Five (OCEAN). Il dresse ton portrait sur 5 grandes dimensions — ouverture, conscienciosité, extraversion, agréabilité, stabilité émotionnelle — détaillées en 30 facettes. 128 questions.",
                 'type'              => 'questionnaire',
                 'scoring_engine'    => 'praximum-bigfive',
                 'estimated_minutes' => 25,

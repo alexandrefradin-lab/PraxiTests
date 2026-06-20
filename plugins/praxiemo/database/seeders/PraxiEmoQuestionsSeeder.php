@@ -15,8 +15,8 @@ class PraxiEmoQuestionsSeeder extends Seeder
         $test = Test::updateOrCreate(
             ['slug' => 'praxiemo'],
             [
-                'name'              => "Test d'Intelligence Émotionnelle PraxiEmo",
-                'description'       => "16 dimensions, 80 questions Likert 4 + 6 questions de fiabilité.",
+                'name'              => "La Boussole des Émotions — Intelligence émotionnelle",
+                'description'       => "Ce que ce test mesure : ton intelligence émotionnelle, c'est-à-dire ta capacité à reconnaître, comprendre et réguler tes émotions, et à t'en servir dans tes relations et ta posture de leader. 16 dimensions en 4 familles : conscience de soi, régulation, relations & communication, leadership émotionnel.",
                 'type'              => 'questionnaire',
                 'scoring_engine'    => 'praxiemo-eqi',
                 'estimated_minutes' => 18,

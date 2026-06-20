@@ -16,8 +16,8 @@ class QuestionsSeeder extends Seeder
         $test = Test::updateOrCreate(
             ['slug' => 'praxis360'],
             [
-                'name'              => 'Praxis 360 — Évaluation soft skills',
-                'description'       => "Auto-évaluation de vos soft skills sur 6 dimensions (communication, collaboration, adaptabilité, intelligence relationnelle, fiabilité, leadership). 36 affirmations à positionner sur une échelle de fréquence.",
+                'name'              => "La Constellation des Talents — Soft skills 360°",
+                'description'       => "Ce que ce test mesure : tes compétences comportementales (soft skills), en auto-évaluation, sur 6 dimensions — communication, collaboration, adaptabilité, intelligence relationnelle, fiabilité, leadership. 36 affirmations sur une échelle de fréquence.",
                 'type'              => 'questionnaire',
                 'scoring_engine'    => 'praxis360-softskills',
                 'estimated_minutes' => 8,
