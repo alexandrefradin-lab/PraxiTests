@@ -1,6 +1,6 @@
 {
     "slug": "praxilink",
-    "name": "PraxiLink — Communication assertive",
+    "name": "L'Art des Liens — Communication assertive (PraxiLink)",
     "version": "1.0.0",
     "author": "Praxis Accompagnement",
     "type": "mini-app",
@@ -14,8 +14,8 @@
     },
     "test": {
         "slug": "praxilink-assertivite",
-        "name": "PraxiLink — Communication assertive",
-        "description": "20 exercices guidés sur 5 dimensions : écoute active, expression assertive, gestion des conflits, empathie relationnelle, feedback constructif.",
+        "name": "L'Art des Liens — Communication assertive",
+        "description": "Ce que ce test mesure : ta communication assertive, c'est-à-dire ta capacité à t'exprimer clairement et avec respect. 5 dimensions évaluées : écoute active, expression assertive de tes besoins, gestion des conflits, empathie relationnelle et feedback constructif. 20 exercices guidés pour t'entraîner.",
         "type": "exercises",
         "scoring_engine": "praxilink-scoring",
         "estimated_minutes": 4

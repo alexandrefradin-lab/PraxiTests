@@ -1,21 +1,25 @@
 {
   "slug": "praxiemo",
-  "name": "PraxiEmo — Intelligence Émotionnelle",
+  "name": "La Boussole des Émotions — Intelligence émotionnelle (PraxiEmo)",
   "version": "1.1.9",
   "author": "Praxis Accompagnement",
   "type": "test",
   "description": "Évaluation de l'Intelligence Émotionnelle en 16 dimensions inspirée des modèles Bar-On EQ-i et Goleman. 80 questions Likert 4 + 6 questions de contrôle (désirabilité sociale).",
   "namespace": "Praxis\\Plugins\\PraxiEmo",
   "service_provider": "Praxis\\Plugins\\PraxiEmo\\PluginServiceProvider",
-  "permissions": ["read:profiles", "write:results", "send:mail"],
+  "permissions": [
+    "read:profiles",
+    "write:results",
+    "send:mail"
+  ],
   "requires": {
     "praxiquest": ">=1.0.0",
     "php": ">=8.2"
   },
   "test": {
     "slug": "praxiemo",
-    "name": "Test d'Intelligence Émotionnelle PraxiEmo",
-    "description": "16 dimensions, 4 familles : Conscience de soi · Régulation émotionnelle · Relations & Communication · Leadership émotionnel.",
+    "name": "La Boussole des Émotions — Intelligence émotionnelle",
+    "description": "Ce que ce test mesure : ton intelligence émotionnelle, c'est-à-dire ta capacité à reconnaître, comprendre et réguler tes émotions, et à t'en servir dans tes relations et ta posture de leader. 16 dimensions réparties en 4 familles : conscience de soi, régulation émotionnelle, relations & communication, leadership émotionnel.",
     "type": "questionnaire",
     "scoring_engine": "praxiemo-eqi",
     "estimated_minutes": 18

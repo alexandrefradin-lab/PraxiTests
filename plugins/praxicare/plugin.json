@@ -1,21 +1,25 @@
 {
   "slug": "praxicare",
-  "name": "PraxiCare — Souffrance au travail (Karasek + MBI)",
+  "name": "La Sentinelle Intérieure — Souffrance au travail (PraxiCare)",
   "version": "1.3.7",
   "author": "Praxis Accompagnement",
   "type": "test",
   "description": "Mesure de la souffrance au travail : modèles Karasek (job strain) et MBI (burnout) — 48 questions.",
   "namespace": "Praxis\\Plugins\\PraxiCare",
   "service_provider": "Praxis\\Plugins\\PraxiCare\\PluginServiceProvider",
-  "permissions": ["read:profiles", "write:results", "send:mail"],
+  "permissions": [
+    "read:profiles",
+    "write:results",
+    "send:mail"
+  ],
   "requires": {
     "praxiquest": ">=1.0.0",
     "php": ">=8.2"
   },
   "test": {
     "slug": "praxicare",
-    "name": "PraxiCare — Mesure de la souffrance au travail",
-    "description": "Karasek (demandes / latitude / soutien) + MBI (épuisement, dépersonnalisation, accomplissement). Outil d'aide à la prise de conscience, ne remplace pas un accompagnement humain.",
+    "name": "La Sentinelle Intérieure — Mesure de la souffrance au travail",
+    "description": "Ce que ce test mesure : ton niveau de souffrance au travail. D'un côté la pression que tu subis (exigences du poste, marge de manœuvre, soutien de l'entourage — modèle Karasek), de l'autre les signes d'épuisement professionnel (fatigue émotionnelle, mise à distance, sentiment d'accomplissement — modèle MBI). Outil de prise de conscience : il ne remplace pas un accompagnement humain.",
     "type": "questionnaire",
     "scoring_engine": "praxicare-karasek-mbi",
     "estimated_minutes": 10

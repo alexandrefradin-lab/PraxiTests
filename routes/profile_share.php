@@ -4,7 +4,8 @@ use App\Http\Controllers\ProfileShareController;
 use Illuminate\Support\Facades\Route;
 
 // ── Authentifié ──────────────────────────────────────────────────────────────
-Route::middleware(['auth', 'verified'])->group(function () {
+// NOTE : 'verified' retiré (pas de flux de vérification d'email → 500).
+Route::middleware(['auth'])->group(function () {
     Route::post('/profile/share',   [ProfileShareController::class, 'store']);
     Route::delete('/profile/share', [ProfileShareController::class, 'destroy']);
 });

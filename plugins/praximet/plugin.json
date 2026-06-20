@@ -1,21 +1,25 @@
 {
   "slug": "praximet",
-  "name": "PraxiMet — Test RIASEC",
+  "name": "La Quête de la Voie — Orientation RIASEC (PraxiMet)",
   "version": "3.0.0",
   "author": "Praxis Accompagnement",
   "type": "test",
   "description": "Test d'orientation Holland RIASEC : 84 questions binaires, 6 types × 2 sous-domaines, code 3 lettres dominant, génération de leads pour bilan de compétences.",
   "namespace": "Praxis\\Plugins\\PraxiMet",
   "service_provider": "Praxis\\Plugins\\PraxiMet\\PluginServiceProvider",
-  "permissions": ["read:profiles", "write:results", "send:mail"],
+  "permissions": [
+    "read:profiles",
+    "write:results",
+    "send:mail"
+  ],
   "requires": {
     "praxiquest": ">=1.0.0",
     "php": ">=8.2"
   },
   "test": {
     "slug": "praximet-riasec",
-    "name": "Test RIASEC PraxiMet",
-    "description": "Cartographie tes affinités professionnelles selon le modèle Holland : 6 types, 2 sous-domaines chacun, 84 questions.",
+    "name": "La Quête de la Voie — Test d'orientation RIASEC",
+    "description": "Ce que ce test mesure : tes intérêts professionnels selon le modèle Holland (RIASEC). Il révèle, via un code de 3 lettres dominantes, les grandes familles de métiers et d'environnements de travail qui te correspondent le mieux.",
     "type": "questionnaire",
     "scoring_engine": "praximet-riasec",
     "estimated_minutes": 12

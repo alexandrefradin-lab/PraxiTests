@@ -41,9 +41,35 @@ class GenerateAttemptInsights implements ShouldQueue, ShouldBeUnique
             return;
         }
 
-        $synthesis->synthesize($attempt);
-        $jobs->suggest($attempt);
+        try {
+            $synthesis->synthesize($attempt);
+            $jobs->suggest($attempt);
+            PluginHooks::doAction('insights.generated', $attempt->fresh('result'));
+        } catch (\Throwable $e) {
+            // Une panne IA (clé absente, HTTP 4xx/5xx, JSON invalide, timeout) ne doit
+            // PAS laisser le candidat sur un écran de chargement infini (ai_pending).
+            // On journalise et on écrit une synthèse de repli pour débloquer la page.
+            logger()->error("GenerateAttemptInsights: échec IA pour attempt #{$this->attemptId}: {$e->getMessage()}");
+            $this->writeFallback($attempt);
+        }
+    }
 
-        PluginHooks::doAction('insights.generated', $attempt->fresh('result'));
+    /**
+     * Écrit une synthèse de repli si l'IA a échoué, afin que `ai_pending` passe à false
+     * (la page de résultats s'affiche au lieu de tourner indéfiniment).
+     * N'écrase jamais une synthèse déjà produite.
+     */
+    protected function writeFallback(TestAttempt $attempt): void
+    {
+        if (!$attempt->result || $attempt->result->ai_synthesis) {
+            return;
+        }
+
+        $attempt->result->update([
+            'ai_synthesis' => "La synthèse n'a pas pu être générée automatiquement pour le moment. "
+                . "Tes résultats détaillés restent disponibles ci-dessous. "
+                . "Tu peux réessayer plus tard ou en parler avec ton conseiller.",
+            'generated_at' => now(),
+        ]);
     }
 }

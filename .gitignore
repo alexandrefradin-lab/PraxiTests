@@ -1,5 +1,7 @@
 /node_modules
-/public/build
+# /public/build : VOLONTAIREMENT suivi par git — le serveur OVH mutualisé n'a
+# pas npm, donc le build Vite (y compris les chunks _*.js) doit être versionné
+# et déployé tel quel. Ne PAS réignorer sans mettre en place un build serveur.
 /public/hot
 /public/storage
 /storage/*.key
