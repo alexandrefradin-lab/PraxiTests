@@ -534,7 +534,7 @@ const globalProgress = computed(() => Math.round((props.journeyDays.length / 60)
 
                     <!-- Bouton Commencer -->
                     <div class="flex justify-end">
-                        <a :href="route('journey.start', { plugin: 'praxiself', day: journeyToday.day })"
+                        <a :href="route('tests.index')"
                            class="pt-btn-primary"
                            :style="{ backgroundColor: phaseColor(journeyToday.phase) }">
                             Commencer l'exercice →
@@ -547,7 +547,7 @@ const globalProgress = computed(() => Math.round((props.journeyDays.length / 60)
                     <div class="text-3xl mb-3">🌱</div>
                     <p class="text-sm font-medium mb-1" style="color: var(--pt-navy)">Votre parcours n'a pas encore commencé.</p>
                     <p class="text-xs">Complétez votre premier exercice pour démarrer les 60 jours.</p>
-                    <a :href="route('journey.start', { plugin: 'praxiself', day: 1 })"
+                    <a :href="route('tests.index')"
                        class="pt-btn-primary mt-4 inline-block">
                         Démarrer le Jour 1
                     </a>
@@ -562,7 +562,7 @@ const globalProgress = computed(() => Math.round((props.journeyDays.length / 60)
                 <a :href="route('results.pdf', attempt.id)" class="pt-btn-primary">
                     Télécharger mes résultats PDF
                 </a>
-                <a :href="route('dashboard')"
+                <a :href="route('tests.index')"
                    class="text-sm font-medium"
                    style="color: var(--pt-navy)">
                     ← Retour au tableau de bord

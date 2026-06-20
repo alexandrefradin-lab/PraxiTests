@@ -1,21 +1,25 @@
 {
   "slug": "praxivaleurs",
-  "name": "PraxiValeurs — Valeurs professionnelles (Schwartz)",
+  "name": "La Source des Valeurs — Valeurs professionnelles (PraxiValeurs)",
   "version": "3.10.0",
   "author": "Praxis Accompagnement",
   "type": "test",
   "description": "Évaluation des valeurs professionnelles selon le modèle Schwartz : 40 questions Likert 1-6, top 5 valeurs, scoring pondéré.",
   "namespace": "Praxis\\Plugins\\PraxiValeurs",
   "service_provider": "Praxis\\Plugins\\PraxiValeurs\\PluginServiceProvider",
-  "permissions": ["read:profiles", "write:results", "send:mail"],
+  "permissions": [
+    "read:profiles",
+    "write:results",
+    "send:mail"
+  ],
   "requires": {
     "praxiquest": ">=1.0.0",
     "php": ">=8.2"
   },
   "test": {
     "slug": "praxivaleurs",
-    "name": "Test des Valeurs Professionnelles",
-    "description": "Découvre tes 5 valeurs prioritaires parmi les 10 valeurs universelles de Schwartz.",
+    "name": "La Source des Valeurs — Valeurs professionnelles (Schwartz)",
+    "description": "Ce que ce test mesure : tes valeurs professionnelles. Il révèle tes 5 valeurs prioritaires parmi les 10 valeurs universelles du modèle de Schwartz, pour aligner tes choix de carrière sur ce qui compte vraiment pour toi.",
     "type": "questionnaire",
     "scoring_engine": "praxivaleurs-schwartz",
     "estimated_minutes": 8

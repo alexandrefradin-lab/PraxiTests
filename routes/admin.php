@@ -11,7 +11,9 @@ use App\Http\Controllers\Admin\TestEditorController;
 use Illuminate\Support\Facades\Route;
 
 // Dashboard + Leads + Campagnes : accessibles aux professionnels et aux admins
-Route::middleware(['auth', 'verified', 'role:admin|professional'])
+// NOTE : 'verified' retiré — aucun flux de vérification d'email n'est implémenté
+// (route verification.notice inexistante → 500). À réintroduire avec le flux complet.
+Route::middleware(['auth', 'role:admin|professional'])
     ->prefix('admin')->name('admin.')
     ->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
@@ -22,7 +24,7 @@ Route::middleware(['auth', 'verified', 'role:admin|professional'])
     });
 
 // Configuration sensible (tests, plugins, réglages) : réservée aux admins (SEC-13)
-Route::middleware(['auth', 'verified', 'role:admin'])
+Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')->name('admin.')
     ->group(function () {
         Route::resource('tests', TestEditorController::class);

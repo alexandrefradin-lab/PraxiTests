@@ -570,7 +570,7 @@ const pageTitle = computed(
 function startExercise() {
   if (!props.exerciseOfTheDay) return
   router.visit(
-    route('exercises.show', { id: props.exerciseOfTheDay.id }),
+    route('tests.index'),
     { preserveScroll: false }
   )
 }
@@ -582,7 +582,7 @@ function retakeTest() {
 }
 
 function goToDashboard() {
-  router.visit(route('candidate.dashboard'))
+  router.visit(route('tests.index'))
 }
 
 // ─────────────────────────────────────────────
@@ -664,7 +664,7 @@ function dayCellTitle(day) {
 function startJourneyExercise() {
   if (!props.todayJourney?.exercise_ref) return
   router.visit(
-    route('exercises.show', { id: props.todayJourney.exercise_ref }),
+    route('tests.index'),
     { preserveScroll: false }
   )
 }

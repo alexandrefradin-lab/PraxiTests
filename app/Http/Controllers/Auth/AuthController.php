@@ -64,7 +64,14 @@ class AuthController extends Controller
             'terms_version'     => self::CGU_VERSION,
         ]);
 
-        event(new Registered($user));
+        // L'événement Registered déclenche l'envoi du mail de vérification (queue sync).
+        // Si le SMTP est indisponible/mal configuré (OVH), l'exception ne doit PAS
+        // faire échouer l'inscription (sinon 500 sur /register). On la journalise.
+        try {
+            event(new Registered($user));
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
         // Vérification auto en développement / si aucun driver mail réel configuré
         if (app()->environment('local', 'testing') || config('mail.mailer') === 'log' || config('mail.mailer') === 'array') {

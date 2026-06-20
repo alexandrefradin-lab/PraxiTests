@@ -1145,11 +1145,20 @@
     ::-webkit-scrollbar-thumb:hover { background: var(--gold); }
 
     /* ─────────────────────────────────────────
-       MOBILE RESPONSIVE (basic)
+       MOBILE RESPONSIVE
     ───────────────────────────────────────── */
     @media (max-width: 900px) {
       nav { padding: 1.2rem 2rem; }
       .nav-links { display: none; }
+
+      /* FIX #1 — Bouton navbar : empêche le retour à la ligne sur mobile */
+      .nav-cta {
+        white-space: nowrap;
+        font-size: 0.72rem;
+        padding: 0.5rem 1rem;
+        letter-spacing: 0.06em;
+      }
+
       #hero { grid-template-columns: 1fr; padding: 6rem 2rem 3rem; gap: 2rem; }
       .hero-arc-wrap { order: 2; }
       .hero-text { order: 1; padding-left: 0; }
@@ -1162,11 +1171,82 @@
       .ai-grid { grid-template-columns: 1fr; gap: 3rem; }
       .career-cards-wrap { grid-template-columns: 1fr 1fr; }
       .testi-grid { grid-template-columns: 1fr; gap: 2px; }
+
+      /* FIX #2 — Grille 4 colonnes (#stats) → 2×2 sur tablette / mobile */
       #stats { grid-template-columns: repeat(2, 1fr); padding: 2rem; }
+
       .cta-form { flex-direction: column; }
       .cta-input { border-right: 1px solid rgba(201,162,82,0.2); }
       .footer-top { grid-template-columns: 1fr 1fr; gap: 2.5rem; }
       .testi-header { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
+
+      /* FIX #3 — hero-actions : wrap les boutons côte à côte sur mobile */
+      .hero-actions { flex-wrap: wrap; gap: 1rem; }
+      /* FIX #4 — footer : padding horizontal réduit entre 480 et 900px */
+      footer { padding: 4rem 2rem 2.5rem; }
+
+      /* FIX #10 — #cta : padding vertical réduit entre 480 et 900px */
+      #cta { padding: 5rem 2rem; }
+
+      /* FIX #11 — .arc-marker right:-40px masqué pour éviter l'overflow */
+      .arc-marker { display: none; }
+    }
+
+    /* ─── Très petits écrans : < 768px ─── */
+    @media (max-width: 768px) {
+      /* Le bouton est encore plus réduit pour laisser de la place au logo */
+      .nav-cta {
+        font-size: 0.7rem;
+        padding: 0.45rem 0.85rem;
+      }
+    }
+
+    /* ─── Très petits écrans : < 480px ─── */
+    @media (max-width: 480px) {
+      /* Logo réduit pour laisser de la place au bouton */
+      nav { padding: 1rem 1.2rem; }
+      .nav-logo { font-size: 1.3rem; }
+      .nav-cta { font-size: 0.66rem; padding: 0.4rem 0.75rem; }
+
+      /* FIX #2 (suite) — Grille 4 colonnes → 1 colonne sur très petits écrans */
+      #stats { grid-template-columns: 1fr; }
+      .stat-block {
+        border-right: none;
+        border-bottom: 1px solid rgba(12,11,9,0.15);
+      }
+      .stat-block:last-child { border-bottom: none; }
+
+      /* Prévention d'autres débordements horizontaux */
+      .hero-trust { flex-wrap: wrap; gap: 1.5rem; }
+      .realite-proof { flex-wrap: wrap; gap: 1.5rem; }
+      .footer-top { grid-template-columns: 1fr; }
+      footer { padding: 3rem 1.5rem 2rem; }
+      #cta { padding: 5rem 1.5rem; }
+      .arc-container { width: 220px; height: 220px; }
+
+      /* FIX #5 — footer-bottom : colonne sur très petits écrans */
+      .footer-bottom {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-start;
+      }
+
+      /* FIX #6 — Grands titres : taille réduite pour éviter le débordement */
+      .section-title { font-size: clamp(1.7rem, 7vw, 2.2rem); }
+      .hero-h1       { font-size: clamp(1.8rem, 8vw, 2.8rem); }
+
+      /* FIX #7 — hero-sub : max-width 100% sur mobile */
+      .hero-sub { max-width: 100%; }
+
+      /* FIX #8 — features-right : 1 colonne sur très petits écrans */
+      .features-right {
+        grid-template-columns: 1fr;
+        padding: 2rem 1.5rem;
+      }
+
+      /* FIX #9 — career-cards-wrap : 1 colonne */
+      .career-cards-wrap { grid-template-columns: 1fr; }
+      .career-more { grid-column: span 1; }
     }
   </style>
 </head>

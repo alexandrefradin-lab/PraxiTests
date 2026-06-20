@@ -1,14 +1,13 @@
 {
-    "slug":             "praxis360",
-    "name":             "Praxis 360 — Évaluation soft skills",
-    "version":          "1.0.0",
-    "author":           "Praxis Accompagnement",
-    "type":             "assessment",
-    "description":      "Auto-évaluation des soft skills sur 6 dimensions (36 items, échelle de fréquence 1-5). Version mono-candidat portée depuis le plugin WordPress Praxis 360 multi-évaluateurs.",
-    "service_provider": "Praxis\\Plugins\\Praxis360\\PluginServiceProvider",
-    "namespace":        "Praxis\\Plugins\\Praxis360",
-    "permissions":      [],
-
-    "_scoring_engine_key": "praxis360-softskills",
-    "_result_page":        "Praxis360Result"
+  "slug": "praxis360",
+  "name": "La Constellation des Talents — Soft skills 360° (Praxis360)",
+  "version": "1.0.0",
+  "author": "Praxis Accompagnement",
+  "type": "assessment",
+  "description": "Ce que ce test mesure : tes compétences comportementales (soft skills), en auto-évaluation, sur 6 dimensions clés (36 items, échelle de fréquence 1-5). Il met en lumière tes points forts et tes axes de progrès.",
+  "service_provider": "Praxis\\Plugins\\Praxis360\\PluginServiceProvider",
+  "namespace": "Praxis\\Plugins\\Praxis360",
+  "permissions": [],
+  "_scoring_engine_key": "praxis360-softskills",
+  "_result_page": "Praxis360Result"
 }

@@ -1,21 +1,25 @@
 {
   "slug": "praximum",
-  "name": "PraxiMum — Big Five",
+  "name": "La Grande Cartographie — Personnalité Big Five (PraxiMum)",
   "version": "1.4.1",
   "author": "Praxis Accompagnement",
   "type": "test",
   "description": "Test Big Five (OCEAN) — 128 questions, 30 facettes, scoring T normé, archétypes. Inspiré du NEO-PI-R.",
   "namespace": "Praxis\\Plugins\\PraxiMum",
   "service_provider": "Praxis\\Plugins\\PraxiMum\\PluginServiceProvider",
-  "permissions": ["read:profiles", "write:results", "send:mail"],
+  "permissions": [
+    "read:profiles",
+    "write:results",
+    "send:mail"
+  ],
   "requires": {
     "praxiquest": ">=1.0.0",
     "php": ">=8.2"
   },
   "test": {
     "slug": "praximum",
-    "name": "PraxiMum — Test Big Five",
-    "description": "Cartographie ta personnalité en 5 dimensions OCEAN et 30 facettes. 128 questions Likert 4. Score T normé pour chaque facette.",
+    "name": "La Grande Cartographie — Test de personnalité Big Five",
+    "description": "Ce que ce test mesure : ta personnalité, selon le modèle scientifique de référence, le Big Five (OCEAN). Il dresse ton portrait sur 5 grandes dimensions — ouverture, conscienciosité, extraversion, agréabilité, stabilité émotionnelle — détaillées en 30 facettes.",
     "type": "questionnaire",
     "scoring_engine": "praximum-bigfive",
     "estimated_minutes": 25

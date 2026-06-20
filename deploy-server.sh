@@ -30,8 +30,13 @@ git checkout -- app/Http/Controllers/Candidate/OnboardingController.php \
 ok "Fichiers patchés réinitialisés"
 
 msg "Pull du code..."
-rm -rf public/build/
+# NE PAS faire 'rm -rf public/build/' : après un rm, un git pull en merge ne
+# restaure QUE les fichiers modifiés dans le commit entrant → les chunks Vite
+# inchangés (ex. _plugin-vue_export-helper-*.js) restaient supprimés → assets
+# manquants (MIME text/html / 404) → page blanche. public/build est suivi par
+# git ; on force juste sa cohérence avec le commit distant après le pull.
 git pull origin main
+git checkout -- public/build 2>/dev/null || true
 ok "Code à jour"
 
 msg "Composer install ($COMPOSER_BIN)..."

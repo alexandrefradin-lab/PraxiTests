@@ -48,7 +48,9 @@ class OnboardingController extends Controller
             ]
         );
 
-        \App\Jobs\ExtractCvDataJob::dispatch($profile->id);
+        // afterResponse : en queue sync (OVH), évite qu'une exception du job
+        // (parsing PDF, IA) ne remonte dans la requête HTTP d'onboarding → 500.
+        \App\Jobs\ExtractCvDataJob::dispatch($profile->id)->afterResponse();
         PluginHooks::doAction('profile.completed', $profile);
 
         return redirect()->route('tests.index')->with('success', 'Profil enregistré.');
@@ -80,7 +82,7 @@ class OnboardingController extends Controller
         $updateData = [
             'status'        => $data['status'],
             'status_since'  => $data['status_since'],
-            'status_months' => now()->diffInMonths($data['status_since']),
+            'status_months' => (int) abs(now()->diffInMonths($data['status_since'])),
             'current_role'  => $data['current_role'] ?? null,
             'industry'      => $data['industry'] ?? null,
             'consent_marketing' => $data['consent_marketing'] ?? $profile->consent_marketing,
@@ -102,7 +104,9 @@ class OnboardingController extends Controller
             $updateData['cv_extracted_text'] = null;
             $updateData['cv_structured']     = null;
 
-            \App\Jobs\ExtractCvDataJob::dispatch($profile->id);
+            // afterResponse : en queue sync (OVH), évite qu'une exception du job
+        // (parsing PDF, IA) ne remonte dans la requête HTTP d'onboarding → 500.
+        \App\Jobs\ExtractCvDataJob::dispatch($profile->id)->afterResponse();
         }
 
         $profile->update($updateData);
