@@ -45,6 +45,7 @@ class GdprController extends Controller
             'attempts.test:id,name,slug',
             'attempts.result:id,attempt_id,scoring,ai_synthesis,suggested_jobs,strengths,growth_areas,generated_at,ai_driver,ai_model,ai_generated_at',
             'attempts.answers:id,attempt_id,question_id,value,created_at',
+            'profileGrimoire',
         ]);
 
         $export = [
@@ -76,6 +77,12 @@ class GdprController extends Controller
                 'suggested_jobs' => $attempt->result?->suggested_jobs,
                 'ai_disclaimer' => $attempt->result?->aiDisclaimer(),
             ])->values(),
+            'grimoire'     => $user->profileGrimoire ? [
+                'synthesis'     => $user->profileGrimoire->synthesis,
+                'voies'         => $user->profileGrimoire->voies,
+                'generated_at'  => $user->profileGrimoire->generated_at?->toIso8601String(),
+                'ai_disclaimer' => $user->profileGrimoire->aiDisclaimer(),
+            ] : null,
         ];
 
         return response()->json($export, 200, [

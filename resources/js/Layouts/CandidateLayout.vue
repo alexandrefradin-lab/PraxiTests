@@ -31,6 +31,11 @@ const xpTotal = computed(() => page.props.gamification?.xp_total ?? 0)
                         style="font-family: var(--font-display); font-size: 13px; font-weight: 500; color: var(--text-secondary); text-decoration: none; padding: 6px 13px; border-radius: var(--r); transition: color 0.15s, background 0.15s">
                         L'Armurerie
                     </Link>
+                    <Link :href="route('grimoire.show')"
+                        class="cand-nav-link"
+                        style="font-family: var(--font-display); font-size: 13px; font-weight: 500; color: var(--text-secondary); text-decoration: none; padding: 6px 13px; border-radius: var(--r); transition: color 0.15s, background 0.15s">
+                        Le Grimoire
+                    </Link>
                     <Link :href="route('history')"
                         class="cand-nav-link"
                         style="font-family: var(--font-display); font-size: 13px; font-weight: 500; color: var(--text-secondary); text-decoration: none; padding: 6px 13px; border-radius: var(--r); transition: color 0.15s, background 0.15s">

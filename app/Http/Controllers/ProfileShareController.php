@@ -44,7 +44,7 @@ class ProfileShareController extends Controller
      */
     public function show(string $token): Response
     {
-        $share = ProfileShare::with(['user.profile', 'user.attempts.result'])
+        $share = ProfileShare::with(['user.profile', 'user.profileGrimoire', 'user.attempts.result'])
                              ->valid()
                              ->where('token', $token)
                              ->firstOrFail();
@@ -54,7 +54,7 @@ class ProfileShareController extends Controller
         $user    = $share->user;
         $profile = $user->profile;
 
-        // Dernier attempt complété avec résultat généré
+        // Dernier attempt complété avec résultat généré (repli si pas de Grimoire global)
         $result = $user->attempts()
             ->where('status', 'completed')
             ->whereHas('result')
@@ -63,14 +63,22 @@ class ProfileShareController extends Controller
             ->first()
             ?->result;
 
+        // Priorité à la relecture globale (Le Grimoire) si elle est prête, sinon
+        // on retombe sur la dernière tentative.
+        $grimoire = $user->profileGrimoire;
+        $useGrimoire = $grimoire && $grimoire->isReady();
+
         return Inertia::render('Profile/SharedView', [
             'profile' => [
                 'name'         => $user->name,
                 'status'       => $profile?->status,          // employee / entrepreneur / jobseeker …
-                'synthesis'    => $result?->ai_synthesis,
-                'careers'      => $result?->suggested_jobs ?? [],
-                'scores'       => $result?->scoring ?? [],
-                'completed_at' => $result?->created_at?->toDateString(),
+                'is_grimoire'  => $useGrimoire,
+                'synthesis'    => $useGrimoire ? $grimoire->synthesis  : $result?->ai_synthesis,
+                'careers'      => $useGrimoire ? ($grimoire->voies ?? []) : ($result?->suggested_jobs ?? []),
+                'scores'       => $useGrimoire ? [] : ($result?->scoring ?? []),
+                'completed_at' => $useGrimoire
+                    ? $grimoire->generated_at?->toDateString()
+                    : $result?->created_at?->toDateString(),
             ],
             'expires_at' => $share->expires_at->toDateString(),
         ]);
