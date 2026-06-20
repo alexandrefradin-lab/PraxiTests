@@ -13,36 +13,79 @@ const allQuestions = computed(() =>
     props.attempt.test.sections.flatMap(s => s.questions.map(q => ({ ...q, section_title: s.title })))
 )
 
+// Réponses déjà enregistrées côté serveur, indexées par question_id.
+// Permet de restaurer la valeur quand on revient en arrière pour corriger.
+const savedAnswers = ref(
+    Object.fromEntries((props.attempt.answers ?? []).map(a => [a.question_id, a.value]))
+)
+
+const totalQuestions = computed(() => allQuestions.value.length)
 const startIndex = props.attempt.answers.length
 const currentIndex = ref(Math.min(startIndex, Math.max(0, allQuestions.value.length - 1)))
 const currentQuestion = computed(() => allQuestions.value[currentIndex.value])
-const totalQuestions = computed(() => allQuestions.value.length)
-const percent = computed(() => totalQuestions.value > 0 ? (currentIndex.value / totalQuestions.value) * 100 : 0)
+
+// Progression basée sur le nombre de réponses enregistrées (stable même
+// quand on revient en arrière pour relire/corriger).
+const answeredCount = computed(() => Object.keys(savedAnswers.value).length)
+const percent = computed(() => totalQuestions.value > 0 ? (answeredCount.value / totalQuestions.value) * 100 : 0)
 
 const value = ref(null)
 const startedAt = ref(Date.now())
 const isSubmitting = ref(false)
 
-const submit = () => {
-    if (isSubmitting.value) return
-    if (value.value === null || value.value === '' || (Array.isArray(value.value) && !value.value.length)) return
+const hasValue = (v) => !(v === null || v === undefined || v === '' || (Array.isArray(v) && !v.length))
+
+// Charge dans `value` la réponse déjà enregistrée pour la question courante (ou null).
+const loadValue = () => {
+    const saved = savedAnswers.value[currentQuestion.value?.id]
+    value.value = saved !== undefined ? saved : null
+    startedAt.value = Date.now()
+}
+loadValue()
+
+const goTo = (index) => {
+    if (index < 0 || index >= totalQuestions.value) return
+    currentIndex.value = index
+    loadValue()
+}
+
+const goBack = () => goTo(currentIndex.value - 1)
+
+// Bouton "avance" discret, utile uniquement en relecture : on ne le montre
+// que si la question courante a déjà une réponse enregistrée.
+const canGoForward = computed(() =>
+    currentIndex.value + 1 < totalQuestions.value &&
+    savedAnswers.value[currentQuestion.value?.id] !== undefined
+)
+const goForward = () => { if (canGoForward.value) goTo(currentIndex.value + 1) }
+
+// Type de question nécessitant un bouton de validation explicite
+// (impossible d'avancer sur un simple clic).
+const needsConfirmButton = computed(() => {
+    const t = currentQuestion.value?.type
+    return t === 'multi' || t === 'multiple' || t === 'text' || t === 'ranking'
+})
+
+const recordAndAdvance = () => {
+    if (isSubmitting.value || !hasValue(value.value)) return
     isSubmitting.value = true
     const time = Math.round((Date.now() - startedAt.value) / 1000)
+    const qid = currentQuestion.value.id
+    const val = value.value
     router.post(route('attempt.answer', props.attempt.id), {
-        question_id: currentQuestion.value.id,
-        value: value.value,
+        question_id: qid,
+        value: val,
         time_spent: time,
     }, {
         preserveScroll: true,
         preserveState: true,
         onSuccess: () => {
             isSubmitting.value = false
+            savedAnswers.value = { ...savedAnswers.value, [qid]: val }
             if (currentIndex.value + 1 >= totalQuestions.value) {
                 router.post(route('attempt.complete', props.attempt.id))
             } else {
-                currentIndex.value += 1
-                value.value = null
-                startedAt.value = Date.now()
+                goTo(currentIndex.value + 1)
             }
         },
         onError: () => {
@@ -51,13 +94,15 @@ const submit = () => {
     })
 }
 
+// Choix simple / échelle : sélectionner enregistre et avance directement.
+const selectAndAdvance = (optValue) => {
+    if (isSubmitting.value) return
+    value.value = optValue
+    recordAndAdvance()
+}
+
 const isLastQuestion = computed(() => currentIndex.value + 1 >= totalQuestions.value)
-const canSubmit = computed(() => {
-    if (isSubmitting.value) return false
-    if (value.value === null || value.value === '') return false
-    if (Array.isArray(value.value) && !value.value.length) return false
-    return true
-})
+const canSubmit = computed(() => !isSubmitting.value && hasValue(value.value))
 
 const toggleMultiple = (optValue) => {
     if (!Array.isArray(value.value)) value.value = []
@@ -109,6 +154,30 @@ const isMultiSelected = (optValue) => Array.isArray(value.value) && value.value.
             <main class="ac-main">
                 <div class="ac-question-wrap">
 
+                    <!-- Navigation : retour pour corriger -->
+                    <div class="ac-nav">
+                        <button
+                            v-if="currentIndex > 0"
+                            type="button"
+                            class="ac-nav-btn"
+                            :disabled="isSubmitting"
+                            @click="goBack"
+                        >
+                            ← Précédent
+                        </button>
+                        <span v-else></span>
+
+                        <button
+                            v-if="canGoForward"
+                            type="button"
+                            class="ac-nav-btn"
+                            :disabled="isSubmitting"
+                            @click="goForward"
+                        >
+                            Suivant →
+                        </button>
+                    </div>
+
                     <!-- Badge section -->
                     <div class="ac-section-badge">{{ currentQuestion.section_title }}</div>
 
@@ -128,7 +197,7 @@ const isMultiSelected = (optValue) => Array.isArray(value.value) && value.value.
                                 :key="opt.value"
                                 class="ac-option-card"
                                 :class="{ 'ac-option-card--selected': value === opt.value }"
-                                @click="value = opt.value"
+                                @click="selectAndAdvance(opt.value)"
                             >
                                 <span class="ac-radio-icon">
                                     <svg v-if="value === opt.value" width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -154,7 +223,7 @@ const isMultiSelected = (optValue) => Array.isArray(value.value) && value.value.
                                         type="button"
                                         class="ac-scale-btn"
                                         :class="{ 'ac-scale-btn--active': value === n }"
-                                        @click="value = n"
+                                        @click="selectAndAdvance(n)"
                                     >
                                         {{ n }}
                                     </button>
@@ -197,15 +266,15 @@ const isMultiSelected = (optValue) => Array.isArray(value.value) && value.value.
 
                     </div>
 
-                    <!-- BOUTON VALIDER -->
-                    <div class="ac-submit-wrap">
+                    <!-- BOUTON VALIDER (multi / texte uniquement : pas d'auto-avance possible) -->
+                    <div v-if="needsConfirmButton" class="ac-submit-wrap">
                         <button
                             class="ac-btn-primary"
                             :class="{ 'ac-btn-primary--disabled': !canSubmit }"
                             :disabled="!canSubmit"
-                            @click="submit"
+                            @click="recordAndAdvance"
                         >
-                            {{ isSubmitting ? '…' : (isLastQuestion ? 'Terminer l\'Épreuve →' : 'Question suivante →') }}
+                            {{ isSubmitting ? '…' : (isLastQuestion ? 'Terminer l\'Épreuve →' : 'Valider et continuer →') }}
                         </button>
                     </div>
 
@@ -369,6 +438,40 @@ const isMultiSelected = (optValue) => Array.isArray(value.value) && value.value.
 .ac-question-wrap {
     width: 100%;
     max-width: 660px;
+}
+
+/* ── NAVIGATION (retour / avance) ────────────── */
+.ac-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+}
+
+.ac-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 0.4rem 0.85rem;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.ac-nav-btn:hover:not(:disabled) {
+    border-color: var(--color-primary);
+    color: var(--text-primary);
+    background: var(--bg-surface);
+}
+
+.ac-nav-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
 }
 
 /* Badge section */
