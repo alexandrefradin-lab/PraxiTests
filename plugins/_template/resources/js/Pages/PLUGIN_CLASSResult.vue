@@ -14,6 +14,7 @@
 import { computed } from 'vue'
 import { Link }     from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
+import ScoreGauge from '@/Components/ScoreGauge.vue'
 
 const props = defineProps({
     attempt: Object,
@@ -61,13 +62,8 @@ const barWidth = (dimKey) => {
             <!-- Score global (optionnel — supprimer si non pertinent) -->
             <div v-if="global_score !== null" class="pt-card"
                 style="padding:1.5rem;margin-bottom:1rem;display:flex;align-items:center;gap:1.5rem">
-                <div style="text-align:center;flex-shrink:0">
-                    <div style="font-family:'Playfair Display',serif;font-size:52px;font-weight:600;color:var(--pt-gold);line-height:1">
-                        {{ global_score }}
-                    </div>
-                    <div style="font-size:11px;color:var(--pt-text-light);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">
-                        /100
-                    </div>
+                <div style="flex-shrink:0">
+                    <ScoreGauge :score="global_score" :size="140" />
                 </div>
                 <div>
                     <p style="font-size:15px;font-weight:500;color:var(--pt-text)">Score global</p>

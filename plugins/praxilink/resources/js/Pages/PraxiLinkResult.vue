@@ -20,35 +20,8 @@
         <h2 id="global-score-heading" class="pt-section-title">Score de communication global</h2>
 
         <div class="pt-global-score__gauge-row">
-          <div
-            class="pt-global-score__ring"
-            role="img"
-            :aria-label="`Score global : ${globalScore} sur 100`"
-          >
-            <svg viewBox="0 0 120 120" class="pt-gauge-svg" aria-hidden="true">
-              <circle
-                class="pt-gauge-svg__track"
-                cx="60" cy="60" r="52"
-                fill="none"
-                stroke="var(--pt-cream)"
-                stroke-width="10"
-              />
-              <circle
-                class="pt-gauge-svg__fill"
-                cx="60" cy="60" r="52"
-                fill="none"
-                :stroke="gaugeColor"
-                stroke-width="10"
-                stroke-linecap="round"
-                :stroke-dasharray="`${gaugeProgress} 327`"
-                transform="rotate(-90 60 60)"
-                style="transition: stroke-dasharray 0.8s ease;"
-              />
-            </svg>
-            <div class="pt-gauge-svg__label">
-              <span class="pt-gauge-svg__score">{{ globalScore }}</span>
-              <span class="pt-gauge-svg__max">/100</span>
-            </div>
+          <div class="pt-global-score__ring">
+            <ScoreGauge :score="globalScore" :color="gaugeColor" :size="150" />
           </div>
 
           <div class="pt-global-score__info">
@@ -356,6 +329,7 @@
 import { computed } from 'vue'
 import { router } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
+import ScoreGauge from '@/Components/ScoreGauge.vue'
 
 // ─────────────────────────────────────────────
 // Props
@@ -408,11 +382,6 @@ const props = defineProps({
 const globalScore = computed(() =>
   Math.round(props.results?.global_score ?? 0)
 )
-
-const gaugeProgress = computed(() => {
-  // Circonférence = 2π × 52 ≈ 327
-  return Math.round((globalScore.value / 100) * 327)
-})
 
 const gaugeColor = computed(() => {
   const s = globalScore.value

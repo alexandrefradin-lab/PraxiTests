@@ -21,6 +21,9 @@ class Panel360Controller extends Controller
     /** Slug du test éligible au 360°. */
     private const TEST_SLUG = 'praxis360';
 
+    /** Nombre minimal d'évaluateurs à désigner avant de démarrer le test. */
+    private const MIN_EVALUATORS = 3;
+
     /** Affiche la page de gestion du panel pour une auto-évaluation donnée. */
     public function manage(TestAttempt $attempt)
     {
@@ -35,8 +38,16 @@ class Panel360Controller extends Controller
 
         $panel->load('invitations');
 
+        // « setup » = étape préalable (auto-évaluation pas encore faite) :
+        // le candidat DOIT désigner au moins MIN_EVALUATORS avant de répondre.
+        // « manage » = gestion classique depuis la page de résultats.
+        $mode = $attempt->status === 'completed' ? 'manage' : 'setup';
+
         return Inertia::render('Praxis360/Panel', [
             'attempt'    => $attempt->only('id'),
+            'mode'           => $mode,
+            'minEvaluators'  => self::MIN_EVALUATORS,
+            'proceedUrl'     => route('panel360.proceed', $panel->id),
             'panel'      => [
                 'id'        => $panel->id,
                 'status'    => $panel->status,
@@ -98,6 +109,29 @@ class Panel360Controller extends Controller
         }
 
         return back()->with('success', "{$pending->count()} invitation(s) envoyée(s).");
+    }
+
+    /**
+     * Valide l'étape préalable : au moins MIN_EVALUATORS désignés, envoie les
+     * invitations encore en attente, puis bascule le candidat sur son
+     * auto-évaluation (les regards seront collectés en parallèle).
+     */
+    public function proceed(EvaluationPanel $panel)
+    {
+        abort_unless($panel->user_id === auth()->id(), 403);
+
+        if ($panel->invitations()->count() < self::MIN_EVALUATORS) {
+            return back()->with('error', 'Indiquez au moins ' . self::MIN_EVALUATORS . ' évaluateurs avant de commencer.');
+        }
+
+        // Envoyer toutes les invitations encore « pending ».
+        $candidate = auth()->user()->name ?? 'Un candidat';
+        foreach ($panel->invitations()->where('status', 'pending')->get() as $invitation) {
+            Mail::to($invitation->email)->queue(new EvaluatorInvitationMail($invitation, $candidate));
+            $invitation->update(['status' => 'sent', 'sent_at' => now()]);
+        }
+
+        return redirect()->route('attempt.show', $panel->self_attempt_id);
     }
 
     /** Retire une invitation tant qu'elle n'a pas été complétée. */

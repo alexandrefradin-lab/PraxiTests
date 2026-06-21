@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
+import ScoreGauge from '@/Components/ScoreGauge.vue'
 
 const props = defineProps({
     attempt:              Object,
@@ -159,42 +160,7 @@ const gridRows = computed(() => {
 
                     <!-- Jauge circulaire SVG -->
                     <div class="flex-shrink-0">
-                        <svg width="140" height="140" viewBox="0 0 140 140" class="block">
-                            <!-- Piste de fond -->
-                            <circle
-                                cx="70" cy="70" r="56"
-                                fill="none"
-                                stroke="var(--pt-cream, #f8f5ef)"
-                                stroke-width="14"
-                            />
-                            <!-- Arc de progression -->
-                            <circle
-                                cx="70" cy="70" r="56"
-                                fill="none"
-                                :stroke="scoreColor(global)"
-                                stroke-width="14"
-                                stroke-linecap="round"
-                                stroke-dasharray="351.86"
-                                :stroke-dashoffset="351.86 - (351.86 * global / 100)"
-                                transform="rotate(-90 70 70)"
-                                style="transition: stroke-dashoffset 1s ease"
-                            />
-                            <!-- Valeur numérique -->
-                            <text
-                                x="70" y="66"
-                                text-anchor="middle"
-                                dominant-baseline="middle"
-                                font-size="28"
-                                font-weight="700"
-                                :fill="scoreColor(global)"
-                            >{{ global }}</text>
-                            <text
-                                x="70" y="88"
-                                text-anchor="middle"
-                                font-size="10"
-                                fill="var(--pt-text-muted, #64748b)"
-                            >/100</text>
-                        </svg>
+                        <ScoreGauge :score="global" :color="scoreColor(global)" :size="140" />
                     </div>
 
                     <!-- Niveau + méta -->

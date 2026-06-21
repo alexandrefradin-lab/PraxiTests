@@ -49,6 +49,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/results/{attempt}/360',              [\App\Http\Controllers\Candidate\Panel360Controller::class, 'manage'])->name('panel360.manage');
     Route::post('/panel/{panel}/invite',              [\App\Http\Controllers\Candidate\Panel360Controller::class, 'invite'])->name('panel360.invite');
     Route::post('/panel/{panel}/send',                [\App\Http\Controllers\Candidate\Panel360Controller::class, 'send'])->name('panel360.send');
+    Route::post('/panel/{panel}/proceed',             [\App\Http\Controllers\Candidate\Panel360Controller::class, 'proceed'])->name('panel360.proceed');
     Route::delete('/panel/invitation/{invitation}',   [\App\Http\Controllers\Candidate\Panel360Controller::class, 'removeInvitation'])->name('panel360.invitation.destroy');
 
     // La Salle du Trésor — apps offertes en récompense (déblocage par paliers d'Éclats)
