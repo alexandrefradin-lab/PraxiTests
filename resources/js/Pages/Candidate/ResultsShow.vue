@@ -52,7 +52,9 @@ function normKey(key) {
     return String(key).toLowerCase().trim().replace(/[\s-]+/g, '_')
 }
 function dimMeta(key) {
+    // Le scoring peut exposer dimension_meta au niveau racine OU sous meta.
     const backend = props.result?.scoring?.dimension_meta?.[key]
+        ?? props.result?.scoring?.meta?.dimension_meta?.[key]
     if (backend && (backend.label || backend.description)) return backend
     return DIM_META[normKey(key)] || null
 }

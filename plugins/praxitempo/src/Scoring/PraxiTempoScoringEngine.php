@@ -85,9 +85,11 @@ class PraxiTempoScoringEngine implements ScoringEngineContract
         $dims      = Questions::dimensions();
 
         return [
-            'engine'       => $this->key(),
-            'dimensions'   => $normalized,   // { priorisation: 72, ... } → ResultsShow
-            'raw_scores'   => $rawScores,
+            'engine'         => $this->key(),
+            'dimensions'     => $normalized,   // { priorisation: 72, ... } → ResultsShow
+            // Exposé au niveau racine : ResultsShow lit result.scoring.dimension_meta[key].
+            'dimension_meta' => $this->dimensionMeta($dims),
+            'raw_scores'     => $rawScores,
             'norm_scores'  => $normScores,
             'global_score' => $globalScore,
             'meta'         => [
