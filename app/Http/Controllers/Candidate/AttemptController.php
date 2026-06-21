@@ -91,11 +91,18 @@ class AttemptController extends Controller
             $page = 'Candidate/AttemptPlay';
         }
 
+        $percent = $attempt->progressPercent();
+        // Aperçu provisoire calculé sur les réponses déjà données. Quand il est
+        // débloqué, il REMPLACE le teaser aléatoire (sinon on promettrait un
+        // aperçu déjà disponible).
+        $insight = $this->narrative->insight($attempt, $percent);
+
         return Inertia::render($page, [
             'attempt'    => $attempt,
             'progress'   => [
-                'percent' => $attempt->progressPercent(),
-                'narrative' => $this->narrative->microFeedback($attempt, $attempt->progressPercent()),
+                'percent'   => $percent,
+                'insight'   => $insight,
+                'narrative' => $insight ? null : $this->narrative->microFeedback($attempt, $percent),
             ],
             'gamification' => $this->gamification->progressOf($attempt->user, $attempt->test),
             'narrative'    => [

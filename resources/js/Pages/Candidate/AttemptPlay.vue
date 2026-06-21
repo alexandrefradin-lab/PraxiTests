@@ -278,8 +278,25 @@ const isMultiSelected = (optValue) => Array.isArray(value.value) && value.value.
                         </button>
                     </div>
 
-                    <!-- BANDEAU NARRATIVE -->
-                    <div v-if="progress?.narrative" class="ac-narrative">
+                    <!-- CARTE APERÇU DÉBLOQUÉ (mini-insight provisoire) -->
+                    <div v-if="progress?.insight" class="ac-insight">
+                        <div class="ac-insight-head">
+                            <svg class="ac-insight-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                <path d="M9 21h6m-5 0v-3m4 3v-3M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.2 1 2v.3h6v-.3c0-.8.4-1.5 1-2A7 7 0 0 0 12 2z"
+                                    stroke="var(--color-primary)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span class="ac-insight-kicker">Aperçu débloqué</span>
+                            <span v-if="progress.insight.score != null" class="ac-insight-score">
+                                {{ Math.round(progress.insight.score) }}<span class="ac-insight-score-max">/100</span>
+                            </span>
+                        </div>
+                        <p class="ac-insight-headline">{{ progress.insight.headline }}</p>
+                        <p class="ac-insight-body">{{ progress.insight.body }}</p>
+                        <span class="ac-insight-tag">Provisoire — s'affine à chaque réponse</span>
+                    </div>
+
+                    <!-- BANDEAU NARRATIVE (tant que l'aperçu n'est pas débloqué) -->
+                    <div v-else-if="progress?.narrative" class="ac-narrative">
                         <svg class="ac-narrative-icon" width="14" height="14" viewBox="0 0 24 24" fill="none">
                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-4H7l5-8v4h4l-5 8z" fill="var(--color-primary)"/>
                         </svg>
@@ -689,6 +706,83 @@ const isMultiSelected = (optValue) => Array.isArray(value.value) && value.value.
     color: var(--text-secondary);
     font-style: italic;
     line-height: 1.5;
+}
+
+/* ── CARTE APERÇU (mini-insight) ─────────────── */
+.ac-insight {
+    margin-top: 1.75rem;
+    padding: 1rem 1.15rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--glass-border-solid);
+    border-radius: 12px;
+    box-shadow: var(--shadow-card);
+    animation: ac-insight-reveal 0.45s ease both;
+}
+
+@keyframes ac-insight-reveal {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.ac-insight-head {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.ac-insight-icon {
+    flex-shrink: 0;
+}
+
+.ac-insight-kicker {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-primary);
+}
+
+.ac-insight-score {
+    margin-left: auto;
+    font-family: 'Space Mono', monospace;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--color-primary-dark);
+}
+
+.ac-insight-score-max {
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--text-secondary);
+}
+
+.ac-insight-headline {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0.55rem 0 0;
+    line-height: 1.3;
+}
+
+.ac-insight-body {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    margin: 0.35rem 0 0;
+}
+
+.ac-insight-tag {
+    display: inline-block;
+    margin-top: 0.6rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-secondary);
+    background: var(--bg-surface);
+    border: 1px solid var(--glass-border);
+    padding: 3px 8px;
+    border-radius: 20px;
 }
 
 /* ── ÉTAT VIDE ───────────────────────────────── */

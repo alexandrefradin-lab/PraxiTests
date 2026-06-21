@@ -39,24 +39,6 @@ const gaugeColor = computed(() => {
     return 'var(--pt-danger, #DC2626)'
 })
 
-// Arc SVG pour la jauge circulaire (rayon 54, centre 60,60)
-const arcPath = computed(() => {
-    const pct    = Math.min(100, Math.max(0, globalScore.value))
-    const angle  = (pct / 100) * 270 - 135           // -135° à +135°
-    const rad    = (angle * Math.PI) / 180
-    const cx     = 60
-    const cy     = 60
-    const r      = 50
-    const x      = cx + r * Math.cos(rad)
-    const y      = cy + r * Math.sin(rad)
-    const large  = pct > 50 ? 1 : 0
-    // Arc de -135° à angle courant
-    const startRad = (-135 * Math.PI) / 180
-    const sx     = cx + r * Math.cos(startRad)
-    const sy     = cy + r * Math.sin(startRad)
-    return `M ${sx} ${sy} A ${r} ${r} 0 ${large} 1 ${x} ${y}`
-})
-
 const categoryLabel = (cat) => {
     const map = {
         respiration:  'Respiration',
@@ -172,36 +154,39 @@ const phaseLabel = (key) => PHASES[key]?.label ?? key
 
                 <!-- Jauge SVG -->
                 <div class="relative flex-shrink-0">
-                    <svg viewBox="0 0 120 120" width="160" height="160" aria-label="Score global">
-                        <!-- Fond arc gris -->
+                    <svg viewBox="0 0 120 120" width="172" height="172" aria-label="Score global">
+                        <!-- Track de fond — arc 270° (centre 60,60 · r 50) -->
                         <path
-                            d="M 14.6 95.4 A 50 50 0 1 1 105.4 95.4"
+                            d="M 24.645 95.355 A 50 50 0 1 1 95.355 95.355"
                             fill="none"
-                            stroke="#E5E7EB"
-                            stroke-width="10"
+                            stroke="#EAE6DD"
+                            stroke-width="11"
                             stroke-linecap="round"
                         />
-                        <!-- Arc coloré selon score -->
+                        <!-- Arc coloré — même géométrie, rempli via dasharray -->
                         <path
-                            :d="arcPath"
+                            d="M 24.645 95.355 A 50 50 0 1 1 95.355 95.355"
                             fill="none"
                             :stroke="gaugeColor"
-                            stroke-width="10"
+                            stroke-width="11"
                             stroke-linecap="round"
-                            style="transition: stroke-dashoffset 1s ease"
+                            pathLength="100"
+                            :stroke-dasharray="`${globalScore} 100`"
+                            style="transition: stroke-dasharray 1s ease"
                         />
-                        <!-- Score texte -->
+                        <!-- Score -->
                         <text
-                            x="60" y="58"
+                            x="60" y="63"
                             text-anchor="middle"
-                            font-size="22"
+                            font-size="30"
                             font-weight="700"
                             :fill="gaugeColor"
                         >{{ globalScore }}</text>
                         <text
-                            x="60" y="74"
+                            x="60" y="81"
                             text-anchor="middle"
-                            font-size="9"
+                            font-size="11"
+                            letter-spacing="0.5"
                             fill="#9CA3AF"
                         >/ 100</text>
                     </svg>
