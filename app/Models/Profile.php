@@ -46,7 +46,8 @@ class Profile extends Model
 
     /**
      * Un profil est complet si le candidat a renseigné son statut, son
-     * ancienneté, déposé son CV et accepté le traitement des données.
+     * ancienneté, fourni son Codex de compétences (CV déposé OU saisie
+     * manuelle des 3 infos) et accepté le traitement des données.
      * (Onboarding obligatoire avant de passer un test.)
      */
     public function isComplete(): bool
@@ -54,7 +55,7 @@ class Profile extends Model
         return (bool) (
             $this->status
             && $this->status_since
-            && $this->cv_path
+            && ($this->cv_path || $this->cv_structured)
             && $this->consent_data
         );
     }

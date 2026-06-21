@@ -91,6 +91,70 @@
         if ($s >= 40) return $goldDark;
         return $secondary;
     };
+
+    /* ---- Mini-convertisseur Markdown → HTML pour la synthèse IA ----------
+       L'IA renvoie du markdown (# titres, **gras**, ---, listes). dompdf ne
+       sait pas l'interpréter : on le transforme en blocs HTML qui se
+       paginent proprement. Pas de dépendance externe (commonmark absent). */
+    $mdToHtml = function (?string $md): string {
+        if ($md === null || trim($md) === '') return '';
+        $md = str_replace(["\r\n", "\r"], "\n", trim($md));
+
+        // Mise en forme inline, appliquée APRÈS échappement (anti-injection).
+        $inline = function (string $text): string {
+            $t = e($text);
+            $t = preg_replace('/\*\*(.+?)\*\*/s', '<strong>$1</strong>', $t);
+            $t = preg_replace('/(?<!\*)\*(?!\s)(.+?)(?<!\s)\*(?!\*)/s', '<em>$1</em>', $t);
+            $t = preg_replace('/(?<![\w*])_(?!\s)(.+?)(?<!\s)_(?![\w*])/s', '<em>$1</em>', $t);
+            return $t;
+        };
+
+        $lines = explode("\n", $md);
+        $html  = '';
+        $para  = [];
+        $list  = [];
+        $flushPara = function () use (&$para, &$html, $inline) {
+            if ($para) { $html .= '<p class="synth-p">' . $inline(implode(' ', $para)) . '</p>'; $para = []; }
+        };
+        $flushList = function () use (&$list, &$html, $inline) {
+            if ($list) {
+                $html .= '<ul class="synth-ul">';
+                foreach ($list as $it) $html .= '<li>' . $inline($it) . '</li>';
+                $html .= '</ul>';
+                $list = [];
+            }
+        };
+
+        foreach ($lines as $raw) {
+            $line = trim($raw);
+            if ($line === '') { $flushPara(); $flushList(); continue; }
+            if (preg_match('/^(-{3,}|_{3,}|\*{3,})$/', $line)) {        // filet ---
+                $flushPara(); $flushList();
+                $html .= '<div class="synth-hr"></div>';
+                continue;
+            }
+            if (preg_match('/^(#{1,6})\s+(.*)$/', $line, $m)) {          // titres #
+                $flushPara(); $flushList();
+                $lvl = min(strlen($m[1]), 3);
+                $html .= '<div class="synth-h synth-h' . $lvl . '">' . $inline($m[2]) . '</div>';
+                continue;
+            }
+            if (preg_match('/^\*\*(.+?)\*\*\s*:?\s*$/', $line, $m)) {     // ligne **gras** seule → sous-titre
+                $flushPara(); $flushList();
+                $html .= '<div class="synth-h synth-h3">' . $inline($m[1]) . '</div>';
+                continue;
+            }
+            if (preg_match('/^[-*•]\s+(.*)$/', $line, $m)) {             // puces
+                $flushPara();
+                $list[] = $m[1];
+                continue;
+            }
+            $flushList();
+            $para[] = $line;
+        }
+        $flushPara(); $flushList();
+        return $html;
+    };
 @endphp
 <!DOCTYPE html>
 <html lang="fr">
@@ -149,6 +213,20 @@
     /* ── Cartes / blocs ───────────────────────────────────────────────── */
     .card { background: {{ $velin }}; border: 0.75px solid {{ $hair }}; border-radius: 10px; }
     .lead-gold { border-left: 4px solid {{ $primary }}; }
+
+    /* ── Synthèse IA (markdown rendu, paginé sur plusieurs pages) ─────────── */
+    .synth { border-left: 3px solid {{ $primary }}; padding: 2px 0 2px 20px; }
+    .synth-p { font-size: 11.5px; line-height: 1.78; color: {{ $ink }};
+        margin: 0 0 10px; text-align: justify; }
+    .synth-h { font-family: "DejaVu Serif", serif; color: {{ $accent }};
+        margin: 15px 0 6px; line-height: 1.35; }
+    .synth-h1 { font-size: 14px; font-weight: bold; }
+    .synth-h2 { font-size: 12.5px; font-weight: bold; }
+    .synth-h3 { font-size: 11.5px; font-weight: bold; }
+    .synth-hr { border-top: 0.75px solid {{ $hair }}; margin: 12px 0; height: 0; }
+    .synth-ul { margin: 4px 0 11px; padding-left: 17px; }
+    .synth-ul li { font-size: 11.5px; line-height: 1.7; color: {{ $ink }}; margin-bottom: 4px; }
+    .synth strong { color: {{ $accent }}; }
 
     /* Profil — table d'identité */
     table.kv { width: 100%; border-collapse: collapse; }
@@ -374,11 +452,7 @@
     <h2 class="section serif">Synthèse</h2>
     <div class="section-rule"></div>
     <div class="section-hair"></div>
-    <table class="card lead-gold" style="width:100%; border-collapse:separate;">
-        <tr><td style="padding:18px 22px;">
-            <div style="white-space:pre-line; font-size:11.5px; line-height:1.78; color:{{ $ink }};">{{ $synthesis }}</div>
-        </td></tr>
-    </table>
+    <div class="synth">{!! $mdToHtml($synthesis) !!}</div>
 </div>
 @endif
 

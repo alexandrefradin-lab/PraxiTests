@@ -77,6 +77,18 @@ const onFileChange = (e) => {
             <!-- ── Formulaire ── -->
             <form @submit.prevent="submit" class="pt-card p-8 space-y-8">
 
+                <!-- Bandeau d'erreur global : évite tout échec silencieux -->
+                <div
+                    v-if="Object.keys(form.errors).length"
+                    class="rounded-lg border px-4 py-3 text-sm"
+                    style="border-color:var(--color-secondary); background:rgba(166,32,32,0.06); color:var(--color-secondary); font-family:'Inter',sans-serif;"
+                >
+                    <p class="font-semibold mb-1">Impossible de forger ton Identité :</p>
+                    <ul class="list-disc list-inside space-y-0.5">
+                        <li v-for="(message, field) in form.errors" :key="field">{{ message }}</li>
+                    </ul>
+                </div>
+
                 <!-- Section 1 : Statut -->
                 <div class="space-y-5">
                     <div class="flex items-center gap-3">
