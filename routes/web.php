@@ -45,6 +45,12 @@ Route::middleware(['auth'])->group(function () {
     // Historique des tentatives du candidat
     Route::get('/history', [ResultController::class, 'history'])->name('history');
 
+    // Feedback 360° — le candidat invite ses évaluateurs et suit la collecte
+    Route::get('/results/{attempt}/360',              [\App\Http\Controllers\Candidate\Panel360Controller::class, 'manage'])->name('panel360.manage');
+    Route::post('/panel/{panel}/invite',              [\App\Http\Controllers\Candidate\Panel360Controller::class, 'invite'])->name('panel360.invite');
+    Route::post('/panel/{panel}/send',                [\App\Http\Controllers\Candidate\Panel360Controller::class, 'send'])->name('panel360.send');
+    Route::delete('/panel/invitation/{invitation}',   [\App\Http\Controllers\Candidate\Panel360Controller::class, 'removeInvitation'])->name('panel360.invitation.destroy');
+
     // La Salle du Trésor — apps offertes en récompense (déblocage par paliers d'Éclats)
     Route::get('/salle-du-tresor', [TreasureController::class, 'index'])->name('treasure.index');
 
@@ -83,6 +89,12 @@ Route::middleware(['auth'])->prefix('billing')->name('billing.')->group(function
 
 // Lien d'invitation public
 Route::get('/i/{token}', [\App\Http\Controllers\InvitationController::class, 'land'])->name('invitation.land');
+
+// Feedback 360° — réponse anonyme d'un évaluateur (sans compte, via lien tokenisé)
+Route::get('/360/{token}',          [\App\Http\Controllers\Evaluation360Controller::class, 'land'])->name('eval360.land');
+Route::post('/360/{token}/answer',  [\App\Http\Controllers\Evaluation360Controller::class, 'answer'])->name('eval360.answer');
+Route::post('/360/{token}/complete',[\App\Http\Controllers\Evaluation360Controller::class, 'complete'])->name('eval360.complete');
+Route::get('/360/{token}/merci',    [\App\Http\Controllers\Evaluation360Controller::class, 'thanks'])->name('eval360.thanks');
 
 require __DIR__ . '/auth.php';
 require __DIR__ . '/admin.php';

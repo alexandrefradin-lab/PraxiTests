@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Praxis\Core\Gamification\GamificationEngine;
 use Praxis\Core\Gamification\NarrativeEngine;
+use Praxis\Core\Gamification\RewardCatalog;
 use Praxis\Core\TestEngine\TestEngine;
 
 class AttemptController extends Controller
@@ -19,12 +20,26 @@ class AttemptController extends Controller
         protected TestEngine $engine,
         protected GamificationEngine $gamification,
         protected NarrativeEngine $narrative,
+        protected RewardCatalog $rewards,
     ) {}
 
     public function start(Request $request, Test $test)
     {
         abort_unless($test->published, 404);
         abort_unless(auth()->user()->profile?->isComplete(), 403, 'Profil incomplet');
+
+        // Gating « cadeau » : impossible de lancer un test scellé par un palier d'Éclats.
+        if (! $this->rewards->isTestUnlocked($test->slug, $request->user())) {
+            $reward = $this->rewards->rewardForTestSlug($test->slug);
+            $seuil  = $reward['threshold'] ?? null;
+
+            return redirect()->route('treasure.index')->with(
+                'error',
+                $seuil
+                    ? "Ce trésor est encore scellé. Il se révèle à {$seuil} Éclats."
+                    : "Ce trésor est encore scellé."
+            );
+        }
 
         // Reprendre une tentative en cours plutôt qu'en créer une nouvelle.
         $existing = TestAttempt::where('user_id', $request->user()->id)
@@ -68,7 +83,15 @@ class AttemptController extends Controller
         ]);
         abort_unless($attempt->user !== null, 404, 'User not found');
 
-        return Inertia::render('Candidate/AttemptPlay', [
+        // Laisser un plugin overrider la page de passation via un filtre
+        // (calqué sur 'results.inertia_page'). Ex : PraxiTempo → 'PraxiTempoPlay'.
+        $allowedPlay = ['Candidate/AttemptPlay', 'PraxiTempoPlay'];
+        $page = \Praxis\Core\Plugins\PluginHooks::applyFilters('attempt.inertia_page', 'Candidate/AttemptPlay', $attempt);
+        if (! in_array($page, $allowedPlay, true)) {
+            $page = 'Candidate/AttemptPlay';
+        }
+
+        return Inertia::render($page, [
             'attempt'    => $attempt,
             'progress'   => [
                 'percent' => $attempt->progressPercent(),

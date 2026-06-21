@@ -1,0 +1,23 @@
+{
+    "slug": "praxitempo",
+    "name": "Maître du Temps — Gestion du temps (PraxiTempo)",
+    "version": "1.0.0",
+    "author": "Praxis Accompagnement",
+    "type": "assessment",
+    "description": "Test conversationnel de gestion du temps : priorisation, planification, focus & interruptions, équilibre & énergie. 16 affirmations, échelle de 1 à 5, restitution par archétype (Pompier, Stratège, Architecte, Sprinteur, Équilibriste).",
+    "namespace": "Praxis\\Plugins\\PraxiTempo",
+    "service_provider": "Praxis\\Plugins\\PraxiTempo\\PluginServiceProvider",
+    "permissions": ["read:profiles", "write:results"],
+    "requires": {
+        "praxiquest": ">=1.0.0",
+        "php": ">=8.2"
+    },
+    "test": {
+        "slug": "praxitempo",
+        "name": "Maître du Temps — Gestion du temps",
+        "description": "Ce que ce test mesure : ta façon de gérer ton temps au quotidien. 4 dimensions évaluées : priorisation, planification, focus & interruptions, équilibre & énergie. 16 affirmations, échelle de 1 à 5. Format conversationnel, ~4 minutes.",
+        "type": "questionnaire",
+        "scoring_engine": "praxitempo-scoring",
+        "estimated_minutes": 4
+    }
+}
