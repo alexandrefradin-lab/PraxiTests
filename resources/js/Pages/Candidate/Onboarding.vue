@@ -15,6 +15,7 @@ const form = useForm({
     status_since: '',
     current_role: '',
     industry: '',
+    problematique: '',
     cv: null,
     consent_data: false,
     consent_marketing: false,
@@ -136,13 +137,42 @@ const onFileChange = (e) => {
                     </div>
                 </div>
 
-                <!-- Section 2 : CV / Codex de Compétences -->
+                <!-- Section 2 : Problématique / Quête -->
                 <div class="space-y-4">
                     <div class="flex items-center gap-3">
                         <span
                             class="text-xs font-bold uppercase tracking-widest whitespace-nowrap"
                             style="font-family:'Space Mono',monospace; color:var(--color-primary);"
-                        >II — Codex de Compétences</span>
+                        >II — Ta Quête</span>
+                        <div class="h-px flex-1" style="background:var(--glass-border);"></div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium mb-1.5" style="color:var(--text-primary); font-family:'Inter',sans-serif;">
+                            Quelle est ta problématique aujourd'hui ? <span style="color:var(--color-secondary);">*</span>
+                        </label>
+                        <p class="text-xs mb-2" style="color:var(--text-secondary); font-family:'Inter',sans-serif;">
+                            En quelques lignes : ce qui t'amène, la question ou le blocage que tu veux éclaircir. Cela oriente ta synthèse et tes pistes de métiers.
+                        </p>
+                        <textarea
+                            v-model="form.problematique"
+                            class="pt-input"
+                            rows="4"
+                            maxlength="1000"
+                            required
+                            placeholder="Ex : Je me sens à l'étroit dans mon poste actuel et j'hésite entre évoluer en interne ou me reconvertir, sans savoir vers quoi."
+                        ></textarea>
+                        <p v-if="form.errors.problematique" class="text-xs mt-1" style="color:var(--color-secondary);">{{ form.errors.problematique }}</p>
+                    </div>
+                </div>
+
+                <!-- Section 3 : CV / Codex de Compétences -->
+                <div class="space-y-4">
+                    <div class="flex items-center gap-3">
+                        <span
+                            class="text-xs font-bold uppercase tracking-widest whitespace-nowrap"
+                            style="font-family:'Space Mono',monospace; color:var(--color-primary);"
+                        >III — Codex de Compétences</span>
                         <div class="h-px flex-1" style="background:var(--glass-border);"></div>
                     </div>
 
@@ -233,13 +263,13 @@ const onFileChange = (e) => {
                     </template>
                 </div>
 
-                <!-- Section 3 : Consentements / Serments -->
+                <!-- Section 4 : Consentements / Serments -->
                 <div class="space-y-4">
                     <div class="flex items-center gap-3">
                         <span
                             class="text-xs font-bold uppercase tracking-widest whitespace-nowrap"
                             style="font-family:'Space Mono',monospace; color:var(--color-primary);"
-                        >III — Serments</span>
+                        >IV — Serments</span>
                         <div class="h-px flex-1" style="background:var(--glass-border);"></div>
                     </div>
 

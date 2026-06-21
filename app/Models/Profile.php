@@ -18,6 +18,7 @@ class Profile extends Model
         'status_months',
         'current_role',
         'industry',
+        'problematique',
         'cv_path',
         'cv_original_name',
         'cv_extracted_text',

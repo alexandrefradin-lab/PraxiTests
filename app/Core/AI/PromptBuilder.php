@@ -44,6 +44,7 @@ TXT;
                 'depuis'     => $profile?->status_since?->format('Y-m'),
                 'rôle'       => $profile?->current_role,
                 'industrie'  => $profile?->industry,
+                'problématique' => $profile?->problematique,
                 'cv_extrait' => $profile?->cv_structured,
             ],
             'tests'  => $tests,
@@ -90,6 +91,7 @@ TXT;
                 'depuis'     => $profile?->status_since?->format('Y-m'),
                 'rôle'       => $profile?->current_role,
                 'industrie'  => $profile?->industry,
+                'problématique' => $profile?->problematique,
                 'cv_extrait' => $profile?->cv_structured,
             ],
             'test' => [
@@ -162,6 +164,7 @@ TXT;
             'profil'    => [
                 'statut'   => $profile?->status,
                 'rôle'     => $profile?->current_role,
+                'problématique' => $profile?->problematique,
                 'cv'       => $profile?->cv_structured,
             ],
             'scoring'   => $scoring,

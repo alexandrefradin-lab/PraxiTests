@@ -38,6 +38,7 @@ class OnboardingController extends Controller
             'status_months' => (int) abs(now()->diffInMonths($data['status_since'])),
             'current_role'  => $data['current_role'] ?? null,
             'industry'      => $data['industry'] ?? null,
+            'problematique' => $data['problematique'] ?? null,
             'consent_data'  => true,
             'consent_marketing' => $data['consent_marketing'] ?? false,
             'completed_at'  => now(),
@@ -96,6 +97,7 @@ class OnboardingController extends Controller
             'status_since' => ['required', 'date', 'before_or_equal:today'],
             'current_role' => ['nullable', 'string', 'max:120'],
             'industry'     => ['nullable', 'string', 'max:120'],
+            'problematique' => ['nullable', 'string', 'max:1000'],
             'consent_marketing' => ['nullable', 'boolean'],
         ]);
 
@@ -106,6 +108,7 @@ class OnboardingController extends Controller
             'status_months' => (int) abs(now()->diffInMonths($data['status_since'])),
             'current_role'  => $data['current_role'] ?? null,
             'industry'      => $data['industry'] ?? null,
+            'problematique' => $data['problematique'] ?? null,
             'consent_marketing' => $data['consent_marketing'] ?? $profile->consent_marketing,
         ];
 
@@ -151,6 +154,7 @@ class OnboardingController extends Controller
             'status_since'  => ['required', 'date', 'before_or_equal:today'],
             'current_role'  => ['nullable', 'string', 'max:120'],
             'industry'      => ['nullable', 'string', 'max:120'],
+            'problematique' => ['required', 'string', 'max:1000'],
             'consent_data'  => ['accepted'],
             'consent_marketing' => ['nullable', 'boolean'],
             'cv_mode'       => ['nullable', 'in:file,manual'],
