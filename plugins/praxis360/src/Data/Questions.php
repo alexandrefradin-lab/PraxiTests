@@ -108,6 +108,102 @@ class Questions
     }
 
     /**
+     * Mêmes 36 items, reformulés à la 3e personne pour les ÉVALUATEURS (360°).
+     * L'ordre est strictement identique à all() : le i-ème prompt évaluateur
+     * correspond au i-ème item d'auto-évaluation (mapping par position sur les
+     * question_id seedés). Introduction suggérée : « À quelle fréquence cette
+     * personne… ».
+     */
+    public static function forRater(): array
+    {
+        $items = [
+            'communication' => [
+                "Exprime ses idées de façon claire et structurée",
+                "Écoute réellement avant de répondre",
+                "Transmet l'information utile au bon moment",
+                "Donne un feedback constructif et respectueux",
+                "Adapte son discours à son interlocuteur",
+                "S'assure d'avoir été bien compris(e)",
+            ],
+            'collaboration' => [
+                "Coopère volontiers avec les autres",
+                "Partage ses connaissances et ses ressources",
+                "Propose son aide quand un collègue en a besoin",
+                "Gère les désaccords de manière constructive",
+                "Valorise les contributions des autres",
+                "Privilégie la réussite collective à la réussite individuelle",
+            ],
+            'adaptabilite' => [
+                "S'ajuste sereinement aux imprévus",
+                "Reste efficace en situation de changement",
+                "Accueille les idées nouvelles",
+                "Tire des apprentissages de ses erreurs",
+                "Propose des solutions concrètes face aux obstacles",
+                "Sort de sa zone de confort quand la situation l'exige",
+            ],
+            'relation' => [
+                "Prend en compte le point de vue des autres",
+                "Traite chacun avec respect",
+                "Reste posé(e) dans les situations tendues",
+                "Perçoit l'état émotionnel de son entourage",
+                "Crée un climat de confiance autour d'elle / de lui",
+                "Sait désamorcer les tensions entre personnes",
+            ],
+            'fiabilite' => [
+                "Tient ses engagements dans les délais",
+                "Assume ses responsabilités, y compris en cas d'erreur",
+                "Travaille avec rigueur et fiabilité",
+                "Fait preuve de transparence",
+                "Respecte ses engagements même sous pression",
+                "Prévient en amont en cas de difficulté ou de retard",
+            ],
+            'leadership' => [
+                "Prend des initiatives sans attendre qu'on le lui demande",
+                "Mobilise les autres autour d'un objectif",
+                "Prend des décisions et les assume",
+                "Inspire confiance par l'exemple",
+                "Reconnaît et encourage les efforts des autres",
+                "Défend ses idées avec conviction tout en restant ouvert(e)",
+            ],
+        ];
+
+        $dims = self::dimensions();
+        $out  = [];
+        foreach ($items as $dimKey => $prompts) {
+            foreach ($prompts as $prompt) {
+                $out[] = [
+                    'section' => $dims[$dimKey]['label'],
+                    'prompt'  => $prompt,
+                    'type'    => 'scale',
+                    'options' => self::SCALE,
+                    'scoring' => ['dimension' => $dimKey, 'weight' => 1],
+                ];
+            }
+        }
+        return $out;
+    }
+
+    /** Échelle de fréquence exposée aux pages. */
+    public static function scale(): array
+    {
+        return self::SCALE;
+    }
+
+    /**
+     * Questions ouvertes (verbatims) posées aux évaluateurs. Clés stables
+     * réutilisées pour le stockage (evaluation_invitations.verbatims) et la
+     * synthèse IA.
+     */
+    public static function verbatims(): array
+    {
+        return [
+            'strength' => "Selon vous, quel est le principal point fort de cette personne dans sa manière de fonctionner ?",
+            'growth'   => "Quel serait, selon vous, son principal axe de progrès ?",
+            'advice'   => "Un conseil ou un encouragement que vous aimeriez lui transmettre ?",
+        ];
+    }
+
+    /**
      * Métadonnées des 6 dimensions soft skills (libellés repris du WP).
      */
     public static function dimensions(): array

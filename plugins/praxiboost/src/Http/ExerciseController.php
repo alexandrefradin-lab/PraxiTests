@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Praxis\Core\Gamification\GamificationEngine;
+use Praxis\Core\Gamification\RewardCatalog;
 use Praxis\Plugins\PraxiBoost\Models\DevExercise;
 use Praxis\Plugins\PraxiBoost\Models\DevExerciseProgress;
 use Praxis\Plugins\PraxiBoost\Services\ExerciseUnlocker;
@@ -15,11 +16,26 @@ class ExerciseController extends Controller
     public function __construct(
         protected GamificationEngine $gamification,
         protected ExerciseUnlocker $unlocker,
+        protected RewardCatalog $rewards,
     ) {}
 
     public function index(Request $request)
     {
         $user  = $request->user();
+
+        // Gating « cadeau » : la mini-app elle-même est un trésor (palier d'Éclats).
+        if (! $this->rewards->isRouteUnlocked('praxiboost.index', $user)) {
+            $reward = $this->rewards->rewardForRoute('praxiboost.index');
+            $seuil  = $reward['threshold'] ?? null;
+
+            return redirect()->route('treasure.index')->with(
+                'error',
+                $seuil
+                    ? "Ce trésor est encore scellé. Il se révèle à {$seuil} Éclats."
+                    : "Ce trésor est encore scellé."
+            );
+        }
+
         $total = $this->gamification->totalEclats($user);
 
         // S'assure que les paliers déjà atteints sont enregistrés.

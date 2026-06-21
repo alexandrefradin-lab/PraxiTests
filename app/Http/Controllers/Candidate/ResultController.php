@@ -87,10 +87,24 @@ class ResultController extends Controller
             };
         }
 
+        // Feedback 360° — injecter l'agrégat des regards si un panel existe.
+        $panel360 = null;
+        if (($attempt->test->slug ?? null) === 'praxis360') {
+            $panel = \App\Models\EvaluationPanel::where('user_id', auth()->id())
+                ->where('self_attempt_id', $attempt->id)
+                ->first();
+            $panel360 = [
+                'manage_url' => route('panel360.manage', $attempt->id),
+                'started'    => (bool) $panel,
+                'aggregate'  => $panel ? (new \Praxis\Plugins\Praxis360\Support\PanelAggregator($panel))->build() : null,
+            ];
+        }
+
         return Inertia::render($page, array_merge([
             'attempt'    => $attempt,
             'result'     => $attempt->result,
             'ai_pending' => !$attempt->result?->ai_synthesis,
+            'panel360'   => $panel360,
         ], $journeyProps));
     }
 

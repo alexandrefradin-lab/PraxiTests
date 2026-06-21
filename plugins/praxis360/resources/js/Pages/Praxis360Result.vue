@@ -16,7 +16,12 @@ import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 const props = defineProps({
     attempt: Object,
     result:  Object,
+    panel360: Object,   // { manage_url, started, aggregate } — feedback 360° multi-évaluateurs
 })
+
+const agg        = computed(() => props.panel360?.aggregate ?? null)
+const has360     = computed(() => !!agg.value?.available)
+const gapColor   = (g) => g <= -10 ? '#7B1515' : (g >= 10 ? '#3A6B48' : 'var(--pt-text-light)')
 
 const scoring      = computed(() => props.result?.scoring ?? {})
 const dims         = computed(() => scoring.value.dimensions   ?? {})
@@ -188,6 +193,88 @@ const barWidth = (dimKey) => {
                             style="font-size:12px;color:var(--pt-gold);margin-top:6px;font-weight:500">
                             → {{ job.prochaine_étape || job.next_step }}
                         </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ════════ FEEDBACK 360° — regards croisés ════════ -->
+            <div v-if="panel360" class="pt-card" style="padding:1.5rem;margin-bottom:1rem;border:1px solid var(--pt-gold-border)">
+                <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px">
+                    <h2 style="font-size:16px;font-weight:500">Le regard des autres — 360°</h2>
+                    <a :href="panel360.manage_url" class="pt-btn-ghost text-sm">
+                        {{ panel360.started ? 'Gérer mes évaluateurs' : 'Lancer mon 360°' }} →
+                    </a>
+                </div>
+
+                <!-- Pas encore lancé -->
+                <p v-if="!panel360.started" style="font-size:14px;color:var(--pt-text-muted);line-height:1.6">
+                    Jusqu'ici, vous vous êtes auto-évalué. Le vrai pouvoir d'un 360°, c'est de confronter
+                    cette perception au regard de votre <strong>manager</strong>, de vos <strong>pairs</strong> et de vos
+                    <strong>collaborateurs</strong>. Invitez-les : leurs réponses sont anonymes.
+                </p>
+
+                <!-- Lancé mais seuil non atteint -->
+                <p v-else-if="!has360" style="font-size:14px;color:var(--pt-text-muted);line-height:1.6">
+                    {{ agg?.message || 'En attente de réponses des évaluateurs.' }}
+                    <br><span style="font-size:12.5px;color:var(--pt-text-light)">
+                        Réponses reçues : {{ agg?.counts?.total ?? 0 }} / {{ agg?.counts?.invited ?? 0 }} invité(s).
+                    </span>
+                </p>
+
+                <!-- Résultats 360 disponibles -->
+                <div v-else>
+                    <p style="font-size:12.5px;color:var(--pt-text-light);margin-bottom:1rem">
+                        Basé sur {{ agg.counts.total }} évaluateur(s). Comparaison de votre auto-perception (◆) à la moyenne des autres (▮).
+                    </p>
+
+                    <!-- Self vs autres par dimension -->
+                    <div style="display:flex;flex-direction:column;gap:.9rem;margin-bottom:1.25rem">
+                        <div v-for="(label, dimKey) in agg.meta" :key="dimKey">
+                            <div style="display:flex;align-items:center;gap:12px">
+                                <span style="font-size:13px;font-weight:500;min-width:180px">{{ label.label || dimKey }}</span>
+                                <div class="pt-progress-track" style="flex:1;position:relative">
+                                    <div class="pt-progress-fill" :style="{ width: (agg.others[dimKey] ?? 0) + '%' }"></div>
+                                    <!-- marqueur auto-évaluation -->
+                                    <div v-if="agg.self[dimKey] != null"
+                                         :style="{ position:'absolute', top:'-3px', left: 'calc(' + agg.self[dimKey] + '% - 6px)', color:'var(--pt-navy)', fontSize:'12px' }">◆</div>
+                                </div>
+                                <span style="font-size:12px;min-width:120px;text-align:right"
+                                      :style="{ color: gapColor((agg.others[dimKey] ?? 0) - (agg.self[dimKey] ?? 0)) }">
+                                    autres {{ agg.others[dimKey] ?? '—' }} · soi {{ agg.self[dimKey] ?? '—' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Angles morts -->
+                    <div v-if="agg.blind_spots?.length" style="margin-bottom:1rem">
+                        <h3 style="font-size:13px;font-weight:600;margin-bottom:.5rem">Angles morts &amp; forces cachées</h3>
+                        <div v-for="bs in agg.blind_spots" :key="bs.dimension"
+                             style="font-size:13px;line-height:1.5;padding:8px 12px;border-radius:8px;background:var(--pt-cream);margin-bottom:6px">
+                            <strong>{{ bs.label }}</strong> —
+                            <span v-if="bs.type === 'angle_mort'">vous vous percevez plus haut ({{ bs.self }}) que les autres ne vous voient ({{ bs.others }}).</span>
+                            <span v-else>les autres vous voient plus haut ({{ bs.others }}) que vous ne vous percevez ({{ bs.self }}) : une force cachée.</span>
+                        </div>
+                    </div>
+
+                    <!-- Groupes (≥ seuil) -->
+                    <div v-if="agg.groups?.length" style="font-size:12px;color:var(--pt-text-light)">
+                        Détail par groupe : <span v-for="(g, i) in agg.groups" :key="g.relation">{{ g.label }} ({{ g.count }}){{ i < agg.groups.length - 1 ? ' · ' : '' }}</span>
+                    </div>
+
+                    <!-- Verbatims -->
+                    <div v-if="agg.verbatims" style="margin-top:1rem">
+                        <template v-for="(list, key) in agg.verbatims" :key="key">
+                            <div v-if="list.length" style="margin-bottom:.75rem">
+                                <h4 style="font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--pt-text-light);margin-bottom:4px">
+                                    {{ key === 'strength' ? 'Points forts' : key === 'growth' ? 'Axes de progrès' : 'Conseils' }}
+                                </h4>
+                                <p v-for="(v, i) in list" :key="i"
+                                   style="font-size:13px;color:var(--pt-text-muted);line-height:1.5;border-left:2px solid var(--pt-gold-border);padding-left:10px;margin:4px 0">
+                                    « {{ v }} »
+                                </p>
+                            </div>
+                        </template>
                     </div>
                 </div>
             </div>

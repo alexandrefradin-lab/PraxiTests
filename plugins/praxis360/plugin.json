@@ -1,10 +1,10 @@
 {
   "slug": "praxis360",
-  "name": "La Constellation des Talents — Soft skills (auto-bilan)",
-  "version": "1.0.2",
+  "name": "La Constellation des Talents — Feedback 360°",
+  "version": "1.1.0",
   "author": "Praxis Accompagnement",
   "type": "assessment",
-  "description": "Auto-bilan de tes compétences comportementales (soft skills) sur 6 dimensions clés (36 items, échelle de fréquence 1-5). Il s'agit d'une auto-évaluation à un seul répondant — non d'un 360° multi-évaluateurs — qui met en lumière ta perception de tes points forts et de tes axes de progrès.",
+  "description": "Feedback 360° sur tes compétences comportementales (soft skills), 6 dimensions (36 items, échelle de fréquence 1-5). Tu t'auto-évalues, puis tu invites tes évaluateurs (manager, pairs, collaborateurs) à se positionner anonymement sur ton fonctionnement. Le bilan compare ta perception au regard des autres et révèle tes angles morts et tes forces cachées.",
   "service_provider": "Praxis\\Plugins\\Praxis360\\PluginServiceProvider",
   "namespace": "Praxis\\Plugins\\Praxis360",
   "permissions": [],

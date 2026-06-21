@@ -11,6 +11,10 @@ const xpTotal = computed(() => page.props.gamification?.xp_total ?? 0)
 const hasExercises = computed(() => {
     try { return route().has('praxiboost.index') } catch (e) { return false }
 })
+// Lien Salle du Trésor (route core, toujours présente — guard par sécurité).
+const hasTreasure = computed(() => {
+    try { return route().has('treasure.index') } catch (e) { return false }
+})
 </script>
 
 <template>
@@ -49,6 +53,11 @@ const hasExercises = computed(() => {
                         class="cand-nav-link"
                         style="font-family: var(--font-display); font-size: 13px; font-weight: 500; color: var(--text-secondary); text-decoration: none; padding: 6px 13px; border-radius: var(--r); transition: color 0.15s, background 0.15s">
                         Exercices
+                    </Link>
+                    <Link v-if="hasTreasure" :href="route('treasure.index')"
+                        class="cand-nav-link"
+                        style="font-family: var(--font-display); font-size: 13px; font-weight: 500; color: var(--text-secondary); text-decoration: none; padding: 6px 13px; border-radius: var(--r); transition: color 0.15s, background 0.15s">
+                        Le Trésor
                     </Link>
 
                     <div style="width: 1px; height: 20px; background: var(--border-mid); margin: 0 8px"></div>

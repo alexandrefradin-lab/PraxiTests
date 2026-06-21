@@ -14,6 +14,8 @@ class TestAttempt extends Model
         'user_id',
         'test_id',
         'invitation_id',
+        'panel_id',
+        'rater_relation',
         'status',
         'current_section',
         'current_question',
@@ -44,6 +46,17 @@ class TestAttempt extends Model
     public function invitation(): BelongsTo
     {
         return $this->belongsTo(TestInvitation::class, 'invitation_id');
+    }
+
+    public function panel(): BelongsTo
+    {
+        return $this->belongsTo(EvaluationPanel::class, 'panel_id');
+    }
+
+    /** Vrai si cette tentative est le regard d'un évaluateur (et non l'auto-évaluation). */
+    public function isRater(): bool
+    {
+        return $this->rater_relation !== null && $this->rater_relation !== 'self';
     }
 
     public function answers(): HasMany
