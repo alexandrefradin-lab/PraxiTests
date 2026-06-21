@@ -46,4 +46,3 @@
         <button class="px-btn px-btn-primary" id="px-submit">Voir mon résultat</button>
         <p class="px-consent">En validant, vous acceptez de recevoir votre résultat par e-mail.</p>
     </section>
-</div>
