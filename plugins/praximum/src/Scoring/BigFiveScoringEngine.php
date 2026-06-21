@@ -90,7 +90,28 @@ class BigFiveScoringEngine implements ScoringEngineContract
             ? (int) round((($dsBrut - $dsCount) / (4 * $dsCount)) * 100)
             : 0;
 
-        $archetype = ArchetypeResolver::resolve($scoresDim) ?? [
+        // Correction douce de désirabilité : un biais de présentation positive
+        // gonfle les scores. On régresse alors chaque dimension vers la moyenne
+        // (T=50) proportionnellement au biais détecté (audit 2026-06-21).
+        if ($dsPct >= 60) {
+            $shrink = $dsPct >= 75 ? 0.80 : 0.90;   // biais fort / modéré
+            foreach ($scoresDim as $dim => $data) {
+                $T = max(20, min(80, (int) round(50 + ($data['T'] - 50) * $shrink)));
+                $scoresDim[$dim] = [
+                    'T'      => $T,
+                    'pct'    => $this->tToPct($T),
+                    'niveau' => $this->niveauT($T),
+                    'label'  => $data['label'],
+                ];
+            }
+        }
+
+        // Stabilisation de l'archétype : si aucune dimension ne se détache
+        // nettement (amplitude T < 8), on évite de plaquer un profil en 5 lettres
+        // sur une frontière fragile à T=50 → on renvoie le Profil Équilibré.
+        $tValues  = array_map(fn ($d) => $d['T'], $scoresDim);
+        $tSpread  = $tValues ? max($tValues) - min($tValues) : 0;
+        $archetype = ($tSpread >= 8 ? ArchetypeResolver::resolve($scoresDim) : null) ?? [
             'key'         => 'BALANCED',
             'nom'         => 'Le Profil Équilibré',
             'tagline'     => 'Un profil multidimensionnel, adaptable selon les contextes.',
@@ -129,9 +150,10 @@ class BigFiveScoringEngine implements ScoringEngineContract
     protected function computeT(int|float $brut, float $mean, float $sd): int
     {
         if ($sd <= 0) return 50;
+        // T-score standard (moyenne 50, écart-type 10). Pas d'amplification
+        // artificielle : l'ancien facteur ×1,15 surévaluait mécaniquement de
+        // ~3-4 points de percentile en zone médiane-haute (audit 2026-06-21).
         $T = 50 + 10 * (($brut - $mean) / $sd);
-        // Légère amplification pour profils plus contrastés (parité WP PP_Calculator).
-        $T = 50 + ($T - 50) * 1.15;
         return (int) round(max(20, min(80, $T)));
     }
 

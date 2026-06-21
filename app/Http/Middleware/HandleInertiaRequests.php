@@ -20,6 +20,11 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user()?->only(['id', 'name', 'email', 'locale']),
             ],
+            // Total d'Éclats global (lazy) — alimente la barre du layout candidat
+            // sur toutes les pages, pas seulement pendant une tentative.
+            'gamification' => fn () => $request->user()
+                ? app(\Praxis\Core\Gamification\GamificationEngine::class)->globalProgressOf($request->user())
+                : null,
             'branding' => [
                 'name'    => config('praxiquest.branding.name'),
                 'tagline' => config('praxiquest.branding.tagline'),

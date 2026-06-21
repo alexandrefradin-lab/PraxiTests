@@ -34,6 +34,23 @@ class EqiScoringEngine implements ScoringEngineContract
             $scoresDim[$dimId] = $sum; // 5-20
         }
 
+        $ds = $this->desirabilite($byIdx);
+
+        // Correction douce de désirabilité : en cas de biais de présentation,
+        // on régresse chaque dimension vers le milieu d'échelle (12,5 sur 5-20)
+        // pour ne pas survaloriser une auto-image flatteuse. La mesure de biais
+        // était jusqu'ici calculée mais inactive (audit 2026-06-21).
+        $shrink = match ($ds['niveau']) {
+            'Biais fort'   => 0.80,
+            'Biais modéré' => 0.90,
+            default        => 1.0,
+        };
+        if ($shrink < 1.0) {
+            foreach ($scoresDim as $dimId => $raw) {
+                $scoresDim[$dimId] = (int) round(12.5 + ($raw - 12.5) * $shrink);
+            }
+        }
+
         $scoreGlobal = array_sum($scoresDim); // 80-320
 
         // Top forces (3 plus hauts) et axes développement (≤12)
@@ -47,7 +64,6 @@ class EqiScoringEngine implements ScoringEngineContract
         }
 
         [$niveau, $phrase] = $this->interpretGlobal($scoreGlobal);
-        $ds = $this->desirabilite($byIdx);
 
         // Étalonnage par dimension
         $normScores = [];
@@ -68,14 +84,20 @@ class EqiScoringEngine implements ScoringEngineContract
             'desirabilite'  => $ds,
             'meta_dimensions' => $dims,
             'meta_families' => $families,
+            'disclaimer'    => "Ce bilan d'intelligence émotionnelle est un outil d'auto-réflexion "
+                . "inspiré des grands modèles du domaine. Il est indépendant de l'EQ-i 2.0® "
+                . "(MHS), instrument propriétaire distinct, et n'en reprend ni les items ni l'étalonnage.",
             'computed_at'   => now()->toIso8601String(),
         ];
     }
 
     protected function interpretGlobal(int $score): array
     {
-        if ($score <= 120) return ['QE Faible',     "Votre intelligence émotionnelle est en construction. C'est une excellente base pour commencer un travail sur vous."];
-        if ($score <= 200) return ['QE Modéré',     "Vous disposez de vraies ressources émotionnelles. Quelques zones méritent d'être renforcées pour libérer votre plein potentiel."];
+        // Bandes resserrées (échelle 80-320) : une réponse globalement positive
+        // ne doit pas suffire à décrocher « QE Élevé ». Seuils provisoires, à
+        // remplacer par des bandes empiriques dès que les normes sont disponibles.
+        if ($score <= 150) return ['QE Faible',     "Votre intelligence émotionnelle est en construction. C'est une excellente base pour commencer un travail sur vous."];
+        if ($score <= 215) return ['QE Modéré',     "Vous disposez de vraies ressources émotionnelles. Quelques zones méritent d'être renforcées pour libérer votre plein potentiel."];
         if ($score <= 280) return ['QE Élevé',      "Votre intelligence émotionnelle est un vrai atout. Vous gérez bien vos émotions et savez créer des relations de qualité."];
         return                    ['QE Très élevé', "Vous faites partie des profils à haute intelligence émotionnelle. Votre capacité à comprendre et réguler vos émotions est remarquable."];
     }

@@ -22,5 +22,10 @@
     "type": "mini-app",
     "scoring_engine": "praxiself-scoring",
     "estimated_minutes": 7
+  },
+  "reward": {
+    "threshold_eclats": 900,
+    "teaser": "La Forge du Soi : 20 exercices pour bâtir une affirmation de soi solide.",
+    "icon": "ti-flame"
   }
 }

@@ -7,6 +7,10 @@ const user = computed(() => page.props.auth?.user)
 const branding = computed(() => page.props.branding ?? { name: 'PraxiQuest', tagline: 'Évaluer. Orienter. Transformer.' })
 const xpProgress = computed(() => page.props.gamification?.xp_progress ?? 0)
 const xpTotal = computed(() => page.props.gamification?.xp_total ?? 0)
+// N'affiche le lien Exercices que si le plugin praxiboost est actif (route enregistrée).
+const hasExercises = computed(() => {
+    try { return route().has('praxiboost.index') } catch (e) { return false }
+})
 </script>
 
 <template>
@@ -40,6 +44,11 @@ const xpTotal = computed(() => page.props.gamification?.xp_total ?? 0)
                         class="cand-nav-link"
                         style="font-family: var(--font-display); font-size: 13px; font-weight: 500; color: var(--text-secondary); text-decoration: none; padding: 6px 13px; border-radius: var(--r); transition: color 0.15s, background 0.15s">
                         Chroniques
+                    </Link>
+                    <Link v-if="hasExercises" :href="route('praxiboost.index')"
+                        class="cand-nav-link"
+                        style="font-family: var(--font-display); font-size: 13px; font-weight: 500; color: var(--text-secondary); text-decoration: none; padding: 6px 13px; border-radius: var(--r); transition: color 0.15s, background 0.15s">
+                        Exercices
                     </Link>
 
                     <div style="width: 1px; height: 20px; background: var(--border-mid); margin: 0 8px"></div>

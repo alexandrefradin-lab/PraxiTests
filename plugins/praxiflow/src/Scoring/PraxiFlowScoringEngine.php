@@ -107,6 +107,7 @@ class PraxiFlowScoringEngine implements ScoringEngineContract
      */
     protected function interpretGlobal(int $score): array
     {
+        // audit 2026-06-21 : retrait des chiffres normatifs non sourcés
         if ($score < 30) {
             return [
                 'Productivité en construction',
@@ -128,7 +129,7 @@ class PraxiFlowScoringEngine implements ScoringEngineContract
         if ($score < 85) {
             return [
                 'Haute productivité',
-                "Tu fais partie des 20% qui pilotent vraiment leur temps et leur énergie. Tes systèmes sont robustes. Le levier à ce stade est la profondeur : aller plus loin dans le Deep Work et la gestion stratégique de l'énergie.",
+                "Tu fais clairement partie de ceux qui pilotent vraiment leur temps et leur énergie. Tes systèmes sont robustes. Le levier à ce stade est la profondeur : aller plus loin dans le Deep Work et la gestion stratégique de l'énergie.",
             ];
         }
         return [
@@ -233,15 +234,16 @@ class PraxiFlowScoringEngine implements ScoringEngineContract
      */
     protected function motivatingStat(int $globalScore): string
     {
+        // audit 2026-06-21 : retrait des chiffres normatifs non sourcés
         if ($globalScore < 40) {
-            return "Les recherches montrent que 20 minutes de planification quotidienne économisent en moyenne 2 heures de travail désorganisé. Ton premier exercice vaut 6x son temps investi.";
+            return "Quelques minutes de planification en début de journée font souvent gagner beaucoup de temps perdu en désorganisation. Ton premier exercice est un investissement qui se rembourse vite.";
         }
         if ($globalScore < 60) {
-            return "Les top performers planifient 60 à 70% de leur temps en avance, laissant 30-40% pour l'imprévu. Structurer ton agenda 3 jours à l'avance multiplie ton exécution par 1,5.";
+            return "Ceux qui exécutent le mieux planifient une bonne partie de leur temps à l'avance tout en gardant de la marge pour l'imprévu. Structurer ton agenda quelques jours d'avance rend ton exécution nettement plus fluide.";
         }
         if ($globalScore < 75) {
-            return "Cal Newport estime que 4 heures de Deep Work par jour suffisent pour rivaliser avec des professionnels travaillant 10 heures en mode réactif. La qualité du focus surpasse la quantité.";
+            return "Quelques heures de Deep Work concentré valent souvent bien plus que de longues journées en mode réactif. La qualité du focus prime sur la quantité d'heures.";
         }
-        return "Les études sur les athlètes cognitifs de haut niveau montrent qu'ils récupèrent aussi délibérément qu'ils travaillent. Ta prochaine marge de progression est dans la qualité de ta récupération, pas dans plus d'heures.";
+        return "Les profils les plus performants récupèrent avec autant d'intention qu'ils travaillent. Ta prochaine marge de progression est dans la qualité de ta récupération, pas dans plus d'heures.";
     }
 }

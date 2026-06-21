@@ -30,24 +30,38 @@ class SchwartzScoringEngine implements ScoringEngineContract
             $counts[$dim]++;
         }
 
-        // Score 0-100 par dim. L'échelle utile est 1-6 (le frontend émet
-        // 1..6, jamais 0). On normalise sur l'amplitude réelle : (moy-1)/5
-        // → la valeur min (1, "Aucune importance") donne 0%, la max (6) 100%.
-        $likertNorm = [];
+        // Moyenne brute par dimension (échelle 1-6).
+        $dimMean = [];
         foreach ($dims as $key => $_) {
-            $moy = $counts[$key] > 0 ? $sums[$key] / $counts[$key] : 1;
-            $likertNorm[$key] = (int) round((($moy - 1) / 5) * 100);
+            $dimMean[$key] = $counts[$key] > 0 ? $sums[$key] / $counts[$key] : 1;
+        }
+
+        // Correction ipsative de Schwartz (centrage MRAT). Sans elle, l'effet
+        // plafond/acquiescement fait ressortir presque toutes les valeurs à
+        // 70-100 % : on mesure alors un niveau d'approbation, pas des PRIORITÉS.
+        // On centre chaque valeur sur la moyenne individuelle du répondant
+        // (50 = priorité moyenne ; >50 = valeur prioritaire ; <50 = secondaire).
+        $mrat = array_sum($counts) > 0 ? array_sum($sums) / array_sum($counts) : 3.5;
+
+        $likertNorm = [];   // brut conservé pour référence/affichage
+        $ipsative   = [];   // priorité relative centrée → 0-100
+        foreach ($dims as $key => $_) {
+            $likertNorm[$key] = (int) round((($dimMean[$key] - 1) / 5) * 100);
+            $centered = $dimMean[$key] - $mrat;                       // ≈ -2..+2
+            $ipsative[$key] = (int) round(max(0, min(100, 50 + $centered * 20)));
         }
 
         $tournoiNorm = $this->tournoiScores($attempt);
 
-        // Pondéré : 60% Likert + 40% tournoi (si présent), sinon 100% Likert.
+        // Score final = priorité ipsative, légèrement ajustée par le tournoi
+        // de comparaisons par paires s'il existe (poids réduit 80/20 : le
+        // tournoi force gagnant=100/perdant=0, à ne pas laisser dominer).
         $finals = [];
         foreach ($dims as $key => $_) {
             if ($tournoiNorm) {
-                $finals[$key] = (int) round($likertNorm[$key] * 0.6 + ($tournoiNorm[$key] ?? 0) * 0.4);
+                $finals[$key] = (int) round($ipsative[$key] * 0.8 + ($tournoiNorm[$key] ?? 0) * 0.2);
             } else {
-                $finals[$key] = $likertNorm[$key];
+                $finals[$key] = $ipsative[$key];
             }
             $finals[$key] = max(0, min(100, $finals[$key]));
         }
@@ -68,6 +82,7 @@ class SchwartzScoringEngine implements ScoringEngineContract
             'top5'          => $top5,
             'meta'          => $dims,
             'likert_norm'   => $likertNorm,
+            'ipsative_norm' => $ipsative,
             'tournoi_norm'  => $tournoiNorm,
             'computed_at'   => now()->toIso8601String(),
         ];
