@@ -109,18 +109,34 @@ class PraxiZenScoringEngine implements ScoringEngineContract
 
         usort($scored, fn ($a, $b) => $b['relevance'] <=> $a['relevance']);
 
-        // Top 3 en priorisant la diversité des catégories
-        $selected   = [];
-        $categories = [];
+        // Top 3 en priorisant la diversité des catégories, en 2 passes
+        // pour garantir jusqu'à 3 exercices (la version précédente pouvait
+        // en renvoyer moins de 3).
+        $selected    = [];
+        $selectedIds = [];
+        $categories  = [];
+
+        // Passe 1 : un exercice par catégorie distincte (relevance décroissante).
         foreach ($scored as $item) {
-            $cat = $item['exercise']['category'];
             if (count($selected) >= 3) {
                 break;
             }
-            // Évite deux exercices de la même catégorie sauf si pas le choix
-            if (! isset($categories[$cat]) || count($selected) < 2) {
-                $selected[]      = $item['exercise'];
-                $categories[$cat] = true;
+            $cat = $item['exercise']['category'];
+            if (! isset($categories[$cat])) {
+                $selected[]                       = $item['exercise'];
+                $selectedIds[$item['exercise']['id']] = true;
+                $categories[$cat]                 = true;
+            }
+        }
+
+        // Passe 2 : complète jusqu'à 3 avec les meilleurs exercices restants.
+        foreach ($scored as $item) {
+            if (count($selected) >= 3) {
+                break;
+            }
+            if (! isset($selectedIds[$item['exercise']['id']])) {
+                $selected[]                           = $item['exercise'];
+                $selectedIds[$item['exercise']['id']] = true;
             }
         }
 

@@ -80,14 +80,14 @@ class ExercisesSeeder extends Seeder
                         'order'      => ++$qOrder,
                     ],
                     [
-                        'type'   => 'likert',
+                        // 'scale' est le seul type d'échelle rendu par le
+                        // frontend (AttemptPlay.vue), qui émet 1..options.max.
+                        'type'   => 'scale',
                         'prompt' => $this->buildPrompt($exercise),
                         'options' => [
-                            ['value' => 1, 'label' => 'Pas du tout à l\'aise'],
-                            ['value' => 2, 'label' => 'Plutôt pas à l\'aise'],
-                            ['value' => 3, 'label' => 'Moyennement à l\'aise'],
-                            ['value' => 4, 'label' => 'Plutôt à l\'aise'],
-                            ['value' => 5, 'label' => 'Tout à fait à l\'aise'],
+                            'max'       => 5,
+                            'min_label' => 'Pas du tout à l\'aise',
+                            'max_label' => 'Tout à fait à l\'aise',
                         ],
                         'scoring' => [
                             'exercise_id' => $exercise['id'],

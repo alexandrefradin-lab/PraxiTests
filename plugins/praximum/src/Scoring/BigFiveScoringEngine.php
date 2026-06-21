@@ -91,9 +91,15 @@ class BigFiveScoringEngine implements ScoringEngineContract
             : 0;
 
         $archetype = ArchetypeResolver::resolve($scoresDim) ?? [
-            'titre'       => 'Profil équilibré',
-            'description' => 'Profil multidimensionnel, adaptable selon les contextes.',
-            'couleur'     => '#6366f1',
+            'key'         => 'BALANCED',
+            'nom'         => 'Le Profil Équilibré',
+            'tagline'     => 'Un profil multidimensionnel, adaptable selon les contextes.',
+            'emoji'       => '🌓',
+            'description' => "Vos dimensions s'équilibrent sans qu'aucune ne domine nettement. Cette polyvalence vous permet de vous adapter à des contextes variés.",
+            'rarete'      => 50,
+            'couleur1'    => '#6366f1',
+            'couleur2'    => '#1E2A3A',
+            'traits'      => ['Adaptabilité', 'Équilibre', 'Polyvalence'],
         ];
 
         // Étalonnage BigFive — percentile calculé directement depuis le T-score

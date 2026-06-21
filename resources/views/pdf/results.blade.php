@@ -62,7 +62,12 @@
     $hair       = '#CBBE9E';   // filet discret sur parchemin
 
     $synthesis  = $result?->ai_synthesis;
-    $dimensions = $result?->scoring['dimensions'] ?? [];
+    /* Normalisation universelle : quel que soit le moteur du test, on obtient
+       un résultat-phare + des barres de dimensions + d'éventuelles sous-échelles. */
+    $present    = \Praxis\Core\TestEngine\ScoringPresenter::from($result?->scoring);
+    $headline   = $present['headline'];
+    $dimensions = $present['dimensions'];
+    $subscales  = $present['subscales'];
     $jobs       = $result?->suggested_jobs ?? [];
     $strengths  = is_array($result?->strengths) ? $result->strengths : [];
     $growth     = is_array($result?->growth_areas) ? $result->growth_areas : [];
@@ -177,6 +182,42 @@
         font-size: 10px; border: 0.5px solid; }
     .chip-up   { background: #EAF1E9; color: {{ $eagle }};     border-color: #BcD3BE; }
     .chip-grow { background: #F3E4DF; color: {{ $secondary }}; border-color: #E0BFb6; }
+
+    /* ── Carte « Verdict » — résultat-phare ───────────────────────────── */
+    .hero { background: {{ $accent }}; border: 1.5px solid {{ $primary }}; border-radius: 14px; }
+    .medallion {
+        width: 86px; height: 86px; line-height: 86px; text-align: center;
+        border-radius: 43px; border: 3px solid {{ $primary }};
+        background: {{ $accent }}; color: {{ $parchment }};
+        font-family: "DejaVu Serif", serif; font-weight: bold; font-size: 30px;
+    }
+    .medallion .pctsign { font-size: 14px; color: {{ $primary }}; }
+    .medallion-cap { font-size: 7.5px; letter-spacing: 1.5px; text-transform: uppercase;
+        color: #9C8A60; text-align: center; margin-top: 7px; font-family: "DejaVu Sans Mono", monospace; }
+    .hero-kicker { font-size: 8px; letter-spacing: 3px; text-transform: uppercase;
+        color: {{ $primary }}; font-weight: bold; font-family: "DejaVu Sans Mono", monospace; }
+    .hero-label  { font-family: "DejaVu Serif", serif; font-size: 22px; font-weight: bold;
+        color: {{ $parchment }}; line-height: 1.2; margin-top: 5px; }
+    .code-chip { display: inline-block; margin-left: 8px; padding: 2px 10px; border-radius: 11px;
+        background: {{ $primary }}; color: {{ $accent }}; font-size: 12px; font-weight: bold;
+        font-family: "DejaVu Sans Mono", monospace; letter-spacing: 2px; vertical-align: middle; }
+    .hero-score { font-family: "DejaVu Sans Mono", monospace; font-size: 9px; color: #B9A87E;
+        text-transform: uppercase; letter-spacing: 1.2px; margin-top: 8px; }
+    .hero-score b { color: {{ $primary }}; font-size: 11px; }
+    .hero-phrase { font-size: 11px; color: #E9DFC6; line-height: 1.65; margin-top: 9px; }
+
+    /* ── Niveau (étiquette à droite des barres) ───────────────────────── */
+    .dim-level { font-size: 8px; color: {{ $inkSoft }}; text-transform: uppercase;
+        letter-spacing: .8px; font-family: "DejaVu Sans Mono", monospace; }
+
+    /* ── Sous-échelles groupées ───────────────────────────────────────── */
+    .sub-group { margin-top: 14px; }
+    .sub-title { font-family: "DejaVu Sans Mono", monospace; font-size: 8.5px; font-weight: bold;
+        letter-spacing: 1.5px; text-transform: uppercase; color: {{ $goldDark }}; margin-bottom: 6px; }
+    .sub-val { font-family: "DejaVu Sans Mono", monospace; font-size: 10px; font-weight: bold;
+        color: {{ $goldDark }}; text-align: right; }
+    .sev-pill { display: inline-block; padding: 2px 8px; border-radius: 9px; font-size: 8px;
+        font-weight: bold; color: {{ $parchment }}; font-family: "DejaVu Sans Mono", monospace; }
 </style>
 </head>
 <body>
@@ -284,6 +325,38 @@
 </div>
 @endif
 
+{{-- ═══════════════ RÉSULTAT-PHARE (toujours affiché si disponible) ═══════════════ --}}
+@if($headline)
+<div class="px sec avoid-break">
+    <p class="kicker">Votre résultat</p>
+    <h2 class="section serif">Verdict de l'évaluation</h2>
+    <div class="section-rule"></div>
+    <div class="section-hair"></div>
+    <table class="hero" style="width:100%; border-collapse:separate;">
+        <tr>
+            @if($headline['pct'] !== null)
+            <td style="width:118px; vertical-align:middle; padding:20px 0 20px 22px;">
+                <div class="medallion">{{ $headline['pct'] }}<span class="pctsign">%</span></div>
+                <div class="medallion-cap">Indice global</div>
+            </td>
+            @endif
+            <td style="vertical-align:middle; padding:20px 24px;">
+                <div class="hero-kicker">Profil identifié</div>
+                <div class="hero-label">
+                    {{ $headline['label'] ?? 'Profil établi' }}@if($headline['code'])<span class="code-chip">{{ $headline['code'] }}</span>@endif
+                </div>
+                @if($headline['score'] !== null && $headline['score_max'])
+                    <div class="hero-score">Score global&nbsp; <b>{{ $headline['score'] }}</b> / {{ $headline['score_max'] }}</div>
+                @endif
+                @if($headline['phrase'])
+                    <div class="hero-phrase">{{ $headline['phrase'] }}</div>
+                @endif
+            </td>
+        </tr>
+    </table>
+</div>
+@endif
+
 {{-- ═══════════════ SYNTHÈSE IA ═══════════════ --}}
 @if($sections['synthesis'] && $synthesis)
 <div class="px sec">
@@ -337,17 +410,54 @@
     <div class="section-rule"></div>
     <div class="section-hair"></div>
     <table class="dims">
-        @foreach($dimensions as $name => $score)
-            @php $sc = max(0, min(100, (int) $score)); @endphp
+        @foreach($dimensions as $dim)
+            @php $sc = max(0, min(100, (int) $dim['pct'])); @endphp
             <tr>
-                <td style="width:30%;"><span class="dim-name">{{ str_replace('_', ' ', $name) }}</span></td>
-                <td style="width:58%; padding-left:12px; padding-right:12px;">
-                    <div class="track"><div class="fill" style="width:{{ $sc }}%; background:{{ $primary }};"></div></div>
+                <td style="width:31%;">
+                    <span class="dim-name">{{ $dim['name'] }}</span>
+                    @if(!empty($dim['level']))<div class="dim-level">{{ $dim['level'] }}</div>@endif
                 </td>
-                <td style="width:12%;"><div class="dim-score">{{ $sc }}</div></td>
+                <td style="width:55%; padding-left:12px; padding-right:12px;">
+                    <div class="track"><div class="fill" style="width:{{ $sc }}%; background:{{ $fitColor($sc) }};"></div></div>
+                </td>
+                <td style="width:14%;"><div class="dim-score">{{ $sc }}</div></td>
             </tr>
         @endforeach
     </table>
+</div>
+@endif
+
+{{-- ═══════════════ SOUS-ÉCHELLES (Karasek, MBI, facettes…) ═══════════════ --}}
+@if($sections['dimensions'] && count($subscales))
+<div class="px avoid-break sec">
+    <p class="kicker">Détail</p>
+    <h2 class="section serif">Sous-échelles</h2>
+    <div class="section-rule"></div>
+    <div class="section-hair"></div>
+    @foreach($subscales as $group)
+        <div class="sub-group avoid-break">
+            <div class="sub-title">{{ $group['title'] }}</div>
+            <table class="dims">
+                @foreach($group['items'] as $item)
+                    @php $sc = $item['pct'] !== null ? max(0, min(100, (int) $item['pct'])) : null; @endphp
+                    <tr>
+                        <td style="width:34%;"><span class="dim-name">{{ $item['name'] }}</span></td>
+                        <td style="width:42%; padding-left:12px; padding-right:12px;">
+                            @if($sc !== null)
+                                <div class="track"><div class="fill" style="width:{{ $sc }}%; background:{{ $primary }};"></div></div>
+                            @endif
+                        </td>
+                        <td style="width:12%;">
+                            <div class="sub-val">@if($item['value'] !== null){{ $item['value'] }}@if($item['max'])<span style="color:{{ $inkSoft }}; font-weight:normal;">/{{ $item['max'] }}</span>@endif @endif</div>
+                        </td>
+                        <td style="width:12%; text-align:right;">
+                            @if(!empty($item['level']))<span class="sev-pill" style="background:{{ $goldDark }};">{{ $item['level'] }}</span>@endif
+                        </td>
+                    </tr>
+                @endforeach
+            </table>
+        </div>
+    @endforeach
 </div>
 @endif
 
