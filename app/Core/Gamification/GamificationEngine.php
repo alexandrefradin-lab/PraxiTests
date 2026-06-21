@@ -78,6 +78,42 @@ class GamificationEngine
         return $levels->firstWhere('level', $level + 1);
     }
 
+    /**
+     * Total d'Éclats cumulés par l'utilisateur, tous tests confondus.
+     * Sert de base aux paliers de déblocage (ex. plugin praxiboost) et à
+     * la barre d'Éclats globale affichée dans le layout candidat.
+     */
+    public function totalEclats(User $user): int
+    {
+        return (int) GamificationProgress::where('user_id', $user->id)->sum('xp_total');
+    }
+
+    /**
+     * Progression globale (toutes parties confondues) : total d'Éclats,
+     * niveau dérivé du total et avancement vers le niveau suivant.
+     */
+    public function globalProgressOf(User $user): array
+    {
+        $total = $this->totalEclats($user);
+        $level = $this->levelFromXp($total);
+        $current = $this->levelInfo($level);
+        $next = $this->nextLevelInfo($level);
+
+        $towardsNext = $next
+            ? max(0, min(100, round((($total - $current['xp_required']) / max(1, $next['xp_required'] - $current['xp_required'])) * 100, 1)))
+            : 100;
+
+        return [
+            'xp_total'        => $total,
+            'xp_progress'     => $towardsNext,
+            'level'           => $level,
+            'level_name'      => $current['name'] ?? null,
+            'next_level'      => $next['level'] ?? null,
+            'next_level_name' => $next['name'] ?? null,
+            'next_level_xp'   => $next['xp_required'] ?? null,
+        ];
+    }
+
     public function progressOf(User $user, ?Test $test = null): array
     {
         $progress = GamificationProgress::firstOrCreate(

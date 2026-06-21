@@ -60,6 +60,8 @@
             "Praxis\\Plugins\\PraxiLink\\Database\\Seeders\\": "plugins/praxilink/database/seeders/",
             "Praxis\\Plugins\\Praxis360\\": "plugins/praxis360/src/",
             "Praxis\\Plugins\\Praxis360\\Database\\Seeders\\": "plugins/praxis360/database/seeders/",
+            "Praxis\\Plugins\\PraxiBoost\\": "plugins/praxiboost/src/",
+            "Praxis\\Plugins\\PraxiBoost\\Database\\Seeders\\": "plugins/praxiboost/database/seeders/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         },
@@ -74,7 +76,8 @@
             "plugins/praxispeak/PluginServiceProvider.php",
             "plugins/praxiflow/PluginServiceProvider.php",
             "plugins/praxilink/PluginServiceProvider.php",
-            "plugins/praxis360/PluginServiceProvider.php"
+            "plugins/praxis360/PluginServiceProvider.php",
+            "plugins/praxiboost/PluginServiceProvider.php"
         ]
     },
     "autoload-dev": {

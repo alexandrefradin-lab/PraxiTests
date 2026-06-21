@@ -68,6 +68,9 @@
     $headline   = $present['headline'];
     $dimensions = $present['dimensions'];
     $subscales  = $present['subscales'];
+    /* Avertissement non-diagnostique éventuel, fourni par le moteur de scoring
+       (tests d'inspiration clinique : burnout, intelligence émotionnelle…). */
+    $disclaimer = is_string($result?->scoring['disclaimer'] ?? null) ? $result->scoring['disclaimer'] : null;
     $jobs       = $result?->suggested_jobs ?? [];
     $strengths  = is_array($result?->strengths) ? $result->strengths : [];
     $growth     = is_array($result?->growth_areas) ? $result->growth_areas : [];
@@ -218,6 +221,13 @@
         color: {{ $goldDark }}; text-align: right; }
     .sev-pill { display: inline-block; padding: 2px 8px; border-radius: 9px; font-size: 8px;
         font-weight: bold; color: {{ $parchment }}; font-family: "DejaVu Sans Mono", monospace; }
+
+    /* ── Avertissement non-diagnostique ───────────────────────────────── */
+    .disclaimer { background: {{ $stone }}; border-left: 3px solid {{ $secondary }};
+        border-radius: 0 8px 8px 0; padding: 12px 16px; }
+    .disclaimer .dtitle { font-family: "DejaVu Sans Mono", monospace; font-size: 8px;
+        letter-spacing: 1.5px; text-transform: uppercase; color: {{ $secondary }}; font-weight: bold; }
+    .disclaimer .dbody { font-size: 9.5px; color: {{ $ink }}; line-height: 1.55; margin-top: 4px; }
 </style>
 </head>
 <body>
@@ -458,6 +468,18 @@
             </table>
         </div>
     @endforeach
+</div>
+@endif
+
+{{-- ═══════════════ AVERTISSEMENT NON-DIAGNOSTIQUE ═══════════════ --}}
+@if($disclaimer)
+<div class="px avoid-break sec">
+    <table class="disclaimer" style="width:100%; border-collapse:separate;">
+        <tr><td>
+            <div class="dtitle">À lire — portée de ce bilan</div>
+            <div class="dbody">{{ $disclaimer }}</div>
+        </td></tr>
+    </table>
 </div>
 @endif
 

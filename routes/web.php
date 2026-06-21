@@ -6,6 +6,7 @@ use App\Http\Controllers\Candidate\JourneyController;
 use App\Http\Controllers\Candidate\OnboardingController;
 use App\Http\Controllers\Candidate\ResultController;
 use App\Http\Controllers\Candidate\TestController;
+use App\Http\Controllers\Candidate\TreasureController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\GdprController;
 use App\Http\Controllers\HomeController;
@@ -43,6 +44,9 @@ Route::middleware(['auth'])->group(function () {
 
     // Historique des tentatives du candidat
     Route::get('/history', [ResultController::class, 'history'])->name('history');
+
+    // La Salle du Trésor — apps offertes en récompense (déblocage par paliers d'Éclats)
+    Route::get('/salle-du-tresor', [TreasureController::class, 'index'])->name('treasure.index');
 
     // Le Grimoire — relecture globale transversale de tous les tests
     Route::get('/grimoire',          [GrimoireController::class, 'show'])->name('grimoire.show');

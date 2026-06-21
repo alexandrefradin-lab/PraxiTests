@@ -22,5 +22,10 @@
     "type": "questionnaire",
     "scoring_engine": "praxizen-stress",
     "estimated_minutes": 8
+  },
+  "reward": {
+    "threshold_eclats": 2000,
+    "teaser": "Un refuge pour apaiser le mental sous pression : respiration, ancrage et recadrage cognitif.",
+    "icon": "ti-yin-yang"
   }
 }

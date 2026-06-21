@@ -42,7 +42,10 @@ class KarasekMbiScoringEngine implements ScoringEngineContract
         for ($i = $start; $i <= 8; $i++) {
             $soutien += max(1, min(4, (int) ($byKey['S' . $i] ?? 1)));
         }
-        $seuilSoutien = $hasSuperior ? 21 : 10;
+        // Seuil de soutien social rendu proportionnel (~65 % du max dans les deux
+        // cas) ; valeurs provisoires à recaler sur des médianes populationnelles
+        // (type SUMER) lorsqu'elles seront disponibles.
+        $seuilSoutien = $hasSuperior ? 21 : 11;
 
         // ── MBI ──────────────────────────────────────────────────────
         // Le frontend rend l'échelle "scale" avec options.max=4 → il émet
@@ -74,13 +77,21 @@ class KarasekMbiScoringEngine implements ScoringEngineContract
                 'has_superior' => $hasSuperior,
             ],
             'mbi'           => [
-                'ee' => $ee, 'ee_max' => 27, 'ee_severite' => $this->severite($ee, 10, 18),
-                'dp' => $dp, 'dp_max' => 15, 'dp_severite' => $this->severite($dp, 4, 9),
-                'ap' => $ap, 'ap_max' => 24, 'ap_severite' => $this->severite($ap, 9, 16),
+                // Seuils recalibrés sur les proportions du référentiel Maslach
+                // (échelle réduite 0-3) : EE « élevé » ≈ 50 % du max, DP ≈ 33 %,
+                // AP inversé ≈ 35 %. L'ancien calibrage (10/18, 4/9, 9/16) était
+                // bien plus restrictif → sous-détection du burnout (audit 2026-06-21).
+                'ee' => $ee, 'ee_max' => 27, 'ee_severite' => $this->severite($ee, 8, 13),
+                'dp' => $dp, 'dp_max' => 15, 'dp_severite' => $this->severite($dp, 2, 4),
+                'ap' => $ap, 'ap_max' => 24, 'ap_severite' => $this->severite($ap, 4, 8),
             ],
             'profile'       => $profile,
             'profile_label' => Questions::profiles()[$profile]['label'] ?? $profile,
             'meta_profiles' => Questions::profiles(),
+            'disclaimer'    => "Ce questionnaire d'auto-évaluation explore votre vécu au travail. "
+                . "Il s'inspire des modèles de Karasek et de Maslach (MBI) mais utilise une "
+                . "échelle adaptée : il constitue une aide à la réflexion, en aucun cas un "
+                . "diagnostic. Seul un professionnel de santé peut évaluer un burnout.",
             'computed_at'   => now()->toIso8601String(),
         ];
     }

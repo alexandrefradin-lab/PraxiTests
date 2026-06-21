@@ -3,6 +3,23 @@
 Audit de cohérence, scoring (résultats) et bugs techniques sur les 11 plugins de test.
 Méthode : lecture intégrale `src/Data`, `src/Scoring`, `database/seeders`, `routes`, `resources/js/*Result.vue` de chaque plugin, + analyse du cœur (`TestEngine`, `AttemptPlay.vue`). Aucun fichier modifié.
 
+## ✅ Corrections appliquées (2026-06-21)
+
+Tous les problèmes ci-dessous ont été corrigés dans le code. Lint PHP 8.1 OK, 0 octet nul, logique simulée numériquement.
+
+- **praxicare** : scoring MBI converti 1-4 → 0-3 (`val - 1`). Plages restaurées (EE 0-27, DP 0-15 avec « faible » de nouveau atteignable, AP 0-24 avec « élevé » de nouveau atteignable). Karasek inchangé. *(KarasekMbiScoringEngine.php)*
+- **praxilink** : converti en questionnaire d'auto-évaluation jouable — nouveau `Data/Questions.php` (20 items, 5 dimensions, échelle 1-5), seeder réécrit (Test/Section/Question `scale`), `score()` simplifié en moyenne par dimension réutilisant les helpers existants (style dominant, interprétation, forces/axes). plugin.json aligné. *(le contenu interactif d'origine — QCM/OSBD/classement — est abandonné, choix validé)*
+- **praxiself** : question `likert` → `scale`, options au format `max/min_label/max_label`. *(ExercisesSeeder.php)*
+- **praxispeak** : question `exercise` → `single` (Oui/Non), `required:true` pour fiabiliser le score. *(ExercisesSeeder.php)*
+- **praxivaleurs** : normalisation `((moy-1)/5)*100` au lieu de `(moy/6)*100` — le bas de l'échelle n'est plus écrasé à 17 %. *(SchwartzScoringEngine.php)*
+- **praxizen** : sélection d'exercices en 2 passes (garantit 3 exos) + `currentStreak()` dédupliqué par jour calendaire. *(PraxiZenScoringEngine.php, JourneyProgress.php)*
+- **praxiflow** : 4 catégories `procrastination` → `lutte_procrastination`. **praximum** : clés du fallback d'archétype alignées (`nom/tagline/couleur1/2/rarete/traits`).
+- **praxis360** : aucun correctif — faux positif de l'audit (`enrich()` utilise `key()` = `praxis360-softskills`, exactement la clé semée ; étalonnage cohérent).
+
+> Note technique : le shell sandbox servait par moments une vue périmée/corrompue (octets nuls en fin de fichier) des fichiers écrits via l'outil fichier. Deux seeders réellement corrompus (praxilink, praxiself) ont été réécrits proprement via le shell. Comme le build se fait sur le serveur OVH, lance un `php -l` / build serveur comme dernier filet après déploiement.
+
+---
+
 ## Contrat système (vérifié dans le cœur)
 
 `resources/js/Pages/Candidate/AttemptPlay.vue` ne rend que **4 types** de question : `single`, `scale`, `multi`/`multiple`, `text`.

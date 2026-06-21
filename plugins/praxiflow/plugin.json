@@ -22,5 +22,10 @@
     "type": "questionnaire",
     "scoring_engine": "praxiflow-scoring",
     "estimated_minutes": 7
+  },
+  "reward": {
+    "threshold_eclats": 2700,
+    "teaser": "Deviens le Maître du Temps : un plan d'action sur 7 jours pour dompter ta productivité.",
+    "icon": "ti-hourglass-high"
   }
 }

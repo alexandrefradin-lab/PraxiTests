@@ -107,35 +107,41 @@ class PraxiSpeakScoringEngine implements ScoringEngineContract
         ];
     }
 
+    /**
+     * Le score reflète la PROGRESSION dans le parcours d'exercices (taux de
+     * complétion), pas une évaluation de la performance oratoire. Les libellés
+     * sont donc formulés en termes d'avancement, non de niveau de compétence
+     * (audit 2026-06-21).
+     */
     protected function interpretGlobal(int $score): array
     {
         if ($score < 20) {
             return [
-                'Orateur en devenir',
-                "Tu as posé les premiers jalons. La prise de parole est une compétence qui se construit pas à pas — et tu viens de commencer.",
+                'Parcours entamé',
+                "Tu viens de démarrer ton parcours. La prise de parole se travaille pas à pas — chaque exercice complété compte.",
             ];
         }
         if ($score < 45) {
             return [
-                'Orateur en construction',
-                "Tu développes des bases solides. Quelques exercices ciblés vont libérer ton potentiel et te donner davantage de confiance.",
+                'Parcours en cours',
+                "Tu avances dans le parcours. Continue les exercices pour ancrer durablement tes nouveaux réflexes.",
             ];
         }
         if ($score < 70) {
             return [
-                'Orateur confirmé',
-                "Tu maîtrises déjà plusieurs leviers essentiels. Avec de la régularité et quelques ajustements, tu peux passer au niveau supérieur.",
+                'Parcours bien engagé',
+                "Tu as réalisé une bonne partie des exercices. La régularité est la clé pour transformer l'essai.",
             ];
         }
         if ($score < 90) {
             return [
-                'Orateur accompli',
-                "Ton niveau de prise de parole est un vrai atout. Tu inspires confiance et clarté — continue à nourrir ta pratique.",
+                'Parcours avancé',
+                "Tu as complété la grande majorité des exercices. Bel engagement — garde le rythme.",
             ];
         }
         return [
-            'Orateur expert',
-            "Tu es dans les profils d'orateurs qui marquent les esprits. Ta maîtrise technique et ta présence sont des ressources rares.",
+            'Parcours complété',
+            "Tu as parcouru l'ensemble des exercices d'entraînement. Bravo pour ta constance ! L'enjeu est maintenant d'entretenir la pratique.",
         ];
     }
 }
