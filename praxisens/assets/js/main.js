@@ -6,8 +6,8 @@
     var options = D.options || [];
     var dimensions = D.dimensions || {};
 
-    var answers = {};   // { id: value }
-    var index = 0;      // question courante
+    var answers = {};
+    var index = 0;
 
     var el = {};
     function $(id) { return document.getElementById(id); }
@@ -47,7 +47,6 @@
         if (!q) { return; }
         var dim = dimensions[q.dim] || {};
 
-        // Barre de progression
         var pct = Math.round((index / questions.length) * 100);
         el.bar.style.width = pct + '%';
         el.counter.textContent = (index + 1) + ' / ' + questions.length;
@@ -63,14 +62,12 @@
         html += '<button type="button" class="px-back" id="px-back"' + (index === 0 ? ' hidden' : '') + '>&larr; Précédent</button>';
         el.questions.innerHTML = html;
 
-        // Liaison des options
         var btns = el.questions.querySelectorAll('.px-option');
         Array.prototype.forEach.call(btns, function (b) {
             b.addEventListener('click', function () {
                 answers[q.id] = parseInt(b.getAttribute('data-value'), 10);
                 Array.prototype.forEach.call(btns, function (x) { x.classList.remove('is-selected'); });
                 b.classList.add('is-selected');
-                // Auto-avancement après 280ms (feedback visuel)
                 setTimeout(next, 280);
             });
         });
@@ -83,7 +80,6 @@
             index++;
             renderQuestion();
         } else {
-            // Fin du questionnaire
             el.bar.style.width = '100%';
             show(el.collect);
         }
@@ -166,7 +162,6 @@
         el.results.innerHTML = html;
         show(el.results);
 
-        // Animation des barres
         setTimeout(function () {
             var fills = el.results.querySelectorAll('.px-dim-fill');
             Array.prototype.forEach.call(fills, function (f) {
@@ -175,14 +170,18 @@
         }, 60);
     }
 
+    // Paliers alignes sur le PHP : faible <40, moderee 40-59, elevee 60-77, haute >=78.
     function bandText(pct) {
-        if (pct >= 75) {
-            return 'Votre profil correspond à une <strong>haute sensibilité marquée</strong>. Vous traitez l\'information en profondeur et percevez finement votre environnement — une richesse qui demande de protéger vos temps de récupération.';
+        if (pct >= 78) {
+            return 'Votre profil correspond à une <strong>haute sensibilité marquée</strong>. Vous traitez l\'information en profondeur et percevez finement votre environnement, une richesse qui demande de protéger vos temps de récupération.';
         }
-        if (pct >= 50) {
-            return 'Une <strong>sensibilité présente</strong> ressort de vos réponses. Vous êtes réceptif(ve) aux ambiances et aux subtilités, sans être systématiquement débordé(e).';
+        if (pct >= 60) {
+            return 'Une <strong>sensibilité élevée</strong> ressort de vos réponses. Vous êtes nettement réceptif(ve) aux ambiances et aux subtilités, tout en gardant des moments où les stimulations ne vous débordent pas.';
         }
-        return 'Votre profil indique une <strong>sensibilité plutôt faible à modérée</strong>. Vous filtrez naturellement les stimulations et restez à l\'aise dans des environnements intenses.';
+        if (pct >= 40) {
+            return 'Votre profil indique une <strong>sensibilité modérée</strong>, équilibrée. Vous percevez les nuances de votre environnement sans en être facilement submergé(e), ni filtre systématique, ni saturation fréquente.';
+        }
+        return 'Votre profil indique une <strong>sensibilité plutôt faible</strong>. Vous filtrez naturellement les stimulations et restez à l\'aise dans des environnements intenses.';
     }
 
     function validEmail(v) {

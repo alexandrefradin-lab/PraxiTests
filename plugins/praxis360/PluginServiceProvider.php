@@ -17,6 +17,12 @@ class PluginServiceProvider extends AbstractPlugin
         // Enregistrer le moteur de scoring (obligatoire).
         $this->app->make(TestEngine::class)
             ->registerScoringEngine(new Scoring\Praxis360ScoringEngine());
+
+        // Page de résultats dédiée (sinon retombe sur la page générique).
+        $this->registerFilters([
+            'results.inertia_page' => fn (string $page, $attempt) =>
+                $attempt->test->scoring_engine === 'praxis360-softskills' ? 'Praxis360Result' : $page,
+        ]);
     }
 
     /**

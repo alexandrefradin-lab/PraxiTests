@@ -1,7 +1,8 @@
 <script setup>
 import { Link, usePage } from '@inertiajs/vue3'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
+const mobileOpen = ref(false)
 const page = usePage()
 const user = computed(() => page.props.auth?.user)
 const branding = computed(() => page.props.branding ?? { name: 'PraxiQuest', tagline: 'Évaluer. Orienter. Transformer.' })
@@ -36,8 +37,20 @@ const hasTreasure = computed(() => {
                     </div>
                 </Link>
 
-                <!-- Navigation candidat -->
-                <nav v-if="user" style="display: flex; align-items: center; gap: 4px">
+                <!-- Bouton burger (mobile uniquement) -->
+                <button
+                    v-if="user"
+                    type="button"
+                    class="cand-burger"
+                    :aria-expanded="mobileOpen"
+                    aria-label="Ouvrir le menu"
+                    @click="mobileOpen = !mobileOpen"
+                >
+                    <span></span><span></span><span></span>
+                </button>
+
+                <!-- Navigation candidat (desktop) -->
+                <nav v-if="user" class="cand-nav-desktop">
                     <Link :href="route('tests.index')"
                         class="cand-nav-link"
                         style="font-family: var(--font-display); font-size: 13px; font-weight: 500; color: var(--text-secondary); text-decoration: none; padding: 6px 13px; border-radius: var(--r); transition: color 0.15s, background 0.15s">
@@ -63,8 +76,13 @@ const hasTreasure = computed(() => {
 
                     <!-- User zone -->
                     <div style="display: flex; align-items: center; gap: 8px">
-                        <div style="width: 30px; height: 30px; border-radius: 50%; background: var(--color-accent); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 12px; font-weight: 700; color: var(--color-primary); flex-shrink: 0; border: 1px solid var(--border-mid)">
-                            {{ user.name?.charAt(0).toUpperCase() }}
+                        <div style="width: 30px; height: 30px; border-radius: 50%; background: var(--color-accent); display: flex; align-items: center; justify-content: center; color: var(--color-primary); flex-shrink: 0; border: 1px solid var(--border-mid)" :title="user.name">
+                            <!-- Emblème de quête : boussole d'aventurier -->
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <circle cx="12" cy="12" r="9" />
+                                <polygon points="15.5 8.5 11 11 8.5 15.5 13 13" fill="currentColor" stroke="none" />
+                                <circle cx="12" cy="12" r="0.6" fill="currentColor" stroke="none" />
+                            </svg>
                         </div>
                         <span style="font-size: 13px; color: var(--text-secondary); font-family: var(--font-body)">{{ user.name }}</span>
 
@@ -83,6 +101,16 @@ const hasTreasure = computed(() => {
                     </div>
                 </nav>
             </div>
+
+            <!-- Menu mobile déroulant -->
+            <nav v-if="user && mobileOpen" class="cand-mobile-menu">
+                <Link :href="route('tests.index')" class="cand-mobile-link" @click="mobileOpen = false">L'Armurerie</Link>
+                <Link :href="route('grimoire.show')" class="cand-mobile-link" @click="mobileOpen = false">Le Grimoire</Link>
+                <Link :href="route('history')" class="cand-mobile-link" @click="mobileOpen = false">Chroniques</Link>
+                <Link v-if="hasTreasure" :href="route('treasure.index')" class="cand-mobile-link" @click="mobileOpen = false">Le Trésor</Link>
+                <Link :href="route('gdpr.show')" class="cand-mobile-link" @click="mobileOpen = false">🔒 Mes données & RGPD</Link>
+                <Link :href="route('logout')" method="post" as="button" class="cand-mobile-link cand-mobile-link--danger" @click="mobileOpen = false">Quitter la Quête</Link>
+            </nav>
         </header>
 
         <!-- Barre XP -->
@@ -138,5 +166,79 @@ const hasTreasure = computed(() => {
 .cand-nav-link:hover {
     color: var(--text-primary) !important;
     background: var(--bg-elevated) !important;
+}
+
+/* Navigation desktop : flex par défaut */
+.cand-nav-desktop {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Burger masqué sur desktop */
+.cand-burger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    width: 38px;
+    height: 38px;
+    padding: 8px;
+    background: none;
+    border: 1px solid var(--border-mid);
+    border-radius: var(--r-sm);
+    cursor: pointer;
+}
+
+.cand-burger span {
+    display: block;
+    height: 2px;
+    width: 100%;
+    background: var(--color-primary);
+    border-radius: 2px;
+}
+
+/* Menu mobile déroulant */
+.cand-mobile-menu {
+    display: flex;
+    flex-direction: column;
+    padding: 8px 1.25rem 16px;
+    gap: 2px;
+    border-top: 1px solid var(--glass-border);
+}
+
+.cand-mobile-link {
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-decoration: none;
+    text-align: left;
+    padding: 12px 8px;
+    border-radius: var(--r);
+    background: none;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+}
+
+.cand-mobile-link:hover {
+    color: var(--text-primary);
+    background: var(--bg-elevated);
+}
+
+.cand-mobile-link--danger {
+    color: var(--color-danger, #B03020);
+    margin-top: 4px;
+}
+
+/* Bascule responsive : burger < 768px, nav desktop cachée */
+@media (max-width: 768px) {
+    .cand-nav-desktop {
+        display: none;
+    }
+    .cand-burger {
+        display: flex;
+    }
 }
 </style>

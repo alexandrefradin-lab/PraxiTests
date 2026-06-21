@@ -1,0 +1,27 @@
+{
+  "slug": "praxisens",
+  "name": "Le Radar des Sens — Test d'Hypersensibilité (PraxiSens)",
+  "version": "1.0.0",
+  "author": "Praxis Accompagnement",
+  "type": "test",
+  "description": "Évaluation de l'hypersensibilité (Sensory Processing Sensitivity) d'après Aron & Aron (1997) et la structure factorielle de Smolewska et al. (2006). 18 items Likert 5, 3 sous-dimensions : sur-stimulation (EOE), sensibilité esthétique & profondeur (AES), seuil sensoriel bas (LST).",
+  "namespace": "Praxis\\Plugins\\PraxiSens",
+  "service_provider": "Praxis\\Plugins\\PraxiSens\\PluginServiceProvider",
+  "permissions": [
+    "read:profiles",
+    "write:results",
+    "send:mail"
+  ],
+  "requires": {
+    "praxiquest": ">=1.0.0",
+    "php": ">=8.2"
+  },
+  "test": {
+    "slug": "praxisens",
+    "name": "Le Radar des Sens — Hypersensibilité",
+    "description": "Ce que ce test mesure : votre sensibilité de traitement sensoriel — votre rapport à la sur-stimulation, votre seuil sensoriel et votre profondeur de perception. 18 affirmations, 3 sous-dimensions, restitution par profil.",
+    "type": "questionnaire",
+    "scoring_engine": "praxisens-sps",
+    "estimated_minutes": 6
+  }
+}

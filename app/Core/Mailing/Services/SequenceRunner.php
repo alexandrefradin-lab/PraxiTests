@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Praxis\Core\Mailing\Mail\CampaignMail;
+use Praxis\Core\Mailing\HtmlSanitizer;
 use Praxis\Core\Mailing\NeuromarketingOptimizer;
 
 /**
@@ -53,10 +54,11 @@ class SequenceRunner
             return;
         }
 
-        $html = $this->neuro->enhanceHtml($step['body_html'] ?? '', array_merge($context, [
+        // SEC-07 : assainir le HTML (issu de la DB) avant envoi.
+        $html = HtmlSanitizer::clean($this->neuro->enhanceHtml($step['body_html'] ?? '', array_merge($context, [
             'user' => $user,
             'progress_percent' => $step['progress_percent'] ?? null,
-        ]));
+        ])));
 
         Mail::to($user->email)->queue(new CampaignMail(
             $step['subject'] ?? '(sans sujet)',

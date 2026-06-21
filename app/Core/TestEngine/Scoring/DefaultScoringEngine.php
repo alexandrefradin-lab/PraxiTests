@@ -21,6 +21,7 @@ class DefaultScoringEngine implements ScoringEngineContract
     {
         $dimensions = [];
         $maxByDimension = [];
+        $minByDimension = [];
 
         $answers = $attempt->answers()->with('question')->get();
 
@@ -37,15 +38,24 @@ class DefaultScoringEngine implements ScoringEngineContract
             $score = $this->extractScore($value, $rules);
             $dimensions[$dim] = ($dimensions[$dim] ?? 0) + ($score * $weight);
 
-            $max = $rules['max'] ?? max($rules['values'] ?? [1]);
-            $maxByDimension[$dim] = ($maxByDimension[$dim] ?? 0) + ($max * $weight);
+            // Contrat d'échelle : le front émet 1..max (jamais 0).
+            // On normalise sur la plage réelle [min..max] pour que la réponse
+            // minimale vaille 0 % et non min/max %.
+            $hasValues = isset($rules['values']) && !empty($rules['values']);
+            $maxVal = $rules['max'] ?? ($hasValues ? max($rules['values']) : 1);
+            $minVal = $rules['min'] ?? ($hasValues ? min($rules['values']) : 1);
+            $maxByDimension[$dim] = ($maxByDimension[$dim] ?? 0) + ($maxVal * $weight);
+            $minByDimension[$dim] = ($minByDimension[$dim] ?? 0) + ($minVal * $weight);
         }
 
-        // Normaliser sur 100
+        // Normaliser sur 100 en centrant sur le minimum d'échelle, puis clamp 0..100.
         $normalized = [];
         foreach ($dimensions as $dim => $raw) {
-            $max = $maxByDimension[$dim] ?? 1;
-            $normalized[$dim] = $max > 0 ? round(($raw / $max) * 100, 1) : 0;
+            $max  = $maxByDimension[$dim] ?? 1;
+            $min  = $minByDimension[$dim] ?? 0;
+            $span = $max - $min;
+            $pct  = $span > 0 ? round((($raw - $min) / $span) * 100, 1) : 0;
+            $normalized[$dim] = max(0, min(100, $pct));
         }
 
         return [

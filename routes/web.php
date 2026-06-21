@@ -48,7 +48,7 @@ Route::middleware(['auth'])->group(function () {
     // Feedback 360° — le candidat invite ses évaluateurs et suit la collecte
     Route::get('/results/{attempt}/360',              [\App\Http\Controllers\Candidate\Panel360Controller::class, 'manage'])->name('panel360.manage');
     Route::post('/panel/{panel}/invite',              [\App\Http\Controllers\Candidate\Panel360Controller::class, 'invite'])->name('panel360.invite');
-    Route::post('/panel/{panel}/send',                [\App\Http\Controllers\Candidate\Panel360Controller::class, 'send'])->name('panel360.send');
+    Route::post('/panel/{panel}/send',                [\App\Http\Controllers\Candidate\Panel360Controller::class, 'send'])->middleware('throttle:10,1')->name('panel360.send');
     Route::post('/panel/{panel}/proceed',             [\App\Http\Controllers\Candidate\Panel360Controller::class, 'proceed'])->name('panel360.proceed');
     Route::delete('/panel/invitation/{invitation}',   [\App\Http\Controllers\Candidate\Panel360Controller::class, 'removeInvitation'])->name('panel360.invitation.destroy');
 
@@ -88,14 +88,19 @@ Route::middleware(['auth'])->prefix('billing')->name('billing.')->group(function
     Route::post('/resume',  [BillingController::class, 'resume'])->name('resume');
 });
 
-// Lien d'invitation public
-Route::get('/i/{token}', [\App\Http\Controllers\InvitationController::class, 'land'])->name('invitation.land');
+// Lien d'invitation public (rate-limité anti-énumération de tokens)
+Route::get('/i/{token}', [\App\Http\Controllers\InvitationController::class, 'land'])
+    ->middleware('throttle:30,1')
+    ->name('invitation.land');
 
-// Feedback 360° — réponse anonyme d'un évaluateur (sans compte, via lien tokenisé)
-Route::get('/360/{token}',          [\App\Http\Controllers\Evaluation360Controller::class, 'land'])->name('eval360.land');
-Route::post('/360/{token}/answer',  [\App\Http\Controllers\Evaluation360Controller::class, 'answer'])->name('eval360.answer');
-Route::post('/360/{token}/complete',[\App\Http\Controllers\Evaluation360Controller::class, 'complete'])->name('eval360.complete');
-Route::get('/360/{token}/merci',    [\App\Http\Controllers\Evaluation360Controller::class, 'thanks'])->name('eval360.thanks');
+// Feedback 360° — réponse anonyme d'un évaluateur (sans compte, via lien tokenisé).
+// Rate-limité : les écritures (answer/complete) sont plafonnées pour éviter le spam.
+Route::middleware('throttle:40,1')->group(function () {
+    Route::get('/360/{token}',          [\App\Http\Controllers\Evaluation360Controller::class, 'land'])->name('eval360.land');
+    Route::post('/360/{token}/answer',  [\App\Http\Controllers\Evaluation360Controller::class, 'answer'])->name('eval360.answer');
+    Route::post('/360/{token}/complete',[\App\Http\Controllers\Evaluation360Controller::class, 'complete'])->name('eval360.complete');
+    Route::get('/360/{token}/merci',    [\App\Http\Controllers\Evaluation360Controller::class, 'thanks'])->name('eval360.thanks');
+});
 
 require __DIR__ . '/auth.php';
 require __DIR__ . '/admin.php';

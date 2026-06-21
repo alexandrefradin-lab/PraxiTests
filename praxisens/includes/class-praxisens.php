@@ -163,25 +163,31 @@ class Praxisens {
         );
     }
 
+    /** Paliers (sur le score global %) : faible <40 · modérée 40-59 · élevée 60-77 · haute ≥78. */
     public static function band( $pct ) {
-        if ( $pct >= 75 ) { return 'haute'; }
-        if ( $pct >= 50 ) { return 'moyenne'; }
+        if ( $pct >= 78 ) { return 'haute'; }
+        if ( $pct >= 60 ) { return 'elevee'; }
+        if ( $pct >= 40 ) { return 'moderee'; }
         return 'faible';
     }
 
     public static function profile_label( $pct ) {
-        if ( $pct >= 75 ) { return 'Haute sensibilité marquée'; }
-        if ( $pct >= 50 ) { return 'Sensibilité présente'; }
-        return 'Sensibilité faible à modérée';
+        if ( $pct >= 78 ) { return 'Haute sensibilité marquée'; }
+        if ( $pct >= 60 ) { return 'Sensibilité élevée'; }
+        if ( $pct >= 40 ) { return 'Sensibilité modérée'; }
+        return 'Sensibilité faible';
     }
 
     public static function band_text( $pct ) {
-        if ( $pct >= 75 ) {
+        if ( $pct >= 78 ) {
             return "Votre profil correspond à une <strong>haute sensibilité marquée</strong>. Vous traitez l'information de façon profonde et percevez finement votre environnement — une richesse qui demande aussi de protéger vos temps de récupération.";
         }
-        if ( $pct >= 50 ) {
-            return "Une <strong>sensibilité présente</strong> ressort de vos réponses. Vous êtes réceptif(ve) aux ambiances et aux subtilités, sans être systématiquement débordé(e) par les stimulations.";
+        if ( $pct >= 60 ) {
+            return "Une <strong>sensibilité élevée</strong> ressort de vos réponses. Vous êtes nettement réceptif(ve) aux ambiances et aux subtilités, tout en gardant des moments où les stimulations ne vous débordent pas.";
         }
-        return "Votre profil indique une <strong>sensibilité plutôt faible à modérée</strong>. Vous filtrez naturellement les stimulations et restez à l'aise dans des environnements intenses.";
+        if ( $pct >= 40 ) {
+            return "Votre profil indique une <strong>sensibilité modérée</strong>, équilibrée. Vous percevez les nuances de votre environnement sans en être facilement submergé(e) : ni filtre systématique, ni saturation fréquente.";
+        }
+        return "Votre profil indique une <strong>sensibilité plutôt faible</strong>. Vous filtrez naturellement les stimulations et restez à l'aise dans des environnements intenses.";
     }
 }

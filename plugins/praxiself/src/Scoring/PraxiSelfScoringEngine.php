@@ -54,14 +54,18 @@ class PraxiSelfScoringEngine implements ScoringEngineContract
             $dimension   = $scoringMeta['dimension'] ?? null;
             $weight      = (float) ($scoringMeta['weight'] ?? 1.0);
             $max         = (int) ($scoringMeta['max'] ?? self::MAX_LIKERT);
+            // Contrat d'échelle : Likert démarre à 1, binaire à 0.
+            $min         = (int) ($scoringMeta['min'] ?? ($max > 1 ? 1 : 0));
             $value       = (float) $answer->value;
 
             if (!$dimension || !in_array($dimension, self::DIMENSIONS, true)) {
                 continue;
             }
 
-            // Normalise la valeur brute en [0, 1]
-            $normalized = $max > 0 ? min(1.0, max(0.0, $value / $max)) : 0.0;
+            // Normalise la valeur brute en [0, 1] sur la plage réelle [min..max]
+            // pour que la réponse minimale vaille 0 et non min/max.
+            $span       = $max - $min;
+            $normalized = $span > 0 ? min(1.0, max(0.0, ($value - $min) / $span)) : 0.0;
 
             $weighted[$dimension] += $normalized * $weight;
             $totals[$dimension]   += $weight;
@@ -78,11 +82,8 @@ class PraxiSelfScoringEngine implements ScoringEngineContract
         // Score global : moyenne arithmétique des 5 dimensions
         $globalScore = round(array_sum($rawScores) / count($rawScores), 1);
 
-        // Identification de la dimension la plus faible (pour recommandations)
-        $weakestDimension = array_key_first(
-            array_slice(arsort($rawScores) ? array_reverse($rawScores, true) : $rawScores, 0, 1, true)
-        );
-        // arsort modifie le tableau en place — recalculer proprement
+        // Identification de la dimension la plus faible (pour recommandations).
+        // On trie une COPIE pour ne pas altérer l'ordre de $rawScores (radar/labels).
         $sortedAsc = $rawScores;
         asort($sortedAsc);
         $weakestDimension = (string) array_key_first($sortedAsc);

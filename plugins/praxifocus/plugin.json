@@ -1,0 +1,31 @@
+{
+  "slug": "praxifocus",
+  "name": "La Boussole de l'Attention — Repères TDAH (PraxiFocus)",
+  "version": "1.0.0",
+  "author": "Praxis Accompagnement",
+  "type": "test",
+  "description": "Auto-questionnaire de repérage des symptômes d'attention et d'hyperactivité chez l'adulte, basé sur l'échelle ASRS-v1.1 de l'OMS (18 items). Screener validé (Partie A, 6 items) + profil Inattention / Hyperactivité-Impulsivité. OUTIL DE DÉPISTAGE — ne constitue pas un diagnostic ni un avis médical.",
+  "namespace": "Praxis\\Plugins\\PraxiFocus",
+  "service_provider": "Praxis\\Plugins\\PraxiFocus\\PluginServiceProvider",
+  "permissions": [
+    "read:profiles",
+    "write:results"
+  ],
+  "requires": {
+    "praxiquest": ">=1.0.0",
+    "php": ">=8.2"
+  },
+  "test": {
+    "slug": "praxifocus",
+    "name": "La Boussole de l'Attention — Repères TDAH (ASRS-v1.1)",
+    "description": "Ce que ce test explore : ta manière de gérer l'attention, l'organisation, l'agitation et l'impulsivité au quotidien, à partir de l'échelle de repérage ASRS-v1.1 de l'OMS (18 items). ⚠️ Important : il s'agit d'un outil de repérage, PAS d'un diagnostic. Un résultat élevé n'établit pas un TDAH : seul un professionnel de santé (médecin, psychiatre, neuropsychologue) peut poser un diagnostic. Vérifie toujours tes résultats avec un professionnel.",
+    "type": "questionnaire",
+    "scoring_engine": "praxifocus-asrs",
+    "estimated_minutes": 7
+  },
+  "reward": {
+    "threshold_eclats": 700,
+    "teaser": "La Boussole de l'Attention : 18 repères pour mieux comprendre ton attention au quotidien.",
+    "icon": "ti-compass"
+  }
+}

@@ -6,6 +6,45 @@ defineProps({
     tests: Array,
     profile_complete: Boolean,
 })
+
+// ── Emblèmes médiévaux (line-art) par test, mappés sur le slug ──
+const ICONS = {
+    // Orientation Express → boussole
+    'orientation-express': '<circle cx="12" cy="12" r="9"/><polygon points="12,6.5 14,12 12,17.5 10,12" fill="currentColor" stroke="currentColor"/><path d="M12 2.5V4M12 20v1.5M2.5 12H4M20 12h1.5"/>',
+    // PraxiMet — Quête de la Voie (RIASEC) → poteau-panneau (carrefour)
+    'praximet': '<path d="M12 3.5V21"/><path d="M12 6h7l-2 2 2 2h-7"/><path d="M12 12H5l-2 2 2 2h7"/>',
+    // PraxiMum — Grande Cartographie (Big Five) → carte dépliée
+    'praximum': '<path d="M3 6.5l6-2 6 2 6-2v13l-6 2-6-2-6 2z"/><path d="M9 4.5v13M15 6.5v13"/>',
+    // Praxis360 — Constellation des Talents → constellation
+    'praxis360': '<path d="M4 8l5 5 6-4 5 4"/><circle cx="4" cy="8" r="1.1" fill="currentColor" stroke="none"/><circle cx="9" cy="13" r="1.1" fill="currentColor" stroke="none"/><circle cx="15" cy="9" r="1.1" fill="currentColor" stroke="none"/><circle cx="20" cy="13" r="1.1" fill="currentColor" stroke="none"/><circle cx="12" cy="4" r="1.1" fill="currentColor" stroke="none"/>',
+    // PraxiEmo — Boussole des Émotions → cœur dans une boussole
+    'praxiemo': '<circle cx="12" cy="12" r="9"/><path d="M12 16.5c-2.2-1.6-3.8-2.9-3.8-4.6 0-1.2 1-2.1 2.1-2.1.8 0 1.3.4 1.7 1 .4-.6.9-1 1.7-1 1.1 0 2.1.9 2.1 2.1 0 1.7-1.6 3-3.8 4.6z"/>',
+    // PraxiCare — Sentinelle Intérieure → écu au cœur
+    'praxicare': '<path d="M12 3l7 3v5c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V6z"/><path d="M12 14.5c-1.7-1.2-3-2.2-3-3.5 0-1 .8-1.6 1.6-1.6.6 0 1.1.3 1.4.8.3-.5.8-.8 1.4-.8.8 0 1.6.6 1.6 1.6 0 1.3-1.3 2.3-3 3.5z"/>',
+    // PraxiSelf — Forge du Soi → marteau de forgeron
+    'praxiself': '<path d="M16.5 3.5l4 4-2.2 2.2-4-4z"/><path d="M14 6L4.5 15.5 3 19l3.5-1.5L16 8z"/>',
+    // PraxiSpeak — Voix du Héros → porte-voix / héraut
+    'praxispeak': '<path d="M4 10.5v3l3 .8 9 4V5.7L7 9.7l-3 .8z"/><path d="M17 9c1.8.3 2.8 1.6 2.8 3s-1 2.7-2.8 3"/>',
+    // PraxiFlow — Maître du Temps → sablier
+    'praxiflow': '<path d="M6 3h12M6 21h12"/><path d="M7 3v3c0 2 2 4 5 6 3-2 5-4 5-6V3"/><path d="M7 21v-3c0-2 2-4 5-6 3 2 5 4 5 6v3"/>',
+    // PraxiTempo — Maître du Temps (conversationnel) → cadran solaire
+    'praxitempo': '<path d="M3.5 20h17"/><path d="M6 20a6 6 0 0 1 12 0"/><path d="M12 20L9.5 9"/><path d="M7.5 16l-1.2-.6M16.5 16l1.2-.6"/>',
+    // PraxiValeurs — Source des Valeurs → balance
+    'praxivaleurs': '<path d="M12 4v17"/><path d="M7 21h10"/><path d="M5 7l7-1.5L19 7"/><path d="M5 7l-2 5a3 3 0 0 0 4 0z"/><path d="M19 7l-2 5a3 3 0 0 0 4 0z"/>',
+    // PraxiZen — Refuge Intérieur → lotus
+    'praxizen': '<path d="M12 5c1.6 2.6 1.6 5.4 0 8-1.6-2.6-1.6-5.4 0-8z"/><path d="M12 13C9.8 11.4 7 11.4 4.5 13c1.4 2.4 4 3.4 7.5 3"/><path d="M12 13c2.2-1.6 5-1.6 7.5 0-1.4 2.4-4 3.4-7.5 3"/>',
+    // PraxiLink — Art des Liens → maillons de chaîne
+    'praxilink': '<rect x="3" y="9" width="11" height="6" rx="3"/><rect x="10" y="9" width="11" height="6" rx="3"/>',
+    // PraxiBoost → étincelle / éclat
+    'praxiboost': '<path d="M12 2.5l1.8 6.7 6.7 1.8-6.7 1.8L12 19.5l-1.8-6.7L3.5 11l6.7-1.8z" fill="currentColor" stroke="currentColor"/>',
+}
+// Fallback : écu
+const DEFAULT_ICON = '<path d="M12 3l7 3v5c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V6z"/>'
+
+function emblem(slug) {
+    const inner = ICONS[slug] ?? DEFAULT_ICON
+    return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>`
+}
 </script>
 
 <template>
@@ -79,13 +118,16 @@ defineProps({
                     '--hover-border': 'var(--color-primary)',
                 }"
             >
-                <!-- Badge type -->
-                <span
-                    class="inline-block self-start px-2 py-0.5 rounded text-[10px] uppercase tracking-widest mb-3"
-                    style="font-family:'Space Mono',monospace; color:var(--text-secondary); background:var(--bg-elevated);"
-                >
-                    {{ test.type ?? 'Épreuve' }}
-                </span>
+                <!-- Badge type + emblème médiéval -->
+                <div class="flex items-start justify-between mb-3 gap-3">
+                    <span
+                        class="inline-block px-2 py-0.5 rounded text-[10px] uppercase tracking-widest mt-1"
+                        style="font-family:'Space Mono',monospace; color:var(--text-secondary); background:var(--bg-elevated);"
+                    >
+                        {{ test.type ?? 'Épreuve' }}
+                    </span>
+                    <span class="pt-emblem" v-html="emblem(test.slug)"></span>
+                </div>
 
                 <!-- Titre -->
                 <h3
@@ -146,5 +188,26 @@ defineProps({
 .pt-card:hover {
     border-color: var(--color-primary) !important;
     box-shadow: 0 4px 20px rgba(166, 117, 32, 0.12);
+}
+.pt-emblem {
+    width: 44px;
+    height: 44px;
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: var(--color-primary);
+    background: var(--bg-elevated);
+    border: 1px solid var(--glass-border);
+    transition: border-color 0.2s ease, transform 0.2s ease;
+}
+.pt-emblem :deep(svg) {
+    width: 24px;
+    height: 24px;
+}
+.group:hover .pt-emblem {
+    border-color: var(--color-primary);
+    transform: rotate(-4deg) scale(1.05);
 }
 </style>

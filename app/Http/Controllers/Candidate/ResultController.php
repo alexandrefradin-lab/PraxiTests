@@ -24,6 +24,7 @@ class ResultController extends Controller
         $allowed = [
             'Candidate/ResultsShow',
             'PraximetResult', 'PraxiCareResult', 'PraxiEmoResult', 'PraxiMumResult', 'PraxiValeursResult',
+            'Praxis360Result', 'PraxiFocusResult',
             // Mini-apps
             'PraxiZenResult', 'PraxiSelfResult', 'PraxiSpeakResult', 'PraxiFlowResult', 'PraxiLinkResult',
         ];
@@ -147,13 +148,22 @@ class ResultController extends Controller
     public function history()
     {
         $attempts = TestAttempt::with([
-                'test:id,name,slug',
+                'test:id,name,slug,description',
                 'result:attempt_id,ai_synthesis,suggested_jobs',
             ])
             ->where('user_id', auth()->id())
             ->select(['id', 'test_id', 'status', 'started_at', 'completed_at'])
             ->latest('started_at')
-            ->get();
+            ->get()
+            ->map(fn ($a) => [
+                'id'               => $a->id,
+                'status'           => $a->status,
+                'started_at'       => $a->started_at,
+                'completed_at'     => $a->completed_at,
+                'test_name'        => $a->test?->name ?? 'Épreuve',
+                'test_description' => $a->test?->description,
+                'result_id'        => $a->result ? $a->id : null,
+            ]);
 
         return Inertia::render('Candidate/History', [
             'attempts' => $attempts,
