@@ -7,7 +7,7 @@ class Exercises
     /**
      * Cinq dimensions de la prise de parole en public.
      * Base scientifique : modèles de Wolpe (désensibilisation), Bandura (auto-efficacité),
-     * Cuddy (power posing), Goleman (régulation émotionnelle), Carnegie (structure).
+     * Brooks 2014 (réévaluation de l'arousal), Goleman (régulation émotionnelle), Carnegie (structure).
      */
     public static function dimensions(): array
     {
@@ -112,21 +112,38 @@ class Exercises
 
             [
                 'id'              => 'trac_04',
-                'title'           => 'Ancre de ressource PNL',
+                'title'           => 'Routine pré-performance conditionnée',
                 'category'        => 'gestion_du_trac',
                 'duration_minutes'=> 5,
                 'difficulty'      => 2,
-                'scientific_basis'=> 'Ancrage neuro-linguistique (Bandler & Grinder, 1979) — un stimulus conditionné (geste) associé à un état interne intense permet de le réactiver à la demande. Mécanisme proche du conditionnement classique pavlovien appliqué aux ressources positives.',
+                'scientific_basis'=> 'Routines pré-performance (Cotterill, 2010 — psychologie du sport) : une séquence d\'actions fixe réduit l\'anxiété en créant un sentiment de contrôle et automatise la transition vers l\'état de focus. Couplée à une intention d\'implémentation « quand X, alors Y » (Gollwitzer & Sheeran, 2006, méta-analyse d=0,65), elle devient un déclencheur fiable, sans recourir aux postulats non étayés de la PNL.',
                 'instructions'    => [
-                    'Ferme les yeux. Rappelle-toi un moment où tu t\'es senti(e) vraiment confiant(e) et à ta place.',
-                    'Revivez ce souvenir intensément : les images, les sons, les sensations physiques dans ton corps.',
-                    'Au pic de l\'état (7/10 minimum), pince fermement le pouce et l\'index de ta main dominante pendant 5 secondes.',
-                    'Relâche, aère-toi l\'esprit en pensant à autre chose 30 secondes.',
-                    'Répète 3 fois pour solidifier l\'ancre.',
-                    'Test : pince ton ancre et observe si l\'état de confiance revient spontanément.',
-                    'Active cette ancre juste avant chaque prise de parole.',
+                    'Conçois une séquence FIXE de 4 gestes que tu répéteras à l\'identique avant chaque prise de parole.',
+                    '1. Ancre physique : pieds bien à plat, poids réparti, épaules relâchées (10 secondes).',
+                    '2. Respiration : 3 soupirs physiologiques (double inspiration nasale + longue expiration).',
+                    '3. Phrase d\'engagement : dis-toi une phrase courte et vraie, ex. « Je suis prêt(e), mon message a de la valeur ».',
+                    '4. Micro-sourire : 5 secondes, pour amorcer un état positif.',
+                    'Écris ta clause si-alors : « QUAND je m\'apprête à prendre la parole, ALORS je déroule ma séquence des 4 gestes. »',
+                    'Répète la séquence complète 3 fois maintenant pour l\'automatiser, puis utilise-la systématiquement.',
                 ],
                 'scoring'         => ['dimension' => 'gestion_du_trac', 'points' => 15],
+            ],
+
+            [
+                'id'              => 'trac_05',
+                'title'           => 'Recadrage de l\'arousal — « je suis excité(e) »',
+                'category'        => 'gestion_du_trac',
+                'duration_minutes'=> 3,
+                'difficulty'      => 1,
+                'scientific_basis'=> 'Réévaluation de l\'arousal (Brooks, 2014, Journal of Experimental Psychology: General) : se dire « je suis excité(e) » plutôt que « calme-toi » améliore la performance en prise de parole, en chant et en calcul, et fait basculer d\'un état de menace vers un état d\'opportunité. L\'anxiété et l\'excitation partagent la même activation physiologique — on réinterprète le signal au lieu de le combattre.',
+                'instructions'    => [
+                    'Juste avant un moment qui te stresse, repère les signes physiques : cœur qui bat, mains moites, énergie.',
+                    'Au lieu de chercher à te calmer (difficile quand l\'arousal est haut), dis-toi à voix haute : « Je suis excité(e) ! ».',
+                    'Répète-le 3 fois, avec conviction, en associant cette énergie à l\'enjeu positif qui t\'attend.',
+                    'Reformule mentalement la situation comme une OPPORTUNITÉ : « J\'ai la chance de partager ça ».',
+                    'Clause si-alors : « QUAND je sens mon cœur s\'emballer avant de parler, ALORS je me dis "je suis excité(e)" et je vois une opportunité. »',
+                ],
+                'scoring'         => ['dimension' => 'gestion_du_trac', 'points' => 10],
             ],
 
             // ── PRÉPARATION MENTALE ──────────────────────────────────────────────────────
@@ -232,19 +249,18 @@ class Exercises
 
             [
                 'id'              => 'corps_01',
-                'title'           => 'Posture de puissance — Power Pose 2 minutes',
+                'title'           => 'Posture d\'ancrage physiologique',
                 'category'        => 'presence_physique',
                 'duration_minutes'=> 3,
                 'difficulty'      => 1,
-                'scientific_basis'=> 'Power posing (Cuddy et al., 2010) — les postures d\'expansion augmentent le sentiment de confiance en soi et modulent les hormones de dominance. Même si l\'effet hormonal est débattu, l\'impact comportemental et perçu est répliqué (Ranehill et al., 2015).',
+                'scientific_basis'=> 'Note d\'honnêteté : les effets hormonaux du « power posing » (Carney, Cuddy & Yap, 2010) n\'ont PAS été répliqués et la première auteure les a désavoués en 2016 (méta-analyse Ranehill et al., 2015 ; numéro spécial de 2017). On garde donc uniquement ce qui tient : une posture ouverte et stable facilite la respiration diaphragmatique (cage thoracique dégagée) et un sentiment de stabilité physique — sans promesse hormonale.',
                 'instructions'    => [
-                    'Lève-toi et trouve un espace privé (toilettes, couloir, bureau vide).',
-                    'Adopte la posture Wonder Woman / Superman : pieds à la largeur des épaules, mains sur les hanches, menton légèrement relevé, regard droit devant.',
-                    'Tiens cette posture pendant exactement 2 minutes.',
-                    'Respire profondément et régulièrement pendant ces 2 minutes.',
-                    'Observe les sensations dans ton corps : chaleur, élargissement de la poitrine, stabilité des jambes.',
-                    'Variation : bras levés en V (posture de victoire) pendant 60 secondes supplémentaires.',
-                    'Pratique ceci dans les 5 minutes qui précèdent toute prise de parole importante.',
+                    'Lève-toi, pieds à la largeur des épaules, poids réparti également sur les deux jambes.',
+                    'Relâche les épaules vers le bas et l\'arrière, ouvre légèrement la cage thoracique, menton parallèle au sol.',
+                    'Dans cette posture ouverte, fais 5 soupirs physiologiques (double inspiration nasale + longue expiration) — la cage dégagée facilite l\'amplitude respiratoire.',
+                    'Sens l\'appui de tes pieds dans le sol : c\'est ton point d\'ancrage stable.',
+                    'Garde cette tenue au moment de prendre la parole : une base stable libère ta respiration et ta voix (et non un effet hormonal).',
+                    'Clause si-alors : « QUAND je m\'installe pour parler, ALORS j\'ancre mes pieds et j\'ouvre ma posture avant le premier mot. »',
                 ],
                 'scoring'         => ['dimension' => 'presence_physique', 'points' => 10],
             ],
@@ -295,7 +311,7 @@ class Exercises
                 'category'        => 'presence_physique',
                 'duration_minutes'=> 4,
                 'difficulty'      => 2,
-                'scientific_basis'=> 'Communication non-verbale (Mehrabian, 1971 revisé) — les gestes amplificateurs augmentent la mémorisation du message de 60% vs discours seul (McNeill, 1992). Les gestes fermés (bras croisés, mains cachées) signalent défensivité ou doute.',
+                'scientific_basis'=> 'Gestes co-verbaux (McNeill, 1992 ; Kendon) — les gestes qui accompagnent la parole soutiennent l\'attention et la mémorisation de l\'auditoire. Attention au mythe « 93 % de non-verbal » (mauvaise lecture de Mehrabian, 1971) : ce chiffre ne vaut que pour des messages d\'attitude ambigus, pas pour la communication en général.',
                 'instructions'    => [
                     'Lève-toi et parle d\'un sujet quelconque pendant 2 minutes.',
                     'Règle 1 — Mains visibles : garde les mains au-dessus de la ceinture, paumes visibles.',
@@ -427,7 +443,7 @@ class Exercises
                 'category'        => 'impact_vocal',
                 'duration_minutes'=> 5,
                 'difficulty'      => 3,
-                'scientific_basis'=> 'Prosodie et persuasion (Mehrabian, 1971) — le rythme variable et les silences stratégiques maintiennent l\'attention et signalent les moments importants. Les orateurs les plus persuasifs font des pauses 3x plus fréquentes que la moyenne (Leathers, 1997).',
+                'scientific_basis'=> 'Prosodie et persuasion (Leathers, 1997 ; Burgoon et al., 1996) — le rythme variable et les silences stratégiques maintiennent l\'attention et signalent les moments importants. Les pauses avant un mot-clé en renforcent l\'impact perçu.',
                 'instructions'    => [
                     'Choisis un paragraphe de 5 lignes sur un sujet que tu maîtrises.',
                     'Étape 1 — Repère les mots-clés : souligne les 5-7 mots les plus importants.',

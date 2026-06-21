@@ -20,6 +20,32 @@ abstract class AbstractDriver implements AIDriverContract
     }
 
     /**
+     * Implémentation par défaut : exécution SÉQUENTIELLE (pas de parallélisme).
+     * Les drivers capables de concurrence (ex : AnthropicDriver via Http::pool)
+     * surchargent cette méthode. L'usage est cumulé sur l'ensemble du lot.
+     */
+    public function chatMany(array $batch, array $options = []): array
+    {
+        $out   = [];
+        $total = ['input_tokens' => 0, 'output_tokens' => 0];
+
+        foreach ($batch as $key => $req) {
+            $out[$key] = $this->chat(
+                $req['messages'] ?? [],
+                array_merge($options, $req['options'] ?? []),
+            );
+
+            $u = $this->lastUsage();
+            $total['input_tokens']  += $u['input_tokens']  ?? 0;
+            $total['output_tokens'] += $u['output_tokens'] ?? 0;
+        }
+
+        $this->usage = $total;
+
+        return $out;
+    }
+
+    /**
      * Retourne le nom du modèle exact configuré pour ce driver.
      * Utilisé pour la traçabilité IA dans ai_model sur TestResult.
      */

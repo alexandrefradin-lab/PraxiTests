@@ -44,6 +44,7 @@ TXT;
                 'depuis'     => $profile?->status_since?->format('Y-m'),
                 'rôle'       => $profile?->current_role,
                 'industrie'  => $profile?->industry,
+                'problématique' => $profile?->problematique,
                 'cv_extrait' => $profile?->cv_structured,
             ],
             'tests'  => $tests,
@@ -62,6 +63,100 @@ TXT;
             . "\"appui_tests\" (liste des noms de tests qui soutiennent cette piste), "
             . "\"prochaine_etape\" (action concrète) }.\n\n"
             . "Format attendu : { \"synthese\": \"...\", \"voies\": [ { ... }, ... ] }";
+
+        return [
+            ['role' => 'system', 'content' => $system],
+            ['role' => 'user',   'content' => $user_msg],
+        ];
+    }
+
+    /**
+     * Contexte commun aux deux prompts du Grimoire (synthèse + voies).
+     * Labels qualitatifs uniquement (jamais de chiffres bruts) + synthèse par test.
+     */
+    protected function grimoireContext(User $user, Collection $attempts): array
+    {
+        $profile = $user->profile;
+
+        $tests = $attempts->map(function (TestAttempt $a) {
+            return [
+                'nom'                          => $a->test?->name,
+                'type'                         => $a->test?->type,
+                'interprétation_par_dimension' => $this->enrichScoringForPrompt($a->result?->scoring)['interprétation_par_dimension']
+                                                    ?? $this->enrichScoringForPrompt($a->result?->scoring),
+                'synthèse_du_test'             => $a->result?->ai_synthesis,
+            ];
+        })->values()->all();
+
+        return [
+            'profil' => [
+                'statut'        => $profile?->status,
+                'depuis'        => $profile?->status_since?->format('Y-m'),
+                'rôle'          => $profile?->current_role,
+                'industrie'     => $profile?->industry,
+                'problématique' => $profile?->problematique,
+                'cv_extrait'    => $profile?->cv_structured,
+            ],
+            'tests'  => $tests,
+        ];
+    }
+
+    /**
+     * Grimoire — PROMPT 1/2 : uniquement la synthèse croisée.
+     * Conçu pour tourner EN PARALLÈLE avec globalGrimoireVoies() (Http::pool).
+     */
+    public function globalGrimoireSynthese(User $user, Collection $attempts): array
+    {
+        $system = <<<TXT
+Tu es un consultant en orientation professionnelle senior, formé aux approches RIASEC, MBTI, Big Five, bilan de compétences et intelligence émotionnelle.
+Ton rôle : produire une RELECTURE GLOBALE qui CROISE plusieurs tests entre eux — pas une simple juxtaposition de synthèses individuelles.
+Tu mets en évidence les convergences (ce qui se confirme d'un test à l'autre), les tensions (ce qui semble se contredire) et le fil conducteur du profil.
+Style : chaleureux, professionnel, français, sans jargon, sans flatterie creuse, phrases courtes.
+Tu ne donnes JAMAIS de conseils médicaux, juridiques ou financiers. Tu n'inventes pas de scores qu'on ne t'a pas donnés.
+Tu réponds STRICTEMENT en JSON valide, sans texte hors-JSON, sans bloc ```.
+TXT;
+
+        $context = $this->grimoireContext($user, $attempts);
+
+        $user_msg = "Voici l'ensemble des tests passés par le candidat :\n\n"
+            . json_encode($context, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
+            . "\n\nProduis un JSON STRICT avec une SEULE clé \"synthese\" : 400-600 mots, "
+            . "3 à 4 paragraphes, en CROISANT les tests (convergences, tensions, fil conducteur). "
+            . "Ne recopie pas les synthèses individuelles. N'utilise jamais de chiffres ni de percentiles "
+            . "— appuie-toi sur les labels qualitatifs.\n\n"
+            . "Format attendu : { \"synthese\": \"...\" }";
+
+        return [
+            ['role' => 'system', 'content' => $system],
+            ['role' => 'user',   'content' => $user_msg],
+        ];
+    }
+
+    /**
+     * Grimoire — PROMPT 2/2 : uniquement les {count} voies métiers.
+     * Conçu pour tourner EN PARALLÈLE avec globalGrimoireSynthese() (Http::pool).
+     */
+    public function globalGrimoireVoies(User $user, Collection $attempts, int $count = 15): array
+    {
+        $system = <<<TXT
+Tu es un consultant en orientation professionnelle senior qui propose des métiers réalistes, alignés sur le profil et le marché du travail français/francophone actuel.
+Tu croises l'ensemble des tests du candidat pour fonder chaque piste. Tu ne proposes que des métiers existants et accessibles.
+Tu varies les secteurs et les modèles (salariat / entrepreneuriat / freelance).
+Tu ne donnes JAMAIS de conseils médicaux, juridiques ou financiers. Tu n'inventes pas de scores qu'on ne t'a pas donnés.
+Tu réponds STRICTEMENT en JSON valide, sans texte hors-JSON, sans bloc ```.
+TXT;
+
+        $context = $this->grimoireContext($user, $attempts);
+
+        $user_msg = "Voici l'ensemble des tests passés par le candidat :\n\n"
+            . json_encode($context, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
+            . "\n\nProduis un JSON STRICT avec une SEULE clé \"voies\" : EXACTEMENT {$count} pistes de "
+            . "métiers réalistes et accessibles sur le marché francophone actuel, classées du plus pertinent "
+            . "au moins pertinent, en variant les secteurs et les modèles (salariat / entrepreneuriat / freelance). "
+            . "Pour chaque piste : { \"titre\", \"secteur\", \"fit_score\" (0-100), \"pourquoi\" (50 mots max), "
+            . "\"appui_tests\" (liste des noms de tests qui soutiennent cette piste), "
+            . "\"prochaine_etape\" (action concrète) }.\n\n"
+            . "Format attendu : { \"voies\": [ { ... }, ... ] }";
 
         return [
             ['role' => 'system', 'content' => $system],
@@ -90,6 +185,7 @@ TXT;
                 'depuis'     => $profile?->status_since?->format('Y-m'),
                 'rôle'       => $profile?->current_role,
                 'industrie'  => $profile?->industry,
+                'problématique' => $profile?->problematique,
                 'cv_extrait' => $profile?->cv_structured,
             ],
             'test' => [
@@ -162,6 +258,7 @@ TXT;
             'profil'    => [
                 'statut'   => $profile?->status,
                 'rôle'     => $profile?->current_role,
+                'problématique' => $profile?->problematique,
                 'cv'       => $profile?->cv_structured,
             ],
             'scoring'   => $scoring,

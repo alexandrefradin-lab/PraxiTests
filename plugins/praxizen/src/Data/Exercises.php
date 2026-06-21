@@ -11,7 +11,8 @@ namespace Praxis\Plugins\PraxiZen\Data;
  *  - Technique STOP : Kabat-Zinn (1994), MBSR — mindfulness-based stress reduction
  *  - Scan corporel / PMR : Jacobson (1938) — relaxation musculaire progressive
  *  - Restructuration cognitive : Beck (1979), TCC — pensées automatiques
- *  - Ancrage 5-4-3-2-1 : Shapiro (2001), EMDR — grounding sensoriel
+ *  - Ancrage 5-4-3-2-1 : grounding sensoriel (tolérance à la détresse, Linehan 1993)
+ *  - Soupir physiologique : Balban et al. (2023), Cell Reports Medicine — ECR
  */
 class Exercises
 {
@@ -188,7 +189,7 @@ class Exercises
                 'category'         => 'mindfulness',
                 'duration_minutes' => 3,
                 'difficulty'       => 1,
-                'scientific_basis' => 'Shapiro (2001) — EMDR grounding, activation du cortex préfrontal',
+                'scientific_basis' => 'Techniques de grounding sensoriel (tolérance à la détresse, Linehan, 1993). Ramener l\'attention aux 5 sens interrompt la rumination en réorientant le traitement vers le présent. (NB : souvent attribué à tort à l\'EMDR — ce n\'en est pas.)',
                 'instructions'     => [
                     'Regarde autour de toi et nomme mentalement 5 choses que tu VOIS.',
                     'Nomme 4 choses que tu TOUCHES (la chaise, l\'air, tes vêtements, etc.).',
@@ -293,19 +294,18 @@ class Exercises
 
             [
                 'id'               => 'zen-corp-02',
-                'title'            => 'Tremblement thérapeutique TRE',
+                'title'            => 'Relâchement différentiel mâchoire-épaules',
                 'category'         => 'corporel',
                 'duration_minutes' => 5,
-                'difficulty'       => 2,
-                'scientific_basis' => 'Berceli (2005) — Trauma Releasing Exercises, neurogenic tremors',
+                'difficulty'       => 1,
+                'scientific_basis' => 'Relaxation différentielle (Jacobson, 1938) appliquée aux zones qui concentrent la tension de stress (mâchoire, nuque, trapèzes, mains). Le lien entre tonus musculaire et anxiété est bien établi (Thayer et al., 2009). Contracter puis relâcher rend le relâchement perceptible et entraînable. (Remplace l\'ancien « TRE », dont les preuves sont quasi anecdotiques.)',
                 'instructions'     => [
-                    'Allonge-toi sur le dos, genoux fléchis, pieds à plat.',
-                    'Écarte légèrement les genoux puis rapproche-les — répète pour fatiguer légèrement les muscles des cuisses (30 sec).',
-                    'Laisse les genoux vibrer naturellement, sans les contrôler.',
-                    'Si aucune vibration ne vient, pousse légèrement sur les pieds pour déclencher le tremblement.',
-                    'Laisse la vibration se propager dans le bassin, le ventre, la colonne.',
-                    'Continue 5 minutes puis étire-toi doucement.',
-                    'Note : ce tremblement est neurologique, non émotionnel — c\'est la réponse naturelle du corps au stress.',
+                    'Assieds-toi confortablement et porte ton attention sur ta MÂCHOIRE.',
+                    'Serre les dents 5 secondes, puis relâche complètement en laissant la bouche légèrement entrouverte. Sens la différence.',
+                    'Passe aux ÉPAULES : monte-les vers les oreilles 5 secondes, puis laisse-les tomber d\'un coup.',
+                    'Passe aux MAINS : serre les poings 5 secondes, puis ouvre et laisse les doigts se détendre.',
+                    'Termine par une longue expiration en relâchant l\'ensemble (mâchoire, nuque, épaules, mains).',
+                    'Clause si-alors : « QUAND je remarque que je serre la mâchoire dans la journée, ALORS je relâche mâchoire et épaules avec une longue expiration. »',
                 ],
                 'scoring' => [
                     'gestion_somatique'        => 1.0,
@@ -337,18 +337,18 @@ class Exercises
 
             [
                 'id'               => 'zen-corp-04',
-                'title'            => 'Posture de puissance (Power Posing)',
+                'title'            => 'Posture ouverte & respiration ample',
                 'category'         => 'corporel',
                 'duration_minutes' => 2,
                 'difficulty'       => 1,
-                'scientific_basis' => 'Carney, Cuddy & Yap (2010) — posture expansive et cortisol/testostérone',
+                'scientific_basis' => 'Note d\'honnêteté : les effets hormonaux du « power posing » (Carney, Cuddy & Yap, 2010) n\'ont pas été répliqués et ont été désavoués par la première auteure (2016). On retient ce qui tient : une posture ouverte dégage la cage thoracique et facilite une respiration ample, qui — elle — active réellement le système parasympathique. C\'est la respiration, pas la posture seule, qui apaise.',
                 'instructions'     => [
-                    'Lève-toi. Tiens-toi debout, pieds écartés à la largeur des épaules.',
-                    'Pose les mains sur les hanches, épaules en arrière, poitrine ouverte.',
-                    'Relève le menton légèrement (pas trop — rester naturel).',
-                    'Maintiens cette posture pendant 2 minutes en respirant normalement.',
-                    'Variante assise : mets les mains derrière la nuque, coudes écartés, penche-toi légèrement en arrière.',
-                    'La posture influençe l\'état interne : un corps confiant envoie des signaux de sécurité au cerveau.',
+                    'Tiens-toi debout (ou assis bien droit), pieds ancrés, épaules relâchées vers l\'arrière.',
+                    'Ouvre la cage thoracique : imagine un fil qui te tire doucement le sommet du crâne vers le haut.',
+                    'Dans cette posture dégagée, respire profondément par le ventre : inspire 4 s, expire 6 s.',
+                    'Maintiens 2 minutes en gardant l\'expiration plus longue que l\'inspiration.',
+                    'Remarque que c\'est l\'expiration prolongée — facilitée par la posture ouverte — qui fait redescendre la tension.',
+                    'Clause si-alors : « QUAND je me sens recroquevillé(e) par le stress, ALORS j\'ouvre ma posture et j\'allonge mes expirations. »',
                 ],
                 'scoring' => [
                     'resilience'               => 0.8,
