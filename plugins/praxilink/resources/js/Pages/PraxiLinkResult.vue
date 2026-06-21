@@ -339,7 +339,9 @@ const props = defineProps({
     type: Object,
     default: () => ({}),
   },
-  results: {
+  // Le contrôleur injecte le modèle TestResult sous la prop `result` ;
+  // le scoring calculé est niché dans `result.scoring`.
+  result: {
     type: Object,
     default: () => ({}),
   },
@@ -379,8 +381,11 @@ const props = defineProps({
 // ─────────────────────────────────────────────
 // Score global
 // ─────────────────────────────────────────────
+// Le scoring (global_score, norm_scores, meta…) est niché dans result.scoring.
+const scoring = computed(() => props.result?.scoring ?? {})
+
 const globalScore = computed(() =>
-  Math.round(props.results?.global_score ?? 0)
+  Math.round(scoring.value?.global_score ?? 0)
 )
 
 const gaugeColor = computed(() => {
@@ -400,18 +405,18 @@ const badgeColor = computed(() => {
 })
 
 const interpretation = computed(
-  () => props.results?.meta?.interpretation ?? ''
+  () => scoring.value?.meta?.interpretation ?? ''
 )
 
 // ─────────────────────────────────────────────
 // Style communicant
 // ─────────────────────────────────────────────
 const dominantStyleKey = computed(
-  () => props.results?.meta?.dominant_style_key ?? 'communicant_equilibre'
+  () => scoring.value?.meta?.dominant_style_key ?? 'communicant_equilibre'
 )
 
 const dominantStyleLabel = computed(
-  () => props.results?.meta?.dominant_style ?? 'Communicant Équilibré'
+  () => scoring.value?.meta?.dominant_style ?? 'Communicant Équilibré'
 )
 
 const dominantStyleProfiles = {
@@ -493,7 +498,7 @@ const dimensionColors = {
   feedback_constructif:   '#ffb74d',
 }
 
-const normScores = computed(() => props.results?.norm_scores ?? {})
+const normScores = computed(() => scoring.value?.norm_scores ?? {})
 
 const dimensionList = computed(() =>
   Object.keys(dimensionLabels).map((key) => ({
@@ -507,11 +512,11 @@ const dimensionList = computed(() =>
 )
 
 const scoreStrengths = computed(
-  () => props.results?.meta?.strengths ?? []
+  () => scoring.value?.meta?.strengths ?? []
 )
 
 const scoreGrowthAreas = computed(
-  () => props.results?.meta?.growth_areas ?? []
+  () => scoring.value?.meta?.growth_areas ?? []
 )
 
 // ─────────────────────────────────────────────
