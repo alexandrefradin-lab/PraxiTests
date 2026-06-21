@@ -22,6 +22,31 @@ class Exercises
             // ─── CATÉGORIE : ESTIME DE SOI ───────────────────────────────────
 
             [
+                'id'               => 'SE-21',
+                'title'            => 'Se parler à la 3e personne (auto-distanciation)',
+                'category'         => 'confiance',
+                'duration_minutes' => 5,
+                'difficulty'       => 1,
+                'scientific_basis' => 'Auto-distanciation / distanced self-talk (Kross, Moser, Orvell et al.). Se parler à soi-même à la 3e personne (« [Prénom], qu\'est-ce que tu peux faire ? ») crée une distance psychologique qui régule l\'émotion SANS épuiser les ressources cognitives (preuves convergentes ERP et IRMf) et favorise un raisonnement plus posé (« effet Batman »).',
+                'scoring'          => ['dimension' => 'estime_de_soi', 'weight' => 1.0],
+                'instructions'     => <<<EOT
+Étape 1 — Choisir une situation (1 min)
+Repère une situation professionnelle qui te stresse ou te fait douter de toi (un entretien, un conflit, une décision).
+
+Étape 2 — Décrire à la 3e personne (2 min)
+Décris ce que tu ressens en t'appelant par ton prénom, comme si tu parlais d'un ami :
+« [Prénom] se sent dépassé(e) parce que… [Prénom] a peur que… »
+Remarque que la situation paraît déjà un peu moins envahissante.
+
+Étape 3 — Conseiller cet "ami" (2 min)
+Pose-toi : « Qu'est-ce que je dirais à un ami qui vit exactement ça ? Quel premier pas lui conseillerais-je ? »
+Écris ce conseil et applique-le-toi à toi-même.
+
+Clause si-alors : « QUAND une émotion difficile me submerge, ALORS je me parle à la 3e personne comme à un ami. »
+EOT,
+            ],
+
+            [
                 'id'               => 'SE-01',
                 'title'            => 'Journal des réussites quotidiennes',
                 'category'         => 'confiance',
