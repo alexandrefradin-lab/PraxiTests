@@ -25,6 +25,22 @@ class JobSuggestionService
         $json = $this->parseJson($raw);
 
         $jobs = $json['métiers'] ?? $json['jobs'] ?? [];
+
+        // Garantir le contrat produit : exactement {count} métiers.
+        // On filtre les entrées vides, on tronque au-delà, et on alerte si l'IA
+        // en a renvoyé moins que demandé (sans bloquer le rendu).
+        $jobs = array_values(array_filter(
+            is_array($jobs) ? $jobs : [],
+            fn ($j) => !empty($j) && (is_array($j) ? !empty(array_filter($j)) : true)
+        ));
+        if (count($jobs) > $count) {
+            $jobs = array_slice($jobs, 0, $count);
+        } elseif (count($jobs) < $count) {
+            logger()->warning("JobSuggestion: l'IA a renvoyé " . count($jobs) . " métiers au lieu de {$count}", [
+                'attempt_id' => $attempt->id,
+            ]);
+        }
+
         $jobs = PluginHooks::applyFilters('jobs.suggested', $jobs, $attempt);
 
         // Collecte des métadonnées de traçabilité

@@ -1,0 +1,185 @@
+<script setup>
+/**
+ * Page résultats — PraxiFocus (repérage TDAH, ASRS-v1.1)
+ *
+ * RÈGLE : n'utiliser que les classes pt-* et les variables var(--pt-*).
+ * Ne jamais hardcoder de couleurs Tailwind (bg-indigo-600, etc.).
+ *
+ * ⚠️ Cette page affiche en permanence un avertissement : outil de repérage,
+ * pas de diagnostic, à vérifier avec un professionnel de santé.
+ */
+import { computed } from 'vue'
+import { Link } from '@inertiajs/vue3'
+import CandidateLayout from '@/Layouts/CandidateLayout.vue'
+import ScoreGauge from '@/Components/ScoreGauge.vue'
+
+const props = defineProps({
+    attempt: Object,
+    result:  Object,
+})
+
+const scoring      = computed(() => props.result?.scoring ?? {})
+const dims         = computed(() => scoring.value.dimensions ?? {})
+const bands        = computed(() => scoring.value.dimension_bands ?? {})
+const meta         = computed(() => scoring.value.meta ?? {})
+const globalScore  = computed(() => scoring.value.global_score ?? 0)
+const screener     = computed(() => scoring.value.screener ?? null)
+const partB        = computed(() => scoring.value.part_b_burden ?? null)
+const disclaimer   = computed(() => scoring.value.disclaimer ?? '')
+
+const bandColor = (color) => ({
+    gold:  'var(--pt-gold)',
+    navy:  'var(--pt-navy)',
+    slate: '#94A3B8',
+}[color] ?? '#94A3B8')
+
+const barWidth = (dimKey) => Math.min(100, Math.max(0, dims.value[dimKey] ?? 0))
+
+// Couleur de la jauge globale : neutre (or), jamais « bon / mauvais ».
+const gaugeColor = computed(() => 'var(--pt-gold)')
+</script>
+
+<template>
+    <CandidateLayout>
+        <Head title="Tes résultats — PraxiFocus" />
+
+        <div style="max-width:780px;margin:0 auto">
+
+            <!-- ⚠️ Avertissement médical (toujours visible, en tête) -->
+            <div class="pt-card"
+                style="padding:1rem 1.25rem;margin-bottom:1.25rem;border-left:4px solid var(--pt-gold);background:var(--pt-gold-pale)">
+                <p style="font-size:13px;line-height:1.6;color:var(--pt-text);margin:0">
+                    <strong>Ceci n'est pas un diagnostic.</strong> Cet outil repère des symptômes
+                    à partir de l'échelle ASRS-v1.1 de l'OMS. Il ne remplace pas l'avis d'un
+                    professionnel de santé. Un résultat élevé n'établit pas un TDAH —
+                    <strong>vérifie toujours tes résultats avec un médecin, un psychiatre ou un neuropsychologue.</strong>
+                </p>
+            </div>
+
+            <!-- En-tête -->
+            <div style="text-align:center;margin-bottom:2.5rem">
+                <span class="pt-badge" style="margin-bottom:.75rem">La Boussole de l'Attention</span>
+                <h1 style="font-size:28px;margin-top:6px">Tes repères d'attention</h1>
+                <p style="font-size:14px;color:var(--pt-text-muted);margin-top:6px;line-height:1.5">
+                    Repérage basé sur l'échelle ASRS-v1.1 (18 items) — outil de dépistage, non un diagnostic.
+                </p>
+            </div>
+
+            <!-- Résultat du screener (Partie A) -->
+            <div v-if="screener" class="pt-card"
+                style="padding:1.5rem;margin-bottom:1rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap">
+                <div style="flex-shrink:0">
+                    <ScoreGauge :score="screener.score" :max="screener.max" :color="gaugeColor" :size="140" :show-max="true" />
+                </div>
+                <div style="flex:1;min-width:240px">
+                    <span style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--pt-text-light)">
+                        Screener validé — Partie A
+                    </span>
+                    <p style="font-size:17px;font-weight:600;color:var(--pt-text);margin-top:4px"
+                        :style="{ color: screener.positive ? 'var(--pt-gold-hover)' : 'var(--pt-navy)' }">
+                        {{ screener.label }}
+                    </p>
+                    <p style="font-size:13px;color:var(--pt-text-muted);margin-top:6px;line-height:1.6">
+                        {{ screener.summary }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Synthèse IA -->
+            <div v-if="result?.ai_synthesis" class="pt-card" style="padding:1.5rem;margin-bottom:1rem">
+                <h2 style="font-size:16px;font-weight:500;margin-bottom:1rem">Ta synthèse</h2>
+                <p style="font-size:15px;line-height:1.75;color:var(--pt-text);white-space:pre-line">
+                    {{ result.ai_synthesis }}
+                </p>
+            </div>
+            <div v-else class="pt-card" style="padding:3rem;text-align:center;margin-bottom:1rem">
+                <div style="width:36px;height:36px;border-radius:50%;border:3px solid var(--pt-cream-dark);border-top-color:var(--pt-gold);animation:spin 1s linear infinite;margin:0 auto"></div>
+                <p style="margin-top:1rem;color:var(--pt-text-muted)">Analyse en cours… (1 à 2 minutes)</p>
+            </div>
+
+            <!-- Profil par dimension -->
+            <div class="pt-card" style="padding:1.5rem;margin-bottom:1rem">
+                <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1.25rem">
+                    <h2 style="font-size:16px;font-weight:500">Ton profil de symptômes</h2>
+                    <span style="font-size:11px;color:var(--pt-text-light);font-style:italic">
+                        Fréquence rapportée, pas un score clinique
+                    </span>
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:1.25rem">
+                    <div v-for="(score, dimKey) in dims" :key="dimKey">
+                        <div style="display:flex;align-items:center;gap:12px">
+                            <span style="font-size:13px;font-weight:500;min-width:170px">
+                                {{ meta[dimKey]?.label ?? dimKey }}
+                            </span>
+                            <div class="pt-progress-track" style="flex:1">
+                                <div class="pt-progress-fill" :style="{ width: barWidth(dimKey) + '%' }"></div>
+                            </div>
+                            <span v-if="bands[dimKey]" style="font-size:12px;font-weight:500;flex-shrink:0;min-width:150px"
+                                :style="{ color: bandColor(bands[dimKey].color) }">
+                                {{ bands[dimKey].label }}
+                            </span>
+                        </div>
+                        <p v-if="meta[dimKey]?.description"
+                            style="font-size:12px;color:var(--pt-text-light);margin-top:5px;padding-left:182px;line-height:1.4">
+                            {{ meta[dimKey].description }}
+                        </p>
+                    </div>
+                </div>
+
+                <p v-if="partB" style="font-size:12px;color:var(--pt-text-muted);margin-top:1.25rem;line-height:1.5">
+                    Symptômes complémentaires rapportés à fréquence élevée :
+                    <strong>{{ partB.count }}/{{ partB.max }}</strong> (Partie B de l'ASRS, indicative).
+                </p>
+            </div>
+
+            <!-- Que faire maintenant -->
+            <div class="pt-card" style="padding:1.5rem;margin-bottom:1rem;border-left:4px solid var(--pt-navy)">
+                <h2 style="font-size:16px;font-weight:500;margin-bottom:.75rem">Et maintenant ?</h2>
+                <p style="font-size:14px;line-height:1.7;color:var(--pt-text);margin:0">
+                    Ce repérage est un point de départ, pas une conclusion. Si tu te reconnais
+                    dans ces difficultés et qu'elles gênent ton quotidien (travail, études,
+                    relations), la prochaine étape est d'en parler à un professionnel de santé.
+                    Lui seul peut, après un entretien approfondi, confirmer ou écarter un TDAH
+                    et te proposer un accompagnement adapté.
+                </p>
+            </div>
+
+            <!-- Métiers suggérés (si fournis par le core) -->
+            <div v-if="result?.suggested_jobs?.length" class="pt-card" style="padding:1.5rem;margin-bottom:1rem">
+                <h2 style="font-size:16px;font-weight:500;margin-bottom:1.25rem">
+                    {{ result.suggested_jobs.length }} pistes à explorer
+                </h2>
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.75rem">
+                    <div v-for="(job, i) in result.suggested_jobs" :key="i"
+                        style="border:.5px solid var(--pt-border);border-radius:10px;padding:1rem">
+                        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px">
+                            <h3 style="font-size:14px;font-weight:500">{{ job.titre || job.title }}</h3>
+                            <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--pt-gold-pale);color:var(--pt-gold-hover);border:.5px solid var(--pt-gold-border);white-space:nowrap">
+                                {{ job.fit_score }}%
+                            </span>
+                        </div>
+                        <p style="font-size:13px;color:var(--pt-text-muted);line-height:1.45">{{ job.pourquoi || job.why }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Avertissement médical (rappel en pied) -->
+            <div style="font-size:11px;color:var(--pt-text-light);line-height:1.6;margin:1.5rem 0;padding:0 .5rem;text-align:center">
+                {{ disclaimer }}
+            </div>
+
+            <!-- Actions -->
+            <div style="display:flex;gap:.75rem;justify-content:center;margin-top:1.5rem;flex-wrap:wrap">
+                <a :href="route('results.pdf', attempt.id)" class="pt-btn-ghost">Télécharger en PDF</a>
+                <Link :href="route('tests.index')" class="pt-btn-ghost">Voir les autres tests</Link>
+                <Link :href="route('history')" class="pt-btn-primary">Mon historique →</Link>
+            </div>
+
+        </div>
+    </CandidateLayout>
+</template>
+
+<style scoped>
+@keyframes spin { to { transform: rotate(360deg) } }
+</style>

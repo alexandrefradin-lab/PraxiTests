@@ -12,6 +12,29 @@ const props = defineProps({
 const revealed = ref(false)
 const typewriterText = ref('')
 const ctaVisible = ref(false)
+const typingDone = ref(false)
+let typeInterval = null
+
+// Respect de l'accessibilité : si l'utilisateur préfère moins d'animations,
+// on affiche tout immédiatement (WCAG 2.3.3).
+const prefersReducedMotion = typeof window !== 'undefined'
+    && window.matchMedia
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+function teaser() {
+    return props.result?.ai_synthesis?.slice(0, 300) ?? ''
+}
+function finishTypewriter() {
+    if (typeInterval) { clearInterval(typeInterval); typeInterval = null }
+    typewriterText.value = teaser()
+    typingDone.value = true
+}
+// Permet de passer l'animation : le contenu d'orientation ne doit jamais être retardé.
+function skipAnimation() {
+    revealed.value = true
+    ctaVisible.value = true
+    finishTypewriter()
+}
 
 // ── Dimensions : libellés "parlants" + définitions au clic ──────────────
 // Dictionnaire de secours côté front. Si le moteur de scoring renvoie déjà
@@ -71,23 +94,22 @@ function dimDef(key) {
 }
 
 onMounted(() => {
-    if (!props.ai_pending && props.result?.ai_synthesis) {
-        // Séquence cinématique :
-        // 800ms → fade in "Ton Grimoire se révèle..."
-        // 1400ms → typewriter synthèse (40ms/char, max 300 chars)
-        // Après typewriter → afficher tout le contenu
-        // +90s → afficher CTA download PDF (règle neuromarketing)
-        setTimeout(() => { revealed.value = true }, 800)
-        setTimeout(() => {
-            const text = props.result.ai_synthesis?.slice(0, 300) ?? ''
-            let i = 0
-            const interval = setInterval(() => {
-                if (i < text.length) { typewriterText.value += text[i]; i++ }
-                else { clearInterval(interval) }
-            }, 40)
-        }, 1400)
-        setTimeout(() => { ctaVisible.value = true }, 90000)
-    }
+    if (props.ai_pending || !props.result?.ai_synthesis) return
+
+    // Accessibilité / pas de rétention : tout afficher d'emblée.
+    if (prefersReducedMotion) { skipAnimation(); return }
+
+    // Animation cinématique légère — MAIS le téléchargement du PDF est
+    // disponible dès le reveal (plus de gating artificiel à 90 s).
+    setTimeout(() => { revealed.value = true; ctaVisible.value = true }, 800)
+    setTimeout(() => {
+        const text = teaser()
+        let i = 0
+        typeInterval = setInterval(() => {
+            if (i < text.length) { typewriterText.value += text[i]; i++ }
+            else { finishTypewriter() }
+        }, 40)
+    }, 1400)
 })
 </script>
 
@@ -150,6 +172,16 @@ onMounted(() => {
                             class="ac-cursor"
                         >|</span>
                     </div>
+
+                    <!-- Bouton « tout afficher » pendant l'animation -->
+                    <button
+                        v-if="revealed && !typingDone"
+                        type="button"
+                        class="ac-skip-btn"
+                        @click="skipAnimation"
+                    >
+                        Tout afficher
+                    </button>
 
                     <!-- Texte complet après typewriter terminé -->
                     <div
@@ -227,7 +259,14 @@ onMounted(() => {
                     </div>
                 </section>
 
-                <!-- ── CTA PDF (règle neuromarketing — 90s) ─────────── -->
+                <!-- ── DISCLAIMER bienveillant (public en orientation) ── -->
+                <p class="ac-disclaimer">
+                    À titre indicatif — ces pistes sont un point de départ pour ta
+                    réflexion, pas un verdict. Pour aller plus loin, échange avec un
+                    conseiller d'orientation ou ton accompagnant France&nbsp;Travail.
+                </p>
+
+                <!-- ── CTA PDF (disponible dès le reveal) ─────────────── -->
                 <div v-if="ctaVisible" class="ac-cta-pdf fade-in">
                     <p class="ac-cta-label">Ton Grimoire complet t'attend.</p>
                     <a :href="route('results.pdf', attempt.id)" class="ac-btn-primary">
@@ -454,6 +493,39 @@ onMounted(() => {
     margin-top: 1.25rem;
     padding-top: 1.25rem;
     border-top: 1px solid var(--glass-border);
+}
+
+/* ── Bouton « tout afficher » (passer l'animation) ── */
+.ac-skip-btn {
+    margin-top: 0.75rem;
+    padding: 4px 12px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+    color: var(--color-primary);
+    background: rgba(166,117,32,0.08);
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.ac-skip-btn:hover,
+.ac-skip-btn:focus-visible {
+    background: rgba(166,117,32,0.18);
+}
+
+/* ── Disclaimer bienveillant ── */
+.ac-disclaimer {
+    margin: 2rem 0 0;
+    padding: 0.9rem 1.1rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--text-secondary);
+    background: var(--glass-bg);
+    border-left: 2px solid var(--color-signal);
+    border-radius: 0 8px 8px 0;
 }
 
 /* ── DIMENSIONS ──────────────────────────────── */
@@ -705,5 +777,17 @@ onMounted(() => {
 
 .ac-btn-primary:active {
     transform: translateY(0);
+}
+
+/* ── Accessibilité : réduire les animations si l'utilisateur le demande ── */
+@media (prefers-reduced-motion: reduce) {
+    .fade-in,
+    .ac-cursor,
+    .ac-pulse-dots span,
+    .ac-progress-fill,
+    .ac-btn-primary {
+        animation: none !important;
+        transition: none !important;
+    }
 }
 </style>

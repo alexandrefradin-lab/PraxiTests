@@ -94,6 +94,22 @@ const formatDate = (iso) => {
                                 {{ a.test_name }}
                             </p>
                             <p
+                                v-if="a.test_description"
+                                class="mt-1"
+                                style="
+                                    font-family: var(--font-body);
+                                    font-size: 12px;
+                                    color: var(--text-secondary);
+                                    line-height: 1.35;
+                                    display: -webkit-box;
+                                    -webkit-line-clamp: 2;
+                                    -webkit-box-orient: vertical;
+                                    overflow: hidden;
+                                "
+                            >
+                                {{ a.test_description }}
+                            </p>
+                            <p
                                 class="mt-1"
                                 style="
                                     font-family: var(--font-data);
@@ -192,6 +208,23 @@ const formatDate = (iso) => {
                                     {{ a.score ?? a.score_eclat ?? a.eclat }} Éclats ✦
                                 </span>
                             </div>
+
+                            <p
+                                v-if="a.test_description"
+                                class="mt-1"
+                                style="
+                                    font-family: var(--font-body);
+                                    font-size: 12px;
+                                    color: var(--text-secondary);
+                                    line-height: 1.35;
+                                    display: -webkit-box;
+                                    -webkit-line-clamp: 2;
+                                    -webkit-box-orient: vertical;
+                                    overflow: hidden;
+                                "
+                            >
+                                {{ a.test_description }}
+                            </p>
 
                             <p
                                 class="mt-1"

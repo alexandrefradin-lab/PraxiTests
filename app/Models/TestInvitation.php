@@ -8,7 +8,19 @@ use Illuminate\Support\Str;
 
 class TestInvitation extends Model
 {
-    protected $guarded = [];
+    protected $fillable = [
+        'test_id',
+        'professional_account_id',
+        'email',
+        'first_name',
+        'last_name',
+        'token',
+        'status',
+        'metadata',
+        'sent_at',
+        'opened_at',
+        'expires_at',
+    ];
 
     protected $casts = [
         'metadata'   => 'array',

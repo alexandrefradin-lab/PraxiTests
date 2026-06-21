@@ -11,6 +11,8 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // ── Public (aucune authentification requise) ─────────────────────────────────
+// Rate limiting anti-énumération de tokens (et anti-incrément de vues abusif).
 Route::get('/p/{token}', [ProfileShareController::class, 'show'])
+     ->middleware('throttle:30,1')
      ->name('profile.shared')
      ->where('token', '[A-Za-z0-9]{48}');

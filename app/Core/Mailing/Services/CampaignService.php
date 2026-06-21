@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Praxis\Core\Mailing\NeuromarketingOptimizer;
+use Praxis\Core\Mailing\HtmlSanitizer;
 use Praxis\Core\Mailing\Mail\CampaignMail;
 use Praxis\Core\Plugins\PluginHooks;
 
@@ -28,10 +29,11 @@ class CampaignService
             try {
                 $variant = array_rand($variants);
                 $subject = $variants[$variant];
-                $html = $this->neuro->enhanceHtml(
+                // SEC-07 : assainir le HTML (issu de la DB) avant envoi.
+                $html = HtmlSanitizer::clean($this->neuro->enhanceHtml(
                     $campaign->body_html,
                     PluginHooks::applyFilters('email.context', ['user' => $user], $user)
-                );
+                ));
 
                 Mail::to($user->email)->queue(new CampaignMail($subject, $html, $campaign->body_text));
 
@@ -62,8 +64,13 @@ class CampaignService
             DB::table('email_logs')->insert($logBatch);
         }
 
+        // Statut terminal : tout est mis en file → 'sent' ; échecs partiels/total tracés.
+        $finalStatus = $stats['failed'] === 0
+            ? 'sent'
+            : ($stats['queued'] > 0 ? 'partial' : 'failed');
+
         DB::table('email_campaigns')->where('id', $campaign->id)->update([
-            'status'  => 'sending',
+            'status'  => $finalStatus,
             'sent_at' => now(),
             'stats'   => json_encode($stats),
         ]);

@@ -152,8 +152,12 @@ class AttemptController extends Controller
         abort_unless($question !== null, 422, 'Question invalide pour cette tentative.');
 
         // A5 — Validation du type de la valeur selon le type de question
+        // Contrat d'échelle : le front émet 1..options.max (jamais 0).
+        // On borne côté serveur pour ne pas laisser passer 0/négatif/hors-plage.
+        $scaleMin = (int) ($question->options['min'] ?? 1);
+        $scaleMax = (int) ($question->options['max'] ?? 5);
         $valueRules = match ($question->type) {
-            'scale'             => ['required', 'numeric'],
+            'scale'             => ['required', 'numeric', "between:{$scaleMin},{$scaleMax}"],
             'text'              => ['required', 'string', 'max:5000'],
             'multi', 'ranking'  => ['required', 'array', 'min:1'],
             default             => ['required', function ($attr, $val, $fail) {

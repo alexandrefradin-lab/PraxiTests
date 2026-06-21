@@ -8,6 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // Table partagee par les 5 plugins parcours : ne la creer qu'une fois.
+        if (Schema::hasTable('journey_progress')) {
+            return;
+        }
         Schema::create('journey_progress', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();

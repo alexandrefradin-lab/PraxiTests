@@ -103,12 +103,27 @@ class Panel360Controller extends Controller
         $candidate = auth()->user()->name ?? 'Un candidat';
         $pending   = $panel->invitations()->where('status', 'pending')->get();
 
+        $sent = 0;
+        $failed = 0;
         foreach ($pending as $invitation) {
-            Mail::to($invitation->email)->queue(new EvaluatorInvitationMail($invitation, $candidate));
-            $invitation->update(['status' => 'sent', 'sent_at' => now()]);
+            // Ne passer à « sent » QUE si la mise en file a réussi ;
+            // sinon l'invitation reste « pending » et sera ré-émise.
+            try {
+                Mail::to($invitation->email)->queue(new EvaluatorInvitationMail($invitation, $candidate));
+                $invitation->update(['status' => 'sent', 'sent_at' => now()]);
+                $sent++;
+            } catch (\Throwable $e) {
+                $failed++;
+                logger()->error("Envoi invitation 360 échoué pour {$invitation->email}: {$e->getMessage()}");
+            }
         }
 
-        return back()->with('success', "{$pending->count()} invitation(s) envoyée(s).");
+        $msg = "{$sent} invitation(s) envoyée(s).";
+        if ($failed > 0) {
+            $msg .= " {$failed} échec(s) — réessayez plus tard.";
+        }
+
+        return back()->with('success', $msg);
     }
 
     /**
