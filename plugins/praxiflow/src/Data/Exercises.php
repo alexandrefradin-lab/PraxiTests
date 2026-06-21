@@ -407,7 +407,7 @@ class Exercises
             [
                 'id'               => 'diagnostic-procrastination',
                 'title'            => "Diagnostic procrastination — comprendre son évitement",
-                'category'         => 'procrastination',
+                'category'         => 'lutte_procrastination',
                 'duration_minutes' => 5,
                 'difficulty'       => 1,
                 'scientific_basis' => "La procrastination est aujourd'hui définie comme un problème de régulation émotionnelle plutôt que de gestion du temps (Pychyl & Sirois, 2016). L'évitement est déclenché par des émotions négatives associées à une tâche (peur de l'échec, anxiété de performance, ennui). La récompense dopaminergique immédiate de l'évitement (réseaux sociaux, etc.) surpasse dans l'instant la récompense différée de l'accomplissement (Tuckman, 2010).",
@@ -425,7 +425,7 @@ class Exercises
             [
                 'id'               => 'chunking-micro-etapes',
                 'title'            => "Chunking — découper l'éléphant en bouchées",
-                'category'         => 'procrastination',
+                'category'         => 'lutte_procrastination',
                 'duration_minutes' => 4,
                 'difficulty'       => 1,
                 'scientific_basis' => "Le chunking (Miller, 1956 ; Gobet et al., 2001) désigne la décomposition d'une grande tâche en unités cognitives gérables. Appliqué à la procrastination, il contourne le mécanisme d'évitement : une tâche perçue comme trop grande active l'amygdale (réponse de stress), tandis qu'une micro-tâche de 5-10 minutes reste sous le seuil d'activation du stress. La règle des « deux minutes » (GTD) est la forme extrême du chunking.",
@@ -443,7 +443,7 @@ class Exercises
             [
                 'id'               => 'technique-5-secondes',
                 'title'            => "La règle des 5 secondes — lancer avant le veto mental",
-                'category'         => 'procrastination',
+                'category'         => 'lutte_procrastination',
                 'duration_minutes' => 2,
                 'difficulty'       => 1,
                 'scientific_basis' => "La règle des 5 secondes (Mel Robbins, 2017) est un outil comportemental qui exploite la fenêtre de décision pré-motrice. Des recherches en neurosciences (Libet, 1985) montrent que le cerveau prend une décision motrice 300 ms avant la conscience. En comptant à rebours 5-4-3-2-1 et en agissant immédiatement, on interrompt la boucle de rumination et d'évitement avant que le cortex préfrontal ne construise une justification pour ne pas commencer.",
@@ -461,7 +461,7 @@ class Exercises
             [
                 'id'               => 'recompenses-dopaminergiques',
                 'title'            => "Récompenses dopaminergiques — hacker sa motivation",
-                'category'         => 'procrastination',
+                'category'         => 'lutte_procrastination',
                 'duration_minutes' => 3,
                 'difficulty'       => 2,
                 'scientific_basis' => "La procrastination est en partie un problème de temporalité de la récompense : le cerveau limbique valorise les récompenses immédiates (dopamine instantanée) au détriment des récompenses différées (accomplissement futur). Des neuroscientifiques (Schultz, 1997 ; Berridge, 2007) montrent qu'anticiper explicitement une récompense active le circuit de récompense dopaminergique AVANT l'action, augmentant la motivation de démarrage.",

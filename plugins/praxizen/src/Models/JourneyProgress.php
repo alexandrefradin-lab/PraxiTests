@@ -101,12 +101,20 @@ class JourneyProgress extends Model
             return 0;
         }
 
+        // Jours calendaires DISTINCTS où au moins un item a été complété,
+        // du plus récent au plus ancien (dédup pour ne pas gonfler le streak
+        // quand plusieurs items sont complétés le même jour).
+        $days = $entries
+            ->map(fn ($e) => $e->completed_at->startOfDay())
+            ->unique(fn ($d) => $d->toDateString())
+            ->values();
+
         $streak = 0;
         $prev   = now()->startOfDay()->addDay(); // demain pour que aujourd'hui compte
 
-        foreach ($entries as $entry) {
-            $date = $entry->completed_at->startOfDay();
-            if ($prev->diffInDays($date) <= 1) {
+        foreach ($days as $date) {
+            // Jour consécutif au précédent (exactement 1 jour d'écart).
+            if ((int) abs($prev->diffInDays($date)) === 1) {
                 $streak++;
                 $prev = $date;
             } else {

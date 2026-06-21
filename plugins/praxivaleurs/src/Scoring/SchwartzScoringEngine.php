@@ -30,11 +30,13 @@ class SchwartzScoringEngine implements ScoringEngineContract
             $counts[$dim]++;
         }
 
-        // Score 0-100 par dim (échelle Likert 1-6 → 0-100).
+        // Score 0-100 par dim. L'échelle utile est 1-6 (le frontend émet
+        // 1..6, jamais 0). On normalise sur l'amplitude réelle : (moy-1)/5
+        // → la valeur min (1, "Aucune importance") donne 0%, la max (6) 100%.
         $likertNorm = [];
         foreach ($dims as $key => $_) {
-            $moy = $counts[$key] > 0 ? $sums[$key] / $counts[$key] : 0;
-            $likertNorm[$key] = (int) round(($moy / 6) * 100);
+            $moy = $counts[$key] > 0 ? $sums[$key] / $counts[$key] : 1;
+            $likertNorm[$key] = (int) round((($moy - 1) / 5) * 100);
         }
 
         $tournoiNorm = $this->tournoiScores($attempt);

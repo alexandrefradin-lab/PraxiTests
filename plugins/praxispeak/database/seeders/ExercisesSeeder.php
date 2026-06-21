@@ -53,9 +53,17 @@ class ExercisesSeeder extends Seeder
                 TestQuestion::updateOrCreate(
                     ['section_id' => $section->id, 'order' => ++$questionOrder],
                     [
-                        'type'    => 'exercise',
-                        'prompt'  => $ex['title'],
+                        // 'single' est rendu par le frontend (AttemptPlay.vue)
+                        // et émet directement la value de l'option choisie
+                        // (0 est donc soumissible). Le moteur interprète la
+                        // value en booléen fait/pas fait (filter_var).
+                        'type'    => 'single',
+                        'prompt'  => $ex['title'] . ' — Te sens-tu à l\'aise avec cet exercice ?',
                         'options' => [
+                            ['value' => 1, 'label' => 'Oui, à l\'aise'],
+                            ['value' => 0, 'label' => 'Pas encore'],
+                        ],
+                        'meta' => [
                             'duration_minutes' => $ex['duration_minutes'],
                             'difficulty'       => $ex['difficulty'],
                             'instructions'     => $ex['instructions'],
@@ -66,7 +74,7 @@ class ExercisesSeeder extends Seeder
                             'dimension'   => $ex['scoring']['dimension'],
                             'points'      => $ex['scoring']['points'],
                         ],
-                        'required' => false,
+                        'required' => true,
                     ]
                 );
             }

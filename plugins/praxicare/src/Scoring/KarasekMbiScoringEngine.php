@@ -44,19 +44,23 @@ class KarasekMbiScoringEngine implements ScoringEngineContract
         }
         $seuilSoutien = $hasSuperior ? 21 : 10;
 
-        // ── MBI (échelle 0-3 dans les fichiers WP, on accepte 0-3 ici) ──
+        // ── MBI ──────────────────────────────────────────────────────
+        // Le frontend rend l'échelle "scale" avec options.max=4 → il émet
+        // des valeurs 1..4 (jamais 0). Le MBI est calibré sur une échelle
+        // 0-3 (Jamais..Toujours). On convertit donc 1..4 → 0..3 (val - 1).
+        // Cela préserve les maxes (ee=27, dp=15, ap=24) et les seuils.
         $ee = 0;
         for ($i = 1; $i <= 9; $i++) {
-            $ee += max(0, min(3, (int) ($byKey['EE' . $i] ?? 0)));
+            $ee += max(0, min(3, (int) ($byKey['EE' . $i] ?? 1) - 1));
         }
         $dp = 0;
         for ($i = 1; $i <= 5; $i++) {
-            $dp += max(0, min(3, (int) ($byKey['DP' . $i] ?? 0)));
+            $dp += max(0, min(3, (int) ($byKey['DP' . $i] ?? 1) - 1));
         }
-        // AP est inversé (accomplissement personnel) : 3 - val.
+        // AP est inversé (accomplissement personnel) : 3 - val (val ∈ 0..3).
         $ap = 0;
         for ($i = 1; $i <= 8; $i++) {
-            $ap += 3 - max(0, min(3, (int) ($byKey['AP' . $i] ?? 0)));
+            $ap += 3 - max(0, min(3, (int) ($byKey['AP' . $i] ?? 1) - 1));
         }
 
         $profile = $this->karasekProfile($demandes, $latitude, $soutien, $seuilSoutien);
