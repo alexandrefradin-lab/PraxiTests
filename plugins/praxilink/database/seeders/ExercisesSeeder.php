@@ -2,95 +2,76 @@
 
 namespace Praxis\Plugins\PraxiLink\Database\Seeders;
 
+use App\Models\Test;
+use App\Models\TestQuestion;
+use App\Models\TestSection;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Carbon\Carbon;
-use Praxis\Plugins\PraxiLink\Data\Exercises;
+use Praxis\Plugins\PraxiLink\Data\Questions;
 
+/**
+ * Seeder PraxiLink — Communication assertive.
+ *
+ * Crée / met à jour :
+ *   - Le test "praxilink-assertivite"
+ *   - 5 sections (une par dimension)
+ *   - 20 questions d'auto-évaluation, échelle 1-5 (type "scale")
+ *
+ * Échelle : 1 = Pas du tout, 5 = Tout à fait. Le champ `scoring` de chaque
+ * question porte sa `dimension`, lue par PraxiLinkScoringEngine.
+ */
 class ExercisesSeeder extends Seeder
 {
-    /**
-     * Table cible pour les exercices du plugin PraxiLink.
-     * Adaptez cette constante si votre système utilise un nom de table différent.
-     */
-    private const TABLE = 'plugin_exercises';
-
-    /**
-     * Slug du plugin — utilisé comme namespace pour éviter les collisions.
-     */
-    private const PLUGIN_SLUG = 'praxilink';
-
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        $this->command?->info('[PraxiLink] Seeding exercises...');
-
-        $exercises = Exercises::all();
-        $now       = Carbon::now();
-        $seeded    = 0;
-        $updated   = 0;
-        $skipped   = 0;
-
-        foreach ($exercises as $exercise) {
-            $pluginExerciseId = self::PLUGIN_SLUG . ':' . $exercise['id'];
-
-            // Prépare le payload d'insertion / mise à jour
-            $payload = [
-                'plugin_slug'        => self::PLUGIN_SLUG,
-                'exercise_id'        => $exercise['id'],
-                'plugin_exercise_id' => $pluginExerciseId,
-                'title'              => $exercise['title'],
-                'category'           => $exercise['category'],
-                'duration_minutes'   => $exercise['duration_minutes'],
-                'difficulty'         => $exercise['difficulty'],
-                'scientific_basis'   => $exercise['scientific_basis'],
-                'scoring_dimension'  => $exercise['scoring']['dimension']
-                    ?? implode(',', array_keys($exercise['scoring']['dimensions'] ?? [])),
-                'scoring_weight'     => $exercise['scoring']['weight']
-                    ?? 1.0,
-                'instructions'       => json_encode($exercise['instructions'], JSON_UNESCAPED_UNICODE),
-                'updated_at'         => $now,
-            ];
-
-            // Upsert : insert si inexistant, update si déjà présent
-            $exists = DB::table(self::TABLE)
-                ->where('plugin_exercise_id', $pluginExerciseId)
-                ->exists();
-
-            if ($exists) {
-                $changed = DB::table(self::TABLE)
-                    ->where('plugin_exercise_id', $pluginExerciseId)
-                    ->update($payload);
-
-                if ($changed) {
-                    $updated++;
-                    $this->command?->line("  [updated] {$pluginExerciseId}");
-                } else {
-                    $skipped++;
-                }
-            } else {
-                DB::table(self::TABLE)->insert(array_merge($payload, [
-                    'created_at' => $now,
-                ]));
-                $seeded++;
-                $this->command?->line("  [created] {$pluginExerciseId}");
-            }
-        }
-
-        $total = count($exercises);
-        $this->command?->info(
-            "[PraxiLink] Done — {$total} exercises processed: "
-            . "{$seeded} created, {$updated} updated, {$skipped} unchanged."
+        $test = Test::updateOrCreate(
+            ['slug' => 'praxilink-assertivite'],
+            [
+                'name'              => "L'Art des Liens — Communication assertive",
+                'description'       => "Ce que ce test mesure : ta communication assertive, sur 5 dimensions — écoute active, expression assertive de tes besoins, gestion des conflits, empathie relationnelle et feedback constructif. 20 affirmations, échelle de 1 à 5.",
+                'type'              => 'questionnaire',
+                'scoring_engine'    => 'praxilink-scoring',
+                'estimated_minutes' => 5,
+                'published'         => true,
+                'public'            => false,
+            ]
         );
 
-        Log::info('[PraxiLink] ExercisesSeeder completed', [
-            'total'   => $total,
-            'seeded'  => $seeded,
-            'updated' => $updated,
-            'skipped' => $skipped,
-        ]);
+        $scale = [
+            'max'       => 5,
+            'min_label' => 'Pas du tout',
+            'max_label' => 'Tout à fait',
+        ];
+
+        $order = 0;
+        foreach (Questions::sections() as $dimension => $section) {
+            $testSection = TestSection::updateOrCreate(
+                ['test_id' => $test->id, 'order' => ++$order],
+                [
+                    'title'       => $section['label'],
+                    'description' => null,
+                ]
+            );
+
+            $qOrder = 0;
+            foreach ($section['questions'] as $q) {
+                TestQuestion::updateOrCreate(
+                    ['section_id' => $testSection->id, 'order' => ++$qOrder],
+                    [
+                        // 'scale' est le seul type d'échelle rendu par le
+                        // frontend (AttemptPlay.vue), qui émet 1..options.max.
+                        'type'     => 'scale',
+                        'prompt'   => $q['texte'],
+                        'options'  => $scale,
+                        'scoring'  => [
+                            'key'       => $q['key'],
+                            'dimension' => $dimension,
+                            'max'       => 5,
+                            'min'       => 1,
+                        ],
+                        'required' => true,
+                    ]
+                );
+            }
+        }
     }
 }
