@@ -2,10 +2,11 @@
 
 namespace Praxis\Plugins\PraxiLink\Scoring;
 
-use Praxis\Core\TestEngine\ScoringEngineInterface;
+use App\Models\TestAttempt;
+use Praxis\Core\TestEngine\Contracts\ScoringEngineContract;
 use Carbon\Carbon;
 
-class PraxiLinkScoringEngine implements ScoringEngineInterface
+class PraxiLinkScoringEngine implements ScoringEngineContract
 {
     /**
      * Clé unique du moteur de scoring, référencée dans plugin.json et dans les filtres.
@@ -33,7 +34,48 @@ class PraxiLinkScoringEngine implements ScoringEngineInterface
     }
 
     /**
-     * Calcule les scores à partir des réponses d\'un attempt.
+     * Point d'entrée standard du contrat de scoring.
+     *
+     * Reconstruit le tableau de réponses indexé par exercise id à partir des
+     * réponses persistées de l'attempt, puis délègue au moteur de calcul interne.
+     *
+     * Chaque TestAnswer porte :
+     *   - question->scoring['exercise_id']  → l'identifiant d'exercice (ex. 'ea-01')
+     *   - value (cast array)                → le payload de réponse de l'exercice
+     */
+    public function score(TestAttempt $attempt): array
+    {
+        $answers = [];
+
+        $rows = $attempt->answers()->with('question')->get();
+
+        foreach ($rows as $row) {
+            $scoringMeta = $row->question->scoring ?? [];
+            $exerciseId  = $scoringMeta['exercise_id']
+                ?? $row->question->meta['exercise_id']
+                ?? null;
+
+            if ($exerciseId === null) {
+                continue;
+            }
+
+            // value est déjà casté en array sur TestAnswer ; sinon on encapsule.
+            $payload = is_array($row->value) ? $row->value : ['answer' => $row->value];
+
+            $answers[$exerciseId] = $payload;
+        }
+
+        $context = [
+            'user_id'    => $attempt->user_id,
+            'test_id'    => $attempt->test_id,
+            'attempt_id' => $attempt->id,
+        ];
+
+        return $this->computeScores($answers, $context);
+    }
+
+    /**
+     * Calcule les scores à partir des réponses d'un attempt.
      *
      * Structure des réponses attendue :
      * [
@@ -43,10 +85,10 @@ class PraxiLinkScoringEngine implements ScoringEngineInterface
      * ]
      *
      * @param  array<string, mixed>  $answers   Réponses indexées par exercise id
-     * @param  array<string, mixed>  $context   Métadonnées de l\'attempt (user_id, test_id, etc.)
+     * @param  array<string, mixed>  $context   Métadonnées de l'attempt (user_id, test_id, etc.)
      * @return array<string, mixed>
      */
-    public function score(array $answers, array $context = []): array
+    private function computeScores(array $answers, array $context = []): array
     {
         $dimensions    = $this->dimensions();
         $rawScores     = array_fill_keys(array_keys($dimensions), 0.0);
@@ -62,6 +104,9 @@ class PraxiLinkScoringEngine implements ScoringEngineInterface
             }
 
             $meta = $exerciseMeta[$exerciseId];
+
+            // Normalise la réponse en tableau (défensif).
+            $response = is_array($response) ? $response : ['answer' => $response];
 
             // Récupère le score brut pour cet exercice (0.0 – 1.0)
             $exerciseScore = $this->scoreExercise($exerciseId, $response, $meta);
@@ -275,7 +320,7 @@ class PraxiLinkScoringEngine implements ScoringEngineInterface
     }
 
     /**
-     * Score pour les exercices de rédaction libre basé sur l\'auto-évaluation
+     * Score pour les exercices de rédaction libre basé sur l'auto-évaluation
      * ou sur un score de complétude (champs remplis).
      */
     private function scoreFreeText(array $response, array $meta): float
