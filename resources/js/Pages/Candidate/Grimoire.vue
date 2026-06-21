@@ -4,15 +4,29 @@ import { Head, Link, router } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 
 const props = defineProps({
-    grimoire:   Object,   // { synthesis, voies[], tests_included[], status, generated_at, disclaimer }
-    tests:      Array,    // [{ attempt_id, name }]
+    grimoire:   Object,
+    tests:      Array,
     ai_pending: Boolean,
     is_empty:   Boolean,
 })
 
 const voies = computed(() => props.grimoire?.voies ?? [])
 
-// ── Polling pendant la génération ────────────────────────────────────────
+// Aere la synthese en paragraphes lisibles, meme si l'IA renvoie un seul bloc.
+const synthParagraphs = computed(() => {
+    const raw = (props.grimoire?.synthesis || '').trim()
+    if (!raw) return []
+    let parts = raw.split(/\n+/).map(p => p.trim()).filter(Boolean)
+    if (parts.length === 1) {
+        const sentences = parts[0].match(/[^.!?]+[.!?]+["»')\]]*\s*/g) || [parts[0]]
+        parts = []
+        for (let i = 0; i < sentences.length; i += 3) {
+            parts.push(sentences.slice(i, i + 3).join(' ').trim())
+        }
+    }
+    return parts.filter(Boolean)
+})
+
 let timer = null
 onMounted(() => {
     if (props.ai_pending) {
@@ -24,7 +38,7 @@ onMounted(() => {
                     clearInterval(timer)
                     router.reload({ only: ['grimoire', 'ai_pending'] })
                 }
-            } catch (e) { /* on retentera au prochain tick */ }
+            } catch (e) { /* retry */ }
         }, 5000)
     }
 })
@@ -52,11 +66,10 @@ function fitClass(score) {
 
         <div class="grim-shell">
 
-            <!-- ═══ ÉTAT VIDE : aucun test passé ════════════════════════════ -->
             <div v-if="is_empty" class="grim-empty">
-                <div class="grim-flourish">❧&nbsp;&nbsp;✦&nbsp;&nbsp;❧</div>
+                <div class="grim-flourish">&#10087;&nbsp;&nbsp;&#10022;&nbsp;&nbsp;&#10087;</div>
                 <h1 class="grim-title">Le Grimoire</h1>
-                <div class="grim-rule"><span>✦</span></div>
+                <div class="grim-rule"><span>&#10022;</span></div>
                 <p class="grim-empty-text">
                     Ton Grimoire se remplira au fil de tes épreuves. Passe une première épreuve
                     pour que l'oracle commence à relire ton profil.
@@ -64,25 +77,23 @@ function fitClass(score) {
                 <Link :href="route('tests.index')" class="ac-btn-primary">Entrer dans l'Armurerie</Link>
             </div>
 
-            <!-- ═══ ÉTAT EN COURS : génération de la relecture ══════════════ -->
             <div v-else-if="ai_pending" class="grim-pending">
-                <div class="grim-flourish">❧&nbsp;&nbsp;✦&nbsp;&nbsp;❧</div>
+                <div class="grim-flourish">&#10087;&nbsp;&nbsp;&#10022;&nbsp;&nbsp;&#10087;</div>
                 <div class="grim-pulse-dots"><span></span><span></span><span></span></div>
                 <h1 class="grim-title">L'oracle relit tes épreuves…</h1>
                 <p class="grim-pending-sub">
                     Croisement de tes {{ tests.length }} épreuve{{ tests.length > 1 ? 's' : '' }} · 1 à 2 minutes
                 </p>
-                <div class="grim-rule"><span>✦</span></div>
+                <div class="grim-rule"><span>&#10022;</span></div>
             </div>
 
-            <!-- ═══ ÉTAT PRÊT : synthèse globale + Voies ════════════════════ -->
             <div v-else class="grim-content">
 
                 <header class="grim-header">
-                    <div class="grim-flourish">❧&nbsp;&nbsp;✦&nbsp;&nbsp;❧</div>
+                    <div class="grim-flourish">&#10087;&nbsp;&nbsp;&#10022;&nbsp;&nbsp;&#10087;</div>
                     <span class="grim-badge">Relecture globale</span>
                     <h1 class="grim-title">Le Grimoire</h1>
-                    <div class="grim-rule"><span>✦</span></div>
+                    <div class="grim-rule"><span>&#10022;</span></div>
                     <p class="grim-sub">
                         Ce que révèle le croisement de
                         <strong>{{ tests.length }}</strong> de tes épreuves.
@@ -92,21 +103,17 @@ function fitClass(score) {
                     </div>
                 </header>
 
-                <!-- Message si l'IA a échoué -->
                 <div v-if="grimoire?.status === 'failed'" class="grim-alert">
                     {{ grimoire.synthesis }}
                 </div>
 
-                <!-- Synthèse transversale : le manuscrit central -->
                 <section v-else class="grim-synthesis">
                     <div class="grim-scroll">
                         <h2 class="grim-scroll-title">Le fil conducteur</h2>
-                        <p v-for="(para, i) in (grimoire?.synthesis || '').split('\n').filter(p => p.trim())"
-                           :key="i" class="grim-para">{{ para }}</p>
+                        <p v-for="(para, i) in synthParagraphs" :key="i" class="grim-para">{{ para }}</p>
                     </div>
                 </section>
 
-                <!-- Les Voies Possibles consolidées -->
                 <section v-if="voies.length" class="grim-voies">
                     <div class="grim-section-head">
                         <h2 class="grim-section-title">Tes Voies Possibles</h2>
@@ -140,7 +147,6 @@ function fitClass(score) {
                     </div>
                 </section>
 
-                <!-- Résumé par test passé + téléchargement PDF individuel -->
                 <section v-if="tests.length" class="grim-tests">
                     <div class="grim-section-head">
                         <h2 class="grim-section-title">Tes épreuves relues</h2>
@@ -168,9 +174,8 @@ function fitClass(score) {
                     </div>
                 </section>
 
-                <!-- Pied : régénérer + disclaimer IA -->
                 <footer class="grim-footer">
-                    <div class="grim-rule"><span>✦</span></div>
+                    <div class="grim-rule"><span>&#10022;</span></div>
                     <div class="grim-actions">
                         <a v-if="grimoire?.status === 'ready'" :href="route('grimoire.pdf')" class="ac-btn-primary">
                             Télécharger en PDF
@@ -189,21 +194,16 @@ function fitClass(score) {
 </template>
 
 <style scoped>
-/* Charte PraxiQuest : Space Grotesk (display) / Inter (body) / Space Mono (data).
-   L'effet « médiéval premium » vient du parchemin Assassin's Creed — couleurs,
-   or, ornements, lettrines — pas de polices gothiques. */
 .grim-shell {
     max-width: 1040px;
     margin: 0 auto;
     padding: 1rem 1.25rem 4rem;
-    /* Alias locaux pointant sur les tokens officiels de la charte */
     --grim-gold: var(--color-primary, #A67520);
     --grim-gold-dark: var(--color-primary-dark, #7D5510);
     --grim-red: var(--color-secondary, #7B1515);
     --grim-ink: var(--text-primary, #2A1E08);
 }
 
-/* ── Ornements partagés ─────────────────────────────────────────────── */
 .grim-flourish {
     text-align: center;
     color: var(--grim-gold);
@@ -231,7 +231,6 @@ function fitClass(score) {
     font-size: .8rem;
 }
 
-/* ── Titres ─────────────────────────────────────────────────────────── */
 .grim-title {
     font-family: var(--font-display, 'Space Grotesk', sans-serif);
     font-size: clamp(2.1rem, 5vw, 2.9rem);
@@ -245,17 +244,16 @@ function fitClass(score) {
 .grim-sub {
     text-align: center;
     font-family: var(--font-body, 'Inter', sans-serif);
-    font-size: 1.15rem;
+    font-size: 1.05rem;
     color: var(--text-secondary, #6B5A3E);
     margin: 0 0 1.1rem;
 }
 .grim-sub strong { color: var(--grim-red); font-weight: 600; }
 
-/* ── États vide / pending ───────────────────────────────────────────── */
 .grim-empty, .grim-pending { text-align: center; padding: 4.5rem 1rem; }
 .grim-empty-text, .grim-pending-sub {
     font-family: var(--font-body, 'Inter', sans-serif);
-    font-size: 1.15rem;
+    font-size: 1.05rem;
     color: var(--text-secondary, #6B5A3E);
     max-width: 480px;
     margin: 0 auto 1.8rem;
@@ -267,7 +265,6 @@ function fitClass(score) {
 .grim-pulse-dots span:nth-child(3) { animation-delay: .4s; }
 @keyframes grimPulse { 0%, 80%, 100% { opacity: .25; transform: scale(.8); } 40% { opacity: 1; transform: scale(1); } }
 
-/* ── En-tête ────────────────────────────────────────────────────────── */
 .grim-header { text-align: center; margin-bottom: 2.75rem; }
 .grim-badge {
     display: inline-block;
@@ -295,7 +292,6 @@ function fitClass(score) {
     box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 1px 2px rgba(42,30,8,.06);
 }
 
-/* ── Synthèse : le manuscrit central ────────────────────────────────── */
 .grim-synthesis { max-width: 760px; margin: 0 auto 3.5rem; }
 .grim-scroll {
     position: relative;
@@ -307,7 +303,6 @@ function fitClass(score) {
     padding: 2.5rem 2.4rem 2.2rem;
     box-shadow: var(--shadow-elevated, 0 8px 32px rgba(42,30,8,0.15)), inset 0 0 0 1px rgba(255,255,255,.35);
 }
-/* double cadre intérieur, à l'ancienne */
 .grim-scroll::before {
     content: '';
     position: absolute;
@@ -328,19 +323,18 @@ function fitClass(score) {
 }
 .grim-para {
     font-family: var(--font-body, 'Inter', sans-serif);
-    font-size: 1.18rem;
+    font-size: 1.05rem;
     line-height: 1.78;
     color: var(--grim-ink);
-    margin: 0 0 1.05rem;
+    margin: 0 0 1.35rem;
     text-align: justify;
     hyphens: auto;
 }
 .grim-para:last-child { margin-bottom: 0; }
-/* Lettrine sur le premier paragraphe */
 .grim-scroll .grim-para:first-of-type::first-letter {
     font-family: var(--font-display, 'Space Grotesk', sans-serif);
     font-weight: 700;
-    font-size: 3.4rem;
+    font-size: 3.1rem;
     line-height: .82;
     float: left;
     padding: .08em .12em 0 0;
@@ -350,7 +344,7 @@ function fitClass(score) {
 
 .grim-alert {
     font-family: var(--font-body, 'Inter', sans-serif);
-    font-size: 1.05rem;
+    font-size: 1rem;
     max-width: 760px;
     margin: 0 auto 2.5rem;
     padding: 1.1rem 1.4rem;
@@ -361,7 +355,6 @@ function fitClass(score) {
     color: var(--grim-red);
 }
 
-/* ── En-têtes de section ────────────────────────────────────────────── */
 .grim-section-head { text-align: center; margin-bottom: 1.8rem; }
 .grim-section-title {
     font-family: var(--font-display, 'Space Grotesk', sans-serif);
@@ -373,12 +366,11 @@ function fitClass(score) {
 }
 .grim-voies-intro {
     font-family: var(--font-body, 'Inter', sans-serif);
-    font-size: 1.08rem;
+    font-size: 1rem;
     color: var(--text-secondary, #6B5A3E);
     margin: 0;
 }
 
-/* ── Voies (cartes enluminées) ──────────────────────────────────────── */
 .grim-voies { margin-bottom: 3.5rem; }
 .grim-voies-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 1.1rem; }
 .grim-voie-card {
@@ -425,14 +417,13 @@ function fitClass(score) {
     margin-bottom: .2rem;
 }
 .grim-voie-secteur { font-family: var(--font-data, monospace); font-size: 10px; color: var(--text-muted, #8C7A5E); text-transform: uppercase; letter-spacing: .1em; margin-bottom: .7rem; }
-.grim-voie-why { font-family: var(--font-body, 'Inter', sans-serif); font-size: 1.02rem; line-height: 1.6; color: var(--text-secondary, #6B5A3E); margin-bottom: .9rem; }
+.grim-voie-why { font-family: var(--font-body, 'Inter', sans-serif); font-size: .98rem; line-height: 1.6; color: var(--text-secondary, #6B5A3E); margin-bottom: .9rem; }
 .grim-voie-appui { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: .9rem; }
 .grim-voie-appui-label { font-family: var(--font-data, monospace); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted, #8C7A5E); }
 .grim-appui-tag { font-family: var(--font-body, 'Inter', sans-serif); font-size: 12px; background: rgba(166,117,32,0.1); color: var(--grim-gold-dark); padding: 2px 9px; border-radius: 4px; border: 1px solid rgba(166,117,32,0.25); }
-.grim-voie-next { font-family: var(--font-body, 'Inter', sans-serif); font-size: .98rem; line-height: 1.55; color: var(--grim-ink); border-top: 1px solid rgba(166,117,32,0.25); padding-top: .75rem; }
+.grim-voie-next { font-family: var(--font-body, 'Inter', sans-serif); font-size: .95rem; line-height: 1.55; color: var(--grim-ink); border-top: 1px solid rgba(166,117,32,0.25); padding-top: .75rem; }
 .grim-voie-next-label { display: block; font-family: var(--font-data, monospace); font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--grim-red); margin-bottom: .25rem; }
 
-/* ── Résumé par test ────────────────────────────────────────────────── */
 .grim-tests { margin-bottom: 3rem; }
 .grim-tests-list { display: flex; flex-direction: column; gap: .85rem; }
 .grim-test-card {
@@ -452,7 +443,7 @@ function fitClass(score) {
 .grim-test-card:hover { box-shadow: var(--shadow-card, 0 2px 12px rgba(42,30,8,0.10)); }
 .grim-test-main { flex: 1 1 320px; min-width: 0; }
 .grim-test-name { font-family: var(--font-display, 'Space Grotesk', sans-serif); font-size: 1.08rem; font-weight: 600; color: var(--grim-ink); margin-bottom: .45rem; }
-.grim-test-summary { font-family: var(--font-body, 'Inter', sans-serif); font-size: 1.05rem; line-height: 1.6; color: var(--text-secondary, #6B5A3E); }
+.grim-test-summary { font-family: var(--font-body, 'Inter', sans-serif); font-size: .98rem; line-height: 1.6; color: var(--text-secondary, #6B5A3E); }
 .grim-test-pending { font-style: italic; color: var(--text-muted, #8C7A5E); }
 .grim-test-actions { display: flex; flex-direction: column; gap: .5rem; flex: 0 0 auto; align-items: stretch; }
 .grim-test-link {
@@ -482,14 +473,13 @@ function fitClass(score) {
 }
 .grim-test-pdf:hover { filter: brightness(1.08); }
 
-/* ── Footer ─────────────────────────────────────────────────────────── */
 .grim-footer { text-align: center; margin-top: 3rem; }
 .grim-actions { display: flex; gap: .85rem; justify-content: center; flex-wrap: wrap; margin-top: 1.5rem; }
 .grim-disclaimer { font-family: var(--font-body, 'Inter', sans-serif); font-size: 13px; font-style: italic; color: var(--text-muted, #8C7A5E); max-width: 580px; margin: 1.5rem auto 0; line-height: 1.55; }
 
 @media (max-width: 640px) {
     .grim-scroll { padding: 1.8rem 1.4rem; }
-    .grim-para { text-align: left; font-size: 1.1rem; }
+    .grim-para { text-align: left; }
     .grim-test-actions { flex-direction: row; width: 100%; }
     .grim-test-actions > * { flex: 1; }
 }

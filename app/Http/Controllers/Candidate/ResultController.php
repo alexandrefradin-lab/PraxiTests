@@ -83,6 +83,8 @@ class ResultController extends Controller
                     'journeyCompletedCount' => count($completedList),
                     'journeyCompletedDays'  => $completedArr, // map { 1: true, 3: true, … }
                     'todayJourney'          => $todayEntry,
+                    // Exercice du jour : choisi sur la dimension la plus faible du profil.
+                    'exerciseOfTheDay'      => $this->praxilinkExerciseOfTheDay($attempt, $currentDay),
                 ],
                 default => [],
             };
@@ -191,5 +193,54 @@ class ResultController extends Controller
             'maitrise'     => ['label' => 'Maîtrise',     'days' => '46-60', 'emoji' => '✨'],
         ];
         return $phases[$this->journeyPhase($day)];
+    }
+
+    // ─── Exercice du jour PraxiLink ───────────────────────────────────────────
+
+    /**
+     * Sélectionne l'exercice « scénario du jour » pour PraxiLink.
+     *
+     * Lu directement depuis la classe Data du plugin (comme Journey) : aucune
+     * dépendance à une table. On cible en priorité la dimension la plus faible
+     * du profil (axe de progrès), puis on fait tourner les exercices de cette
+     * dimension selon le jour de parcours pour varier d'un jour à l'autre.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function praxilinkExerciseOfTheDay(TestAttempt $attempt, int $day): ?array
+    {
+        $exercisesClass = \Praxis\Plugins\PraxiLink\Data\Exercises::class;
+        if (! class_exists($exercisesClass)) {
+            return null;
+        }
+
+        $all = $exercisesClass::all();
+        if (empty($all)) {
+            return null;
+        }
+
+        // Dimension la plus faible d'après le scoring stocké (axe de progrès).
+        $norm = $attempt->result?->scoring['norm_scores'] ?? [];
+        $weakest = null;
+        if (is_array($norm) && $norm !== []) {
+            asort($norm);
+            $weakest = array_key_first($norm);
+        }
+
+        // Exercices ciblant cette dimension, sinon repli sur l'ensemble.
+        $pool = $weakest !== null
+            ? array_values(array_filter(
+                $all,
+                fn ($ex) => ($ex['scoring']['dimension'] ?? null) === $weakest
+            ))
+            : [];
+        if ($pool === []) {
+            $pool = array_values($all);
+        }
+
+        // Rotation déterministe par jour de parcours.
+        $index = (max(1, $day) - 1) % count($pool);
+
+        return $pool[$index];
     }
 }
