@@ -246,11 +246,13 @@
 
     /* Métiers */
     .job { padding: 13px 16px; margin-bottom: 11px; }
-    .job-rank {
-        display: inline-block; width: 26px; height: 26px; line-height: 26px;
-        text-align: center; border-radius: 13px; color: {{ $parchment }}; font-weight: bold;
-        font-size: 12px; background: {{ $primary }}; font-family: "DejaVu Serif", serif;
-    }
+    /* Pastille de rang — centrage vertical via cellule de tableau (dompdf ne
+       centre pas via line-height : le chiffre tombait au bas du cercle). */
+    .job-rank { display: inline-block; width: 26px; height: 26px;
+        border-radius: 13px; background: {{ $primary }}; }
+    .job-rank table { width: 26px; height: 26px; border-collapse: collapse; }
+    .job-rank td { padding: 0; text-align: center; vertical-align: middle; line-height: 1;
+        color: {{ $parchment }}; font-weight: bold; font-size: 12px; font-family: "DejaVu Serif", serif; }
     .job-sector { font-size: 8px; text-transform: uppercase; letter-spacing: 1.5px; color: {{ $inkSoft }};
         font-family: "DejaVu Sans Mono", monospace; }
     .job-title { font-family: "DejaVu Serif", serif; font-size: 13px; font-weight: bold; color: {{ $accent }}; }
@@ -266,12 +268,11 @@
 
     /* ── Carte « Verdict » — résultat-phare ───────────────────────────── */
     .hero { background: {{ $accent }}; border: 1.5px solid {{ $primary }}; border-radius: 14px; }
-    .medallion {
-        width: 86px; height: 86px; line-height: 86px; text-align: center;
-        border-radius: 43px; border: 3px solid {{ $primary }};
-        background: {{ $accent }}; color: {{ $parchment }};
-        font-family: "DejaVu Serif", serif; font-weight: bold; font-size: 30px;
-    }
+    .medallion { display: inline-block; width: 86px; height: 86px;
+        border-radius: 43px; border: 3px solid {{ $primary }}; background: {{ $accent }}; }
+    .medallion table { width: 80px; height: 80px; border-collapse: collapse; }
+    .medallion td { padding: 0; text-align: center; vertical-align: middle; line-height: 1;
+        color: {{ $parchment }}; font-family: "DejaVu Serif", serif; font-weight: bold; font-size: 30px; }
     .medallion .pctsign { font-size: 14px; color: {{ $primary }}; }
     .medallion-cap { font-size: 7.5px; letter-spacing: 1.5px; text-transform: uppercase;
         color: #9C8A60; text-align: center; margin-top: 7px; font-family: "DejaVu Sans Mono", monospace; }
@@ -424,7 +425,7 @@
         <tr>
             @if($headline['pct'] !== null)
             <td style="width:118px; vertical-align:middle; padding:20px 0 20px 22px;">
-                <div class="medallion">{{ $headline['pct'] }}<span class="pctsign">%</span></div>
+                <div class="medallion"><table><tr><td>{{ $headline['pct'] }}<span class="pctsign">%</span></td></tr></table></div>
                 <div class="medallion-cap">Indice global</div>
             </td>
             @endif
@@ -577,7 +578,7 @@
         <table class="card job avoid-break" style="width:100%; border-collapse:separate;">
             <tr>
                 <td style="width:34px; vertical-align:top; padding-top:1px;">
-                    <span class="job-rank">{{ $i + 1 }}</span>
+                    <div class="job-rank"><table><tr><td>{{ $i + 1 }}</td></tr></table></div>
                 </td>
                 <td style="vertical-align:top;">
                     <div class="job-sector">{{ $secteur }}</div>
