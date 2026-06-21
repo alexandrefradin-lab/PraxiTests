@@ -36,17 +36,34 @@ class GlobalGrimoireService
             return null;
         }
 
-        $count    = (int) config('ai.tasks.global_grimoire.count', 15);
-        $messages = $this->prompts->globalGrimoire($user, $attempts, $count);
-        $messages = PluginHooks::applyFilters('ai.grimoire.messages', $messages, $user, $attempts);
+        $count = (int) config('ai.tasks.global_grimoire.count', 15);
+
+        // Deux prompts distincts (synthèse / voies) générés EN PARALLÈLE via chatMany().
+        // C'est le levier d'accélération : ~2x plus rapide qu'un seul gros appel qui
+        // devait produire les ~4000 tokens de synthèse + voies en série.
+        $synthMessages = $this->prompts->globalGrimoireSynthese($user, $attempts);
+        $voiesMessages = $this->prompts->globalGrimoireVoies($user, $attempts, $count);
+
+        // Hooks plugins : 'ai.grimoire.messages' reste appliqué à la relecture (synthèse),
+        // 'ai.grimoire.voies_messages' permet d'enrichir le prompt des voies.
+        $synthMessages = PluginHooks::applyFilters('ai.grimoire.messages', $synthMessages, $user, $attempts);
+        $voiesMessages = PluginHooks::applyFilters('ai.grimoire.voies_messages', $voiesMessages, $user, $attempts);
 
         $driver = $this->ai->forTask('global_grimoire');
-        $raw    = $driver->chat($messages, ['temperature' => 0.6, 'max_tokens' => 4000]);
-        $raw    = PluginHooks::applyFilters('ai.grimoire.output', $raw, $user, $attempts);
 
-        $json     = $this->parseJson($raw);
-        $synthese = (string) ($json['synthese'] ?? $json['synthèse'] ?? '');
-        $voies    = $json['voies'] ?? $json['métiers'] ?? $json['jobs'] ?? [];
+        $responses = $driver->chatMany([
+            'synthese' => ['messages' => $synthMessages, 'options' => ['temperature' => 0.6, 'max_tokens' => 1800]],
+            'voies'    => ['messages' => $voiesMessages, 'options' => ['temperature' => 0.6, 'max_tokens' => 3200]],
+        ]);
+
+        $rawSynth = PluginHooks::applyFilters('ai.grimoire.output', (string) ($responses['synthese'] ?? ''), $user, $attempts);
+        $rawVoies = PluginHooks::applyFilters('ai.grimoire.voies_output', (string) ($responses['voies'] ?? ''), $user, $attempts);
+
+        $jsonSynth = $this->parseJson($rawSynth);
+        $jsonVoies = $this->parseJson($rawVoies);
+
+        $synthese = (string) ($jsonSynth['synthese'] ?? $jsonSynth['synthèse'] ?? '');
+        $voies    = $jsonVoies['voies'] ?? $jsonVoies['métiers'] ?? $jsonVoies['jobs'] ?? [];
         $voies    = PluginHooks::applyFilters('grimoire.voies', $voies, $user, $attempts);
 
         $usage = $driver->lastUsage();

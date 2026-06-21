@@ -353,7 +353,7 @@ class Exercises
                 'category'         => 'gestion_energie',
                 'duration_minutes' => 3,
                 'difficulty'       => 1,
-                'scientific_basis' => "Des recherches en neurosciences (Immordino-Yang et al., 2012) montrent que les pauses activent le réseau du mode par défaut (DMN), essentiel à la consolidation mémorielle, la créativité et la résolution de problèmes. Une étude de DeskTime (2014) sur les employés les plus productifs révèle qu'ils travaillent 52 minutes puis se reposent 17 minutes. La fatigue décisionnelle (Baumeister, 2008) s'accumule dès 90 minutes de travail continu.",
+                'scientific_basis' => "Des recherches en neurosciences (Immordino-Yang et al., 2012) montrent que les pauses activent le réseau du mode par défaut (DMN), essentiel à la consolidation mémorielle, la créativité et la résolution de problèmes. (Le ratio « 52/17 » souvent cité provient d'une observation d'entreprise — DeskTime, 2014 — et non d'une étude revue par les pairs : à prendre comme repère indicatif, pas comme une loi.) L'idée validée est simple : des pauses régulières et déconnectées préviennent la baisse d'attention sur la durée.",
                 'instructions'     => [
                     "Réglez une alarme toutes les 50-60 minutes pendant votre journée de travail.",
                     "À chaque alarme, arrêtez COMPLÈTEMENT votre tâche. Levez-vous physiquement.",
@@ -446,7 +446,7 @@ class Exercises
                 'category'         => 'lutte_procrastination',
                 'duration_minutes' => 2,
                 'difficulty'       => 1,
-                'scientific_basis' => "La règle des 5 secondes (Mel Robbins, 2017) est un outil comportemental qui exploite la fenêtre de décision pré-motrice. Des recherches en neurosciences (Libet, 1985) montrent que le cerveau prend une décision motrice 300 ms avant la conscience. En comptant à rebours 5-4-3-2-1 et en agissant immédiatement, on interrompt la boucle de rumination et d'évitement avant que le cortex préfrontal ne construise une justification pour ne pas commencer.",
+                'scientific_basis' => "La règle des 5 secondes (Mel Robbins, 2017) est un outil de vulgarisation — pas une étude (on évite ici de l'appuyer sur l'interprétation contestée de Libet, 1985). Ce qui tient : la procrastination est d'abord un problème de régulation émotionnelle (Pychyl & Sirois, 2016), et réduire l'« énergie d'activation » du démarrage en agissant tout de suite court-circuite la boucle d'évitement avant que le mental ne fabrique une excuse.",
                 'instructions'     => [
                     "Pensez à une tâche que vous devez faire mais que vous évitez depuis au moins 2 jours.",
                     "Lisez la règle : quand vous direz « 1 », vous allez vous lever et commencer. Sans négociation.",
@@ -459,21 +459,21 @@ class Exercises
             ],
 
             [
-                'id'               => 'recompenses-dopaminergiques',
-                'title'            => "Récompenses dopaminergiques — hacker sa motivation",
+                'id'               => 'temptation-bundling',
+                'title'            => "Temptation bundling — coupler le pénible au plaisant",
                 'category'         => 'lutte_procrastination',
                 'duration_minutes' => 3,
                 'difficulty'       => 2,
-                'scientific_basis' => "La procrastination est en partie un problème de temporalité de la récompense : le cerveau limbique valorise les récompenses immédiates (dopamine instantanée) au détriment des récompenses différées (accomplissement futur). Des neuroscientifiques (Schultz, 1997 ; Berridge, 2007) montrent qu'anticiper explicitement une récompense active le circuit de récompense dopaminergique AVANT l'action, augmentant la motivation de démarrage.",
+                'scientific_basis' => "Le « temptation bundling » (Milkman) consiste à n'autoriser un plaisir QUE pendant qu'on accomplit une tâche pénible — par exemple n'écouter son podcast/audiobook préféré qu'au moment de faire l'activité évitée. Un essai contrôlé randomisé d'envergure (Milkman et al., 2020, n=6792, partenariat avec une chaîne de salles de sport) a montré une hausse de 10 à 14 % des séances hebdomadaires. Le plaisir immédiat compense l'effort, ce qui aide à démarrer ET à tenir.",
                 'instructions'     => [
-                    "Choisissez une tâche difficile que vous devez accomplir cette semaine.",
-                    "Définissez une récompense concrète et désirée que vous vous accorderez UNIQUEMENT après avoir terminé (café préféré, série, sortie, achat plaisir).",
-                    "Écrivez le contrat avec vous-même : « Quand j'aurai terminé ___, je m'offrirai ___ ».",
-                    "Visualisez pendant 30 secondes le plaisir de la récompense AVANT de commencer. Activez la dopamine anticipatoire.",
-                    "Ne prenez PAS la récompense avant d'avoir terminé. L'engagement doit être tenu.",
-                    "Réflexion : avez-vous ressenti plus de motivation à démarrer ? Quel type de récompense fonctionne le mieux pour vous ?",
+                    "Listez 2-3 tâches que vous repoussez systématiquement (admin, ménage, sport, dossier ennuyeux).",
+                    "Listez 2-3 plaisirs « coupables » que vous aimez (une série, un podcast, une playlist, un thé spécial).",
+                    "Créez UN couplage : choisissez un plaisir que vous vous autoriserez UNIQUEMENT pendant la tâche pénible.",
+                    "Posez la règle d'exclusivité : ce plaisir n'est PAS accessible en dehors de ce moment. C'est ce qui crée l'envie de s'y mettre.",
+                    "Clause si-alors : « QUAND je commence [tâche évitée], ALORS je lance [plaisir réservé] — et seulement à ce moment-là. »",
+                    "Après une semaine : la tâche est-elle devenue plus facile à démarrer ? Ajustez le couplage si besoin.",
                 ],
-                'scoring'          => ['dimension' => 'lutte_procrastination', 'weight' => 1.1],
+                'scoring'          => ['dimension' => 'lutte_procrastination', 'weight' => 1.2],
             ],
 
         ];

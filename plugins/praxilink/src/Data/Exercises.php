@@ -384,19 +384,19 @@ class Exercises
 
             [
                 'id'              => 'fb-03',
-                'title'           => 'Feedback sandwich : atouts et limites',
+                'title'           => 'Feedback sandwich : pourquoi l\'éviter (et le modèle SBI)',
                 'category'        => 'feedback',
                 'duration_minutes' => 3,
                 'difficulty'      => 2,
-                'scientific_basis' => 'Méthode sandwich (positif-négatif-positif) : populaire mais controversée (Jackman & Strober, 2003 ; Heen & Stone, 2014). Efficace pour les messages délicats si bien utilisée, mais peut diluer le message critique.',
+                'scientific_basis' => 'La méthode « sandwich » (positif-négatif-positif) est aujourd\'hui considérée comme l\'un des formats les MOINS efficaces : elle dilue le message critique et peut entamer la confiance (Heen & Stone, 2014). Mieux étayé : le modèle SBI — Situation, Behavior, Impact (Center for Creative Leadership) — qui reste factuel et réduit la défensivité. Plus le comportement est décrit précisément, plus le destinataire agit dessus.',
                 'scoring'         => ['dimension' => 'feedback_constructif', 'weight' => 0.9],
                 'instructions'    => [
                     'scenario'  => 'Vous devez donner un feedback à Raphaël dont les emails clients sont très bien écrits mais qui oublie systématiquement de mettre l\'équipe en copie.',
-                    'question'  => 'Rédigez un feedback sandwich. Puis identifiez en une phrase le risque principal de cette méthode dans ce contexte.',
+                    'question'  => 'Étape 1 : rédigez un feedback « sandwich » et identifiez son risque principal ici. Étape 2 : réécrivez le même feedback au format SBI (Situation → Comportement observé → Impact concret).',
                     'type'      => 'redaction_et_analyse',
-                    'champs'    => ['Positif (ce qui fonctionne)', 'Axe d\'amélioration (le problème)', 'Positif de clôture (encouragement)'],
+                    'champs'    => ['Sandwich : positif / problème / positif', 'Risque du sandwich dans ce cas', 'SBI — Situation (quand, où)', 'SBI — Comportement observable (faits)', 'SBI — Impact (conséquence concrète)'],
                     'risque_attendu' => 'Raphaël pourrait retenir surtout les parties positives et ne pas percevoir la gravité de l\'oubli de mise en copie.',
-                    'feedback'  => 'Le sandwich fonctionne bien pour les feedbacks modérés. Pour un comportement récurrent ou à fort impact, mieux vaut une approche directe type DESC où l\'axe d\'amélioration n\'est pas enrobé et risque d\'être minimisé.',
+                    'feedback'  => 'Le sandwich enrobe le message au point de le diluer : le destinataire retient les compliments et minimise le problème. Le format SBI est plus efficace car il reste factuel et précis (Situation, Comportement, Impact) sans juger la personne — ce qui réduit la défensivité et augmente la probabilité d\'un changement réel.',
                 ],
             ],
 

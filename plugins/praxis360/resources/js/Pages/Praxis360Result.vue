@@ -298,4 +298,14 @@ const barWidth = (dimKey) => {
 
 <style scoped>
 @keyframes spin { to { transform: rotate(360deg) } }
+
+@media (max-width: 640px) {
+    .p360-hero {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem !important;
+        padding: 1.5rem !important;
+    }
+}
+
 </style>
