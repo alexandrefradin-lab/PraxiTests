@@ -30,13 +30,13 @@ const toggleExercise = (id) => {
     openExercise.value = openExercise.value === id ? null : id
 }
 
-// Couleur de la jauge globale selon le score
+// Couleur de la jauge globale selon le score — teintes patinées (palette AC)
 const gaugeColor = computed(() => {
-    if (globalScore.value >= 80) return 'var(--pt-success, #059669)'
-    if (globalScore.value >= 65) return 'var(--pt-info, #0284C7)'
-    if (globalScore.value >= 50) return 'var(--pt-gold)'
-    if (globalScore.value >= 35) return '#EA580C'
-    return 'var(--pt-danger, #DC2626)'
+    if (globalScore.value >= 80) return '#3A6B48'   // Vert Eagle Vision
+    if (globalScore.value >= 65) return '#0A7FA0'   // Bleu Animus
+    if (globalScore.value >= 50) return '#A67520'   // Or de la Fraternité
+    if (globalScore.value >= 35) return '#B5781C'   // Or brûlé / ambre
+    return '#B03020'                                // Rouge sang
 })
 
 const categoryLabel = (cat) => {
@@ -152,42 +152,48 @@ const phaseLabel = (key) => PHASES[key]?.label ?? key
             <!-- ── Jauge circulaire + score global ─────────────────────── -->
             <div class="pt-card p-8 mb-8 flex flex-col md:flex-row items-center gap-10">
 
-                <!-- Jauge SVG -->
+                <!-- Jauge épurée — arc 270° + filet d'or (palette PraxiQuest) -->
                 <div class="relative flex-shrink-0">
-                    <svg viewBox="0 0 120 120" width="172" height="172" aria-label="Score global">
-                        <!-- Track de fond — arc 270° (centre 60,60 · r 50) -->
+                    <svg viewBox="0 0 120 120" width="180" height="180"
+                         aria-label="Score de bien-être" role="img">
+
+                        <!-- Filet d'or discret -->
+                        <circle cx="60" cy="60" r="57" fill="none" stroke="#A67520" stroke-width="0.8" opacity="0.4"/>
+
+                        <!-- Sillon de fond (arc 270°, centre 60,60 · r 50) -->
                         <path
                             d="M 24.645 95.355 A 50 50 0 1 1 95.355 95.355"
                             fill="none"
-                            stroke="#EAE6DD"
-                            stroke-width="11"
+                            stroke="rgba(42,30,8,0.12)"
+                            stroke-width="8"
                             stroke-linecap="round"
                         />
-                        <!-- Arc coloré — même géométrie, rempli via dasharray -->
+                        <!-- Arc coloré — rempli via dasharray -->
                         <path
                             d="M 24.645 95.355 A 50 50 0 1 1 95.355 95.355"
                             fill="none"
                             :stroke="gaugeColor"
-                            stroke-width="11"
+                            stroke-width="8"
                             stroke-linecap="round"
                             pathLength="100"
                             :stroke-dasharray="`${globalScore} 100`"
                             style="transition: stroke-dasharray 1s ease"
                         />
+
                         <!-- Score -->
                         <text
-                            x="60" y="63"
+                            x="60" y="62"
                             text-anchor="middle"
-                            font-size="30"
-                            font-weight="700"
-                            :fill="gaugeColor"
+                            font-family="'Space Mono', monospace"
+                            font-size="30" font-weight="700"
+                            fill="#2A1E08"
                         >{{ globalScore }}</text>
                         <text
-                            x="60" y="81"
+                            x="60" y="78"
                             text-anchor="middle"
-                            font-size="11"
-                            letter-spacing="0.5"
-                            fill="#9CA3AF"
+                            font-family="'Space Mono', monospace"
+                            font-size="9" letter-spacing="1.5"
+                            fill="#6B5A3E"
                         >/ 100</text>
                     </svg>
                 </div>

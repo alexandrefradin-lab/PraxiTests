@@ -340,6 +340,9 @@
         <button class="pt-btn-primary" @click="retakeTest">
           Refaire le test
         </button>
+        <a :href="route('results.pdf', attempt.id)" class="pt-btn-secondary">
+          Télécharger en PDF
+        </a>
         <button class="pt-btn-secondary" @click="goToDashboard">
           Retour au tableau de bord
         </button>

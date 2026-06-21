@@ -115,6 +115,21 @@ const toggleMultiple = (optValue) => {
 }
 
 const isMultiSelected = (optValue) => Array.isArray(value.value) && value.value.includes(optValue)
+
+// Exercice guidé : les métadonnées (instructions / base scientifique) peuvent
+// vivre soit dans `meta` (seeder questionnaire), soit dans `options` (données de
+// type 'exercise' historiques). On lit les deux pour rester compatible.
+const exerciseMeta = computed(() => {
+    const q = currentQuestion.value || {}
+    const m = q.meta && typeof q.meta === 'object' ? q.meta : {}
+    const o = q.options && !Array.isArray(q.options) && typeof q.options === 'object' ? q.options : {}
+    return { ...o, ...m }
+})
+const exerciseInstructions = computed(() => {
+    const ins = exerciseMeta.value.instructions
+    return Array.isArray(ins) ? ins : (ins ? [ins] : [])
+})
+const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
 </script>
 
 <template>
@@ -209,6 +224,40 @@ const isMultiSelected = (optValue) => Array.isArray(value.value) && value.value.
                                     </svg>
                                 </span>
                                 <span class="ac-option-label">{{ opt.label }}</span>
+                            </div>
+                        </template>
+
+                        <!-- EXERCICE GUIDÉ (parcours mini-app : praxispeak, etc.) -->
+                        <template v-else-if="currentQuestion.type === 'exercise'">
+                            <div class="ac-exercise">
+                                <ol v-if="exerciseInstructions.length" class="ac-exercise-steps">
+                                    <li v-for="(step, i) in exerciseInstructions" :key="i">{{ step }}</li>
+                                </ol>
+
+                                <p v-if="exerciseBasis" class="ac-exercise-basis">
+                                    <span class="ac-exercise-basis-kicker">Pourquoi ça marche</span>
+                                    {{ exerciseBasis }}
+                                </p>
+
+                                <div class="ac-exercise-actions">
+                                    <button
+                                        type="button"
+                                        class="ac-btn-primary"
+                                        :class="{ 'ac-btn-primary--disabled': isSubmitting }"
+                                        :disabled="isSubmitting"
+                                        @click="selectAndAdvance(1)"
+                                    >
+                                        {{ isSubmitting ? '…' : (isLastQuestion ? "J'ai fait cet exercice — Terminer →" : "J'ai fait cet exercice →") }}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="ac-btn-ghost"
+                                        :disabled="isSubmitting"
+                                        @click="selectAndAdvance(0)"
+                                    >
+                                        Passer pour l'instant
+                                    </button>
+                                </div>
                             </div>
                         </template>
 
@@ -569,6 +618,85 @@ const isMultiSelected = (optValue) => Array.isArray(value.value) && value.value.
     font-size: 14px;
     color: var(--text-primary);
     line-height: 1.45;
+}
+
+/* ── EXERCICE GUIDÉ ──────────────────────────── */
+.ac-exercise {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.ac-exercise-steps {
+    margin: 0;
+    padding-left: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.ac-exercise-steps li {
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--text-primary);
+    padding-left: 0.35rem;
+}
+
+.ac-exercise-steps li::marker {
+    color: var(--color-primary);
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+}
+
+.ac-exercise-basis {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--text-secondary);
+    background: rgba(166,117,32,0.07);
+    border-left: 2px solid var(--color-primary);
+    border-radius: 0 8px 8px 0;
+    padding: 0.75rem 1rem;
+    margin: 0;
+}
+
+.ac-exercise-basis-kicker {
+    display: block;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-primary);
+    margin-bottom: 0.35rem;
+}
+
+.ac-exercise-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.ac-btn-ghost {
+    background: transparent;
+    border: none;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0.4rem 0.85rem;
+    transition: color 0.15s ease;
+}
+
+.ac-btn-ghost:hover:not(:disabled) {
+    color: var(--text-primary);
+}
+
+.ac-btn-ghost:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
 }
 
 /* ── SCALE ───────────────────────────────────── */
