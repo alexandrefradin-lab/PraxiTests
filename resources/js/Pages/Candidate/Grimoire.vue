@@ -101,6 +101,32 @@ function fitClass(score) {
                        :key="i" class="grim-para">{{ para }}</p>
                 </section>
 
+                <!-- Résumé par test passé + téléchargement PDF individuel -->
+                <section v-if="tests.length" class="grim-tests">
+                    <h2 class="grim-section-title">Tes épreuves relues</h2>
+                    <p class="grim-voies-intro">
+                        Le résumé de chacun de tes tests. Télécharge le détail complet en PDF.
+                    </p>
+
+                    <div class="grim-tests-list">
+                        <article v-for="t in tests" :key="t.attempt_id" class="grim-test-card">
+                            <div class="grim-test-main">
+                                <h3 class="grim-test-name">{{ t.name }}</h3>
+                                <p v-if="t.summary" class="grim-test-summary">{{ t.summary }}</p>
+                                <p v-else class="grim-test-summary grim-test-pending">
+                                    Synthèse en cours de génération…
+                                </p>
+                            </div>
+                            <div class="grim-test-actions">
+                                <Link :href="t.results_url" class="grim-test-link">Voir le détail</Link>
+                                <a v-if="t.pdf_url" :href="t.pdf_url" class="grim-test-pdf">
+                                    Télécharger le PDF
+                                </a>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
                 <!-- Les Voies Possibles consolidées -->
                 <section v-if="voies.length" class="grim-voies">
                     <h2 class="grim-section-title">Tes Voies Possibles</h2>
@@ -199,6 +225,20 @@ function fitClass(score) {
 .grim-appui-tag { font-size: 11px; background: var(--surface-2, #f1f5f9); color: var(--color-accent, #4f46e5); padding: 2px 8px; border-radius: 6px; }
 .grim-voie-next { font-size: 13px; line-height: 1.5; color: var(--text-primary, #1e293b); border-top: 1px dashed var(--border-mid, #e5e7eb); padding-top: .6rem; }
 .grim-voie-next-label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--color-accent, #6366f1); margin-bottom: .2rem; }
+
+/* Résumé par test */
+.grim-tests { margin-bottom: 3rem; }
+.grim-tests-list { display: flex; flex-direction: column; gap: .75rem; }
+.grim-test-card { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 1rem; border: 1px solid var(--border-mid, #e5e7eb); border-radius: 14px; padding: 1.1rem 1.25rem; background: var(--surface-1, #fff); }
+.grim-test-main { flex: 1 1 320px; min-width: 0; }
+.grim-test-name { font-size: 1.05rem; font-weight: 700; color: var(--text-primary, #0f172a); margin-bottom: .4rem; }
+.grim-test-summary { font-size: 14px; line-height: 1.6; color: var(--text-secondary, #475569); }
+.grim-test-pending { font-style: italic; color: var(--text-muted, #94a3b8); }
+.grim-test-actions { display: flex; flex-direction: column; gap: .5rem; flex: 0 0 auto; align-items: stretch; }
+.grim-test-link { font-size: 13px; text-align: center; color: var(--color-accent, #4f46e5); text-decoration: none; padding: 6px 14px; border: 1px solid var(--border-mid, #e5e7eb); border-radius: 8px; transition: background .15s; }
+.grim-test-link:hover { background: var(--surface-2, #f1f5f9); }
+.grim-test-pdf { font-size: 13px; text-align: center; color: #fff; background: var(--color-accent, #4f46e5); text-decoration: none; padding: 7px 14px; border-radius: 8px; transition: filter .15s; }
+.grim-test-pdf:hover { filter: brightness(1.08); }
 
 /* Footer */
 .grim-footer { text-align: center; margin-top: 3rem; }

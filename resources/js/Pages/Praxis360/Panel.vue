@@ -13,7 +13,22 @@ const props = defineProps({
   relations: Object,      // { manager: 'Manager', pair: '...', collaborateur: '...' }
   invitations: Array,
   aggregate: Object,
+  mode: { type: String, default: 'manage' },   // 'setup' (avant le test) | 'manage' (après résultats)
+  minEvaluators: { type: Number, default: 3 },
+  proceedUrl: String,
 })
+
+const isSetup = computed(() => props.mode === 'setup')
+const totalEvaluators = computed(() => props.invitations.length)
+const remaining = computed(() => Math.max(0, props.minEvaluators - totalEvaluators.value))
+const canProceed = computed(() => totalEvaluators.value >= props.minEvaluators)
+
+const proceeding = ref(false)
+const proceed = () => {
+  if (!canProceed.value) return
+  proceeding.value = true
+  router.post(props.proceedUrl, {}, { onFinish: () => (proceeding.value = false) })
+}
 
 const form = useForm({
   evaluators: [{ name: '', email: '', relation: 'manager' }],
@@ -60,15 +75,24 @@ const statusLabel = (s) => ({
 
       <div class="flex items-end justify-between mb-8">
         <div>
+          <p v-if="isSetup" style="font-size:.7rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--pt-gold);font-weight:700;margin-bottom:6px">
+            Étape 1 / 2 — Avant de commencer
+          </p>
           <h1 style="font-family:var(--font-display);font-size:2rem;font-weight:700;color:var(--text-primary);line-height:1.1">
-            Mon feedback 360°
+            {{ isSetup ? 'Choisissez vos évaluateurs' : 'Mon feedback 360°' }}
           </h1>
-          <p class="mt-2" style="font-size:.9rem;color:var(--text-secondary)">
+          <p v-if="isSetup" class="mt-2" style="font-size:.9rem;color:var(--text-secondary);line-height:1.6">
+            Un vrai 360° confronte votre perception au regard des autres. Indiquez
+            <strong>au moins {{ minEvaluators }} personnes</strong> qui vous connaissent au travail (manager, pairs,
+            collaborateurs). Leurs invitations partent dès maintenant et leurs réponses, <strong>anonymes</strong>,
+            seront recueillies pendant que vous faites votre auto-évaluation.
+          </p>
+          <p v-else class="mt-2" style="font-size:.9rem;color:var(--text-secondary)">
             Invitez les personnes qui vous connaissent au travail. Leurs réponses sont
             <strong>anonymes</strong> et ne s'affichent qu'à partir de {{ panel.threshold }} réponses par catégorie.
           </p>
         </div>
-        <Link :href="route('results.show', attempt.id)" class="pt-btn-ghost text-sm flex-shrink-0">← Mes résultats</Link>
+        <Link v-if="!isSetup" :href="route('results.show', attempt.id)" class="pt-btn-ghost text-sm flex-shrink-0">← Mes résultats</Link>
       </div>
 
       <!-- Statut de collecte -->
@@ -126,6 +150,19 @@ const statusLabel = (s) => ({
             </td>
           </tr>
         </table>
+      </div>
+
+      <!-- Étape préalable : démarrer l'auto-évaluation (≥ min évaluateurs requis) -->
+      <div v-if="isSetup" class="pt-card" style="padding:22px;margin-top:22px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;border:1px solid var(--pt-gold-border)">
+        <div style="font-size:.9rem;color:var(--text-secondary)">
+          <strong style="color:var(--text-primary)">{{ totalEvaluators }}</strong> évaluateur(s) désigné(s)
+          <span v-if="!canProceed"> — encore <strong style="color:var(--text-primary)">{{ remaining }}</strong> pour pouvoir démarrer.</span>
+          <span v-else style="color:var(--pt-gold)"> — vous pouvez commencer.</span>
+        </div>
+        <button @click="proceed" :disabled="!canProceed || proceeding" class="pt-btn"
+                :title="canProceed ? '' : `Ajoutez au moins ${minEvaluators} évaluateurs`">
+          Commencer mon auto-évaluation →
+        </button>
       </div>
 
     </div>

@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
+import ScoreGauge from '@/Components/ScoreGauge.vue'
 
 const props = defineProps({ attempt: Object, result: Object })
 const scoring   = computed(() => props.result?.scoring ?? {})
@@ -124,26 +125,7 @@ const allExercises = computed(() => {
                     Score de productivité global
                 </p>
                 <div style="display: flex; align-items: center; justify-content: center; gap: 1.5rem;">
-                    <svg width="120" height="120" viewBox="0 0 120 120" style="flex-shrink: 0;">
-                        <circle cx="60" cy="60" r="50" fill="none" stroke="var(--pt-cream, #F5F0E8)" stroke-width="10"/>
-                        <circle
-                            cx="60" cy="60" r="50"
-                            fill="none"
-                            :stroke="globalColor"
-                            stroke-width="10"
-                            stroke-linecap="round"
-                            :stroke-dasharray="`${globalScore * 3.14} 314`"
-                            stroke-dashoffset="78.5"
-                            transform="rotate(-90 60 60)"
-                            style="transition: stroke-dasharray 1s ease;"
-                        />
-                        <text x="60" y="55" text-anchor="middle" font-size="22" font-weight="700" :fill="globalColor">
-                            {{ globalScore }}
-                        </text>
-                        <text x="60" y="72" text-anchor="middle" font-size="10" fill="var(--pt-text-muted, #6B7280)">
-                            /100
-                        </text>
-                    </svg>
+                    <ScoreGauge :score="globalScore" :color="globalColor" :size="140" />
                     <div style="text-align: left;">
                         <p style="font-size: 1.125rem; font-weight: 600;" :style="{ color: globalColor }">{{ niveau }}</p>
                         <p style="font-size: 0.875rem; margin-top: 0.25rem; max-width: 20rem; color: var(--pt-text-muted);">

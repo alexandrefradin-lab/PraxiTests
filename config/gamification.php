@@ -45,4 +45,12 @@ return [
         'final'      => 'Dernière étape. Ton profil unique va prendre forme.',
         'completion' => 'Ton profil est cartographié. Voyons ce qui t\'attend.',
     ],
+
+    // Palier de déblocage de l'aperçu provisoire affiché PENDANT le test
+    // (mini-insight calculé sur les réponses déjà données). Tient la promesse
+    // du message « Encore quelques questions pour débloquer un aperçu ».
+    'insight' => [
+        'min_percent' => 40,   // progression minimale (%)
+        'min_answers' => 4,    // nombre minimal de réponses enregistrées
+    ],
 ];

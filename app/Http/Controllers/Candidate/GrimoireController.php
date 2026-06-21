@@ -62,12 +62,35 @@ class GrimoireController extends Controller
                 'disclaimer'     => $grimoire->aiDisclaimer(),
             ],
             'tests' => $attempts->map(fn ($a) => [
-                'attempt_id' => $a->id,
-                'name'       => $a->test?->name,
+                'attempt_id'   => $a->id,
+                'name'         => $a->test?->name,
+                'summary'      => $this->testSummary($a->result?->ai_synthesis),
+                'completed_at' => $a->completed_at?->toIso8601String(),
+                'results_url'  => route('results.show', $a->id),
+                'pdf_url'      => $a->result?->ai_synthesis ? route('results.pdf', $a->id) : null,
             ])->values(),
             'ai_pending' => $pending,
             'is_empty'   => false,
         ]);
+    }
+
+    /**
+     * Résumé court d'un test pour la liste du Grimoire : premier paragraphe
+     * de la synthèse IA, tronqué proprement. Null si la synthèse n'est pas prête.
+     */
+    private function testSummary(?string $synthesis): ?string
+    {
+        $synthesis = trim((string) $synthesis);
+        if ($synthesis === '') {
+            return null;
+        }
+
+        // Premier paragraphe non vide
+        $first = collect(preg_split('/\n+/', $synthesis))
+            ->map(fn ($p) => trim($p))
+            ->first(fn ($p) => $p !== '') ?? $synthesis;
+
+        return \Illuminate\Support\Str::limit($first, 280);
     }
 
     /** Polling léger pour la page (équivalent de results.status). */

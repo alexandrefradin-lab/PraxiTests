@@ -64,12 +64,33 @@ class AttemptController extends Controller
                 ->update(['status' => 'started']);
         }
 
+        // Praxis360 — étape préalable obligatoire : le candidat choisit d'abord
+        // au moins 3 évaluateurs (les invitations partent immédiatement), puis
+        // il accède à son auto-évaluation. Le garde-fou est dans show().
+        if ($test->slug === 'praxis360') {
+            return redirect()->route('panel360.manage', $attempt->id);
+        }
+
         return redirect()->route('attempt.show', $attempt);
     }
 
     public function show(TestAttempt $attempt)
     {
         $this->authorizeAttempt($attempt);
+
+        // Praxis360 — interdire l'accès aux items tant que le candidat n'a pas
+        // désigné au moins 3 évaluateurs. On le renvoie sur l'étape de panel.
+        $attempt->loadMissing('test');
+        if (($attempt->test->slug ?? null) === 'praxis360' && $attempt->status === 'in_progress') {
+            $panel = \App\Models\EvaluationPanel::where('user_id', auth()->id())
+                ->where('self_attempt_id', $attempt->id)
+                ->first();
+            $count = $panel ? $panel->invitations()->count() : 0;
+            if ($count < 3) {
+                return redirect()->route('panel360.manage', $attempt->id)
+                    ->with('info', 'Indiquez au moins 3 évaluateurs pour démarrer votre 360°.');
+            }
+        }
 
         // A6 — Sélection explicite des colonnes pour éviter de transmettre scoring/validation
         // au frontend (données lourdes inutiles côté candidat).
@@ -91,11 +112,18 @@ class AttemptController extends Controller
             $page = 'Candidate/AttemptPlay';
         }
 
+        $percent = $attempt->progressPercent();
+        // Aperçu provisoire calculé sur les réponses déjà données. Quand il est
+        // débloqué, il REMPLACE le teaser aléatoire (sinon on promettrait un
+        // aperçu déjà disponible).
+        $insight = $this->narrative->insight($attempt, $percent);
+
         return Inertia::render($page, [
             'attempt'    => $attempt,
             'progress'   => [
-                'percent' => $attempt->progressPercent(),
-                'narrative' => $this->narrative->microFeedback($attempt, $attempt->progressPercent()),
+                'percent'   => $percent,
+                'insight'   => $insight,
+                'narrative' => $insight ? null : $this->narrative->microFeedback($attempt, $percent),
             ],
             'gamification' => $this->gamification->progressOf($attempt->user, $attempt->test),
             'narrative'    => [

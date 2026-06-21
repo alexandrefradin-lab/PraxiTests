@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
+import ScoreGauge from '@/Components/ScoreGauge.vue'
 
 const props = defineProps({
     attempt:         Object,
@@ -30,31 +31,13 @@ const toggleExercise = (id) => {
     openExercise.value = openExercise.value === id ? null : id
 }
 
-// Couleur de la jauge globale selon le score
+// Couleur de la jauge globale selon le score — teintes patinées (palette AC)
 const gaugeColor = computed(() => {
-    if (globalScore.value >= 80) return 'var(--pt-success, #059669)'
-    if (globalScore.value >= 65) return 'var(--pt-info, #0284C7)'
-    if (globalScore.value >= 50) return 'var(--pt-gold)'
-    if (globalScore.value >= 35) return '#EA580C'
-    return 'var(--pt-danger, #DC2626)'
-})
-
-// Arc SVG pour la jauge circulaire (rayon 54, centre 60,60)
-const arcPath = computed(() => {
-    const pct    = Math.min(100, Math.max(0, globalScore.value))
-    const angle  = (pct / 100) * 270 - 135           // -135° à +135°
-    const rad    = (angle * Math.PI) / 180
-    const cx     = 60
-    const cy     = 60
-    const r      = 50
-    const x      = cx + r * Math.cos(rad)
-    const y      = cy + r * Math.sin(rad)
-    const large  = pct > 50 ? 1 : 0
-    // Arc de -135° à angle courant
-    const startRad = (-135 * Math.PI) / 180
-    const sx     = cx + r * Math.cos(startRad)
-    const sy     = cy + r * Math.sin(startRad)
-    return `M ${sx} ${sy} A ${r} ${r} 0 ${large} 1 ${x} ${y}`
+    if (globalScore.value >= 80) return '#3A6B48'   // Vert Eagle Vision
+    if (globalScore.value >= 65) return '#0A7FA0'   // Bleu Animus
+    if (globalScore.value >= 50) return '#A67520'   // Or de la Fraternité
+    if (globalScore.value >= 35) return '#B5781C'   // Or brûlé / ambre
+    return '#B03020'                                // Rouge sang
 })
 
 const categoryLabel = (cat) => {
@@ -170,41 +153,9 @@ const phaseLabel = (key) => PHASES[key]?.label ?? key
             <!-- ── Jauge circulaire + score global ─────────────────────── -->
             <div class="pt-card p-8 mb-8 flex flex-col md:flex-row items-center gap-10">
 
-                <!-- Jauge SVG -->
+                <!-- Jauge de score partagée -->
                 <div class="relative flex-shrink-0">
-                    <svg viewBox="0 0 120 120" width="160" height="160" aria-label="Score global">
-                        <!-- Fond arc gris -->
-                        <path
-                            d="M 14.6 95.4 A 50 50 0 1 1 105.4 95.4"
-                            fill="none"
-                            stroke="#E5E7EB"
-                            stroke-width="10"
-                            stroke-linecap="round"
-                        />
-                        <!-- Arc coloré selon score -->
-                        <path
-                            :d="arcPath"
-                            fill="none"
-                            :stroke="gaugeColor"
-                            stroke-width="10"
-                            stroke-linecap="round"
-                            style="transition: stroke-dashoffset 1s ease"
-                        />
-                        <!-- Score texte -->
-                        <text
-                            x="60" y="58"
-                            text-anchor="middle"
-                            font-size="22"
-                            font-weight="700"
-                            :fill="gaugeColor"
-                        >{{ globalScore }}</text>
-                        <text
-                            x="60" y="74"
-                            text-anchor="middle"
-                            font-size="9"
-                            fill="#9CA3AF"
-                        >/ 100</text>
-                    </svg>
+                    <ScoreGauge :score="globalScore" :color="gaugeColor" />
                 </div>
 
                 <!-- Texte synthèse -->

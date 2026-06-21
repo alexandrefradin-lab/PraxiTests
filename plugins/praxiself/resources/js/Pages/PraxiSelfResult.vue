@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
+import ScoreGauge from '@/Components/ScoreGauge.vue'
 
 const props = defineProps({
     attempt:        Object,
@@ -136,30 +137,7 @@ const globalProgress = computed(() => Math.round((props.journeyDays.length / 60)
 
                 <!-- Score global circulaire (SVG) -->
                 <div class="flex flex-col items-center mt-8">
-                    <div class="relative inline-flex items-center justify-center" style="width:140px;height:140px">
-                        <svg viewBox="0 0 120 120" class="absolute inset-0 w-full h-full" style="transform:rotate(-90deg)">
-                            <!-- Piste de fond -->
-                            <circle cx="60" cy="60" r="50"
-                                fill="none"
-                                stroke="var(--pt-cream)"
-                                stroke-width="10" />
-                            <!-- Arc de progression -->
-                            <circle cx="60" cy="60" r="50"
-                                fill="none"
-                                :stroke="scoreColor(globalScore)"
-                                stroke-width="10"
-                                stroke-linecap="round"
-                                :stroke-dasharray="314"
-                                :stroke-dashoffset="314 - (314 * globalScore / 100)"
-                                style="transition: stroke-dashoffset 1s ease" />
-                        </svg>
-                        <div class="relative text-center">
-                            <span class="text-3xl font-bold" :style="{ color: scoreColor(globalScore) }">
-                                {{ globalScore }}
-                            </span>
-                            <span class="block text-xs" style="color: var(--pt-text-muted)">/100</span>
-                        </div>
-                    </div>
+                    <ScoreGauge :score="globalScore" :color="scoreColor(globalScore)" :size="140" />
 
                     <!-- Niveau en étoiles -->
                     <div class="flex gap-1 mt-3">
