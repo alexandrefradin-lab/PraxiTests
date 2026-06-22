@@ -47,6 +47,10 @@ msg "Migrations (nouvelles tables/colonnes)..."
 php artisan migrate --force --no-interaction
 ok "Migrations OK"
 
+msg "Seeders idempotents (référentiels)..."
+php artisan db:seed --class=CareerPathsSeeder --force --no-interaction
+ok "Référentiel des pistes métiers (PTP) OK"
+
 msg "Reconstruction des caches..."
 php artisan optimize:clear
 php artisan config:cache
