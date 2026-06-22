@@ -21,7 +21,7 @@ class ExercisesSeeder extends Seeder
                 'type'              => 'questionnaire',
                 'scoring_engine'    => 'praxiflow-scoring',
                 'estimated_minutes' => 7,
-                'published'         => true,
+                'published'         => false,
                 'public'            => false,
             ]
         );

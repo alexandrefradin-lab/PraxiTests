@@ -98,11 +98,20 @@ defineProps({
 
                 <!-- Titre -->
                 <h3
-                    class="font-bold mb-2 leading-snug"
+                    class="font-bold mb-1 leading-snug"
                     style="font-family:'Space Grotesk',sans-serif; font-size:16px; color:var(--text-primary);"
                 >
                     {{ item.name }}
                 </h3>
+
+                <!-- Usage (à quoi sert l'app) -->
+                <p
+                    v-if="item.purpose"
+                    class="mb-2 text-[11px] uppercase tracking-wider"
+                    style="font-family:'Space Mono',monospace; color:var(--color-primary);"
+                >
+                    {{ item.purpose }}
+                </p>
 
                 <!-- Description / teaser -->
                 <p

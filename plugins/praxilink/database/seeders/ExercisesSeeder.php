@@ -31,7 +31,7 @@ class ExercisesSeeder extends Seeder
                 'type'              => 'questionnaire',
                 'scoring_engine'    => 'praxilink-scoring',
                 'estimated_minutes' => 5,
-                'published'         => true,
+                'published'         => false,
                 'public'            => false,
             ]
         );

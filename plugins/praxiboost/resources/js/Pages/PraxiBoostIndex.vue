@@ -28,14 +28,14 @@ const nextPercent = computed(() => {
 
 <template>
     <CandidateLayout>
-        <Head title="Exercices — Développement personnel" />
+        <Head title="L'Étincelle" />
 
         <div class="max-w-3xl mx-auto">
 
             <!-- En-tête -->
             <div class="mb-8">
                 <h1 style="font-family: var(--font-display); font-size: 2.2rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.02em; line-height: 1.1;">
-                    Exercices de développement personnel
+                    L'Étincelle
                 </h1>
                 <p class="mt-2" style="font-family: var(--font-body); font-size: 0.95rem; color: var(--text-secondary);">
                     Chaque palier d'Éclats franchi débloque un nouvel exercice guidé.

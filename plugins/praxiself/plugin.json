@@ -1,6 +1,6 @@
 {
   "slug": "praxiself",
-  "name": "La Forge du Soi — Affirmation de soi (PraxiSelf)",
+  "name": "La Forge du Soi",
   "version": "1.0.1",
   "author": "Praxis Accompagnement",
   "type": "mini-app",
@@ -15,17 +15,11 @@
     "praxiquest": ">=1.0.0",
     "php": ">=8.2"
   },
-  "test": {
-    "slug": "praxiself-affirmation",
-    "name": "La Forge du Soi — Affirmation de soi",
-    "description": "Ce que ce test mesure : ton affirmation de soi (assertivité), sur 5 dimensions — estime de soi, comportement affirmé, gestion du regard des autres, expression de tes besoins et résilience identitaire. 20 exercices guidés pour la renforcer.",
-    "type": "mini-app",
-    "scoring_engine": "praxiself-scoring",
-    "estimated_minutes": 7
-  },
   "reward": {
     "threshold_eclats": 900,
     "teaser": "La Forge du Soi : 20 exercices pour bâtir une affirmation de soi solide.",
-    "icon": "ti-flame"
+    "icon": "ti-flame",
+    "purpose": "Affirmation de soi",
+    "entry_route": "praxiself.index"
   }
 }

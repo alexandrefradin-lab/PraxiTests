@@ -1,6 +1,6 @@
 {
   "slug": "praxispeak",
-  "name": "La Voix du Héros — Prise de parole en public (PraxiSpeak)",
+  "name": "La Voix du Héros",
   "version": "1.0.2",
   "author": "Praxis Accompagnement",
   "type": "mini-app",
@@ -15,17 +15,11 @@
     "praxiquest": ">=1.0.0",
     "php": ">=8.2"
   },
-  "test": {
-    "slug": "praxispeak",
-    "name": "La Voix du Héros — Parcours de prise de parole",
-    "description": "Un parcours d'entraînement à la prise de parole en public, structuré en 5 axes — gestion du trac, préparation mentale, présence physique, structure du discours et impact vocal. Le score mesure ta progression dans les 20 exercices, pas une évaluation de ta performance.",
-    "type": "exercises",
-    "scoring_engine": "praxispeak-scoring",
-    "estimated_minutes": 8
-  },
   "reward": {
     "threshold_eclats": 500,
     "teaser": "La Voix du Héros : 20 exercices pour parler en public avec assurance.",
-    "icon": "ti-scroll"
+    "icon": "ti-microphone-2",
+    "purpose": "Prise de parole en public",
+    "entry_route": "praxispeak.index"
   }
 }

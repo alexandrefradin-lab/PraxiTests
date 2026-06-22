@@ -1,10 +1,10 @@
 {
   "slug": "praxizen",
-  "name": "Le Refuge Intérieur — Gestion du stress (PraxiZen)",
+  "name": "Le Refuge Intérieur",
   "version": "1.0.1",
   "author": "Praxis Accompagnement",
-  "type": "test",
-  "description": "Module de gestion du stress professionnel : 20 questions Likert couvrant 5 dimensions validées (régulation émotionnelle, résilience, gestion somatique, mindfulness, recadrage cognitif). Génère un programme d'exercices guidés personnalisé basé sur les neurosciences.",
+  "type": "mini-app",
+  "description": "Bibliothèque d'exercices guidés de gestion du stress professionnel (respiration, pleine conscience, recadrage cognitif, détente corporelle), fondés sur les neurosciences.",
   "namespace": "Praxis\\Plugins\\PraxiZen",
   "service_provider": "Praxis\\Plugins\\PraxiZen\\PluginServiceProvider",
   "permissions": [
@@ -15,17 +15,11 @@
     "praxiquest": ">=1.0.0",
     "php": ">=8.2"
   },
-  "test": {
-    "slug": "praxizen-stress",
-    "name": "Le Refuge Intérieur — Évaluation & gestion du stress",
-    "description": "Ce que ce test mesure : ta gestion du stress professionnel, sur 5 dimensions — régulation émotionnelle, résilience, gestion des tensions physiques, pleine conscience et recadrage cognitif. Tu repars avec un programme d'exercices personnalisé.",
-    "type": "questionnaire",
-    "scoring_engine": "praxizen-stress",
-    "estimated_minutes": 8
-  },
   "reward": {
     "threshold_eclats": 2000,
     "teaser": "Un refuge pour apaiser le mental sous pression : respiration, ancrage et recadrage cognitif.",
-    "icon": "ti-yin-yang"
+    "icon": "ti-yin-yang",
+    "purpose": "Gestion du stress",
+    "entry_route": "praxizen.index"
   }
 }

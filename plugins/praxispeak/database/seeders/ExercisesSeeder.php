@@ -20,7 +20,7 @@ class ExercisesSeeder extends Seeder
                 'type'              => 'exercises',
                 'scoring_engine'    => 'praxispeak-scoring',
                 'estimated_minutes' => 8,
-                'published'         => true,
+                'published'         => false,
                 'public'            => false,
             ]
         );

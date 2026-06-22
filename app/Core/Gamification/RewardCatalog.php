@@ -61,6 +61,7 @@ class RewardCatalog
             return [
                 'plugin_slug'       => $plugin->slug,
                 'name'              => $test['name'] ?? $manifest['name'] ?? $plugin->slug,
+                'purpose'           => $reward['purpose'] ?? null,
                 'description'       => $test['description'] ?? $manifest['description'] ?? '',
                 'teaser'            => $reward['teaser'] ?? ($manifest['description'] ?? ''),
                 'icon'              => $reward['icon'] ?? 'ti-gift',

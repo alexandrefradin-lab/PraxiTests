@@ -1,18 +1,19 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Praxis\Core\Library\Http\LibraryController;
 
 /*
-|--------------------------------------------------------------------------
-| PraxiLink — Routes du plugin
-|--------------------------------------------------------------------------
-|
-| Les routes spécifiques au plugin PraxiLink sont définies ici.
-| Le préfixe et le middleware sont appliqués par le PluginServiceProvider
-| via AbstractPlugin::loadRoutesFrom().
-|
+| PraxiLink — Bibliothèque d'exercices (mises en situation). Plus de test.
 */
-
-// Pas de routes publiques spécifiques pour la v1.0 :
-// les résultats sont injectés via le filtre Inertia 'results.inertia_page'.
-// Ajoutez ici des routes API ou web si des endpoints dédiés sont nécessaires.
+Route::middleware(['web', 'auth'])
+    ->prefix('coffre/praxilink')
+    ->name('praxilink.')
+    ->group(function () {
+        Route::get('/', [LibraryController::class, 'index'])
+            ->defaults('plugin', 'praxilink')->name('index');
+        Route::get('/{exercise}', [LibraryController::class, 'show'])
+            ->defaults('plugin', 'praxilink')->name('show');
+        Route::post('/{exercise}/done', [LibraryController::class, 'complete'])
+            ->defaults('plugin', 'praxilink')->name('complete');
+    });

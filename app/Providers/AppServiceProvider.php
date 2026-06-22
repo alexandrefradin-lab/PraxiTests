@@ -11,6 +11,9 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        // Registre des bibliothèques d'exercices (Salle du Trésor).
+        // Chaque plugin « mini-app » s'y enregistre dans son boot().
+        $this->app->singleton(\Praxis\Core\Library\ExerciseLibrary::class);
     }
 
     public function boot(): void

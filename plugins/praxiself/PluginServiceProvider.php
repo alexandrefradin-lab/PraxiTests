@@ -2,11 +2,19 @@
 
 namespace Praxis\Plugins\PraxiSelf;
 
+use Praxis\Core\Library\ExerciseLibrary;
 use Praxis\Core\Plugins\AbstractPlugin;
 use Praxis\Core\TestEngine\TestEngine;
 
 class PluginServiceProvider extends AbstractPlugin
 {
+    private const CATEGORIES = [
+        'confiance'     => 'Confiance en soi',
+        'assertivite'   => 'Affirmation de soi',
+        'communication' => 'Communication',
+        'roleplay'      => 'Mises en situation',
+    ];
+
     public function register(): void
     {
         //
@@ -25,6 +33,34 @@ class PluginServiceProvider extends AbstractPlugin
             'results.inertia_page' => fn (string $page, $attempt) =>
                 $attempt->test->scoring_engine === 'praxiself-scoring' ? 'PraxiSelfResult' : $page,
         ]);
+
+        // Salle du Trésor : bibliothèque d'exercices (plus de test à l'entrée).
+        app(ExerciseLibrary::class)->register('praxiself', [
+            'title'     => 'La Forge du Soi',
+            'subtitle'  => 'Des exercices guidés pour bâtir une affirmation de soi solide, à ton rythme.',
+            'icon'      => 'ti-flame',
+            'exercises' => fn () => self::libraryExercises(),
+        ]);
+    }
+
+    /** Catalogue normalisé pour la bibliothèque d'exercices. */
+    private static function libraryExercises(): array
+    {
+        return array_map(function (array $e) {
+            $cat = $e['category'] ?? null;
+            $ins = $e['instructions'] ?? null;
+
+            return [
+                'id'           => $e['id'],
+                'title'        => $e['title'],
+                'category'     => self::CATEGORIES[$cat] ?? ucfirst((string) $cat),
+                'duration_min' => $e['duration_minutes'] ?? null,
+                'summary'      => $e['scientific_basis'] ?? null,
+                // Les instructions PraxiSelf sont un texte multi-étapes -> body Markdown.
+                'body'         => is_string($ins) ? $ins : null,
+                'steps'        => is_array($ins) ? array_values($ins) : [],
+            ];
+        }, Data\Exercises::all());
     }
 
     public function onActivate(): void

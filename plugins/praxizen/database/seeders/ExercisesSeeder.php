@@ -21,7 +21,7 @@ class ExercisesSeeder extends Seeder
                 'type'              => 'questionnaire',
                 'scoring_engine'    => 'praxizen-stress',
                 'estimated_minutes' => 8,
-                'published'         => true,
+                'published'         => false,
                 'public'            => false,
             ]
         );

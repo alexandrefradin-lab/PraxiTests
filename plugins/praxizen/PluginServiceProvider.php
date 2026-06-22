@@ -2,11 +2,19 @@
 
 namespace Praxis\Plugins\PraxiZen;
 
+use Praxis\Core\Library\ExerciseLibrary;
 use Praxis\Core\Plugins\AbstractPlugin;
 use Praxis\Core\TestEngine\TestEngine;
 
 class PluginServiceProvider extends AbstractPlugin
 {
+    private const CATEGORIES = [
+        'respiration' => 'Respiration',
+        'mindfulness' => 'Pleine conscience',
+        'cognitif'    => 'Recadrage cognitif',
+        'corporel'    => 'Détente corporelle',
+    ];
+
     public function register(): void {}
 
     public function boot(): void
@@ -24,6 +32,31 @@ class PluginServiceProvider extends AbstractPlugin
                     ? 'PraxiZenResult'
                     : $page,
         ]);
+
+        // Salle du Trésor : bibliothèque d'exercices (plus de test à l'entrée).
+        app(ExerciseLibrary::class)->register('praxizen', [
+            'title'     => 'Le Refuge Intérieur',
+            'subtitle'  => 'Des exercices guidés pour apaiser le mental : respiration, ancrage, recadrage.',
+            'icon'      => 'ti-yin-yang',
+            'exercises' => fn () => self::libraryExercises(),
+        ]);
+    }
+
+    /** Catalogue normalisé pour la bibliothèque d'exercices. */
+    private static function libraryExercises(): array
+    {
+        return array_map(function (array $e) {
+            $cat = $e['category'] ?? null;
+
+            return [
+                'id'           => $e['id'],
+                'title'        => $e['title'],
+                'category'     => self::CATEGORIES[$cat] ?? ucfirst((string) $cat),
+                'duration_min' => $e['duration_minutes'] ?? null,
+                'summary'      => $e['scientific_basis'] ?? null,
+                'steps'        => $e['instructions'] ?? [],
+            ];
+        }, Data\Exercises::all());
     }
 
     public function onActivate(): void

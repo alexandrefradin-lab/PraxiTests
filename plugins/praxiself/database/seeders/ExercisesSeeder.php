@@ -42,7 +42,7 @@ class ExercisesSeeder extends Seeder
                 'type'              => 'mini-app',
                 'scoring_engine'    => 'praxiself-scoring',
                 'estimated_minutes' => 7,
-                'published'         => true,
+                'published'         => false,
                 'public'            => false,
             ]
         );

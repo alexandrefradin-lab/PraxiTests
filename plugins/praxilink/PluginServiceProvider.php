@@ -2,11 +2,20 @@
 
 namespace Praxis\Plugins\PraxiLink;
 
+use Praxis\Core\Library\ExerciseLibrary;
 use Praxis\Core\Plugins\AbstractPlugin;
 use Praxis\Core\TestEngine\TestEngine;
 
 class PluginServiceProvider extends AbstractPlugin
 {
+    private const CATEGORIES = [
+        'ecoute'      => 'Écoute active',
+        'cnv'         => 'Communication non-violente',
+        'conflit'     => 'Gestion des conflits',
+        'feedback'    => 'Feedback constructif',
+        'assertivite' => 'Assertivité',
+    ];
+
     public function register(): void
     {
         //
@@ -27,6 +36,40 @@ class PluginServiceProvider extends AbstractPlugin
                     ? 'PraxiLinkResult'
                     : $page,
         ]);
+
+        // Salle du Trésor : bibliothèque d'exercices (plus de test à l'entrée).
+        app(ExerciseLibrary::class)->register('praxilink', [
+            'title'     => 'L\'Art des Liens',
+            'subtitle'  => 'Des mises en situation guidées : écoute active, CNV, gestion des conflits.',
+            'icon'      => 'ti-messages',
+            'exercises' => fn () => self::libraryExercises(),
+        ]);
+    }
+
+    /** Catalogue normalisé pour la bibliothèque d'exercices. */
+    private static function libraryExercises(): array
+    {
+        return array_map(function (array $e) {
+            $cat = $e['category'] ?? null;
+            $ins = $e['instructions'] ?? [];
+            $isQuiz = is_array($ins) && isset($ins['scenario']);
+
+            return [
+                'id'           => $e['id'],
+                'title'        => $e['title'],
+                'category'     => self::CATEGORIES[$cat] ?? ucfirst((string) $cat),
+                'duration_min' => $e['duration_minutes'] ?? null,
+                'summary'      => $e['scientific_basis'] ?? null,
+                'steps'        => (! $isQuiz && is_array($ins)) ? array_values($ins) : [],
+                'quiz'         => $isQuiz ? [
+                    'scenario' => $ins['scenario'] ?? null,
+                    'question' => $ins['question'] ?? null,
+                    'options'  => $ins['options'] ?? [],
+                    'correct'  => $ins['correct'] ?? null,
+                    'feedback' => $ins['feedback'] ?? null,
+                ] : null,
+            ];
+        }, Data\Exercises::all());
     }
 
     public function onActivate(): void

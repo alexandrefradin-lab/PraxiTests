@@ -1,6 +1,6 @@
 {
   "slug": "praxiboost",
-  "name": "PraxiBoost — Exercices de développement personnel",
+  "name": "L'Étincelle",
   "version": "1.0.0",
   "author": "Praxis Accompagnement",
   "type": "mini-app",
@@ -16,8 +16,9 @@
   },
   "reward": {
     "threshold_eclats": 200,
-    "teaser": "Ton premier trésor : des exercices de développement personnel qui s'ouvrent palier après palier.",
+    "teaser": "Ton tout premier trésor : des exercices pour rallumer ta confiance et ton élan, palier après palier.",
     "icon": "ti-sparkles",
+    "purpose": "Développement personnel — les fondations",
     "entry_route": "praxiboost.index"
   }
 }

@@ -1,6 +1,6 @@
 {
     "slug": "praxilink",
-    "name": "L'Art des Liens — Communication assertive (PraxiLink)",
+    "name": "L'Art des Liens",
     "version": "1.0.1",
     "author": "Praxis Accompagnement",
     "type": "mini-app",
@@ -12,17 +12,11 @@
         "praxiquest": ">=1.0.0",
         "php": ">=8.2"
     },
-    "test": {
-        "slug": "praxilink-assertivite",
-        "name": "L'Art des Liens — Communication assertive",
-        "description": "Ce que ce test mesure : ta communication assertive, c'est-à-dire ta capacité à t'exprimer clairement et avec respect. 5 dimensions évaluées : écoute active, expression assertive de tes besoins, gestion des conflits, empathie relationnelle et feedback constructif. 20 affirmations, échelle de 1 à 5.",
-        "type": "questionnaire",
-        "scoring_engine": "praxilink-scoring",
-        "estimated_minutes": 5
-    },
     "reward": {
         "threshold_eclats": 1400,
         "teaser": "L'art de tisser des liens justes : CNV, écoute active et gestion des conflits.",
-        "icon": "ti-messages"
+        "icon": "ti-messages",
+        "purpose": "Communication & relations",
+        "entry_route": "praxilink.index"
     }
 }

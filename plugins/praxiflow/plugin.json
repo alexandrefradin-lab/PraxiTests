@@ -1,10 +1,10 @@
 {
   "slug": "praxiflow",
-  "name": "Le Maître du Temps — Gestion du temps (PraxiFlow)",
+  "name": "Le Maître du Temps",
   "version": "1.0.1",
   "author": "Praxis Accompagnement",
-  "type": "test",
-  "description": "Module de gestion du temps et de la productivité : 20 questions Likert couvrant 5 dimensions validées (planification, focus, gestion des priorités, gestion de l'énergie, lutte contre la procrastination). Génère un plan d'action personnalisé sur 7 jours basé sur les neurosciences cognitives (Pomodoro, Eisenhower, GTD, Time-blocking, MIT).",
+  "type": "mini-app",
+  "description": "Bibliothèque d'exercices guidés de gestion du temps et de productivité (planification, focus, priorités, énergie, anti-procrastination), fondés sur les neurosciences cognitives (Pomodoro, Eisenhower, GTD, Time-blocking, MIT).",
   "namespace": "Praxis\\Plugins\\PraxiFlow",
   "service_provider": "Praxis\\Plugins\\PraxiFlow\\PluginServiceProvider",
   "permissions": [
@@ -15,17 +15,11 @@
     "praxiquest": ">=1.0.0",
     "php": ">=8.2"
   },
-  "test": {
-    "slug": "praxiflow-productivite",
-    "name": "Le Maître du Temps — Évaluation de ta productivité",
-    "description": "Ce que ce test mesure : ta gestion du temps et ta productivité, sur 5 leviers — planification, concentration, gestion des priorités, gestion de l'énergie et lutte contre la procrastination. Tu repars avec un plan d'action personnalisé sur 7 jours.",
-    "type": "questionnaire",
-    "scoring_engine": "praxiflow-scoring",
-    "estimated_minutes": 7
-  },
   "reward": {
     "threshold_eclats": 2700,
     "teaser": "Deviens le Maître du Temps : un plan d'action sur 7 jours pour dompter ta productivité.",
-    "icon": "ti-hourglass-high"
+    "icon": "ti-hourglass-high",
+    "purpose": "Gestion du temps & productivité",
+    "entry_route": "praxiflow.index"
   }
 }
