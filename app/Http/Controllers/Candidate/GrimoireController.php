@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Candidate;
 use App\Http\Controllers\Concerns\BuildsBrandedPdf;
 use App\Http\Controllers\Controller;
 use App\Jobs\GenerateGlobalGrimoire;
+use App\Models\ProfilePathMatch;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 use Praxis\Core\AI\Services\GlobalGrimoireService;
+use Praxis\Core\Orientation\PtpPathService;
 
 /**
  * Le Grimoire global — relecture transversale de tous les tests du candidat.
@@ -20,7 +22,7 @@ class GrimoireController extends Controller
 {
     use BuildsBrandedPdf;
 
-    public function show(GlobalGrimoireService $service): Response
+    public function show(GlobalGrimoireService $service, PtpPathService $ptp): Response
     {
         $user     = auth()->user();
         $attempts = $service->completedAttempts($user);
@@ -52,7 +54,23 @@ class GrimoireController extends Controller
 
         $pending = $grimoire->fresh()->status === 'pending';
 
+        // Pistes métiers dynamiques (PTP) — calculées depuis les tests + acquis déclarés.
+        // Le score des tests ne bouge pas ; seules les pistes ouvertes évoluent.
+        $profile     = $user->profile;
+        $pistes      = ['accessible' => [], 'ptp' => [], 'horizon' => []];
+        $ptpEligible = false;
+        if ($profile) {
+            $ptpEligible = $profile->status === 'employee';
+            // (Re)calcul si un test a changé (même signal que le Grimoire) ou jamais calculé.
+            if ($needsGeneration || !$ptp->hasMatches($profile)) {
+                $ptp->recompute($profile);
+            }
+            $pistes = $ptp->restitutionFor($profile);
+        }
+
         return Inertia::render('Candidate/Grimoire', [
+            'pistes'        => $pistes,
+            'ptp_eligible'  => $ptpEligible,
             'grimoire' => [
                 'synthesis'      => $grimoire->synthesis,
                 'voies'          => $grimoire->voies ?? [],
@@ -143,5 +161,21 @@ class GrimoireController extends Controller
         GenerateGlobalGrimoire::dispatch($user->id, force: true)->afterResponse();
 
         return back()->with('success', 'Ton Grimoire est en cours de relecture…');
+    }
+
+    /**
+     * Déblocage déclaratif d'une piste : la personne indique viser/avoir la
+     * formation associée. Lot 1 = simple déclaration (trace), sans toucher au
+     * score des tests. La validation par module interne (qui réduira réellement
+     * l'écart de formation) viendra en Lot 3.
+     */
+    public function declarePiste(ProfilePathMatch $pathMatch): RedirectResponse
+    {
+        // Autorisation : la piste doit appartenir au profil du candidat connecté.
+        abort_unless($pathMatch->profile?->user_id === auth()->id(), 403);
+
+        $pathMatch->update(['unlocked' => true]);
+
+        return back()->with('success', 'Formation déclarée pour cette piste.');
     }
 }

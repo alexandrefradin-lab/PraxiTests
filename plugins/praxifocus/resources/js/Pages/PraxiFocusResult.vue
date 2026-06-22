@@ -12,6 +12,8 @@ import { computed } from 'vue'
 import { Link } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import ScoreGauge from '@/Components/ScoreGauge.vue'
+import SynthesisCard from '@/Components/SynthesisCard.vue'
+import Disclaimer from '@/Components/Disclaimer.vue'
 
 const props = defineProps({
     attempt: Object,
@@ -46,15 +48,12 @@ const gaugeColor = computed(() => 'var(--pt-gold)')
         <div style="max-width:780px;margin:0 auto">
 
             <!-- ⚠️ Avertissement médical (toujours visible, en tête) -->
-            <div class="pt-card"
-                style="padding:1rem 1.25rem;margin-bottom:1.25rem;border-left:4px solid var(--pt-gold);background:var(--pt-gold-pale)">
-                <p style="font-size:13px;line-height:1.6;color:var(--pt-text);margin:0">
-                    <strong>Ceci n'est pas un diagnostic.</strong> Cet outil repère des symptômes
-                    à partir de l'échelle ASRS-v1.1 de l'OMS. Il ne remplace pas l'avis d'un
-                    professionnel de santé. Un résultat élevé n'établit pas un TDAH —
-                    <strong>vérifie toujours tes résultats avec un médecin, un psychiatre ou un neuropsychologue.</strong>
-                </p>
-            </div>
+            <Disclaimer>
+                <strong>Ceci n'est pas un diagnostic.</strong> Cet outil repère des symptômes
+                à partir de l'échelle ASRS-v1.1 de l'OMS. Il ne remplace pas l'avis d'un
+                professionnel de santé. Un résultat élevé n'établit pas un TDAH —
+                <strong>vérifie toujours tes résultats avec un médecin, un psychiatre ou un neuropsychologue.</strong>
+            </Disclaimer>
 
             <!-- En-tête -->
             <div style="text-align:center;margin-bottom:2.5rem">
@@ -86,12 +85,7 @@ const gaugeColor = computed(() => 'var(--pt-gold)')
             </div>
 
             <!-- Synthèse IA -->
-            <div v-if="result?.ai_synthesis" class="pt-card" style="padding:1.5rem;margin-bottom:1rem">
-                <h2 style="font-size:16px;font-weight:500;margin-bottom:1rem">Ta synthèse</h2>
-                <p style="font-size:15px;line-height:1.75;color:var(--pt-text);white-space:pre-line">
-                    {{ result.ai_synthesis }}
-                </p>
-            </div>
+            <SynthesisCard v-if="result?.ai_synthesis" :source="result.ai_synthesis" title="Ta synthèse" />
             <div v-else class="pt-card" style="padding:3rem;text-align:center;margin-bottom:1rem">
                 <div style="width:36px;height:36px;border-radius:50%;border:3px solid var(--pt-cream-dark);border-top-color:var(--pt-gold);animation:spin 1s linear infinite;margin:0 auto"></div>
                 <p style="margin-top:1rem;color:var(--pt-text-muted)">Analyse en cours… (1 à 2 minutes)</p>
@@ -112,9 +106,22 @@ const gaugeColor = computed(() => 'var(--pt-gold)')
                             <span style="font-size:13px;font-weight:500;min-width:170px">
                                 {{ meta[dimKey]?.label ?? dimKey }}
                             </span>
-                            <div class="pt-progress-track" style="flex:1">
-                                <div class="pt-progress-fill" :style="{ width: barWidth(dimKey) + '%' }"></div>
-                            </div>
+                            <svg viewBox="0 0 300 28" preserveAspectRatio="none" style="flex:1;height:28px" role="img"
+                                :aria-label="`${meta[dimKey]?.label ?? dimKey} : fréquence rapportée ${Math.round(score)} sur 100`">
+                                <defs>
+                                    <clipPath :id="'foc-' + dimKey"><rect x="0" y="9" width="300" height="10" rx="5" /></clipPath>
+                                </defs>
+                                <g :clip-path="`url(#foc-${dimKey})`">
+                                    <rect x="0"   y="9" width="102" height="10" fill="rgba(148,163,184,0.16)" />
+                                    <rect x="102" y="9" width="99"  height="10" fill="rgba(166,117,32,0.16)" />
+                                    <rect x="201" y="9" width="99"  height="10" fill="rgba(166,117,32,0.30)" />
+                                </g>
+                                <line x1="102" y1="6" x2="102" y2="22" stroke="var(--pt-cream)" stroke-width="1.5" />
+                                <line x1="201" y1="6" x2="201" y2="22" stroke="var(--pt-cream)" stroke-width="1.5" />
+                                <line :x1="Math.round(score) * 3" y1="3" :x2="Math.round(score) * 3" y2="25"
+                                    style="stroke:var(--pt-navy)" stroke-width="2.5" stroke-linecap="round" />
+                                <circle :cx="Math.round(score) * 3" cy="3" r="4" style="fill:var(--pt-navy)" stroke="var(--pt-cream)" stroke-width="1.5" />
+                            </svg>
                             <span v-if="bands[dimKey]" style="font-size:12px;font-weight:500;flex-shrink:0;min-width:150px"
                                 :style="{ color: bandColor(bands[dimKey].color) }">
                                 {{ bands[dimKey].label }}
@@ -125,6 +132,18 @@ const gaugeColor = computed(() => 'var(--pt-gold)')
                             {{ meta[dimKey].description }}
                         </p>
                     </div>
+                </div>
+
+                <div style="display:flex;align-items:center;gap:18px;margin-top:1.25rem;padding-left:182px;flex-wrap:wrap">
+                    <span style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--pt-text-light)">
+                        <span style="width:14px;height:8px;border-radius:2px;background:rgba(148,163,184,0.16)"></span>Rarement
+                    </span>
+                    <span style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--pt-text-light)">
+                        <span style="width:14px;height:8px;border-radius:2px;background:rgba(166,117,32,0.16)"></span>Parfois
+                    </span>
+                    <span style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--pt-text-light)">
+                        <span style="width:14px;height:8px;border-radius:2px;background:rgba(166,117,32,0.30)"></span>Souvent
+                    </span>
                 </div>
 
                 <p v-if="partB" style="font-size:12px;color:var(--pt-text-muted);margin-top:1.25rem;line-height:1.5">

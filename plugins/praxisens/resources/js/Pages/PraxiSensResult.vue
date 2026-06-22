@@ -9,6 +9,8 @@ import { computed } from 'vue'
 import { Head, Link } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import ScoreGauge from '@/Components/ScoreGauge.vue'
+import RadarChart from '@/Components/RadarChart.vue'
+import SynthesisCard from '@/Components/SynthesisCard.vue'
 
 const props = defineProps({
     attempt: Object,
@@ -36,6 +38,15 @@ const barWidth = (dimKey) => {
     if (norm?.percentile) return Math.round((norm.percentile / 99) * 100)
     return dims.value[dimKey] ?? 0
 }
+
+// Axes de la toile d'araignée — dimensions normalisées 0..100, ordre du meta conservé
+const radarAxes = computed(() =>
+    Object.entries(dims.value).map(([key, value]) => {
+        const axis = { label: meta.value[key]?.label ?? key, value: value ?? 0 }
+        if (meta.value[key]?.color) axis.color = meta.value[key].color
+        return axis
+    })
+)
 </script>
 
 <template>
@@ -68,15 +79,21 @@ const barWidth = (dimKey) => {
             </div>
 
             <!-- Synthèse IA -->
-            <div v-if="result?.ai_synthesis" class="pt-card" style="padding:1.5rem;margin-bottom:1rem">
-                <h2 style="font-size:16px;font-weight:500;margin-bottom:1rem">Votre synthèse</h2>
-                <p style="font-size:15px;line-height:1.75;color:var(--pt-text);white-space:pre-line">
-                    {{ result.ai_synthesis }}
-                </p>
-            </div>
+            <SynthesisCard v-if="result?.ai_synthesis" :source="result.ai_synthesis" title="Votre synthèse" />
             <div v-else class="pt-card" style="padding:3rem;text-align:center;margin-bottom:1rem">
                 <div style="width:36px;height:36px;border-radius:50%;border:3px solid var(--pt-cream-dark);border-top-color:var(--pt-gold);animation:spin 1s linear infinite;margin:0 auto"></div>
                 <p style="margin-top:1rem;color:var(--pt-text-muted)">Analyse en cours… (1 à 2 minutes)</p>
+            </div>
+
+            <!-- Profil en un coup d'œil — toile d'araignée -->
+            <div v-if="radarAxes.length >= 3" class="pt-card" style="padding:1.5rem;margin-bottom:1rem">
+                <h2 style="font-size:16px;font-weight:500;margin-bottom:2px">Ton profil en un coup d'œil</h2>
+                <p style="font-size:13px;color:var(--pt-text-muted);margin-bottom:1rem">
+                    Vos 3 sous-dimensions de sensibilité, d'un seul regard.
+                </p>
+                <div style="display:flex;justify-content:center">
+                    <RadarChart :axes="radarAxes" />
+                </div>
             </div>
 
             <!-- Sous-dimensions -->

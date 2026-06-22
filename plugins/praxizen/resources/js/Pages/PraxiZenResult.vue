@@ -2,6 +2,8 @@
 import { computed, ref } from 'vue'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import ScoreGauge from '@/Components/ScoreGauge.vue'
+import RadarChart from '@/Components/RadarChart.vue'
+import SynthesisCard from '@/Components/SynthesisCard.vue'
 
 const props = defineProps({
     attempt:         Object,
@@ -21,6 +23,15 @@ const wellnessLabel= computed(() => scoring.value.wellness_label ?? '')
 const recommended  = computed(() => scoring.value.recommended ?? [])
 const weakDims     = computed(() => scoring.value.weak_dimensions ?? [])
 const strongDims   = computed(() => scoring.value.strong_dimensions ?? [])
+
+// Axes de la toile d'araignée — dimensions normalisées 0..100, ordre du meta conservé
+const radarAxes = computed(() =>
+    Object.entries(dimensions.value).map(([key, value]) => {
+        const axis = { label: meta.value[key]?.label ?? key, value: value ?? 0 }
+        if (meta.value[key]?.color) axis.color = meta.value[key].color
+        return axis
+    })
+)
 
 // Exercice du jour — le premier recommandé
 const exerciceduJour = computed(() => recommended.value[0] ?? null)
@@ -185,6 +196,17 @@ const phaseLabel = (key) => PHASES[key]?.label ?? key
                     </div>
                 </div>
             </div>
+
+            <!-- ── Profil en un coup d'œil — toile d'araignée ───────────── -->
+            <section v-if="radarAxes.length >= 3" class="pt-card p-8 mb-8">
+                <h2 class="text-xl font-semibold mb-1" style="color: var(--pt-navy)">Ton profil en un coup d'œil</h2>
+                <p class="text-sm mb-6" style="color: var(--pt-text-muted)">
+                    Tes 5 dimensions de bien-être, d'un seul regard.
+                </p>
+                <div class="flex justify-center">
+                    <RadarChart :axes="radarAxes" />
+                </div>
+            </section>
 
             <!-- ── 5 jauges par dimension ───────────────────────────────── -->
             <section class="pt-card p-8 mb-8">
@@ -387,13 +409,7 @@ const phaseLabel = (key) => PHASES[key]?.label ?? key
             </section>
 
             <!-- ── Synthèse IA si disponible ───────────────────────────── -->
-            <section v-if="attempt.result?.ai_synthesis" class="pt-card p-8 mb-8">
-                <h2 class="text-xl font-semibold mb-4" style="color: var(--pt-navy)">Analyse personnalisée</h2>
-                <div
-                    class="prose max-w-none text-sm leading-relaxed whitespace-pre-line"
-                    style="color: var(--pt-navy)"
-                >{{ attempt.result.ai_synthesis }}</div>
-            </section>
+            <SynthesisCard :source="attempt.result?.ai_synthesis" title="Analyse personnalisée" />
 
             <!-- ── Parcours 60 jours ───────────────────────────────────── -->
             <section class="pt-card pt-8 pb-8 pl-8 pr-8 mb-8">

@@ -2,6 +2,8 @@
 import { computed } from 'vue'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import ScoreGauge from '@/Components/ScoreGauge.vue'
+import RadarChart from '@/Components/RadarChart.vue'
+import SynthesisCard from '@/Components/SynthesisCard.vue'
 
 const props = defineProps({
     attempt:        Object,
@@ -49,6 +51,15 @@ const excerpt = (text, maxLen = 160) => {
     const plain = text.replace(/\n/g, ' ').trim()
     return plain.length <= maxLen ? plain : plain.slice(0, maxLen) + '…'
 }
+
+/** Axes du radar — dimensions déjà normalisées sur 0–100 (cf. moteur de scoring) */
+const radarAxes = computed(() =>
+    Object.entries(dimensions.value).map(([key, score]) => ({
+        label: dimensionsMeta.value[key]?.label ?? key,
+        value: Math.round(Number(score) || 0),
+        color: dimensionsMeta.value[key]?.color,
+    }))
+)
 
 const profileLevel  = computed(() => profile.value.level ?? 3)
 const progressStars = computed(() => Array.from({ length: 5 }, (_, i) => i < profileLevel.value))
@@ -164,13 +175,20 @@ const globalProgress = computed(() => Math.round((props.journeyDays.length / 60)
             <!-- ══════════════════════════════════════════════
                  SYNTHÈSE IA (si disponible)
             ══════════════════════════════════════════════ -->
-            <section v-if="attempt.result?.ai_synthesis" class="pt-card p-8 mb-8">
-                <h2 class="text-xl font-semibold mb-4" style="color: var(--pt-navy)">
-                    Synthèse personnalisée
+            <SynthesisCard :source="attempt.result?.ai_synthesis" title="Synthèse personnalisée" />
+
+            <!-- ══════════════════════════════════════════════
+                 PROFIL EN UN COUP D'ŒIL — TOILE D'ARAIGNÉE
+            ══════════════════════════════════════════════ -->
+            <section v-if="radarAxes.length >= 3" class="pt-card p-8 mb-8">
+                <h2 class="text-xl font-semibold mb-1" style="color: var(--pt-navy)">
+                    Ton profil en un coup d'œil
                 </h2>
-                <div class="text-sm leading-relaxed whitespace-pre-line"
-                     style="color: var(--pt-text-muted)">
-                    {{ attempt.result.ai_synthesis }}
+                <p class="text-sm mb-4" style="color: var(--pt-text-muted)">
+                    Tes 5 dimensions d'assertivité, sur une échelle de 0 à 100.
+                </p>
+                <div class="flex justify-center">
+                    <RadarChart :axes="radarAxes" />
                 </div>
             </section>
 
