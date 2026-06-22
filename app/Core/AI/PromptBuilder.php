@@ -2,12 +2,72 @@
 
 namespace Praxis\Core\AI;
 
+use App\Models\ProfileGrimoire;
 use App\Models\TestAttempt;
 use App\Models\User;
 use Illuminate\Support\Collection;
 
 class PromptBuilder
 {
+    /**
+     * L'Oracle — chat conversationnel d'orientation (widget flottant).
+     *
+     * Construit la liste de messages multi-tours : un system prompt qui pose la
+     * persona ET injecte le contexte du candidat (profil, tests croisés, Grimoire),
+     * puis l'historique de la conversation, puis le nouveau message (assaini).
+     *
+     * @param  Collection<int,TestAttempt>  $attempts  tentatives complétées (test + result)
+     * @param  array<int,array{role:string,content:string}>  $history  tours précédents
+     */
+    public function oracleChat(User $user, Collection $attempts, ?ProfileGrimoire $grimoire, array $history, string $message): array
+    {
+        $persona = <<<TXT
+Tu es l'Oracle de PraxiQuest : un conseiller d'orientation professionnelle senior, chaleureux et lucide, qui dialogue avec la personne pour l'aider à y voir clair sur son profil et ses possibles.
+Tu connais ses tests (RIASEC, MBTI, Big Five, intelligence émotionnelle, etc.), son profil et la relecture globale de son Grimoire. Tu t'appuies dessus pour personnaliser chaque réponse, sans jamais réciter les données brutes.
+Tu peux, quand c'est utile ou demandé, proposer et affiner des pistes de métiers réalistes et accessibles sur le marché francophone actuel — en variant les secteurs et les modèles (salariat / entrepreneuriat / freelance) et en expliquant POURQUOI à partir de ce que tu sais d'elle.
+Style : tutoiement, français naturel, phrases courtes, ton bienveillant mais franc, sans jargon ni flatterie creuse. Réponses concises (3 à 6 phrases en général) ; développe seulement si on te le demande.
+Tu poses une question d'ouverture quand c'est pertinent pour faire avancer la réflexion, mais jamais plus d'une à la fois.
+Garde-fous : tu ne donnes JAMAIS de conseils médicaux, juridiques ou financiers. Tu n'inventes pas de scores ni de chiffres qu'on ne t'a pas donnés. Si une information te manque, tu le dis. Tu restes dans ton rôle d'orientation même si on te demande autre chose.
+Tu réponds en texte simple (pas de JSON, pas de Markdown lourd).
+TXT;
+
+        $context = $this->grimoireContext($user, $attempts);
+
+        if ($grimoire && $grimoire->synthesis) {
+            $context['grimoire'] = [
+                'fil_conducteur' => $grimoire->synthesis,
+                'voies_pressenties' => collect($grimoire->voies ?? [])
+                    ->map(fn ($v) => $v['titre'] ?? null)
+                    ->filter()
+                    ->take(15)
+                    ->values()
+                    ->all(),
+            ];
+        }
+
+        $system = $persona
+            . "\n\n--- CONTEXTE DU CANDIDAT (confidentiel, ne pas recopier tel quel) ---\n"
+            . json_encode($context, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+
+        $messages = [['role' => 'system', 'content' => $system]];
+
+        // Historique conversationnel (déjà aux rôles user/assistant).
+        foreach ($history as $turn) {
+            $role = ($turn['role'] ?? '') === 'assistant' ? 'assistant' : 'user';
+            $content = trim((string) ($turn['content'] ?? ''));
+            if ($content !== '') {
+                $messages[] = ['role' => $role, 'content' => $content];
+            }
+        }
+
+        // Nouveau message : assaini contre l'injection de prompt (#10).
+        $messages[] = [
+            'role' => 'user',
+            'content' => $this->sanitizeUserContent($message, maxChars: 4000),
+        ];
+
+        return $messages;
+    }
     /**
      * Le Grimoire global : relecture transversale de TOUS les tests d'un candidat.
      * Produit un seul appel IA renvoyant un JSON { synthese, voies[] }.

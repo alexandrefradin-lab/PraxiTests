@@ -53,5 +53,9 @@ return [
             'driver' => null,
             'system_prompt_view' => 'ai.prompts.email-system',
         ],
+        'oracle_chat' => [
+            'driver' => null,            // = défaut (anthropic)
+            'history_limit' => 20,       // nombre de messages (user+assistant) rejoués dans le prompt
+        ],
     ],
 ];

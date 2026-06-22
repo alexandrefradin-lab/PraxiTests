@@ -31,8 +31,27 @@ class GenerateAttemptInsights implements ShouldQueue, ShouldBeUnique
         return "attempt_{$this->attemptId}";
     }
 
+    /**
+     * Auto-réparation du verrou d'unicité : en sync/afterResponse sur OVH, si le
+     * process PHP est tué (max_execution_time) en plein appel IA, le verrou n'est
+     * pas relâché. On le borne à 5 min au lieu de l'heure par défaut pour qu'un
+     * re-déclenchement reste possible rapidement.
+     */
+    public function uniqueFor(): int
+    {
+        return 300;
+    }
+
     public function handle(ProfileSynthesisService $synthesis, JobSuggestionService $jobs): void
     {
+        // En sync (afterResponse, OVH), $timeout est ignoré : c'est max_execution_time
+        // de PHP qui s'applique et peut tuer le process en plein appel IA. On neutralise
+        // la limite pour ce traitement de fond détaché.
+        @set_time_limit(0);
+        if (function_exists('ini_set')) {
+            @ini_set('memory_limit', '512M');
+        }
+
         $attempt = TestAttempt::with(['user.profile', 'test', 'result'])->findOrFail($this->attemptId);
 
         // Guard DB : si la synthèse existe déjà, on ne rappelle pas OpenAI.

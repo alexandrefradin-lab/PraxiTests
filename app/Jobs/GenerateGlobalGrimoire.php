@@ -32,8 +32,32 @@ class GenerateGlobalGrimoire implements ShouldQueue, ShouldBeUnique
         return "grimoire_user_{$this->userId}";
     }
 
+    /**
+     * Durée de vie du verrou d'unicité (secondes).
+     *
+     * En QUEUE_CONNECTION=sync + afterResponse() sur OVH, le job tourne dans le
+     * process PHP après la réponse : si max_execution_time tue le process en plein
+     * appel IA, le verrou ShouldBeUnique n'est jamais relâché. Avec la valeur par
+     * défaut (3600s) plus aucun re-dispatch n'aboutit pendant 1h → le Grimoire
+     * reste figé sur "en cours de relecture". On borne donc l'auto-réparation à
+     * 5 min : la prochaine visite de /grimoire pourra relancer la génération.
+     */
+    public function uniqueFor(): int
+    {
+        return 300;
+    }
+
     public function handle(GlobalGrimoireService $service): void
     {
+        // Le job s'exécute en mode sync (afterResponse) sur OVH : le $timeout=240
+        // du worker est alors IGNORÉ, c'est max_execution_time de PHP qui s'applique
+        // et tue le process en plein appel IA (voies = jusqu'à 8000 tokens, ~1-2 min).
+        // On neutralise donc la limite pour ce traitement de fond détaché.
+        @set_time_limit(0);
+        if (function_exists('ini_set')) {
+            @ini_set('memory_limit', '512M');
+        }
+
         $user = User::with('profile')->find($this->userId);
         if (!$user) {
             return;
@@ -81,5 +105,20 @@ class GenerateGlobalGrimoire implements ShouldQueue, ShouldBeUnique
                 . "ou en parler avec ton conseiller.",
             'generated_at' => now(),
         ]);
+    }
+
+    /**
+     * Filet de sécurité du worker : appelé quand le job échoue définitivement
+     * (toutes les tentatives épuisées). Garantit que le statut ne reste jamais
+     * coincé sur "pending" → le front arrête de tourner et affiche le repli.
+     */
+    public function failed(\Throwable $e): void
+    {
+        logger()->error("GenerateGlobalGrimoire: échec définitif pour user #{$this->userId}: {$e->getMessage()}");
+
+        $user = User::with('profile')->find($this->userId);
+        if ($user) {
+            $this->writeFallback($user);
+        }
     }
 }

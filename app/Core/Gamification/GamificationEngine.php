@@ -12,7 +12,13 @@ class GamificationEngine
 {
     public function __construct(protected BadgeEvaluator $evaluator) {}
 
-    public function awardXp(User $user, int $amount, string $reason, ?Test $test = null, array $context = []): GamificationProgress
+    /**
+     * @param  bool  $evaluateBadges  Évaluer les badges après l'octroi ? Mettre à false
+     *   sur le hot path (chaque réponse) : aucun badge n'est satisfiable mi-épreuve, et
+     *   l'évaluation (Badge::all() + requêtes par badge) coûte cher à chaque clic. Les
+     *   badges restent évalués à la fin de l'épreuve et aux déblocages d'insight.
+     */
+    public function awardXp(User $user, int $amount, string $reason, ?Test $test = null, array $context = [], bool $evaluateBadges = true): GamificationProgress
     {
         // S'assurer que la ligne existe
         GamificationProgress::firstOrCreate(
@@ -49,7 +55,9 @@ class GamificationEngine
         ]);
 
         PluginHooks::doAction('gamification.xp_awarded', $user, $amount, $reason, $progress);
-        $this->evaluator->evaluate($user, ['type' => 'xp_awarded', 'amount' => $amount, 'reason' => $reason]);
+        if ($evaluateBadges) {
+            $this->evaluator->evaluate($user, ['type' => 'xp_awarded', 'amount' => $amount, 'reason' => $reason]);
+        }
 
         return $progress;
     }

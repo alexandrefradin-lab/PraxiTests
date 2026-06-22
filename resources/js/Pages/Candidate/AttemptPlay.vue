@@ -59,11 +59,15 @@ const canGoForward = computed(() =>
 )
 const goForward = () => { if (canGoForward.value) goTo(currentIndex.value + 1) }
 
-// Type de question nécessitant un bouton de validation explicite
-// (impossible d'avancer sur un simple clic).
+// Type de question nécessitant un bouton de validation explicite (impossible
+// d'avancer sur un simple clic). 'single'/'scale' auto-avancent, 'exercise' a
+// ses propres boutons ; tout le reste (multi, text, ranking, ET tout type non
+// géré rendu via le repli textarea) passe par le bouton Valider → jamais de
+// cul-de-sac.
+const SELF_ADVANCING_TYPES = ['single', 'scale', 'exercise']
 const needsConfirmButton = computed(() => {
     const t = currentQuestion.value?.type
-    return t === 'multi' || t === 'multiple' || t === 'text' || t === 'ranking'
+    return !!t && !SELF_ADVANCING_TYPES.includes(t)
 })
 
 const recordAndAdvance = () => {
@@ -310,6 +314,20 @@ const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
                                 rows="4"
                                 class="ac-textarea"
                                 placeholder="Développe ta pensée…"
+                            ></textarea>
+                        </template>
+
+                        <!-- Repli : type de question non géré (jamais d'écran vide / cul-de-sac).
+                             On laisse répondre en texte libre pour ne pas bloquer la passation. -->
+                        <template v-else>
+                            <p class="ac-fallback-note">
+                                Cette question utilise un format non pris en charge. Réponds librement ci-dessous.
+                            </p>
+                            <textarea
+                                v-model="value"
+                                rows="4"
+                                class="ac-textarea"
+                                placeholder="Ta réponse…"
                             ></textarea>
                         </template>
 
@@ -747,6 +765,12 @@ const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
 }
 
 /* ── TEXTAREA ─────────────────────────────────── */
+.ac-fallback-note {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+    font-style: italic;
+}
 .ac-textarea {
     width: 100%;
     padding: 0.875rem 1rem;

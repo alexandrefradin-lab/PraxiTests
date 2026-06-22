@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendCampaignJob;
 use App\Models\AuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
-use Praxis\Core\Mailing\Services\CampaignService;
 
 class CampaignController extends Controller
 {
@@ -66,12 +66,22 @@ class CampaignController extends Controller
         return redirect()->route('admin.campaigns.index');
     }
 
-    public function send($id, CampaignService $svc)
+    public function send($id)
     {
         $this->findAndAuthorizeCampaign($id);
-        $stats = $svc->sendCampaign($id);
-        AuditLog::record('campaign.sent', null, ['id' => $id, 'queued' => $stats['queued']]); // #9
-        return back()->with('success', "Campagne envoyée — {$stats['queued']} mails en file");
+
+        // T3 — l'envoi sort du cycle HTTP. Statut 'sending' immédiat ; le job
+        // (CampaignService) le clôturera en sent/partial/failed. Sur queue sync
+        // le job tourne en ligne (identique à l'ancien comportement).
+        DB::table('email_campaigns')->where('id', $id)->update([
+            'status'     => 'sending',
+            'updated_at' => now(),
+        ]);
+
+        SendCampaignJob::dispatch((int) $id);
+
+        AuditLog::record('campaign.sent', null, ['id' => $id]); // #9
+        return back()->with('success', "Envoi de la campagne lancé.");
     }
 
     /** Récupère la campagne et vérifie le cloisonnement tenant (A10). */

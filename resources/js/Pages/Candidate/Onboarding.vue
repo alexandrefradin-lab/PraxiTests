@@ -27,6 +27,25 @@ const form = useForm({
 
 const isDragging = ref(false)
 
+// U4 — ancienneté par tranche (moins de friction qu'une date exacte).
+// Chaque tranche envoie une date représentative ; le back-end continue de
+// recevoir un status_since valide (date) et calcule status_months inchangé.
+const tenureOptions = [
+    { value: '3',   label: 'Moins de 6 mois' },
+    { value: '9',   label: 'Entre 6 mois et 1 an' },
+    { value: '18',  label: 'Entre 1 et 2 ans' },
+    { value: '42',  label: 'Entre 2 et 5 ans' },
+    { value: '90',  label: 'Entre 5 et 10 ans' },
+    { value: '132', label: 'Plus de 10 ans' },
+]
+const tenure = ref('')
+const onTenureChange = () => {
+    const m = parseInt(tenure.value || '0', 10)
+    const d = new Date()
+    d.setMonth(d.getMonth() - m)
+    form.status_since = d.toISOString().slice(0, 10) // YYYY-MM-DD
+}
+
 const submit = () => form.post(route('onboarding.store'), { forceFormData: true })
 
 const onDrop = (e) => {
@@ -102,7 +121,7 @@ const onFileChange = (e) => {
 
                     <div>
                         <label class="block text-sm font-medium mb-1.5" style="color:var(--text-primary); font-family:'Inter',sans-serif;">
-                            Ton statut actuel de Héros <span style="color:var(--color-secondary);">*</span>
+                            Ton statut actuel <span style="color:var(--color-secondary);">*</span>
                         </label>
                         <select v-model="form.status" class="pt-input" required>
                             <option value="" disabled>— Choisir ton statut —</option>
@@ -115,7 +134,10 @@ const onFileChange = (e) => {
                         <label class="block text-sm font-medium mb-1.5" style="color:var(--text-primary); font-family:'Inter',sans-serif;">
                             Depuis quand ? <span style="color:var(--color-secondary);">*</span>
                         </label>
-                        <input type="date" v-model="form.status_since" class="pt-input" required>
+                        <select v-model="tenure" @change="onTenureChange" class="pt-input" required>
+                            <option value="" disabled>— Choisir une tranche —</option>
+                            <option v-for="opt in tenureOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
+                        </select>
                         <p v-if="form.errors.status_since" class="text-xs mt-1" style="color:var(--color-secondary);">{{ form.errors.status_since }}</p>
                     </div>
 

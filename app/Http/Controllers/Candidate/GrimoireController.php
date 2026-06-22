@@ -40,9 +40,20 @@ class GrimoireController extends Controller
         $grimoire  = $user->grimoire();
         $signature = $service->signature($attempts);
 
+        // Garde-fou « synthèse OK mais aucune voie » : un Grimoire marqué ready dont
+        // les voies sont vides (clé JSON ratée, appel voies échoué…) restait figé sans
+        // jamais se régénérer. On le relance, borné à 2 tentatives via le compteur
+        // ai_metadata->voies_attempts (géré par le service, remis à 0 dès qu'il y a des
+        // voies). Anti-boucle indispensable avec QUEUE_CONNECTION=sync où chaque visite
+        // rejouerait l'IA de façon synchrone.
+        $voiesEmpty      = empty($grimoire->voies);
+        $voiesAttempts   = (int) ($grimoire->ai_metadata['voies_attempts'] ?? 0);
+        $needsVoiesRetry = $grimoire->status === 'ready' && $voiesEmpty && $voiesAttempts < 2;
+
         // Grimoire absent ou périmé (un test ajouté/refait) → on (re)lance la génération.
         $needsGeneration = $grimoire->status !== 'ready'
-            || $grimoire->tests_signature !== $signature;
+            || $grimoire->tests_signature !== $signature
+            || $needsVoiesRetry;
 
         if ($needsGeneration && $grimoire->status !== 'failed') {
             if ($grimoire->status === 'ready') {

@@ -1,6 +1,7 @@
 <script setup>
 import { Link, usePage } from '@inertiajs/vue3'
 import { computed, ref } from 'vue'
+import OracleChat from '@/Components/OracleChat.vue'
 
 const mobileOpen = ref(false)
 const page = usePage()
@@ -159,6 +160,9 @@ const hasTreasure = computed(() => {
                 </Link>
             </div>
         </footer>
+
+        <!-- L'Oracle — chat IA d'orientation, flottant en bas à droite -->
+        <OracleChat v-if="user" />
     </div>
 </template>
 

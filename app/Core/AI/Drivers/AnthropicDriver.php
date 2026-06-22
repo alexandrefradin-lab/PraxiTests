@@ -53,21 +53,38 @@ class AnthropicDriver extends AbstractDriver
 
         $keys = array_keys($batch);
 
-        $responses = Http::pool(function ($pool) use ($batch, $options) {
-            $requests = [];
-            foreach ($batch as $key => $req) {
-                $payload = $this->buildPayload(
-                    $req['messages'] ?? [],
-                    array_merge($options, $req['options'] ?? []),
-                );
+        try {
+            $responses = Http::pool(function ($pool) use ($batch, $options) {
+                $requests = [];
+                foreach ($batch as $key => $req) {
+                    $payload = $this->buildPayload(
+                        $req['messages'] ?? [],
+                        array_merge($options, $req['options'] ?? []),
+                    );
 
-                $requests[] = $pool->as((string) $key)
-                    ->withHeaders($this->headerArray())
-                    ->timeout(120)
-                    ->post('https://api.anthropic.com/v1/messages', $payload);
+                    $requests[] = $pool->as((string) $key)
+                        ->withHeaders($this->headerArray())
+                        ->timeout(120)
+                        ->post('https://api.anthropic.com/v1/messages', $payload);
+                }
+                return $requests;
+            });
+        } catch (\Throwable $e) {
+            // Le pool lui-même a cassé → repli séquentiel (voir ci-dessous).
+            return parent::chatMany($batch, $options);
+        }
+
+        // Robustesse OVH mutualisé : l'hébergement refuse parfois les connexions
+        // sortantes SIMULTANÉES (cURL error 7 « Connection refused »). Dans ce cas
+        // une (ou plusieurs) réponses du pool sont des exceptions de connexion. On
+        // bascule alors sur l'exécution SÉQUENTIELLE (un appel après l'autre), qui
+        // passe sans souci. On ne fait ce repli que pour les erreurs de CONNEXION ;
+        // une vraie erreur HTTP de l'API (4xx/5xx) ne serait pas résolue ainsi.
+        foreach ($keys as $key) {
+            if (($responses[(string) $key] ?? null) instanceof \Throwable) {
+                return parent::chatMany($batch, $options);
             }
-            return $requests;
-        });
+        }
 
         $this->usage = ['input_tokens' => 0, 'output_tokens' => 0];
         $out = [];
@@ -75,10 +92,6 @@ class AnthropicDriver extends AbstractDriver
         foreach ($keys as $key) {
             $resp = $responses[(string) $key] ?? null;
 
-            // Une erreur de connexion arrive sous forme d'exception, pas de Response.
-            if ($resp instanceof \Throwable) {
-                throw new \RuntimeException("Anthropic API error (pool {$key}): " . $resp->getMessage());
-            }
             if (!$resp || $resp->failed()) {
                 throw new \RuntimeException("Anthropic API error (pool {$key}): " . ($resp ? $resp->body() : 'no response'));
             }

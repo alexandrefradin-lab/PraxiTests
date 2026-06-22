@@ -56,7 +56,7 @@ class GlobalGrimoireService
         // accepte largement ces plafonds ; ParsesAiJson répare en dernier recours.
         $responses = $driver->chatMany([
             'synthese' => ['messages' => $synthMessages, 'options' => ['temperature' => 0.6, 'max_tokens' => 2600]],
-            'voies'    => ['messages' => $voiesMessages, 'options' => ['temperature' => 0.6, 'max_tokens' => 6000]],
+            'voies'    => ['messages' => $voiesMessages, 'options' => ['temperature' => 0.6, 'max_tokens' => 8000]],
         ]);
 
         $rawSynth = PluginHooks::applyFilters('ai.grimoire.output', (string) ($responses['synthese'] ?? ''), $user, $attempts);
@@ -66,12 +66,20 @@ class GlobalGrimoireService
         $jsonVoies = $this->parseJson($rawVoies);
 
         $synthese = (string) ($jsonSynth['synthese'] ?? $jsonSynth['synthèse'] ?? '');
-        $voies    = $jsonVoies['voies'] ?? $jsonVoies['métiers'] ?? $jsonVoies['jobs'] ?? [];
+        $voies    = $this->extractVoies($jsonVoies);
         $voies    = PluginHooks::applyFilters('grimoire.voies', $voies, $user, $attempts);
 
         $usage = $driver->lastUsage();
 
         $grimoire = $user->grimoire();
+
+        // Compteur de tentatives « voies vides » : tant que l'IA ne renvoie aucune voie
+        // on incrémente (le contrôleur relance jusqu'à 2 essais) ; dès qu'on en a, reset.
+        // Lu AVANT la réécriture de ai_metadata pour survivre aux régénérations.
+        $priorAttempts = (int) (($grimoire->ai_metadata ?? [])['voies_attempts'] ?? 0);
+        $voiesCount    = is_array($voies) ? count($voies) : 0;
+        $voiesAttempts = $voiesCount === 0 ? $priorAttempts + 1 : 0;
+
         $grimoire->update([
             'synthesis'       => $synthese,
             'voies'           => $voies,
@@ -83,7 +91,8 @@ class GlobalGrimoireService
             'ai_metadata'     => [
                 'prompt_version' => config('ai.tasks.global_grimoire.prompt_version', '1.0'),
                 'tests_count'    => $attempts->count(),
-                'voies_count'    => is_array($voies) ? count($voies) : 0,
+                'voies_count'    => $voiesCount,
+                'voies_attempts' => $voiesAttempts,
                 'input_tokens'   => $usage['input_tokens'] ?? null,
                 'output_tokens'  => $usage['output_tokens'] ?? null,
                 'generated_at'   => now()->toIso8601String(),
@@ -95,6 +104,69 @@ class GlobalGrimoireService
         PluginHooks::doAction('ai.grimoire.completed', $user, $grimoire->fresh());
 
         return $grimoire->fresh();
+    }
+
+    /**
+     * Extrait la liste des voies du JSON renvoyé par l'IA, de façon tolérante.
+     *
+     * Le modèle peut ranger le tableau sous une clé non prévue (« metiers » sans
+     * accent, « pistes », « suggestions », « careers »…) ou avec une casse
+     * différente : un lookup strict renvoyait alors []. On teste donc une liste
+     * d'alias (insensible casse/accents), puis en dernier recours on prend le
+     * premier tableau de la réponse qui ressemble à une liste de voies (tableau
+     * d'objets contenant un « titre »/« metier »/« nom »). Évite le Grimoire
+     * « synthèse OK mais aucune voie ».
+     */
+    protected function extractVoies(array $json): array
+    {
+        // 1) Alias de clés connus (normalisés : minuscules, sans accents).
+        $aliases = ['voies', 'metiers', 'jobs', 'pistes', 'suggestions', 'careers', 'propositions', 'metier', 'voie'];
+        foreach ($json as $key => $value) {
+            $norm = $this->normalizeKey((string) $key);
+            if (in_array($norm, $aliases, true) && $this->looksLikeVoies($value)) {
+                return array_values($value);
+            }
+        }
+
+        // 2) Repli : premier tableau d'objets qui ressemble à des voies.
+        foreach ($json as $value) {
+            if ($this->looksLikeVoies($value)) {
+                return array_values($value);
+            }
+        }
+
+        return [];
+    }
+
+    /** Normalise une clé : minuscules + suppression des accents. */
+    protected function normalizeKey(string $key): string
+    {
+        $key = mb_strtolower(trim($key));
+        $key = str_replace(
+            ['é', 'è', 'ê', 'ë', 'à', 'â', 'î', 'ï', 'ô', 'û', 'ù', 'ç'],
+            ['e', 'e', 'e', 'e', 'a', 'a', 'i', 'i', 'o', 'u', 'u', 'c'],
+            $key,
+        );
+        return $key;
+    }
+
+    /** Vrai si $value est une liste non vide d'objets ressemblant à des voies. */
+    protected function looksLikeVoies($value): bool
+    {
+        if (!is_array($value) || $value === []) {
+            return false;
+        }
+        $first = reset($value);
+        if (!is_array($first)) {
+            return false;
+        }
+        // Au moins une clé descriptive attendue dans une voie.
+        foreach (['titre', 'title', 'metier', 'métier', 'nom', 'name', 'secteur'] as $k) {
+            if (array_key_exists($k, $first)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

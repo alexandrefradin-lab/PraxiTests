@@ -4,6 +4,7 @@ import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import ScoreGauge from '@/Components/ScoreGauge.vue'
 import RadarChart from '@/Components/RadarChart.vue'
 import SynthesisCard from '@/Components/SynthesisCard.vue'
+import Disclaimer from '@/Components/Disclaimer.vue'
 
 const props = defineProps({
     attempt:         Object,
@@ -160,6 +161,12 @@ const phaseLabel = (key) => PHASES[key]?.label ?? key
                     Voici une carte complète de tes ressources face au stress professionnel.
                 </p>
             </div>
+
+            <Disclaimer>
+                <strong>Ceci n'est pas un avis médical.</strong> Ce bilan est un outil
+                d'auto-réflexion sur ta gestion du stress. Il ne remplace pas l'accompagnement
+                d'un professionnel de santé. En cas de mal-être durable, parles-en à ton médecin.
+            </Disclaimer>
 
             <!-- ── Jauge circulaire + score global ─────────────────────── -->
             <div class="pt-card p-8 mb-8 flex flex-col md:flex-row items-center gap-10">

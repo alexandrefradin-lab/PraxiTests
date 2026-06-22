@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import SynthesisCard from '@/Components/SynthesisCard.vue'
 import RadarChart from '@/Components/RadarChart.vue'
+import JobCard from '@/Components/JobCard.vue'
 
 const props = defineProps({
     attempt: Object,
@@ -92,15 +93,7 @@ const radarAxes = computed(() =>
             <section v-if="result?.suggested_jobs?.length" class="pt-card p-8 mb-8">
                 <h2 class="text-xl font-semibold mb-6">{{ result.suggested_jobs.length }} métiers à explorer</h2>
                 <div class="grid md:grid-cols-2 gap-4">
-                    <article v-for="(job, i) in result.suggested_jobs" :key="i" class="border border-slate-100 rounded-xl p-5 hover:border-indigo-300 transition">
-                        <div class="flex items-start justify-between gap-3 mb-2">
-                            <h3 class="font-semibold">{{ job.titre || job.title }}</h3>
-                            <span class="text-xs px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 font-medium whitespace-nowrap">{{ job.fit_score }}%</span>
-                        </div>
-                        <p class="text-xs uppercase tracking-wide text-slate-400 mb-3">{{ job.secteur || job.sector }}</p>
-                        <p class="text-sm text-slate-700">{{ job.pourquoi || job.why }}</p>
-                        <p v-if="job.prochaine_étape || job.next_step" class="text-xs text-indigo-700 mt-3 font-medium">→ {{ job.prochaine_étape || job.next_step }}</p>
-                    </article>
+                    <JobCard v-for="(job, i) in result.suggested_jobs" :key="i" :job="job" />
                 </div>
             </section>
 

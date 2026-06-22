@@ -11,6 +11,8 @@ import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import ScoreGauge from '@/Components/ScoreGauge.vue'
 import RadarChart from '@/Components/RadarChart.vue'
 import SynthesisCard from '@/Components/SynthesisCard.vue'
+import JobCard from '@/Components/JobCard.vue'
+import Disclaimer from '@/Components/Disclaimer.vue'
 
 const props = defineProps({
     attempt: Object,
@@ -150,25 +152,15 @@ const radarAxes = computed(() =>
                     {{ result.suggested_jobs.length }} métiers à explorer
                 </h2>
                 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.75rem">
-                    <div v-for="(job, i) in result.suggested_jobs" :key="i"
-                        style="border:.5px solid var(--pt-border);border-radius:10px;padding:1rem">
-                        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px">
-                            <h3 style="font-size:14px;font-weight:500">{{ job.titre || job.title }}</h3>
-                            <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--pt-gold-pale);color:var(--pt-gold-hover);border:.5px solid var(--pt-gold-border);white-space:nowrap">
-                                {{ job.fit_score }}%
-                            </span>
-                        </div>
-                        <p style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--pt-text-light);margin-bottom:6px">
-                            {{ job.secteur || job.sector }}
-                        </p>
-                        <p style="font-size:13px;color:var(--pt-text-muted);line-height:1.45">{{ job.pourquoi || job.why }}</p>
-                        <p v-if="job.prochaine_étape || job.next_step"
-                            style="font-size:12px;color:var(--pt-gold);margin-top:6px;font-weight:500">
-                            → {{ job.prochaine_étape || job.next_step }}
-                        </p>
-                    </div>
+                    <JobCard v-for="(job, i) in result.suggested_jobs" :key="i" :job="job" />
                 </div>
             </div>
+
+            <Disclaimer>
+                <strong>Des pistes, pas un verdict.</strong> Les métiers proposés sont générés
+                par IA à partir de ton profil, à titre indicatif. À explorer et à affiner avec
+                un conseiller en évolution professionnelle.
+            </Disclaimer>
 
             <!-- Actions -->
             <div style="display:flex;gap:.75rem;justify-content:center;margin-top:2rem;flex-wrap:wrap">

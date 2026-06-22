@@ -18,6 +18,7 @@ class AwardXpOnAnswer
                 'answer_question',
                 $attempt->test,
                 ['attempt_id' => $attempt->id],
+                evaluateBadges: false, // hot path : badges évalués à attempt.completed
             );
         });
 

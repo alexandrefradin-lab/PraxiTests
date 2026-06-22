@@ -176,8 +176,11 @@ function fitClass(score) {
                     </div>
                 </section>
 
-                <!-- ── Pistes de transition (PTP) ─────────────────────────── -->
-                <section v-if="pistesTotal" class="grim-voies" style="margin-top:1rem">
+                <!-- ── Pistes de transition (PTP) ─────────────────────────────
+                     Masqué côté front : remplacé par l'Oracle (chat d'orientation).
+                     Le calcul backend (PtpPathService) et les données restent en place ;
+                     seul l'affichage est désactivé. Réactiver en retirant `false &&`. -->
+                <section v-if="false && pistesTotal" class="grim-voies" style="margin-top:1rem">
                     <div class="grim-section-head">
                         <h2 class="grim-section-title">Tes pistes de transition</h2>
                         <p class="grim-voies-intro">

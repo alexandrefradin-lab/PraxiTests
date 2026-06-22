@@ -18,13 +18,24 @@ class BadgeEvaluator
      */
     public function evaluate(User $user, array $event): void
     {
-        $badges = Badge::all();
+        // Le catalogue de badges change rarement → on le cache (TTL court) au lieu
+        // de le recharger à chaque évaluation. Invalidé naturellement par le TTL.
+        $badges = \Illuminate\Support\Facades\Cache::remember(
+            'gamification.badges.all',
+            300,
+            fn () => Badge::all(),
+        );
+
+        // Une seule requête pour les badges déjà gagnés (au lieu d'un exists() par badge).
+        $earned = $user->badges()->pluck('badges.id')->all();
+
         foreach ($badges as $badge) {
-            if ($user->badges()->where('badges.id', $badge->id)->exists()) {
+            if (in_array($badge->id, $earned, true)) {
                 continue;
             }
             if ($this->meetsCriteria($user, $badge->criteria, $event)) {
                 $this->award($user, $badge);
+                $earned[] = $badge->id; // évite une ré-attribution dans la même passe
             }
         }
     }

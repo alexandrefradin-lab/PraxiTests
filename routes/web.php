@@ -4,6 +4,7 @@ use App\Http\Controllers\Candidate\AttemptController;
 use App\Http\Controllers\Candidate\GrimoireController;
 use App\Http\Controllers\Candidate\JourneyController;
 use App\Http\Controllers\Candidate\OnboardingController;
+use App\Http\Controllers\Candidate\OracleController;
 use App\Http\Controllers\Candidate\ResultController;
 use App\Http\Controllers\Candidate\TestController;
 use App\Http\Controllers\Candidate\TreasureController;
@@ -63,6 +64,11 @@ Route::middleware(['auth'])->group(function () {
     // Déclaration d'une formation visée/acquise pour une piste (déblocage déclaratif PTP)
     Route::post('/grimoire/piste/{pathMatch}/declare', [GrimoireController::class, 'declarePiste'])
         ->middleware('throttle:30,1')->name('grimoire.piste.declare');
+
+    // L'Oracle — chat IA d'orientation (widget flottant). Envoi rate-limité (coût IA).
+    Route::get('/oracle/messages',       [OracleController::class, 'history'])->name('oracle.history');
+    Route::post('/oracle/messages',      [OracleController::class, 'message'])->middleware('throttle:20,1')->name('oracle.message');
+    Route::delete('/oracle/messages',    [OracleController::class, 'clear'])->name('oracle.clear');
 
     // Journey 60 jours
     Route::post('/journey/complete', [JourneyController::class, 'completeDay'])->name('journey.complete');
