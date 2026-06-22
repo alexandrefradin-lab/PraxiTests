@@ -5,6 +5,7 @@ namespace Praxis\Plugins\PraxiBoost\Http;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Praxis\Core\DailyTip\DailyTipService;
 use Praxis\Core\Gamification\GamificationEngine;
 use Praxis\Core\Gamification\RewardCatalog;
 use Praxis\Plugins\PraxiBoost\Models\DevExercise;
@@ -17,6 +18,7 @@ class ExerciseController extends Controller
         protected GamificationEngine $gamification,
         protected ExerciseUnlocker $unlocker,
         protected RewardCatalog $rewards,
+        protected DailyTipService $dailyTips,
     ) {}
 
     public function index(Request $request)
@@ -64,8 +66,10 @@ class ExerciseController extends Controller
         });
 
         return Inertia::render('PraxiBoostIndex', [
-            'exercises'   => $exercises,
-            'totalEclats' => $total,
+            'exercises'     => $exercises,
+            'totalEclats'   => $total,
+            'dailyTip'      => $this->dailyTips->todayFor($user, 'praxiboost'),
+            'tipEngagement' => $this->dailyTips->engagementFor($user, 'praxiboost'),
         ]);
     }
 

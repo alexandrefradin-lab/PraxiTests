@@ -29,6 +29,7 @@ class PluginServiceProvider extends AbstractPlugin
             'subtitle'  => 'Des exercices guidés pour dompter ta productivité : focus, priorités, anti-procrastination.',
             'icon'      => 'ti-hourglass-high',
             'exercises' => fn () => self::libraryExercises(),
+            'tips'      => fn () => Data\Tips::all(),
         ]);
     }
 

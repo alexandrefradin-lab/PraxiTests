@@ -30,6 +30,7 @@ class PluginServiceProvider extends AbstractPlugin
             'subtitle'  => 'Des exercices guidés pour développer ta confiance à l\'oral, à ton rythme.',
             'icon'      => 'ti-scroll',
             'exercises' => fn () => self::libraryExercises(),
+            'tips'      => fn () => Data\Tips::all(),
         ]);
     }
 

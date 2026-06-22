@@ -39,6 +39,7 @@ class PluginServiceProvider extends AbstractPlugin
             'subtitle'  => 'Des exercices guidés pour apaiser le mental : respiration, ancrage, recadrage.',
             'icon'      => 'ti-yin-yang',
             'exercises' => fn () => self::libraryExercises(),
+            'tips'      => fn () => Data\Tips::all(),
         ]);
     }
 

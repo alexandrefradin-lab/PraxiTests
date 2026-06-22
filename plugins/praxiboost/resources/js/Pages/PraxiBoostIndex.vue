@@ -2,10 +2,13 @@
 import { computed } from 'vue'
 import { Link, Head } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
+import DailyTipCard from '@/Components/DailyTipCard.vue'
 
 const props = defineProps({
     exercises: { type: Array, default: () => [] },
     totalEclats: { type: Number, default: 0 },
+    dailyTip: { type: Object, default: null },
+    tipEngagement: { type: Object, default: () => ({ streak: 0, longest_streak: 0, total_applied: 0, applied_today: false }) },
 })
 
 const iconFor = (name) => ({
@@ -42,6 +45,9 @@ const nextPercent = computed(() => {
                     Tu as <strong>{{ totalEclats }} Éclats</strong> · {{ unlockedCount }}/{{ exercises.length }} débloqués.
                 </p>
             </div>
+
+            <!-- Tip du jour -->
+            <DailyTipCard plugin="praxiboost" :tip="dailyTip" :engagement="tipEngagement" />
 
             <!-- Progression vers le prochain palier -->
             <div v-if="nextLocked" class="mb-8" style="background: var(--surface, #fff); border: 1px solid var(--border, #e5e7eb); border-radius: var(--r-md, 12px); padding: 1rem 1.25rem;">

@@ -2,12 +2,15 @@
 import { computed } from 'vue'
 import { Link, Head } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
+import DailyTipCard from '@/Components/DailyTipCard.vue'
 
 const props = defineProps({
     plugin: { type: String, required: true },
     app: { type: Object, default: () => ({}) },
     exercises: { type: Array, default: () => [] },
     completedCount: { type: Number, default: 0 },
+    dailyTip: { type: Object, default: null },
+    tipEngagement: { type: Object, default: () => ({ streak: 0, longest_streak: 0, total_applied: 0, applied_today: false }) },
 })
 
 const iconFor = (name) => ({
@@ -67,6 +70,9 @@ const total = computed(() => props.exercises.length)
                     {{ completedCount }}/{{ total }} exercices réalisés · choisis ce qui te parle, dans l'ordre que tu veux.
                 </p>
             </div>
+
+            <!-- Tip du jour -->
+            <DailyTipCard :plugin="plugin" :tip="dailyTip" :engagement="tipEngagement" />
 
             <!-- Exercices par catégorie -->
             <div v-for="group in groups" :key="group.category" class="mb-8">

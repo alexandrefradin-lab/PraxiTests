@@ -2,6 +2,7 @@
 
 namespace Praxis\Plugins\PraxiBoost;
 
+use Praxis\Core\Library\ExerciseLibrary;
 use Praxis\Core\Plugins\AbstractPlugin;
 use Praxis\Plugins\PraxiBoost\Services\ExerciseUnlocker;
 
@@ -13,6 +14,12 @@ class PluginServiceProvider extends AbstractPlugin
     {
         $this->loadRoutesFrom($this->pluginPath('routes/plugin.php'));
         $this->loadMigrationsFrom($this->pluginPath('database/migrations'));
+
+        // Tip du jour : praxiboost garde son propre controller/pages, mais
+        // déclare sa bibliothèque de tips dans le registre cœur partagé.
+        app(ExerciseLibrary::class)->register('praxiboost', [
+            'tips' => fn () => Data\Tips::all(),
+        ]);
 
         // Déblocage par paliers : à chaque gain d'Éclats, on vérifie si de
         // nouveaux exercices passent au-dessus de leur seuil pour cet utilisateur.

@@ -40,6 +40,7 @@ class PluginServiceProvider extends AbstractPlugin
             'subtitle'  => 'Des exercices guidés pour bâtir une affirmation de soi solide, à ton rythme.',
             'icon'      => 'ti-flame',
             'exercises' => fn () => self::libraryExercises(),
+            'tips'      => fn () => Data\Tips::all(),
         ]);
     }
 

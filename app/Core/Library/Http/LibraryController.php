@@ -7,6 +7,7 @@ use App\Models\LibraryExerciseProgress;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Praxis\Core\DailyTip\DailyTipService;
 use Praxis\Core\Gamification\RewardCatalog;
 use Praxis\Core\Library\ExerciseLibrary;
 
@@ -27,6 +28,7 @@ class LibraryController extends Controller
     public function __construct(
         protected ExerciseLibrary $library,
         protected RewardCatalog $rewards,
+        protected DailyTipService $dailyTips,
     ) {}
 
     public function index(Request $request, string $plugin)
@@ -67,6 +69,8 @@ class LibraryController extends Controller
             ],
             'exercises'      => $exercises,
             'completedCount' => count($done),
+            'dailyTip'       => $this->dailyTips->todayFor($user, $plugin),
+            'tipEngagement'  => $this->dailyTips->engagementFor($user, $plugin),
         ]);
     }
 

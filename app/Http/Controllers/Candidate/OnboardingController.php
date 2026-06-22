@@ -92,14 +92,34 @@ class OnboardingController extends Controller
 
     public function update(Request $request): RedirectResponse
     {
-        $data = $request->validate([
+        $mode = $request->input('cv_mode') === 'manual' ? 'manual' : 'file';
+
+        $rules = [
             'status'       => ['required', 'in:' . implode(',', array_keys(config('praxiquest.profile.statuses')))],
             'status_since' => ['required', 'date', 'before_or_equal:today'],
             'current_role' => ['nullable', 'string', 'max:120'],
             'industry'     => ['nullable', 'string', 'max:120'],
             'problematique' => ['nullable', 'string', 'max:1000'],
             'consent_marketing' => ['nullable', 'boolean'],
-        ]);
+            'cv_mode'      => ['nullable', 'in:file,manual'],
+        ];
+
+        // En édition, le CV est facultatif : on ne le remplace que si du nouveau
+        // contenu est fourni (fichier OU saisie manuelle). Sinon on conserve l'existant.
+        if ($mode === 'manual') {
+            $rules['cv_job_title'] = ['required', 'string', 'max:150'];
+            $rules['cv_sector']    = ['required', 'string', 'max:150'];
+            $rules['cv_years']     = ['required', 'string', 'max:50'];
+        } else {
+            $rules['cv'] = [
+                'nullable',
+                'file',
+                'mimes:' . implode(',', config('praxiquest.profile.cv_allowed_mimes')),
+                'max:' . config('praxiquest.profile.cv_max_size_kb'),
+            ];
+        }
+
+        $data = $request->validate($rules);
 
         $profile = $request->user()->profile;
         $updateData = [
@@ -112,14 +132,29 @@ class OnboardingController extends Controller
             'consent_marketing' => $data['consent_marketing'] ?? $profile->consent_marketing,
         ];
 
-        // Si nouveau CV fourni : valider + remplacer
-        if ($request->hasFile('cv')) {
+        if ($mode === 'manual') {
+            // Saisie manuelle des 3 infos : alimente le Codex sans fichier.
+            if ($profile->cv_path) {
+                Storage::disk('local')->delete($profile->cv_path);
+            }
+            $updateData['cv_path']          = null;
+            $updateData['cv_original_name'] = null;
+            $updateData['cv_extracted_text'] = null;
+            $updateData['cv_structured']    = [
+                'source'    => 'manual',
+                'job_title' => $data['cv_job_title'],
+                'sector'    => $data['cv_sector'],
+                'years'     => $data['cv_years'],
+            ];
+            $updateData['current_role'] = $updateData['current_role'] ?: $data['cv_job_title'];
+            $updateData['industry']     = $updateData['industry'] ?: $data['cv_sector'];
+        } elseif ($request->hasFile('cv')) {
+            // Nouveau fichier CV : valider + remplacer
             $cvRequest = CvUploadRequest::createFrom($request);
             $cvRequest->validateResolved();
             $cvRequest->validateMagicBytes();
 
             $newPath = $this->storeCv($request);
-            // Supprimer l'ancien CV
             if ($profile->cv_path) {
                 Storage::disk('local')->delete($profile->cv_path);
             }
@@ -129,9 +164,10 @@ class OnboardingController extends Controller
             $updateData['cv_structured']     = null;
 
             // afterResponse : en queue sync (OVH), évite qu'une exception du job
-        // (parsing PDF, IA) ne remonte dans la requête HTTP d'onboarding → 500.
-        \App\Jobs\ExtractCvDataJob::dispatch($profile->id)->afterResponse();
+            // (parsing PDF, IA) ne remonte dans la requête HTTP → 500.
+            \App\Jobs\ExtractCvDataJob::dispatch($profile->id)->afterResponse();
         }
+        // else : aucun changement de CV → on conserve l'existant.
 
         $profile->update($updateData);
 

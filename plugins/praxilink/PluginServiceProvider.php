@@ -43,6 +43,7 @@ class PluginServiceProvider extends AbstractPlugin
             'subtitle'  => 'Des mises en situation guidées : écoute active, CNV, gestion des conflits.',
             'icon'      => 'ti-messages',
             'exercises' => fn () => self::libraryExercises(),
+            'tips'      => fn () => Data\Tips::all(),
         ]);
     }
 

@@ -1,29 +1,39 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useForm, Link, Head } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 
-defineProps({
+const props = defineProps({
     profile: Object,
     statuses: Object,
     cv_max_size_kb: Number,
     cv_allowed_mimes: Array,
 })
 
+// Mode édition : profil déjà forgé (statut renseigné) → mise à jour, pas création.
+const isEdit = computed(() => !!(props.profile && props.profile.status))
+
+const p = props.profile || {}
+const manualCv = (p.cv_structured && p.cv_structured.source === 'manual') ? p.cv_structured : null
+
 const form = useForm({
-    status: '',
-    status_since: '',
-    current_role: '',
-    industry: '',
-    problematique: '',
+    status: p.status || '',
+    status_since: p.status_since ? String(p.status_since).slice(0, 10) : '',
+    current_role: p.current_role || '',
+    industry: p.industry || '',
+    problematique: p.problematique || '',
     cv: null,
-    consent_data: false,
-    consent_marketing: false,
-    cv_mode: 'file',
-    cv_job_title: '',
-    cv_sector: '',
-    cv_years: '',
+    // En édition, le consentement a déjà été donné lors de l'onboarding.
+    consent_data: isEdit.value ? true : false,
+    consent_marketing: !!p.consent_marketing,
+    cv_mode: manualCv ? 'manual' : 'file',
+    cv_job_title: manualCv?.job_title || '',
+    cv_sector: manualCv?.sector || '',
+    cv_years: manualCv?.years || '',
 })
+
+// Nom du CV déjà déposé (affiché en édition pour rappel).
+const existingCvName = computed(() => p.cv_original_name || null)
 
 const isDragging = ref(false)
 
@@ -38,7 +48,17 @@ const tenureOptions = [
     { value: '90',  label: 'Entre 5 et 10 ans' },
     { value: '132', label: 'Plus de 10 ans' },
 ]
-const tenure = ref('')
+// Pré-sélection de la tranche d'ancienneté à partir des mois enregistrés.
+const tenureFromMonths = (m) => {
+    if (m == null) return ''
+    if (m < 6) return '3'
+    if (m < 12) return '9'
+    if (m < 24) return '18'
+    if (m < 60) return '42'
+    if (m < 120) return '90'
+    return '132'
+}
+const tenure = ref(isEdit.value ? tenureFromMonths(p.status_months) : '')
 const onTenureChange = () => {
     const m = parseInt(tenure.value || '0', 10)
     const d = new Date()
@@ -46,7 +66,16 @@ const onTenureChange = () => {
     form.status_since = d.toISOString().slice(0, 10) // YYYY-MM-DD
 }
 
-const submit = () => form.post(route('onboarding.store'), { forceFormData: true })
+const submit = () => {
+    if (isEdit.value) {
+        // Spoofing PUT pour autoriser l'upload de fichier (multipart).
+        form
+            .transform((data) => ({ ...data, _method: 'put' }))
+            .post(route('profile.update'), { forceFormData: true })
+    } else {
+        form.post(route('onboarding.store'), { forceFormData: true })
+    }
+}
 
 const onDrop = (e) => {
     isDragging.value = false
@@ -71,7 +100,7 @@ const onFileChange = (e) => {
                     class="inline-block px-3 py-1 rounded-full border text-xs tracking-widest uppercase mb-4"
                     style="font-family:'Space Mono',monospace; color:var(--color-primary); border-color:var(--color-primary); background:var(--bg-surface);"
                 >
-                    Identité du Héros — Étape 1/1
+                    {{ isEdit ? 'Identité du Héros — Mise à jour' : 'Identité du Héros — Étape 1/1' }}
                 </span>
 
                 <!-- Ligne décorative or -->
@@ -87,10 +116,12 @@ const onFileChange = (e) => {
                     class="text-3xl font-bold tracking-tight mb-2"
                     style="font-family:'Space Grotesk',sans-serif; color:var(--text-primary);"
                 >
-                    Forge ton Identité du Héros
+                    {{ isEdit ? 'Mets à jour ton Identité' : 'Forge ton Identité du Héros' }}
                 </h1>
                 <p class="text-sm" style="color:var(--text-secondary); font-family:'Inter',sans-serif;">
-                    Ces informations personnalisent ton Grimoire de Synthèse.
+                    {{ isEdit
+                        ? 'Modifie ton statut, ton parcours ou ton CV. Tes informations actuelles sont pré-remplies.'
+                        : 'Ces informations personnalisent ton Grimoire de Synthèse.' }}
                 </p>
             </div>
 
@@ -227,6 +258,9 @@ const onFileChange = (e) => {
                                 <p v-if="form.cv" class="text-xs mt-2 font-semibold" style="color:var(--color-success);">
                                     ✓ {{ form.cv.name }}
                                 </p>
+                                <p v-else-if="isEdit && existingCvName" class="text-xs mt-2" style="color:var(--text-secondary);">
+                                    CV actuel : <span style="color:var(--color-primary);">{{ existingCvName }}</span> — dépose un fichier pour le remplacer.
+                                </p>
                             </div>
                         </label>
                         <p v-if="form.errors.cv" class="text-xs" style="color:var(--color-secondary);">{{ form.errors.cv }}</p>
@@ -295,7 +329,7 @@ const onFileChange = (e) => {
                         <div class="h-px flex-1" style="background:var(--glass-border);"></div>
                     </div>
 
-                    <label class="flex items-start gap-3 cursor-pointer">
+                    <label v-if="!isEdit" class="flex items-start gap-3 cursor-pointer">
                         <input
                             type="checkbox"
                             v-model="form.consent_data"
@@ -337,9 +371,9 @@ const onFileChange = (e) => {
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
                             </svg>
-                            Forge en cours…
+                            {{ isEdit ? 'Mise à jour…' : 'Forge en cours…' }}
                         </span>
-                        <span v-else>⚔ Forger mon Identité</span>
+                        <span v-else>{{ isEdit ? '✓ Enregistrer mes modifications' : '⚔ Forger mon Identité' }}</span>
                     </button>
                 </div>
 

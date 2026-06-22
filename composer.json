@@ -66,6 +66,8 @@
             "Praxis\\Plugins\\PraxiFocus\\Database\\Seeders\\": "plugins/praxifocus/database/seeders/",
             "Praxis\\Plugins\\PraxiSens\\": "plugins/praxisens/src/",
             "Praxis\\Plugins\\PraxiSens\\Database\\Seeders\\": "plugins/praxisens/database/seeders/",
+            "Praxis\\Plugins\\PraxiLead\\": "plugins/praxilead/src/",
+            "Praxis\\Plugins\\PraxiLead\\Database\\Seeders\\": "plugins/praxilead/database/seeders/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         },
@@ -84,7 +86,8 @@
             "plugins/praxiboost/PluginServiceProvider.php",
             "plugins/praxitempo/PluginServiceProvider.php",
             "plugins/praxifocus/PluginServiceProvider.php",
-            "plugins/praxisens/PluginServiceProvider.php"
+            "plugins/praxisens/PluginServiceProvider.php",
+            "plugins/praxilead/PluginServiceProvider.php"
         ]
     },
     "autoload-dev": {
@@ -115,7 +118,8 @@
             "@php artisan praxiquest:plugins:activate praxiemo",
             "@php artisan praxiquest:plugins:activate praximum",
             "@php artisan praxiquest:plugins:activate praxis360",
-            "@php artisan praxiquest:plugins:activate praxisens"
+            "@php artisan praxiquest:plugins:activate praxisens",
+            "@php artisan praxiquest:plugins:activate praxilead"
         ],
         "test": "pest",
         "lint": "pint"

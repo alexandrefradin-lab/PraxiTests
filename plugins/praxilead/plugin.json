@@ -1,0 +1,17 @@
+{
+  "slug": "praxilead",
+  "name": "Le Cap — 60 jours de management",
+  "version": "1.0.0",
+  "author": "Praxis Accompagnement",
+  "type": "mini-app",
+  "description": "Un parcours de 60 jours pour le manager de proximité : une bonne pratique concrète par jour (feedback, délégation, 1:1, motivation, conflits, décision, sens). Une pratique se débloque chaque jour, avec un micro-défi à appliquer le jour même. Chaque pratique réalisée rapporte des Éclats.",
+  "namespace": "Praxis\\Plugins\\PraxiLead",
+  "service_provider": "Praxis\\Plugins\\PraxiLead\\PluginServiceProvider",
+  "permissions": [
+    "read:profiles"
+  ],
+  "requires": {
+    "praxiquest": ">=1.0.0",
+    "php": ">=8.2"
+  }
+}

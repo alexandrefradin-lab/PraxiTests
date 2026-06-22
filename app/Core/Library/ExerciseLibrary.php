@@ -71,6 +71,84 @@ class ExerciseLibrary
     }
 
     /**
+     * Apps ayant déclaré une bibliothèque de « tips du jour ».
+     *
+     * @return array<int, string>
+     */
+    public function tipApps(): array
+    {
+        return array_values(array_keys(array_filter(
+            $this->apps,
+            fn ($cfg) => ! empty($cfg['tips'])
+        )));
+    }
+
+    /**
+     * Catalogue normalisé des tips quotidiens d'un plugin.
+     *
+     * Le contenu vit dans le plugin (`Data/Tips.php`) ; ici on n'en garde
+     * qu'une vue normalisée, partagée par le DailyTipService.
+     *
+     * @return array<int, array<string,mixed>>
+     */
+    public function tips(string $slug): array
+    {
+        $cfg = $this->apps[$slug] ?? null;
+        if ($cfg === null || empty($cfg['tips'])) {
+            return [];
+        }
+
+        $source = $cfg['tips'];
+        $list   = is_callable($source) ? (array) $source() : (array) $source;
+
+        return array_values(array_map([$this, 'normalizeTip'], $list));
+    }
+
+    /** Un tip précis d'un plugin, ou null. */
+    public function tip(string $slug, string $id): ?array
+    {
+        foreach ($this->tips($slug) as $tip) {
+            if ((string) $tip['id'] === (string) $id) {
+                return $tip;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Normalise une entrée de tip vers le format attendu par le front.
+     *
+     * Champs acceptés en entrée :
+     *   id, title, theme, evidence (solide|prometteur|emergent), insight,
+     *   action (micro-action / clause si-alors), source, tags (array).
+     *
+     * @param array<string,mixed> $t
+     * @return array<string,mixed>
+     */
+    protected function normalizeTip(array $t): array
+    {
+        $tags = $t['tags'] ?? [];
+        if (is_string($tags)) {
+            $tags = array_values(array_filter(array_map('trim', explode(',', $tags))));
+        }
+
+        $evidence = (string) ($t['evidence'] ?? 'prometteur');
+        $allowed  = ['solide', 'prometteur', 'emergent'];
+
+        return [
+            'id'       => (string) ($t['id'] ?? ''),
+            'title'    => (string) ($t['title'] ?? ''),
+            'theme'    => $t['theme'] ?? null,
+            'evidence' => in_array($evidence, $allowed, true) ? $evidence : 'prometteur',
+            'insight'  => (string) ($t['insight'] ?? ''),
+            'action'   => (string) ($t['action'] ?? ''),
+            'source'   => $t['source'] ?? null,
+            'tags'     => array_values((array) $tags),
+        ];
+    }
+
+    /**
      * Normalise une entrée d'exercice vers le format attendu par le front.
      *
      * Champs acceptés en entrée :

@@ -77,15 +77,21 @@ const hasTreasure = computed(() => {
 
                     <!-- User zone -->
                     <div style="display: flex; align-items: center; gap: 8px">
-                        <div style="width: 30px; height: 30px; border-radius: 50%; background: var(--color-accent); display: flex; align-items: center; justify-content: center; color: var(--color-primary); flex-shrink: 0; border: 1px solid var(--border-mid)" :title="user.name">
-                            <!-- Emblème de quête : boussole d'aventurier -->
-                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <circle cx="12" cy="12" r="9" />
-                                <polygon points="15.5 8.5 11 11 8.5 15.5 13 13" fill="currentColor" stroke="none" />
-                                <circle cx="12" cy="12" r="0.6" fill="currentColor" stroke="none" />
-                            </svg>
-                        </div>
-                        <span style="font-size: 13px; color: var(--text-secondary); font-family: var(--font-body)">{{ user.name }}</span>
+                        <!-- Avatar + nom : cliquable → édition du profil (statut, parcours, CV) -->
+                        <Link :href="route('profile.edit')"
+                            class="cand-profile-link"
+                            style="display: flex; align-items: center; gap: 8px; text-decoration: none; padding: 3px 8px 3px 3px; border-radius: 999px; transition: background 0.15s"
+                            title="Modifier mon profil (statut, parcours, CV)">
+                            <div style="width: 30px; height: 30px; border-radius: 50%; background: var(--color-accent); display: flex; align-items: center; justify-content: center; color: var(--color-primary); flex-shrink: 0; border: 1px solid var(--border-mid)">
+                                <!-- Emblème de quête : boussole d'aventurier -->
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <circle cx="12" cy="12" r="9" />
+                                    <polygon points="15.5 8.5 11 11 8.5 15.5 13 13" fill="currentColor" stroke="none" />
+                                    <circle cx="12" cy="12" r="0.6" fill="currentColor" stroke="none" />
+                                </svg>
+                            </div>
+                            <span style="font-size: 13px; color: var(--text-secondary); font-family: var(--font-body)">{{ user.name }}</span>
+                        </Link>
 
                         <Link :href="route('gdpr.show')"
                             class="cand-nav-link"
@@ -109,6 +115,7 @@ const hasTreasure = computed(() => {
                 <Link :href="route('grimoire.show')" class="cand-mobile-link" @click="mobileOpen = false">Le Grimoire</Link>
                 <Link :href="route('history')" class="cand-mobile-link" @click="mobileOpen = false">Chroniques</Link>
                 <Link v-if="hasTreasure" :href="route('treasure.index')" class="cand-mobile-link" @click="mobileOpen = false">Le Trésor</Link>
+                <Link :href="route('profile.edit')" class="cand-mobile-link" @click="mobileOpen = false">👤 Mon profil (statut, parcours, CV)</Link>
                 <Link :href="route('gdpr.show')" class="cand-mobile-link" @click="mobileOpen = false">🔒 Mes données & RGPD</Link>
                 <Link :href="route('logout')" method="post" as="button" class="cand-mobile-link cand-mobile-link--danger" @click="mobileOpen = false">Quitter la Quête</Link>
             </nav>
@@ -170,6 +177,14 @@ const hasTreasure = computed(() => {
 .cand-nav-link:hover {
     color: var(--text-primary) !important;
     background: var(--bg-elevated) !important;
+}
+
+/* Avatar + nom cliquable (édition profil) */
+.cand-profile-link:hover {
+    background: var(--bg-elevated);
+}
+.cand-profile-link:hover span {
+    color: var(--text-primary) !important;
 }
 
 /* Navigation desktop : flex par défaut */
