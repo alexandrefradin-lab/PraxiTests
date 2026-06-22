@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { Head, Link, router } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import PathTier from '@/Components/PathTier.vue'
@@ -56,22 +56,36 @@ const synthParagraphs = computed(() => {
     return out.filter(Boolean)
 })
 
+// Polling de l'état du Grimoire pendant la (re)génération IA.
+// IMPORTANT : démarré de façon RÉACTIVE (watch) et pas seulement dans onMounted.
+// Après un clic "Régénérer", Inertia recharge la MÊME page sans remonter le
+// composant : onMounted ne se rejoue pas. Sans le watch, le polling ne démarrait
+// jamais et la page restait figée sur "L'oracle relit tes épreuves…".
 let timer = null
-onMounted(() => {
-    if (props.ai_pending) {
-        timer = setInterval(async () => {
-            try {
-                const r = await fetch(route('grimoire.status'), { headers: { Accept: 'application/json' } })
-                const data = await r.json()
-                if (data.ready || data.failed) {
-                    clearInterval(timer)
-                    router.reload({ only: ['grimoire', 'ai_pending'] })
-                }
-            } catch (e) { /* retry */ }
-        }, 5000)
-    }
+function startPolling() {
+    if (timer) return
+    timer = setInterval(async () => {
+        try {
+            const r = await fetch(route('grimoire.status'), { headers: { Accept: 'application/json' } })
+            const data = await r.json()
+            if (data.ready || data.failed) {
+                stopPolling()
+                // Recharge complète : synthèse, voies, tests et pistes d'un coup.
+                router.reload()
+            }
+        } catch (e) { /* retry au prochain tick */ }
+    }, 5000)
+}
+function stopPolling() {
+    if (timer) { clearInterval(timer); timer = null }
+}
+
+onMounted(() => { if (props.ai_pending) startPolling() })
+watch(() => props.ai_pending, (pending) => {
+    if (pending) startPolling()
+    else stopPolling()
 })
-onUnmounted(() => { if (timer) clearInterval(timer) })
+onUnmounted(stopPolling)
 
 const refreshing = ref(false)
 function regenerate() {
