@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
+import RadarChart from '@/Components/RadarChart.vue'
 
 const props = defineProps({ attempt: Object, result: Object })
 const scoring = computed(() => props.result?.scoring ?? {})
@@ -16,6 +17,21 @@ const byFamily = computed(() => {
     })
     return groups
 })
+
+// Toile d'araignée sur les 4 familles (les 15 dimensions = trop d'axes).
+// Valeur 0-100 par famille = moyenne des dimensions membres, chacune
+// normalisée depuis son score brut /20 (même base que les barres de la page).
+const radarAxes = computed(() =>
+    Object.entries(byFamily.value).map(([famId, famDims]) => {
+        const pcts = famDims.map((d) => ((d.score ?? 0) / 20) * 100)
+        const avg = pcts.length ? pcts.reduce((a, b) => a + b, 0) / pcts.length : 0
+        return {
+            label: fams.value[famId]?.label ?? '',
+            value: Math.round(avg),
+            color: fams.value[famId]?.color,
+        }
+    })
+)
 
 const dimColor = (score) => {
     if (score <= 8)  return '#dc2626'
@@ -53,6 +69,15 @@ const dimLabel = (score) => {
             <section v-if="scoring.desirabilite?.alerte" class="pt-card p-6 mb-8 border-l-4 border-amber-400 bg-amber-50">
                 <p class="font-semibold text-amber-900">{{ scoring.desirabilite.niveau }}</p>
                 <p class="text-sm text-amber-800 mt-1">{{ scoring.desirabilite.message }}</p>
+            </section>
+
+            <!-- Radar — vue d'ensemble par famille -->
+            <section class="pt-card p-8 mb-8 text-center">
+                <h2 class="text-xl font-semibold mb-1">Ton profil en un coup d'œil</h2>
+                <p class="text-sm text-slate-500 mb-6">Tes 4 grands domaines d'intelligence émotionnelle, sur une seule toile.</p>
+                <div class="flex justify-center">
+                    <RadarChart :axes="radarAxes" />
+                </div>
             </section>
 
             <!-- 4 familles -->

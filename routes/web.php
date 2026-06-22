@@ -60,6 +60,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/grimoire/status',   [GrimoireController::class, 'status'])->name('grimoire.status');
     Route::get('/grimoire/pdf',      [GrimoireController::class, 'pdf'])->name('grimoire.pdf');
     Route::post('/grimoire/refresh', [GrimoireController::class, 'refresh'])->name('grimoire.refresh');
+    // Déclaration d'une formation visée/acquise pour une piste (déblocage déclaratif PTP)
+    Route::post('/grimoire/piste/{pathMatch}/declare', [GrimoireController::class, 'declarePiste'])
+        ->middleware('throttle:30,1')->name('grimoire.piste.declare');
 
     // Journey 60 jours
     Route::post('/journey/complete', [JourneyController::class, 'completeDay'])->name('journey.complete');

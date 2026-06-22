@@ -31,6 +31,8 @@ return [
     'results' => [
         'suggested_jobs_count' => 15,
         'min_jobs_count'       => 10,
+        // Pistes métiers dynamiques (PTP) — nombre affiché, classé par indice d'opportunité.
+        'career_paths_count'   => 30,
     ],
 
     'install' => [

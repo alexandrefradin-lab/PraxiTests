@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PraxiQuest — Vos pistes métiers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --parch:#f3e9d2;
+    --parch-2:#ece0c4;
+    --card:#fbf5e6;
+    --ink:#3a2f1d;
+    --ink-soft:#6b5b41;
+    --line:#d8c8a4;
+    --seal:#9c3b2e;     /* rouge cire */
+    --gold:#b08433;
+    --green:#4f7a4a;    /* débouché fort */
+    --amber:#b6862d;    /* moyen */
+    --grey:#8a8170;     /* faible */
+    --shadow:0 2px 0 rgba(58,47,29,.08), 0 10px 30px rgba(58,47,29,.10);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:
+      radial-gradient(1200px 600px at 80% -10%, #faf3e0, transparent),
+      var(--parch);
+    color:var(--ink);
+    font-family:"EB Garamond", Georgia, serif;
+    line-height:1.55;
+  }
+  .wrap{max-width:940px; margin:0 auto; padding:38px 22px 80px}
+  .mono{font-family:"Space Mono", monospace}
+
+  header.top{ text-align:center; margin-bottom:26px }
+  .kicker{ font-family:"Space Mono",monospace; letter-spacing:.28em; text-transform:uppercase;
+    font-size:11px; color:var(--ink-soft) }
+  h1{ font-size:34px; margin:.18em 0 .1em; font-weight:600; letter-spacing:.2px }
+  .sub{ color:var(--ink-soft); font-size:17px; max-width:560px; margin:0 auto }
+
+  /* onglets / paliers */
+  .tabs{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin:30px 0 6px }
+  .tab{
+    appearance:none; cursor:pointer; border:1px solid var(--line);
+    background:var(--parch-2); color:var(--ink-soft);
+    border-radius:11px 11px 0 0; padding:11px 16px 12px;
+    font-family:"Space Mono",monospace; font-size:12.5px; letter-spacing:.02em;
+    display:flex; align-items:center; gap:9px; transition:.15s;
+  }
+  .tab:hover{ color:var(--ink) }
+  .tab .pill{ font-size:11px; background:#fff5; border:1px solid var(--line); border-radius:20px; padding:1px 8px }
+  .tab[aria-selected="true"]{
+    background:var(--card); color:var(--ink); border-bottom-color:var(--card);
+    box-shadow:0 -3px 0 var(--seal) inset; font-weight:700;
+  }
+  .panelwrap{ border:1px solid var(--line); background:var(--card); border-radius:0 14px 14px 14px;
+    box-shadow:var(--shadow); padding:24px 22px }
+  .panel{ display:none } .panel.active{ display:block }
+  .panel-intro{ color:var(--ink-soft); font-size:16px; margin:.1em 0 18px; border-left:3px solid var(--gold); padding-left:12px }
+
+  /* carte PTP */
+  .ptp{
+    position:relative; overflow:hidden;
+    background:linear-gradient(180deg,#fbf3df,#f6ead0); border:1px solid var(--line);
+    border-radius:13px; padding:18px 18px 18px 20px; margin:0 0 22px;
+    display:flex; gap:16px; align-items:flex-start;
+  }
+  .ptp::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:5px; background:var(--seal) }
+  .ptp .seal{ flex:0 0 auto; width:46px; height:46px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #c1503f, var(--seal));
+    color:#fff; display:flex; align-items:center; justify-content:center; font-family:"Space Mono",monospace;
+    font-weight:700; font-size:13px; box-shadow:0 4px 10px rgba(156,59,46,.35); }
+  .ptp h3{ margin:.1em 0 .25em; font-size:19px }
+  .ptp p{ margin:.2em 0; color:var(--ink-soft); font-size:15.5px }
+  .ptp .cta{ display:inline-block; margin-top:10px; background:var(--seal); color:#fff; text-decoration:none;
+    font-family:"Space Mono",monospace; font-size:12.5px; padding:9px 14px; border-radius:9px }
+  .ptp .cta.ghost{ background:transparent; color:var(--seal); border:1px solid var(--seal); margin-left:8px }
+  .ptp .fine{ font-size:12.5px; color:var(--grey); margin-top:8px }
+
+  /* carte piste */
+  .piste{ border:1px solid var(--line); background:#fffaf0; border-radius:12px; padding:15px 16px; margin-bottom:13px }
+  .piste-head{ display:flex; justify-content:space-between; gap:14px; align-items:baseline }
+  .piste h4{ margin:0; font-size:20px; font-weight:600 }
+  .fit{ font-family:"Space Mono",monospace; font-size:12px; color:var(--ink-soft); white-space:nowrap }
+  .fit b{ color:var(--seal); font-size:15px }
+  .path{ font-size:14.5px; color:var(--ink-soft); margin:8px 0 11px;
+    background:#f1e6cc; border-radius:8px; padding:7px 11px; display:inline-block }
+  .path .dur{ font-family:"Space Mono",monospace; color:var(--gold); font-weight:700 }
+  .signals{ display:flex; flex-wrap:wrap; gap:8px }
+  .sig{ font-family:"Space Mono",monospace; font-size:11.5px; border:1px solid var(--line);
+    background:#fff; border-radius:20px; padding:4px 10px; display:flex; align-items:center; gap:6px; color:var(--ink-soft) }
+  .dot{ width:8px; height:8px; border-radius:50% }
+  .d-strong{ background:var(--green) } .d-mid{ background:var(--amber) } .d-low{ background:var(--grey) }
+  .arrow-up{ color:var(--green) } .arrow-flat{ color:var(--amber) }
+
+  .legend{ margin-top:18px; font-size:12.5px; color:var(--grey); display:flex; gap:16px; flex-wrap:wrap; align-items:center }
+  .legend .sig{ pointer-events:none }
+  footer.note{ text-align:center; color:var(--grey); font-size:12px; margin-top:26px; font-family:"Space Mono",monospace }
+  .empty{ color:var(--ink-soft); font-style:italic; padding:14px 2px }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="kicker mono">Grimoire des possibles</div>
+    <h1>Vos pistes métiers</h1>
+    <p class="sub">Votre profil ne change pas — ce qui s'ouvre, oui. Voici les métiers à votre portée, classés par effort de formation.</p>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="Paliers de pistes">
+    <button class="tab" role="tab" aria-selected="false" data-panel="now">
+      Accessible maintenant <span class="pill mono">6</span>
+    </button>
+    <button class="tab" role="tab" aria-selected="true" data-panel="year">
+      1 an de formation <span class="pill mono">18</span>
+    </button>
+    <button class="tab" role="tab" aria-selected="false" data-panel="long">
+      Horizon long <span class="pill mono">6</span>
+    </button>
+  </div>
+
+  <div class="panelwrap">
+
+    <!-- ===== PALIER : ACCESSIBLE MAINTENANT ===== -->
+    <section class="panel" id="panel-now" role="tabpanel">
+      <p class="panel-intro">Des métiers que votre profil actuel permet de viser <b>sans nouvelle formation</b>. Aucun financement requis.</p>
+      <article class="piste">
+        <div class="piste-head"><h4>Chargé·e de relation client</h4><span class="fit mono">Adéquation <b>88%</b></span></div>
+        <div class="signals">
+          <span class="sig"><span class="dot d-strong"></span>Fort volume · tension élevée</span>
+          <span class="sig"><span class="arrow-up">▲</span> En croissance</span>
+          <span class="sig">≈ 26–32 k€ / an</span>
+          <span class="sig">📍 Forte demande locale</span>
+        </div>
+      </article>
+      <article class="piste">
+        <div class="piste-head"><h4>Coordinateur·rice administratif·ve</h4><span class="fit mono">Adéquation <b>81%</b></span></div>
+        <div class="signals">
+          <span class="sig"><span class="dot d-mid"></span>Volume moyen</span>
+          <span class="sig"><span class="arrow-flat">▬</span> Stable</span>
+          <span class="sig">≈ 25–30 k€ / an</span>
+          <span class="sig">📍 Demande locale moyenne</span>
+        </div>
+      </article>
+    </section>
+
+    <!-- ===== PALIER : 1 AN DE FORMATION (focus + PTP) ===== -->
+    <section class="panel active" id="panel-year" role="tabpanel">
+
+      <div class="ptp">
+        <div class="seal mono">PTP</div>
+        <div>
+          <h3>Financez cette reconversion sans perdre votre salaire</h3>
+          <p>Ces pistes se débloquent avec <b>une formation d'un an maximum</b>. Salarié·e du privé (CDI, CDD, intérim) ? Le <b>Projet de Transition Professionnelle</b> peut prendre en charge le coût de la formation <b>et</b> maintenir votre rémunération pendant toute sa durée.</p>
+          <a class="cta mono" href="https://www.transitionspro.fr/nos-dispositifs/projet-de-transition-professionnelle/" target="_blank" rel="noopener">Découvrir le PTP →</a>
+          <a class="cta ghost mono" href="https://www.service-public.gouv.fr/particuliers/vosdroits/F14018" target="_blank" rel="noopener">Conditions officielles</a>
+          <p class="fine">Éligibilité CDI : 24 mois d'ancienneté salariée dont 12 dans l'entreprise actuelle. Géré par Transitions Pro. Conditions spécifiques pour CDD et intérim.</p>
+        </div>
+      </div>
+
+      <p class="panel-intro">18 métiers atteignables avec <b>≤ 12 mois</b> de formation. Pour chacun : le chemin de déblocage et l'état du marché.</p>
+
+      <article class="piste">
+        <div class="piste-head"><h4>Développeur·se web</h4><span class="fit mono">Adéquation <b>84%</b></span></div>
+        <div class="path">Chemin : <span class="dur">+ 9 mois</span> — Titre pro Développeur web et web mobile (RNCP)</div>
+        <div class="signals">
+          <span class="sig"><span class="dot d-strong"></span>Fort volume · tension élevée</span>
+          <span class="sig"><span class="arrow-up">▲</span> En croissance</span>
+          <span class="sig">≈ 30–38 k€ / an</span>
+          <span class="sig">📍 Forte demande locale</span>
+        </div>
+      </article>
+
+      <article class="piste">
+        <div class="piste-head"><h4>Conseiller·ère en insertion professionnelle</h4><span class="fit mono">Adéquation <b>79%</b></span></div>
+        <div class="path">Chemin : <span class="dur">+ 10 mois</span> — Titre pro CIP (RNCP)</div>
+        <div class="signals">
+          <span class="sig"><span class="dot d-strong"></span>Fort volume</span>
+          <span class="sig"><span class="arrow-up">▲</span> En croissance</span>
+          <span class="sig">≈ 25–31 k€ / an</span>
+          <span class="sig">📍 Demande locale moyenne</span>
+        </div>
+      </article>
+
+      <article class="piste">
+        <div class="piste-head"><h4>Technicien·ne supérieur·e en domotique</h4><span class="fit mono">Adéquation <b>74%</b></span></div>
+        <div class="path">Chemin : <span class="dur">+ 12 mois</span> — Titre pro TS systèmes domotiques (RNCP)</div>
+        <div class="signals">
+          <span class="sig"><span class="dot d-mid"></span>Volume moyen · tension élevée</span>
+          <span class="sig"><span class="arrow-up">▲</span> En croissance</span>
+          <span class="sig">≈ 27–34 k€ / an</span>
+          <span class="sig">📍 Demande locale émergente</span>
+        </div>
+      </article>
+
+      <article class="piste">
+        <div class="piste-head"><h4>Assistant·e ressources humaines</h4><span class="fit mono">Adéquation <b>72%</b></span></div>
+        <div class="path">Chemin : <span class="dur">+ 8 mois</span> — Titre pro Assistant RH (RNCP)</div>
+        <div class="signals">
+          <span class="sig"><span class="dot d-mid"></span>Volume moyen</span>
+          <span class="sig"><span class="arrow-flat">▬</span> Stable</span>
+          <span class="sig">≈ 26–32 k€ / an</span>
+          <span class="sig">📍 Demande locale moyenne</span>
+        </div>
+      </article>
+
+    </section>
+
+    <!-- ===== PALIER : HORIZON LONG ===== -->
+    <section class="panel" id="panel-long" role="tabpanel">
+      <p class="panel-intro">Métiers qui vous correspondent mais demandent <b>plus d'un an</b> de formation — hors cadre PTP, à envisager par étapes.</p>
+      <article class="piste">
+        <div class="piste-head"><h4>Infirmier·ère</h4><span class="fit mono">Adéquation <b>80%</b></span></div>
+        <div class="path">Chemin : <span class="dur">+ 3 ans</span> — Diplôme d'État (à financer autrement)</div>
+        <div class="signals">
+          <span class="sig"><span class="dot d-strong"></span>Très fort volume · tension critique</span>
+          <span class="sig"><span class="arrow-up">▲</span> En forte croissance</span>
+          <span class="sig">≈ 28–36 k€ / an</span>
+          <span class="sig">📍 Forte demande locale</span>
+        </div>
+      </article>
+    </section>
+
+    <div class="legend">
+      <span><span class="sig"><span class="dot d-strong"></span>fort</span> <span class="sig"><span class="dot d-mid"></span>moyen</span> <span class="sig"><span class="dot d-low"></span>faible</span> = débouché</span>
+      <span>▲ croissance · ▬ stable</span>
+    </div>
+  </div>
+
+  <footer class="note">Maquette — données métiers et marché fictives, à titre indicatif. Source PTP : Transitions Pro / service-public.fr.</footer>
+</div>
+
+<script>
+  const tabs = document.querySelectorAll('.tab');
+  const panels = { now:'panel-now', year:'panel-year', long:'panel-long' };
+  tabs.forEach(t => t.addEventListener('click', () => {
+    tabs.forEach(x => x.setAttribute('aria-selected','false'));
+    t.setAttribute('aria-selected','true');
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById(panels[t.dataset.panel]).classList.add('active');
+  }));
+</script>
+</body>
+</html>

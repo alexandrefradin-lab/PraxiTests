@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
+import RadarChart from '@/Components/RadarChart.vue'
 
 const props = defineProps({ attempt: Object, result: Object })
 const scoring = computed(() => props.result?.scoring ?? {})
@@ -9,6 +10,20 @@ const facettes = computed(() => scoring.value.scores_facette ?? {})
 const metaDim = computed(() => scoring.value.meta_dimensions ?? {})
 const metaFac = computed(() => scoring.value.meta_facettes ?? {})
 const archetype = computed(() => scoring.value.archetype ?? null)
+
+// Toile d'araignée OCEAN — 5 axes (pct 0–100). Couleur depuis meta_dimensions,
+// sinon palette OCEAN locale.
+const OCEAN_ORDER = ['O', 'C', 'E', 'A', 'N']
+const OCEAN_PALETTE = { O: '#8b5cf6', C: '#0ea5e9', E: '#f59e0b', A: '#10b981', N: '#ef4444' }
+const radarAxes = computed(() =>
+    OCEAN_ORDER
+        .filter((key) => dims.value[key])
+        .map((key) => ({
+            label: dims.value[key]?.label ?? metaDim.value[key]?.label ?? key,
+            value: Number(dims.value[key]?.pct ?? 0),
+            color: metaDim.value[key]?.color ?? OCEAN_PALETTE[key],
+        }))
+)
 
 const facettesByDim = computed(() => {
     const out = {}
@@ -69,6 +84,15 @@ const niveauColor = {
             <section v-if="scoring.desirabilite?.alert" class="pt-card p-6 mb-8 border-l-4 border-amber-400 bg-amber-50">
                 <p class="font-semibold text-amber-900">Désirabilité sociale élevée ({{ scoring.desirabilite.pct }}%)</p>
                 <p class="text-sm text-amber-800 mt-1">Tes réponses pourraient refléter une image idéalisée de toi-même. Considère les résultats avec ce filtre.</p>
+            </section>
+
+            <!-- Toile d'araignée OCEAN -->
+            <section class="pt-card p-8 mb-8">
+                <h2 class="text-xl font-semibold mb-1">Ton profil en un coup d'œil</h2>
+                <p class="text-sm text-slate-500 mb-6">Tes 5 dimensions OCEAN sur une même toile.</p>
+                <div class="flex justify-center">
+                    <RadarChart :axes="radarAxes" />
+                </div>
             </section>
 
             <!-- 5 dimensions OCEAN -->

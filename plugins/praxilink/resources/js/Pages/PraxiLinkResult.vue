@@ -34,6 +34,19 @@
       </section>
 
       <!-- ══════════════════════════════════════════════
+           RADAR — VUE D'ENSEMBLE
+      ══════════════════════════════════════════════ -->
+      <section class="pt-card pt-radar" aria-labelledby="radar-heading">
+        <h2 id="radar-heading" class="pt-section-title">Ton profil en un coup d'œil</h2>
+        <p class="pt-radar__subtitle">
+          Vos cinq dimensions de communication, sur une seule toile.
+        </p>
+        <div class="flex justify-center">
+          <RadarChart :axes="radarAxes" />
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════════════
            PROFIL COMMUNICANT — 5 DIMENSIONS
       ══════════════════════════════════════════════ -->
       <section class="pt-card pt-dimensions" aria-labelledby="dimensions-heading">
@@ -330,6 +343,7 @@ import { computed } from 'vue'
 import { router } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import ScoreGauge from '@/Components/ScoreGauge.vue'
+import RadarChart from '@/Components/RadarChart.vue'
 
 // ─────────────────────────────────────────────
 // Props
@@ -508,6 +522,15 @@ const dimensionList = computed(() =>
     description: dimensionDescriptions[key],
     color:       dimensionColors[key],
     score:       Math.round(normScores.value[key] ?? 0),
+  }))
+)
+
+// Axes de la toile d'araignée — réutilise dimensionList (scores déjà 0-100).
+const radarAxes = computed(() =>
+  dimensionList.value.map((d) => ({
+    label: d.label,
+    value: d.score,
+    color: d.color,
   }))
 )
 
@@ -697,6 +720,15 @@ function startJourneyExercise() {
   margin: 0 0 1.25rem;
   padding-bottom: 0.5rem;
   border-bottom: 2px solid var(--pt-cream);
+}
+
+/* ══════════════════════════════════════════════
+   RADAR
+══════════════════════════════════════════════ */
+.pt-radar__subtitle {
+  color: var(--pt-text-muted);
+  font-size: 0.88rem;
+  margin: -0.75rem 0 1rem;
 }
 
 /* ══════════════════════════════════════════════

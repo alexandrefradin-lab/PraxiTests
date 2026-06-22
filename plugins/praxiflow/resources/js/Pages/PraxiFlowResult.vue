@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import ScoreGauge from '@/Components/ScoreGauge.vue'
+import RadarChart from '@/Components/RadarChart.vue'
 
 const props = defineProps({ attempt: Object, result: Object })
 const scoring   = computed(() => props.result?.scoring ?? {})
@@ -50,6 +51,15 @@ const scoreLabel = (score) => {
 }
 const dimColor = (dimKey) => dimensions.value[dimKey]?.color ?? 'var(--pt-navy)'
 const stars    = (n) => '★'.repeat(n) + '☆'.repeat(3 - n)
+
+// Axes du radar : valeur 0–100 issue de norm_scores, label + couleur depuis dimensions
+const radarAxes = computed(() =>
+    Object.entries(dimensions.value).map(([dimKey, dimInfo]) => ({
+        label: dimInfo.label ?? dimKey,
+        value: Math.round(Number(normScores.value[dimKey]) || 0),
+        color: dimInfo.color,
+    }))
+)
 
 const globalColor = computed(() => {
     if (globalScore.value < 30) return 'var(--pt-danger, #DC2626)'
@@ -161,6 +171,15 @@ const allExercises = computed(() => {
                  ONGLET : RÉSULTATS
             ══════════════════════════════════════════════════ -->
             <div v-show="activeTab === 'resultats'">
+
+                <!-- Profil en un coup d'œil — toile d'araignée -->
+                <section v-if="radarAxes.length >= 3" class="pt-card" style="padding: 2rem; margin-bottom: 1.5rem;">
+                    <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.25rem; color: var(--pt-navy);">Ton profil en un coup d'œil</h2>
+                    <p style="font-size: 0.875rem; margin-bottom: 1rem; color: var(--pt-text-muted);">Tes 5 dimensions de productivité, sur une échelle de 0 à 100.</p>
+                    <div style="display: flex; justify-content: center;">
+                        <RadarChart :axes="radarAxes" />
+                    </div>
+                </section>
 
                 <!-- 5 Jauges dimensions -->
                 <section class="pt-card" style="padding: 2rem; margin-bottom: 1.5rem;">

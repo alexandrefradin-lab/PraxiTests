@@ -53,7 +53,8 @@ TXT;
         $user_msg = "Voici l'ensemble des tests passés par le candidat :\n\n"
             . json_encode($context, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
             . "\n\nProduis un JSON STRICT avec deux clés :\n"
-            . "1) \"synthese\" : 400-600 mots, 3 à 4 paragraphes, en CROISANT les tests "
+            . "1) \"synthese\" : 400 à 600 mots, OBLIGATOIREMENT en 3 à 4 paragraphes distincts séparés "
+            . "par un double saut de ligne échappé \\n\\n (jamais un bloc unique), en CROISANT les tests "
             . "(convergences, tensions, fil conducteur). Ne recopie pas les synthèses individuelles. "
             . "N'utilise jamais de chiffres ni de percentiles — appuie-toi sur les labels qualitatifs.\n"
             . "2) \"voies\" : EXACTEMENT {$count} pistes de métiers réalistes et accessibles sur le marché "
@@ -120,11 +121,19 @@ TXT;
 
         $user_msg = "Voici l'ensemble des tests passés par le candidat :\n\n"
             . json_encode($context, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
-            . "\n\nProduis un JSON STRICT avec une SEULE clé \"synthese\" : 400-600 mots, "
-            . "3 à 4 paragraphes, en CROISANT les tests (convergences, tensions, fil conducteur). "
+            . "\n\nProduis un JSON STRICT avec une SEULE clé \"synthese\" : 400 à 600 mots, "
+            . "OBLIGATOIREMENT structurée en 3 à 4 paragraphes distincts, en CROISANT les tests "
+            . "(convergences, tensions, fil conducteur). Chaque paragraphe développe une idée et fait "
+            . "au moins 4 phrases.\n"
+            . "RÈGLE DE FORMAT IMPÉRATIVE : sépare chaque paragraphe par un DOUBLE saut de ligne, "
+            . "écrit dans la chaîne JSON sous la forme échappée \\n\\n. Ne renvoie jamais la synthèse "
+            . "comme un bloc unique sans saut de ligne.\n"
             . "Ne recopie pas les synthèses individuelles. N'utilise jamais de chiffres ni de percentiles "
             . "— appuie-toi sur les labels qualitatifs.\n\n"
-            . "Format attendu : { \"synthese\": \"...\" }";
+            . "Exemple EXACT du format attendu (garde les \\n\\n entre les paragraphes) :\n"
+            . "{ \"synthese\": \"Premier paragraphe qui pose le fil conducteur...\\n\\nDeuxième paragraphe "
+            . "sur les convergences entre les tests...\\n\\nTroisième paragraphe sur les tensions et la "
+            . "manière de les habiter...\" }";
 
         return [
             ['role' => 'system', 'content' => $system],

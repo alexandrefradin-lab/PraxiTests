@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
             BadgeSeeder::class,
             DemoTestSeeder::class,
             TestNormsSeeder::class,
+            CareerPathsSeeder::class,
         ]);
     }
 }

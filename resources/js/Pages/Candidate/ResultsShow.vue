@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { Link } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
+import MarkdownText from '@/Components/MarkdownText.vue'
 
 const props = defineProps({
     attempt: Object,
@@ -184,12 +185,11 @@ onMounted(() => {
                     </button>
 
                     <!-- Texte complet après typewriter terminé -->
-                    <div
+                    <MarkdownText
                         v-if="typewriterText.length >= Math.min(300, result.ai_synthesis?.length ?? 0)"
+                        :source="result.ai_synthesis"
                         class="ac-synthesis-full"
-                    >
-                        {{ result.ai_synthesis }}
-                    </div>
+                    />
                 </section>
 
                 <!-- ── DIMENSIONS SCORING ─────────────────────────── -->
@@ -489,7 +489,6 @@ onMounted(() => {
     font-size: 15px;
     line-height: 1.7;
     color: var(--text-primary);
-    white-space: pre-line;
     margin-top: 1.25rem;
     padding-top: 1.25rem;
     border-top: 1px solid var(--glass-border);

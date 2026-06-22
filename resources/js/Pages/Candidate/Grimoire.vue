@@ -2,29 +2,58 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { Head, Link, router } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
+import PathTier from '@/Components/PathTier.vue'
 
 const props = defineProps({
     grimoire:   Object,
     tests:      Array,
     ai_pending: Boolean,
     is_empty:   Boolean,
+    pistes:       { type: Object,  default: () => ({ accessible: [], ptp: [], horizon: [] }) },
+    ptp_eligible: { type: Boolean, default: false },
 })
 
 const voies = computed(() => props.grimoire?.voies ?? [])
 
+// Pistes de transition (PTP) — nombre total tous paliers confondus.
+const pistesTotal = computed(() => {
+    const p = props.pistes ?? {}
+    return (p.accessible?.length ?? 0) + (p.ptp?.length ?? 0) + (p.horizon?.length ?? 0)
+})
+
+// Déblocage déclaratif d'une piste (la personne vise/possède la formation).
+const declarePiste = (piste) => {
+    if (!piste?.id) return
+    router.post(route('grimoire.piste.declare', piste.id), {}, {
+        preserveScroll: true,
+        preserveState: false,
+    })
+}
+
 // Aere la synthese en paragraphes lisibles, meme si l'IA renvoie un seul bloc.
 const synthParagraphs = computed(() => {
-    const raw = (props.grimoire?.synthesis || '').trim()
+    // Normalise un \n\n echappe ("\\n\\n") qui aurait survecu jusqu'au front.
+    const raw = (props.grimoire?.synthesis || '').replace(/\\n/g, '\n').trim()
     if (!raw) return []
-    let parts = raw.split(/\n+/).map(p => p.trim()).filter(Boolean)
-    if (parts.length === 1) {
-        const sentences = parts[0].match(/[^.!?]+[.!?]+["»')\]]*\s*/g) || [parts[0]]
-        parts = []
-        for (let i = 0; i < sentences.length; i += 3) {
-            parts.push(sentences.slice(i, i + 3).join(' ').trim())
-        }
+
+    // 1) Si l'IA a fourni de vrais sauts de ligne, on respecte son decoupage.
+    const parts = raw.split(/\n{1,}/).map(p => p.trim()).filter(Boolean)
+    if (parts.length > 1) return parts
+
+    // 2) Bloc unique : on repartit les phrases en paragraphes EQUILIBRES
+    //    (2 a 4 selon la longueur), pour ne jamais laisser un mur de texte.
+    const sentences = (parts[0].match(/[^.!?]+[.!?]+["»')\]]*\s*/g) || [parts[0]])
+        .map(s => s.trim())
+        .filter(Boolean)
+    if (sentences.length <= 2) return sentences.length ? [sentences.join(' ')] : []
+
+    const target = sentences.length <= 5 ? 2 : sentences.length <= 9 ? 3 : 4
+    const per = Math.ceil(sentences.length / target)
+    const out = []
+    for (let i = 0; i < sentences.length; i += per) {
+        out.push(sentences.slice(i, i + per).join(' ').trim())
     }
-    return parts.filter(Boolean)
+    return out.filter(Boolean)
 })
 
 let timer = null
@@ -145,6 +174,31 @@ function fitClass(score) {
                             </p>
                         </article>
                     </div>
+                </section>
+
+                <!-- ── Pistes de transition (PTP) ─────────────────────────── -->
+                <section v-if="pistesTotal" class="grim-voies" style="margin-top:1rem">
+                    <div class="grim-section-head">
+                        <h2 class="grim-section-title">Tes pistes de transition</h2>
+                        <p class="grim-voies-intro">
+                            Des métiers cibles classés par opportunité, en croisant ton profil, l'écart de
+                            formation et le marché de l'emploi. Le score de tes tests ne change pas — ce sont
+                            les pistes ouvertes qui évoluent quand tu déclares une formation.
+                        </p>
+                        <p v-if="!ptp_eligible" class="grim-voies-intro" style="font-style:italic;margin-top:.4rem">
+                            Le financement via un PTP (Projet de Transition Professionnelle) concerne les
+                            salariés. Selon ton statut, d'autres dispositifs (CPF, AIF…) peuvent s'appliquer.
+                        </p>
+                    </div>
+
+                    <PathTier tier="accessible" :paths="pistes.accessible" @unlock="declarePiste" />
+                    <PathTier tier="ptp"        :paths="pistes.ptp"        @unlock="declarePiste" />
+                    <PathTier tier="horizon"    :paths="pistes.horizon"    @unlock="declarePiste" />
+
+                    <p class="grim-voies-intro" style="font-size:12px;margin-top:.75rem">
+                        Données marché indicatives (estimations par famille de métiers, {{ new Date().getFullYear() }})
+                        — à affiner avec un conseiller en évolution professionnelle.
+                    </p>
                 </section>
 
                 <section v-if="tests.length" class="grim-tests">
@@ -471,7 +525,7 @@ function fitClass(score) {
     box-shadow: inset 0 1px 0 rgba(255,255,255,.25);
     transition: filter .15s;
 }
-.grim-test-pdf:hover { filter: brightness(1.08); }
+.grim-test-pdf:hover { filter: brightness(1.09); }
 
 .grim-footer { text-align: center; margin-top: 3rem; }
 .grim-actions { display: flex; gap: .85rem; justify-content: center; flex-wrap: wrap; margin-top: 1.5rem; }

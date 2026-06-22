@@ -17,7 +17,11 @@
     --bg-elevated:          #D8CEB5;
 
     /* Couleurs primaires */
-    --color-primary:        #A67520;
+    /* Unification tokens (B1) : alias vers --pt-* quand la valeur est identique.
+       Réversible, zéro changement visuel. Cas non-identiques laissés tels quels :
+       --glass-border (α0.25) et --text-muted (#8C7A5E) n'ont pas d'équivalent --pt-*
+       exact → à traiter en B2/B3. Voir ROADMAP-REFACTOR-ARCHITECTURAL.md. */
+    --color-primary:        var(--pt-gold);   /* = #A67520 */
     --color-primary-dark:   #7D5510;
     --color-secondary:      #7B1515;
     --color-accent:         #1C1408;
@@ -26,7 +30,7 @@
     --color-signal:         #0A7FA0;
 
     /* Texte */
-    --text-primary:         #2A1E08;
+    --text-primary:         var(--pt-text);   /* = #2A1E08 (alias unification, cf. B1) */
     --text-secondary:       #6B5A3E;
     --text-muted:           #8C7A5E;
     --text-ghost:           #B0A08A;

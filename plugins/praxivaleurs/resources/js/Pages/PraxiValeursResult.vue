@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
+import RadarChart from '@/Components/RadarChart.vue'
 
 const props = defineProps({ attempt: Object, result: Object })
 
@@ -8,6 +9,16 @@ const scoring = computed(() => props.result?.scoring ?? {})
 const top5 = computed(() => Object.entries(scoring.value.top5 ?? {}))
 const all = computed(() => Object.entries(scoring.value.dimensions ?? {}))
 const meta = computed(() => scoring.value.meta ?? {})
+
+// Toile d'araignée Schwartz — axes dans l'ordre du circumplex (ordre des clés
+// de `meta`). Valeur = score final 0–100 ; label + couleur depuis `meta`.
+const radarAxes = computed(() =>
+    Object.keys(meta.value).map((key) => ({
+        label: meta.value[key]?.label ?? key,
+        value: Number(scoring.value.dimensions?.[key] ?? 0),
+        color: meta.value[key]?.color,
+    }))
+)
 </script>
 
 <template>
@@ -34,6 +45,15 @@ const meta = computed(() => scoring.value.meta ?? {})
                         <span class="text-2xl font-semibold text-slate-700">{{ score }}</span>
                     </li>
                 </ol>
+            </section>
+
+            <!-- Toile d'araignée Schwartz -->
+            <section class="pt-card p-8 mb-8">
+                <h2 class="text-xl font-semibold mb-1">Ton profil en un coup d'œil</h2>
+                <p class="text-sm text-slate-500 mb-6">Tes 10 valeurs disposées en circumplex de Schwartz.</p>
+                <div class="flex justify-center">
+                    <RadarChart :axes="radarAxes" />
+                </div>
             </section>
 
             <!-- Toutes les dimensions -->

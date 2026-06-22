@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import ScoreGauge from '@/Components/ScoreGauge.vue'
+import RadarChart from '@/Components/RadarChart.vue'
 
 const props = defineProps({
     attempt:              Object,
@@ -56,6 +57,15 @@ const meta  = computed(() => scoring.value.meta ?? {})
 
 // Score global
 const global = computed(() => scoring.value.global_score ?? 0)
+
+// Axes du radar : valeur 0–100 issue de norm_scores, label + couleur depuis dimensions
+const radarAxes = computed(() =>
+    Object.entries(dims.value).map(([dimId, dimInfo]) => ({
+        label: dimInfo.label ?? dimId,
+        value: Math.round(Number(norms.value[dimId]) || 0),
+        color: dimInfo.color,
+    }))
+)
 
 // ── Parcours 60 jours ────────────────────────────────────────────────────────
 
@@ -180,6 +190,19 @@ const gridRows = computed(() => {
                             </span>
                         </div>
                     </div>
+                </div>
+            </section>
+
+            <!-- Profil en un coup d'œil — toile d'araignée ─────────────── -->
+            <section v-if="radarAxes.length >= 3" class="pt-card p-8 mb-8">
+                <h2 class="text-xl font-semibold mb-1" style="color: var(--pt-navy)">
+                    Ton profil en un coup d'œil
+                </h2>
+                <p class="text-sm mb-4" style="color: var(--pt-text-muted)">
+                    Tes 5 dimensions d'orateur, sur une échelle de 0 à 100.
+                </p>
+                <div class="flex justify-center">
+                    <RadarChart :axes="radarAxes" />
                 </div>
             </section>
 

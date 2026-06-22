@@ -1,6 +1,8 @@
 <script setup>
 import { computed } from 'vue'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
+import SynthesisCard from '@/Components/SynthesisCard.vue'
+import RadarChart from '@/Components/RadarChart.vue'
 
 const props = defineProps({
     attempt: Object,
@@ -13,6 +15,16 @@ const code = computed(() => scoring.value.code ?? '')
 const meta = computed(() => scoring.value.types_meta ?? {})
 
 const codeLetters = computed(() => code.value.split(''))
+
+// Hexagone RIASEC — axes dans l'ordre iconique R, I, A, S, E, C (valeurs 0–100).
+const RIASEC_ORDER = ['R', 'I', 'A', 'S', 'E', 'C']
+const radarAxes = computed(() =>
+    RIASEC_ORDER.map((key) => ({
+        label: meta.value[key]?.label ?? key,
+        value: Number(dimensions.value[key] ?? 0),
+        color: meta.value[key]?.color,
+    }))
+)
 </script>
 
 <template>
@@ -32,9 +44,15 @@ const codeLetters = computed(() => code.value.split(''))
             </div>
 
             <!-- Synthèse IA si dispo -->
-            <section v-if="attempt.result?.ai_synthesis" class="pt-card p-8 mb-8">
-                <h2 class="text-xl font-semibold mb-4">Ta synthèse</h2>
-                <div class="prose prose-slate max-w-none whitespace-pre-line text-[15px] leading-relaxed">{{ attempt.result.ai_synthesis }}</div>
+            <SynthesisCard :source="attempt.result?.ai_synthesis" title="Ta synthèse" />
+
+            <!-- Hexagone RIASEC -->
+            <section class="pt-card p-8 mb-8">
+                <h2 class="text-xl font-semibold mb-1">Ton hexagone RIASEC</h2>
+                <p class="text-sm text-slate-500 mb-6">Tes 6 dimensions Holland d'un seul coup d'œil.</p>
+                <div class="flex justify-center">
+                    <RadarChart :axes="radarAxes" />
+                </div>
             </section>
 
             <!-- 6 types RIASEC -->

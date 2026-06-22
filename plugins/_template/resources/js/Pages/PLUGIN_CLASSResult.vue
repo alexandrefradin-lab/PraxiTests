@@ -15,6 +15,7 @@ import { computed } from 'vue'
 import { Link }     from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import ScoreGauge from '@/Components/ScoreGauge.vue'
+import SynthesisCard from '@/Components/SynthesisCard.vue'
 
 const props = defineProps({
     attempt: Object,
@@ -74,12 +75,7 @@ const barWidth = (dimKey) => {
             </div>
 
             <!-- Synthèse IA -->
-            <div v-if="result?.ai_synthesis" class="pt-card" style="padding:1.5rem;margin-bottom:1rem">
-                <h2 style="font-size:16px;font-weight:500;margin-bottom:1rem">Votre synthèse</h2>
-                <p style="font-size:15px;line-height:1.75;color:var(--pt-text);white-space:pre-line">
-                    {{ result.ai_synthesis }}
-                </p>
-            </div>
+            <SynthesisCard v-if="result?.ai_synthesis" :source="result.ai_synthesis" title="Votre synthèse" />
 
             <!-- En attente IA -->
             <div v-else class="pt-card" style="padding:3rem;text-align:center;margin-bottom:1rem">

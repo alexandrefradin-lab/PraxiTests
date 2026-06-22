@@ -26,7 +26,7 @@
         <h2 class="text-base font-semibold text-gray-800 mb-3 flex items-center gap-2">
           <span class="text-2xl">✨</span> {{ profile.is_grimoire ? 'Le fil conducteur' : 'Synthèse de personnalité' }}
         </h2>
-        <p class="text-gray-700 leading-relaxed whitespace-pre-line">{{ profile.synthesis }}</p>
+        <MarkdownText :source="profile.synthesis" class="text-gray-700 leading-relaxed" />
       </section>
 
       <!-- Scores -->
@@ -84,6 +84,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import MarkdownText from '@/Components/MarkdownText.vue'
 
 const props = defineProps({
   profile: {
