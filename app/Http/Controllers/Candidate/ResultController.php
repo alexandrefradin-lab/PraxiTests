@@ -24,7 +24,7 @@ class ResultController extends Controller
         $allowed = [
             'Candidate/ResultsShow',
             'PraximetResult', 'PraxiCareResult', 'PraxiEmoResult', 'PraxiMumResult', 'PraxiValeursResult',
-            'Praxis360Result', 'PraxiFocusResult',
+            'Praxis360Result', 'PraxiFocusResult', 'PraxiSensResult',
             // Mini-apps
             'PraxiZenResult', 'PraxiSelfResult', 'PraxiSpeakResult', 'PraxiFlowResult', 'PraxiLinkResult',
         ];

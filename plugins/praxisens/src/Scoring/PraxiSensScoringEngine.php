@@ -69,15 +69,23 @@ class PraxiSensScoringEngine implements ScoringEngineContract
         $globalScore = (int) round(array_sum($normalized) / max(1, count($normalized)));
         [$label, $text] = $this->interpretGlobal($globalScore);
 
+        // dimension_meta au niveau racine : ResultsShow.vue peut lire
+        // result.scoring.dimension_meta[key].{label,description} comme filet de sécurité.
+        $dimensionMeta = [];
+        foreach ($dims as $key => $d) {
+            $dimensionMeta[$key] = ['label' => $d['label'], 'description' => $d['description']];
+        }
+
         return [
-            'engine'        => $this->key(),
-            'dimensions'    => $normalized,          // { eoe: 72, aes: 58, lst: 64 }
-            'raw_scores'    => $rawScores,           // moyennes 1-5
-            'norm_scores'   => $normScores,          // étalonnage
-            'global_score'  => $globalScore,         // 0-100
-            'global_label'  => $label,               // ex: "Sensibilité élevée"
-            'global_text'   => $text,                // phrase de restitution
-            'meta'          => $dims,                // libellés + couleurs
+            'engine'         => $this->key(),
+            'dimensions'     => $normalized,          // { eoe: 72, aes: 58, lst: 64 }
+            'raw_scores'     => $rawScores,           // moyennes 1-5
+            'norm_scores'    => $normScores,          // étalonnage
+            'global_score'   => $globalScore,         // 0-100
+            'global_label'   => $label,               // ex: "Sensibilité élevée"
+            'global_text'    => $text,                // phrase de restitution
+            'meta'           => $dims,                // libellés + couleurs (page personnalisée)
+            'dimension_meta' => $dimensionMeta,       // filet de sécurité pour ResultsShow
             'disclaimer'    => "Ce test d'hypersensibilité est un outil d'auto-réflexion inspiré du modèle "
                 . "de la sensibilité de traitement sensoriel (E. Aron). Il ne constitue pas un diagnostic médical "
                 . "ni psychologique.",

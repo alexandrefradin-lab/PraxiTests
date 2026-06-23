@@ -312,6 +312,16 @@ h1, h2, h3, h4, .font-display {
         color: var(--color-primary-dark);
     }
 
+    .ac-flash-info {
+        @apply text-sm;
+        font-family: var(--font-body);
+        padding: 10px 16px;
+        border-radius: var(--r);
+        background: rgba(59,130,246,0.08);
+        border: 1px solid rgba(59,130,246,0.3);
+        color: #1d4ed8;
+    }
+
     /* ── Divers ── */
     .ac-divider {
         border: none;

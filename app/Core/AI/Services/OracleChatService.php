@@ -60,7 +60,9 @@ class OracleChatService
             $usage  = $driver->lastUsage();
         } catch (\Throwable $e) {
             // Repli gracieux (cf. audit Fo-1) : jamais de HTTP 500 dans le widget.
-            logger()->warning('Oracle indisponible: ' . $e::class . ' — ' . $e->getMessage());
+            logger()->warning('Oracle indisponible: ' . $e::class . ' — ' . $e->getMessage(), [
+                'file' => $e->getFile() . ':' . $e->getLine(),
+            ]);
 
             // S'assure que la question est persistée même si l'erreur était avant.
             OracleMessage::firstOrCreate(

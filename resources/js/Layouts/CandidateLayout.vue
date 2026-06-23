@@ -174,6 +174,9 @@ const hasTreasure = computed(() => {
                 <div v-if="$page.props.flash?.error" class="ac-flash-error mb-6 ac-fade-in">
                     {{ $page.props.flash.error }}
                 </div>
+                <div v-if="$page.props.flash?.info" class="ac-flash-info mb-6 ac-fade-in">
+                    {{ $page.props.flash.info }}
+                </div>
 
                 <slot />
             </div>

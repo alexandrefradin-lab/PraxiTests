@@ -106,15 +106,24 @@ const synthParagraphs = computed(() => {
 // composant : onMounted ne se rejoue pas. Sans le watch, le polling ne démarrait
 // jamais et la page restait figée sur "L'oracle relit tes épreuves…".
 let timer = null
+let pollCount = ref(0)  // nombre de polls depuis le démarrage
+
+// Affiche un bouton "Réessayer" dans l'écran pending si > 3 min sans réponse.
+// Permet à l'utilisateur de sortir manuellement si le job OVH a été tué.
+const pendingTooLong = computed(() => pollCount.value >= 36) // 36 × 5s = 3 min
+
 function startPolling() {
     if (timer) return
+    pollCount.value = 0
     timer = setInterval(async () => {
         try {
             const r = await fetch(route('grimoire.status'), { headers: { Accept: 'application/json' } })
             const data = await r.json()
-            if (data.ready || data.failed) {
+            pollCount.value++
+            if (data.ready || data.failed || data.stuck) {
                 stopPolling()
                 // Recharge complète : synthèse, voies, tests et pistes d'un coup.
+                // Si stuck, le contrôleur purge le verrou et redispatch automatiquement.
                 router.reload()
             }
         } catch (e) { /* retry au prochain tick */ }
@@ -122,6 +131,13 @@ function startPolling() {
 }
 function stopPolling() {
     if (timer) { clearInterval(timer); timer = null }
+    pollCount.value = 0
+}
+
+// Relance manuelle depuis l'écran pending (cas "stuck" visible).
+function retryFromPending() {
+    stopPolling()
+    router.reload()
 }
 
 onMounted(() => { if (props.ai_pending) startPolling() })
@@ -172,6 +188,13 @@ function fitClass(score) {
                     Croisement de tes {{ tests.length }} épreuve{{ tests.length > 1 ? 's' : '' }} · 1 à 2 minutes
                 </p>
                 <div class="grim-rule"><span>&#10022;</span></div>
+                <!-- Bouton de secours si le job IA a été interrompu côté serveur -->
+                <div v-if="pendingTooLong" class="grim-stuck-notice">
+                    <p class="grim-stuck-text">La relecture prend plus de temps que prévu.</p>
+                    <button class="ac-btn-secondary" @click="retryFromPending">
+                        Vérifier et relancer
+                    </button>
+                </div>
             </div>
 
             <div v-else class="grim-content">
@@ -401,6 +424,8 @@ function fitClass(score) {
 .grim-sub strong { color: var(--grim-red); font-weight: 600; }
 
 .grim-empty, .grim-pending { text-align: center; padding: 4.5rem 1rem; }
+.grim-stuck-notice { margin-top: 1.5rem; }
+.grim-stuck-text { font-family: var(--font-body, 'Inter', sans-serif); font-size: .95rem; color: var(--text-muted, #8C7A5E); margin-bottom: .85rem; }
 .grim-empty-text, .grim-pending-sub {
     font-family: var(--font-body, 'Inter', sans-serif);
     font-size: 1.05rem;

@@ -55,9 +55,28 @@ class GrimoireController extends Controller
             || $grimoire->tests_signature !== $signature
             || $needsVoiesRetry;
 
-        if ($needsGeneration && $grimoire->status !== 'failed') {
+        // Détecte un Grimoire bloqué sur "pending" (job tué par OVH max_execution_time
+        // avant completion) : le statut ne passe jamais à ready/failed, le polling tourne
+        // à vide indéfiniment et l'utilisateur est coincé. On détecte cela si updated_at
+        // (= dernier passage en pending) date de plus de 6 min (> uniqueFor=300s).
+        // On purge alors le verrou ShouldBeUnique pour autoriser un nouveau dispatch.
+        $stuckPending = $grimoire->status === 'pending'
+            && $grimoire->updated_at
+            && $grimoire->updated_at->lt(now()->subMinutes(6));
+
+        if ($stuckPending) {
+            \Illuminate\Support\Facades\Cache::forget(
+                'laravel_unique_job:' . GenerateGlobalGrimoire::class . ':grimoire_user_' . $user->id
+            );
+        }
+
+        if ($needsGeneration && ($grimoire->status !== 'failed' || $stuckPending)) {
             if ($grimoire->status === 'ready') {
                 // périmé : on repasse en pending le temps de la régénération
+                $grimoire->update(['status' => 'pending']);
+            }
+            if ($stuckPending) {
+                // Bloqué depuis trop longtemps → reset + relance forcée
                 $grimoire->update(['status' => 'pending']);
             }
             GenerateGlobalGrimoire::dispatch($user->id)->afterResponse();
@@ -139,12 +158,21 @@ class GrimoireController extends Controller
     {
         $grimoire = auth()->user()->profileGrimoire;
 
+        // Détecte un Grimoire bloqué sur "pending" depuis > 6 min :
+        // le front recharge alors la page pour déclencher un nouveau dispatch.
+        $stuck = $grimoire
+            && $grimoire->status === 'pending'
+            && $grimoire->updated_at
+            && $grimoire->updated_at->lt(now()->subMinutes(6));
+
         return response()->json([
             'ready'  => $grimoire?->status === 'ready',
             'failed' => $grimoire?->status === 'failed',
+            'stuck'  => $stuck,
         ]);
     }
 
+    /** Export PDF de la relecture globale. */
     /** Export PDF de la relecture globale. */
     public function pdf(GlobalGrimoireService $service)
     {
