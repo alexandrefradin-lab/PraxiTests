@@ -114,10 +114,22 @@ class GrimoireController extends Controller
             return null;
         }
 
-        // Premier paragraphe non vide
+        // Premier VRAI paragraphe de prose : on ignore les titres Markdown
+        // (« # Synthèse de profil — … »), les règles horizontales et les lignes
+        // vides, sinon le résumé de chaque test affiche juste le titre commun.
         $first = collect(preg_split('/\n+/', $synthesis))
             ->map(fn ($p) => trim($p))
-            ->first(fn ($p) => $p !== '') ?? $synthesis;
+            ->first(function ($p) {
+                if ($p === '') return false;
+                if (preg_match('/^#{1,6}\s/', $p)) return false;   // titre Markdown
+                if (preg_match('/^[-*_=]{3,}$/', $p)) return false; // règle horizontale
+                return true;
+            }) ?? $synthesis;
+
+        // Nettoyage du balisage Markdown inline pour un teaser en texte brut.
+        $first = preg_replace('/^#{1,6}\s+/', '', $first);          // titre résiduel
+        $first = preg_replace('/(\*\*|__|\*|_|`)/', '', $first);    // gras / italique / code
+        $first = trim(preg_replace('/\s+/', ' ', $first));
 
         return \Illuminate\Support\Str::limit($first, 280);
     }

@@ -563,4 +563,43 @@ function fitClass(score) {
     font-size: .92rem; color: var(--text-secondary, #6B5A3E);
     margin: .35rem 0 1.1rem;
 }
+.grim-tuner-sub em { font-style: italic; opacity: .8; }
+.grim-tuner-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: .55rem 1.6rem;
+}
+.grim-slider {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    column-gap: .6rem;
+    padding: .25rem 0;
+}
+.grim-slider-label {
+    font-family: var(--font-body, 'Inter', sans-serif);
+    font-size: .9rem; font-weight: 500; color: var(--grim-ink);
+    grid-column: 1 / 2;
+}
+.grim-slider-val {
+    font-family: var(--font-data, monospace);
+    font-size: 12px; color: var(--grim-gold-dark);
+    min-width: 2.4ch; text-align: right;
+    grid-column: 2 / 3;
+}
+.grim-slider-input {
+    grid-column: 1 / 3;
+    width: 100%;
+    accent-color: var(--grim-gold);
+    cursor: pointer;
+    margin-top: .2rem;
+}
+
+@media (max-width: 640px) {
+    .grim-scroll { padding: 1.8rem 1.4rem; }
+    .grim-para { text-align: left; }
+    .grim-test-actions { flex-direction: row; width: 100%; }
+    .grim-test-actions > * { flex: 1; }
+    .grim-tuner-grid { grid-template-columns: 1fr; }
+}
 </style>

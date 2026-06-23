@@ -201,7 +201,13 @@ class GlobalGrimoireService
             ->whereHas('result')
             ->with(['test:id,name,slug,type', 'result'])
             ->latest('completed_at')
-            ->get();
+            ->get()
+            // Dédoublonnage par test : on garde la tentative la plus récente (l'ordre
+            // latest('completed_at') place la plus récente en premier, et unique()
+            // conserve la première rencontrée). Repli sur l'id de tentative si le test
+            // est introuvable, pour ne jamais fusionner deux tentatives à tort.
+            ->unique(fn (TestAttempt $a) => $a->test?->id ?? 'attempt-' . $a->id)
+            ->values();
     }
 
     protected function testsIncluded(Collection $attempts): array
