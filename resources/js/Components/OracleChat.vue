@@ -198,7 +198,35 @@ watch(messages, scrollToBottom, { deep: true })
     box-shadow: 0 6px 22px rgba(42, 30, 8, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.5);
     transition: transform 0.18s ease, box-shadow 0.18s ease;
     margin-left: auto;
+    position: relative;
 }
+/* Anneau pulsant */
+.oracle-fab::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 1.5px solid var(--or-gold);
+    opacity: 0;
+    animation: oraclePulse 2.8s ease-out infinite;
+    pointer-events: none;
+}
+.oracle-fab::after {
+    content: '';
+    position: absolute;
+    inset: -12px;
+    border-radius: 50%;
+    border: 1px solid var(--or-gold);
+    opacity: 0;
+    animation: oraclePulse 2.8s ease-out infinite 0.7s;
+    pointer-events: none;
+}
+@keyframes oraclePulse {
+    0%   { opacity: 0.55; inset: -4px; }
+    100% { opacity: 0;    inset: -20px; }
+}
+.oracle-fab--open::before,
+.oracle-fab--open::after { animation: none; opacity: 0; }
 .oracle-fab:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(42, 30, 8, 0.34); }
 .oracle-fab--open { background: linear-gradient(180deg, var(--or-gold), var(--or-gold-dark)); color: #FBF6EA; }
 .oracle-fab-close { font-size: 20px; line-height: 1; }

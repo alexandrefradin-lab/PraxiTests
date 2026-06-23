@@ -260,8 +260,8 @@ function fitClass(score) {
                                 >
                                     {{ prefScore(v) }}%
                                 </span>
-                                <span v-else-if="v.fit_score != null" class="grim-voie-fit" :class="fitClass(v.fit_score)">
-                                    {{ v.fit_score }}%
+                                <span v-else-if="v.fit_score != null" class="grim-voie-fit" :class="fitClass(clamp100(v.fit_score))">
+                                    {{ clamp100(v.fit_score) }}%
                                 </span>
                             </div>
                             <h3 class="grim-voie-titre">{{ v.titre }}</h3>
@@ -594,6 +594,113 @@ function fitClass(score) {
     cursor: pointer;
     margin-top: .2rem;
 }
+
+/* ── Voies possibles : cartes ─────────────────────────────────────────── */
+.grim-voies-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 1.1rem; }
+.grim-voie-card {
+    position: relative;
+    border: 1px solid var(--border-mid, rgba(166,117,32,0.25));
+    border-top: 2px solid var(--grim-gold);
+    border-radius: var(--r-lg, 12px);
+    padding: 1.4rem 1.4rem 1.5rem;
+    background: linear-gradient(180deg, #FBF6EA, #F1E7CF);
+    box-shadow: var(--shadow-card, 0 2px 12px rgba(42,30,8,0.10));
+    transition: box-shadow .18s ease, transform .18s ease, border-color .18s ease;
+}
+.grim-voie-card:hover {
+    box-shadow: var(--shadow-elevated, 0 8px 32px rgba(42,30,8,0.15));
+    transform: translateY(-3px);
+    border-color: var(--grim-gold);
+}
+.grim-voie-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: .7rem; }
+.grim-voie-rank {
+    font-family: var(--font-display, 'Space Grotesk', sans-serif);
+    font-weight: 700;
+    font-size: 1.25rem;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--grim-gold-dark);
+    border: 1px solid var(--grim-gold);
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #FBF3DF, #E9D9B4);
+    box-shadow: inset 0 1px 2px rgba(255,255,255,.6);
+}
+.grim-voie-fit { font-family: var(--font-data, monospace); font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
+.voie-fit-high { background: rgba(58,107,72,0.15); color: var(--color-success, #3A6B48); border: 1px solid rgba(58,107,72,0.4); }
+.voie-fit-mid  { background: rgba(166,117,32,0.15); color: var(--grim-gold-dark); border: 1px solid rgba(166,117,32,0.4); }
+.voie-fit-low  { background: rgba(140,122,94,0.12); color: var(--text-muted, #8C7A5E); border: 1px solid rgba(140,122,94,0.35); }
+.grim-voie-titre {
+    font-family: var(--font-display, 'Space Grotesk', sans-serif);
+    font-size: 1.12rem;
+    font-weight: 600;
+    color: var(--grim-ink);
+    line-height: 1.3;
+    margin-bottom: .2rem;
+}
+.grim-voie-secteur { font-family: var(--font-data, monospace); font-size: 10px; color: var(--text-muted, #8C7A5E); text-transform: uppercase; letter-spacing: .1em; margin-bottom: .7rem; }
+.grim-voie-why { font-family: var(--font-body, 'Inter', sans-serif); font-size: .98rem; line-height: 1.6; color: var(--text-secondary, #6B5A3E); margin-bottom: .9rem; }
+.grim-voie-appui { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: .9rem; }
+.grim-voie-appui-label { font-family: var(--font-data, monospace); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted, #8C7A5E); }
+.grim-appui-tag { font-family: var(--font-body, 'Inter', sans-serif); font-size: 12px; background: rgba(166,117,32,0.1); color: var(--grim-gold-dark); padding: 2px 9px; border-radius: 4px; border: 1px solid rgba(166,117,32,0.25); }
+.grim-voie-next { font-family: var(--font-body, 'Inter', sans-serif); font-size: .95rem; line-height: 1.55; color: var(--grim-ink); border-top: 1px solid rgba(166,117,32,0.25); padding-top: .75rem; }
+.grim-voie-next-label { display: block; font-family: var(--font-data, monospace); font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--grim-red); margin-bottom: .25rem; }
+
+/* ── Épreuves relues : cartes ─────────────────────────────────────────── */
+.grim-tests { margin-bottom: 3rem; }
+.grim-tests-list { display: flex; flex-direction: column; gap: .85rem; }
+.grim-test-card {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.2rem;
+    border: 1px solid var(--border-mid, rgba(166,117,32,0.25));
+    border-left: 3px solid var(--grim-gold);
+    border-radius: var(--r-lg, 12px);
+    padding: 1.25rem 1.4rem;
+    background: linear-gradient(180deg, #FBF6EA, #F2E8D1);
+    box-shadow: var(--shadow-xs, 0 1px 3px rgba(42,30,8,0.06));
+    transition: box-shadow .18s ease;
+}
+.grim-test-card:hover { box-shadow: var(--shadow-card, 0 2px 12px rgba(42,30,8,0.10)); }
+.grim-test-main { flex: 1 1 320px; min-width: 0; }
+.grim-test-name { font-family: var(--font-display, 'Space Grotesk', sans-serif); font-size: 1.08rem; font-weight: 600; color: var(--grim-ink); margin-bottom: .45rem; }
+.grim-test-summary { font-family: var(--font-body, 'Inter', sans-serif); font-size: .98rem; line-height: 1.6; color: var(--text-secondary, #6B5A3E); }
+.grim-test-pending { font-style: italic; color: var(--text-muted, #8C7A5E); }
+.grim-test-actions { display: flex; flex-direction: column; gap: .5rem; flex: 0 0 auto; align-items: stretch; }
+.grim-test-link {
+    font-family: var(--font-display, sans-serif);
+    font-size: 13px; font-weight: 500;
+    text-align: center;
+    color: var(--grim-gold-dark);
+    text-decoration: none;
+    padding: 7px 16px;
+    border: 1px solid var(--grim-gold);
+    border-radius: var(--r-sm, 6px);
+    background: rgba(166,117,32,0.05);
+    transition: background .15s;
+}
+.grim-test-link:hover { background: rgba(166,117,32,0.14); }
+.grim-test-pdf {
+    font-family: var(--font-display, sans-serif);
+    font-size: 13px; font-weight: 600;
+    text-align: center;
+    color: #FBF6EA;
+    background: linear-gradient(180deg, var(--grim-gold), var(--grim-gold-dark));
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: var(--r-sm, 6px);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.25);
+    transition: filter .15s;
+}
+.grim-test-pdf:hover { filter: brightness(1.09); }
+
+.grim-footer { text-align: center; margin-top: 3rem; }
+.grim-actions { display: flex; gap: .85rem; justify-content: center; flex-wrap: wrap; margin-top: 1.5rem; }
+.grim-disclaimer { font-family: var(--font-body, 'Inter', sans-serif); font-size: 13px; font-style: italic; color: var(--text-muted, #8C7A5E); max-width: 580px; margin: 1.5rem auto 0; line-height: 1.55; }
 
 @media (max-width: 640px) {
     .grim-scroll { padding: 1.8rem 1.4rem; }
