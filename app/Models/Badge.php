@@ -6,7 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Badge extends Model
 {
-    protected $guarded = [];
+    // cf. audit E-6 — $fillable explicite (protection mass assignment)
+    protected $fillable = ['slug', 'name', 'description', 'icon', 'criteria', 'xp_reward', 'hidden'];
     protected $casts = ['criteria' => 'array', 'hidden' => 'boolean'];
 
     public function users()

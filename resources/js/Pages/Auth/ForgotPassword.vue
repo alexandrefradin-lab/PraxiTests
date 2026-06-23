@@ -22,8 +22,9 @@ const submit = () => form.post(route('password.email'))
 
             <form @submit.prevent="submit" class="pt-card p-8 space-y-5">
                 <div>
-                    <label class="block text-sm font-medium text-slate-700">Adresse email</label>
+                    <label for="forgot-email" class="block text-sm font-medium text-slate-700">Adresse email</label>
                     <input
+                        id="forgot-email"
                         v-model="form.email"
                         type="email"
                         required

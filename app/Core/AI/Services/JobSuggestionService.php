@@ -4,11 +4,16 @@ namespace Praxis\Core\AI\Services;
 
 use App\Models\TestAttempt;
 use Praxis\Core\AI\AIManager;
+use Praxis\Core\AI\Concerns\ParsesAiJson;
 use Praxis\Core\AI\PromptBuilder;
 use Praxis\Core\Plugins\PluginHooks;
 
 class JobSuggestionService
 {
+    // cf. audit Fo-2 : parsing tolérant à la troncature (récupère N-1 métiers
+    // au lieu de tout perdre quand l'IA atteint max_tokens).
+    use ParsesAiJson;
+
     public function __construct(
         protected AIManager $ai,
         protected PromptBuilder $prompts,
@@ -61,6 +66,8 @@ class JobSuggestionService
         return $jobs;
     }
 
+
+
     /**
      * Construit les métadonnées de traçabilité (sans données psycho brutes).
      * Ces données sont affichées au candidat via le disclaimer IA.
@@ -87,23 +94,5 @@ class JobSuggestionService
             'driver_key'      => $driver->key(),
             'generated_at'    => now()->toIso8601String(),
         ];
-    }
-
-    protected function parseJson(string $raw): array
-    {
-        $raw = trim($raw);
-        if (preg_match('/```(?:json)?\s*(.+?)\s*```/s', $raw, $m)) {
-            $raw = $m[1];
-        }
-        $first = strpos($raw, '{');
-        $last  = strrpos($raw, '}');
-        if ($first !== false && $last !== false) {
-            $raw = substr($raw, $first, $last - $first + 1);
-        }
-        $decoded = json_decode($raw, true);
-        if (!is_array($decoded)) {
-            throw new \RuntimeException('AI did not return valid JSON for job suggestions');
-        }
-        return $decoded;
     }
 }

@@ -27,6 +27,19 @@ function resetFilters() {
     router.get('/admin/subscriptions')
 }
 
+// cf. audit M-14 — on n'injecte plus le label de pagination via v-html.
+// On retire les balises HTML et on décode les entités usuelles (« »),
+// puis on rend le résultat en texte simple (pas de surface XSS).
+function paginationLabel(label) {
+    const text = String(label ?? '').replace(/<[^>]*>/g, '')
+    return text
+        .replace(/&laquo;/g, '«')
+        .replace(/&raquo;/g, '»')
+        .replace(/&amp;/g, '&')
+        .replace(/&nbsp;/g, ' ')
+        .trim()
+}
+
 // ---- Formatage ----
 const formatMoney = (cents) => {
     if (!cents) return '—'
@@ -168,7 +181,7 @@ const kpiCards = computed(() => [
                         v-for="link in users.links"
                         :key="link.label"
                         :href="link.url ?? '#'"
-                        v-html="link.label"
+                        v-text="paginationLabel(link.label)"
                         class="px-3 py-1 rounded text-xs border border-slate-200 transition-colors"
                         :class="[
                             link.active ? 'bg-[var(--pt-navy)] text-white border-[var(--pt-navy)]' : 'hover:bg-slate-50',

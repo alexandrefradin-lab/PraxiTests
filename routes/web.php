@@ -16,6 +16,12 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/cgu', [LegalController::class, 'cgu'])->name('cgu');
+Route::get('/confidentialite', [LegalController::class, 'confidentialite'])->name('confidentialite');
+
+// Désabonnement marketing (cf. audit E-5) — URL signée, sans compte requis.
+Route::get('/email/unsubscribe/{user}', \App\Http\Controllers\UnsubscribeController::class)
+    ->middleware('signed')
+    ->name('email.unsubscribe');
 
 // NOTE : Le middleware 'subscribed' (EnsureSubscribed) est disponible mais
 // non appliqué ici — accès libre en phase bêta. Pour activer le paywall,
@@ -60,7 +66,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/grimoire',          [GrimoireController::class, 'show'])->name('grimoire.show');
     Route::get('/grimoire/status',   [GrimoireController::class, 'status'])->name('grimoire.status');
     Route::get('/grimoire/pdf',      [GrimoireController::class, 'pdf'])->name('grimoire.pdf');
-    Route::post('/grimoire/refresh', [GrimoireController::class, 'refresh'])->name('grimoire.refresh');
+    Route::post('/grimoire/refresh', [GrimoireController::class, 'refresh'])
+        ->middleware('throttle:3,1')->name('grimoire.refresh');
     // Déclaration d'une formation visée/acquise pour une piste (déblocage déclaratif PTP)
     Route::post('/grimoire/piste/{pathMatch}/declare', [GrimoireController::class, 'declarePiste'])
         ->middleware('throttle:30,1')->name('grimoire.piste.declare');

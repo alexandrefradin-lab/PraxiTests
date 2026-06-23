@@ -132,19 +132,15 @@ class ResultController extends Controller
 
         $opts = $this->pdfOptions();
 
-        $pdf = Pdf::loadView('pdf.results', [
+        $slug = \Illuminate\Support\Str::slug($opts['brand']['name'] ?? 'praxiquest');
+
+        return $this->downloadBrandedPdf('pdf.results', [
             'attempt'  => $attempt,
             'brand'    => $opts['brand'],
             'org'      => $opts['org'],
             'sections' => $opts['sections'],
             'statuses' => config('praxiquest.profile.statuses', []),
-        ])->setPaper(
-            config('praxiquest.pdf.paper', 'a4'),
-            config('praxiquest.pdf.orientation', 'portrait'),
-        );
-
-        $slug = \Illuminate\Support\Str::slug($opts['brand']['name'] ?? 'praxiquest');
-        return $pdf->download("{$slug}-synthese-{$attempt->id}.pdf");
+        ], "{$slug}-synthese-{$attempt->id}.pdf");
     }
 
     public function history()

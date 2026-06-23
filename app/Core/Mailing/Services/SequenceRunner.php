@@ -54,6 +54,11 @@ class SequenceRunner
             return;
         }
 
+        // Conformité (cf. audit E-5) : ne jamais relancer un destinataire désabonné.
+        if ($user->profile?->marketing_unsubscribed_at) {
+            return;
+        }
+
         // SEC-07 : assainir le HTML (issu de la DB) avant envoi.
         $html = HtmlSanitizer::clean($this->neuro->enhanceHtml($step['body_html'] ?? '', array_merge($context, [
             'user' => $user,
@@ -64,6 +69,7 @@ class SequenceRunner
             $step['subject'] ?? '(sans sujet)',
             $html,
             $step['body_text'] ?? null,
+            $user->id,
         ));
 
         DB::table('email_logs')->insert([

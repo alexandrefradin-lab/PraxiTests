@@ -28,11 +28,13 @@ class OpenAiDriver extends AbstractDriver
         ];
 
         $response = Http::withToken($this->config['api_key'])
+            ->retry(2, 1000, throw: false)
             ->timeout(120)
             ->post('https://api.openai.com/v1/chat/completions', $payload);
 
         if ($response->failed()) {
-            throw new \RuntimeException("OpenAI API error: " . $response->body());
+            // Pas de corps de réponse dans l'exception (cf. audit T-2 — fuite PII).
+            throw new \RuntimeException("OpenAI API error (HTTP {$response->status()})");
         }
 
         $data = $response->json();

@@ -8,7 +8,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class TestSection extends Model
 {
-    protected $guarded = [];
+    // cf. audit E-6 — $fillable explicite (protection mass assignment)
+    protected $fillable = [
+        'test_id', 'order', 'title', 'description',
+        'narrative_intro', 'narrative_outro', 'config',
+    ];
     protected $casts = ['config' => 'array'];
 
     public function test(): BelongsTo

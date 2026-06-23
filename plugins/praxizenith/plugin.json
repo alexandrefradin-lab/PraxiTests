@@ -1,0 +1,24 @@
+{
+  "slug": "praxizenith",
+  "name": "Le Sanctuaire de l'Attention",
+  "version": "1.0.0",
+  "author": "Praxis Accompagnement",
+  "type": "mini-app",
+  "description": "Un parcours de 60 jours pour apprendre à se concentrer. Un exercice d'attention concret par jour, du plus simple au plus exigeant : diagnostiquer ses voleurs d'attention, aménager son environnement, entraîner le muscle de l'attention, travailler en mono-tâche, tenir la durée, dompter la distraction, accéder au travail profond, puis durer. Un exercice se débloque chaque jour, avec un micro-défi à appliquer le jour même. Chaque exercice réalisé rapporte des Éclats.",
+  "namespace": "Praxis\\Plugins\\PraxiZenith",
+  "service_provider": "Praxis\\Plugins\\PraxiZenith\\PluginServiceProvider",
+  "permissions": [
+    "read:profiles"
+  ],
+  "requires": {
+    "praxiquest": ">=1.0.0",
+    "php": ">=8.2"
+  },
+  "reward": {
+    "threshold_eclats": 2400,
+    "teaser": "Le Sanctuaire de l'Attention : 60 jours pour rééduquer ta concentration, un exercice par jour. Du diagnostic au travail profond.",
+    "icon": "ti-eye-bolt",
+    "purpose": "Concentration & attention",
+    "entry_route": "praxizenith.index"
+  }
+}

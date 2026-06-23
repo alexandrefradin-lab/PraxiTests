@@ -116,8 +116,9 @@ const questOptions = [
                     display:block;
                     font-family:'Inter',sans-serif;font-size:13px;font-weight:500;
                     color:var(--text-secondary);margin-bottom:0.4rem;
-                ">Ton nom dans la Quête</label>
+                " for="register-name">Ton nom dans la Quête</label>
                 <input
+                    id="register-name"
                     v-model="form.name"
                     required
                     autofocus
@@ -136,8 +137,9 @@ const questOptions = [
                     display:block;
                     font-family:'Inter',sans-serif;font-size:13px;font-weight:500;
                     color:var(--text-secondary);margin-bottom:0.4rem;
-                ">Adresse du Héros</label>
+                " for="register-email">Adresse du Héros</label>
                 <input
+                    id="register-email"
                     type="email"
                     v-model="form.email"
                     required
@@ -157,8 +159,9 @@ const questOptions = [
                     display:block;
                     font-family:'Inter',sans-serif;font-size:13px;font-weight:500;
                     color:var(--text-secondary);margin-bottom:0.4rem;
-                ">Sceau secret</label>
+                " for="register-password">Sceau secret</label>
                 <input
+                    id="register-password"
                     type="password"
                     v-model="form.password"
                     required
@@ -179,8 +182,9 @@ const questOptions = [
                     display:block;
                     font-family:'Inter',sans-serif;font-size:13px;font-weight:500;
                     color:var(--text-secondary);margin-bottom:0.4rem;
-                ">Confirmer le Sceau</label>
+                " for="register-password-confirm">Confirmer le Sceau</label>
                 <input
+                    id="register-password-confirm"
                     type="password"
                     v-model="form.password_confirmation"
                     required

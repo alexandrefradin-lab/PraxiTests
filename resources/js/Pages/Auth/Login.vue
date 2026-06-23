@@ -38,12 +38,13 @@ const submit = () => form.post(route('login'), { onFinish: () => form.reset('pas
 
             <!-- Email -->
             <div>
-                <label style="
+                <label for="login-email" style="
                     display:block;
                     font-family:'Inter',sans-serif;font-size:13px;font-weight:500;
                     color:var(--text-secondary);margin-bottom:0.4rem;
                 ">Adresse du Héros</label>
                 <input
+                    id="login-email"
                     type="email"
                     v-model="form.email"
                     autofocus
@@ -61,7 +62,7 @@ const submit = () => form.post(route('login'), { onFinish: () => form.reset('pas
             <!-- Mot de passe -->
             <div>
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem">
-                    <label style="
+                    <label for="login-password" style="
                         font-family:'Inter',sans-serif;font-size:13px;font-weight:500;
                         color:var(--text-secondary);
                     ">Sceau secret</label>
@@ -71,6 +72,7 @@ const submit = () => form.post(route('login'), { onFinish: () => form.reset('pas
                     " class="hover:underline">Sceau oublié ?</Link>
                 </div>
                 <input
+                    id="login-password"
                     type="password"
                     v-model="form.password"
                     required

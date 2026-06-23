@@ -45,6 +45,8 @@
 <meta charset="utf-8">
 <style>
     /* Polices embarquées (OFL) — Lora (titres) + Lato (corps). Repli DejaVu. */
+    {{-- embedFonts=false (repli contrôleur si cache polices inaccessible) → DejaVu. --}}
+    @if(($embedFonts ?? true))
     @font-face { font-family:'Lora'; font-style:normal; font-weight:normal; src:url("{{ resource_path('fonts/Lora-Regular.ttf') }}") format("truetype"); }
     @font-face { font-family:'Lora'; font-style:normal; font-weight:bold;   src:url("{{ resource_path('fonts/Lora-Bold.ttf') }}") format("truetype"); }
     @font-face { font-family:'Lora'; font-style:italic; font-weight:normal; src:url("{{ resource_path('fonts/Lora-Italic.ttf') }}") format("truetype"); }
@@ -53,6 +55,7 @@
     @font-face { font-family:'Lato'; font-style:normal; font-weight:bold;   src:url("{{ resource_path('fonts/Lato-Bold.ttf') }}") format("truetype"); }
     @font-face { font-family:'Lato'; font-style:italic; font-weight:normal; src:url("{{ resource_path('fonts/Lato-Italic.ttf') }}") format("truetype"); }
     @font-face { font-family:'Lato'; font-style:italic; font-weight:bold;   src:url("{{ resource_path('fonts/Lato-BoldItalic.ttf') }}") format("truetype"); }
+    @endif
 
     @page { margin: 28px 34px; }
     * { font-family: 'Lato', DejaVu Sans, sans-serif; }

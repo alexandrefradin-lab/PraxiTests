@@ -184,7 +184,16 @@ class GlobalGrimoireService
         return md5(json_encode($parts));
     }
 
-    /** Tentatives complétées avec résultat, les plus récentes d'abord. */
+    /**
+     * Tentatives complétées avec résultat, les plus récentes d'abord.
+     *
+     * Un même test peut être passé plusieurs fois : le Grimoire ne doit le prendre
+     * en compte qu'UNE seule fois (sinon le test apparaît en double dans la liste,
+     * dans tests_included et dans le prompt IA). On dédoublonne par test en gardant
+     * la tentative la plus récente — l'ordre latest('completed_at') garantit que
+     * unique() conserve la première rencontrée, donc la plus récente. Repli sur
+     * l'id de tentative si le test est introuvable (ne fusionne jamais à tort).
+     */
     public function completedAttempts(User $user): Collection
     {
         return $user->attempts()

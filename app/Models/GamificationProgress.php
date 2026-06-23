@@ -8,7 +8,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class GamificationProgress extends Model
 {
     protected $table = 'gamification_progress';
-    protected $guarded = [];
+
+    // cf. audit E-6 — $fillable explicite (protection mass assignment)
+    protected $fillable = [
+        'user_id',
+        'test_id',
+        'xp_total',
+        'level',
+        'milestones_reached',
+        'insights_unlocked',
+    ];
 
     protected $casts = [
         'milestones_reached' => 'array',

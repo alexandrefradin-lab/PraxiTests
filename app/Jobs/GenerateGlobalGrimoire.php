@@ -25,6 +25,12 @@ class GenerateGlobalGrimoire implements ShouldQueue, ShouldBeUnique
     public int $tries = 3;
     public int $timeout = 240;
 
+    /** Backoff entre tentatives (cf. audit T-3) : on espace les retries IA. */
+    public function backoff(): array
+    {
+        return [15, 45];
+    }
+
     public function __construct(public int $userId, public bool $force = false) {}
 
     public function uniqueId(): string
@@ -74,6 +80,19 @@ class GenerateGlobalGrimoire implements ShouldQueue, ShouldBeUnique
         $signature = $service->signature($attempts);
         if (!$this->force && $grimoire->status === 'ready' && $grimoire->tests_signature === $signature) {
             logger()->info("GenerateGlobalGrimoire: signature inchangée pour user #{$this->userId}, skip.");
+            return;
+        }
+
+        // Idempotence des retries (cf. audit T-4) : si une tentative précédente de
+        // CE job a déjà régénéré le Grimoire avec succès (status ready + même
+        // signature + généré il y a moins de 2 min), on NE relance PAS les appels
+        // IA — même en mode force. Sans ça, un échec post-génération (ex. update DB)
+        // déclenchait une 2e relecture complète payante (~10 600 tokens).
+        if ($grimoire->status === 'ready'
+            && $grimoire->tests_signature === $signature
+            && $grimoire->generated_at
+            && $grimoire->generated_at->gt(now()->subMinutes(2))) {
+            logger()->info("GenerateGlobalGrimoire: déjà régénéré récemment pour user #{$this->userId}, skip (idempotence).");
             return;
         }
 

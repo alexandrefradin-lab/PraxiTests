@@ -116,8 +116,8 @@ const freqLabel = (v) => {
       <div style="background:#FFFDF7;border:1px solid #CBBE9E;border-radius:12px;padding:20px;margin:24px 0">
         <h3 style="font-size:.8rem;letter-spacing:1.5px;text-transform:uppercase;color:#7D5510;font-weight:bold;margin:0 0 12px">En quelques mots (facultatif)</h3>
         <div v-for="(label, key) in verbatims" :key="key" style="margin-bottom:14px">
-          <label style="display:block;font-size:.9rem;margin-bottom:6px">{{ label }}</label>
-          <textarea v-model="verbatimValues[key]" rows="2"
+          <label :for="'verbatim-' + key" style="display:block;font-size:.9rem;margin-bottom:6px">{{ label }}</label>
+          <textarea :id="'verbatim-' + key" v-model="verbatimValues[key]" rows="2"
             style="width:100%;border:1px solid #CBBE9E;border-radius:8px;padding:9px;font-family:inherit;font-size:.9rem;background:#F0E8D4;resize:vertical"></textarea>
         </div>
       </div>

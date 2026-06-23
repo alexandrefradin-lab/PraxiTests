@@ -25,11 +25,12 @@ class MistralDriver extends AbstractDriver
         ];
 
         $response = Http::withToken($this->config['api_key'])
+            ->retry(2, 1000, throw: false)
             ->timeout(120)
             ->post('https://api.mistral.ai/v1/chat/completions', $payload);
 
         if ($response->failed()) {
-            throw new \RuntimeException("Mistral API error: " . $response->body());
+            throw new \RuntimeException("Mistral API error (HTTP {$response->status()})");
         }
 
         $data = $response->json();

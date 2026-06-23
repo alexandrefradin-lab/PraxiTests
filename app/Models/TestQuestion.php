@@ -7,7 +7,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TestQuestion extends Model
 {
-    protected $guarded = [];
+    // cf. audit E-6 — $fillable explicite (protection mass assignment)
+    protected $fillable = [
+        'section_id', 'order', 'type', 'prompt', 'helper',
+        'options', 'validation', 'scoring', 'required', 'meta',
+    ];
 
     protected $casts = [
         'options'    => 'array',

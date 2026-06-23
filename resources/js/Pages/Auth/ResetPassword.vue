@@ -29,8 +29,9 @@ const submit = () => form.post(route('password.update'))
 
             <form @submit.prevent="submit" class="pt-card p-8 space-y-5">
                 <div>
-                    <label class="block text-sm font-medium text-slate-700">Adresse email</label>
+                    <label for="reset-email" class="block text-sm font-medium text-slate-700">Adresse email</label>
                     <input
+                        id="reset-email"
                         v-model="form.email"
                         type="email"
                         required
@@ -40,8 +41,9 @@ const submit = () => form.post(route('password.update'))
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-slate-700">Nouveau mot de passe</label>
+                    <label for="reset-password" class="block text-sm font-medium text-slate-700">Nouveau mot de passe</label>
                     <input
+                        id="reset-password"
                         v-model="form.password"
                         type="password"
                         required
@@ -53,8 +55,9 @@ const submit = () => form.post(route('password.update'))
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-slate-700">Confirmer le mot de passe</label>
+                    <label for="reset-password-confirm" class="block text-sm font-medium text-slate-700">Confirmer le mot de passe</label>
                     <input
+                        id="reset-password-confirm"
                         v-model="form.password_confirmation"
                         type="password"
                         required

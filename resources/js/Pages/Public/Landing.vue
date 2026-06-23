@@ -1,11 +1,21 @@
 <script setup>
-import { Link, usePage } from '@inertiajs/vue3'
+import { Link, Head, usePage } from '@inertiajs/vue3'
 import { computed } from 'vue'
 
 const branding = computed(() => usePage().props.branding ?? { name: 'PraxiQuest' })
 </script>
 
 <template>
+<!-- SEO (cf. audit MK-6) : titre, description et cartes de partage Open Graph/Twitter. -->
+<Head title="PraxiQuest — Test d'orientation et de reconversion professionnelle">
+  <meta name="description" content="PraxiQuest : faites le point sur votre profil avec des tests d'orientation reconnus (Big Five, RIASEC, MBI…), une synthèse par IA et 15 pistes de métiers réalistes. Idéal pour la reconversion et l'évolution professionnelle." />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="PraxiQuest — Découvrez votre potentiel professionnel" />
+  <meta property="og:description" content="Tests d'orientation augmentés par l'IA : synthèse de profil et 15 pistes de métiers réalistes pour votre reconversion ou votre évolution." />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="PraxiQuest — Découvrez votre potentiel professionnel" />
+  <meta name="twitter:description" content="Tests d'orientation augmentés par l'IA : synthèse de profil et 15 pistes de métiers réalistes." />
+</Head>
 <div style="font-family:var(--font-body,Inter,sans-serif);background:var(--bg-base,#F0E8D4);min-height:100vh;color:var(--text-primary,#2A1E08);overflow-x:hidden">
 
   <!-- NAV -->

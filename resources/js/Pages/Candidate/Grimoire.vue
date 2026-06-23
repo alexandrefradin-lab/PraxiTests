@@ -15,6 +15,62 @@ const props = defineProps({
 
 const voies = computed(() => props.grimoire?.voies ?? [])
 
+// ── Ajustement des voies par préférences (curseurs) ──────────────────────
+// Re-tri 100 % côté front, non sauvegardé : on pondère 5 axes décrivant chaque
+// métier (renvoyés par l'IA dans v.axes) selon ce qui compte pour la personne.
+const axisDefs = [
+    { key: 'remuneration', label: 'Rémunération',   hint: 'Potentiel de salaire' },
+    { key: 'accessibilite', label: 'Accès rapide',  hint: 'Formation courte, vite opérationnel' },
+    { key: 'stabilite',     label: 'Stabilité',     hint: 'Sécurité de l\'emploi, demande durable' },
+    { key: 'autonomie',     label: 'Autonomie',     hint: 'Indépendance, freelance, entreprendre' },
+    { key: 'sens',          label: 'Sens & impact', hint: 'Utilité, contribution' },
+]
+
+// Poids 0–100, neutre = 50. Réactif pour le re-tri live.
+const weights = ref(Object.fromEntries(axisDefs.map(a => [a.key, 50])))
+// Tant que la personne n'a pas touché un curseur, on respecte l'ordre IA.
+const customized = ref(false)
+
+// Vrai seulement si au moins une voie porte des axes (anciens Grimoires : non).
+const hasAxes = computed(() => voies.value.some(v => v && v.axes && typeof v.axes === 'object'))
+
+function clamp100(n) { n = Number(n); return Number.isFinite(n) ? Math.max(0, Math.min(100, n)) : 50 }
+
+// Valeur d'un axe pour une voie, avec repli : axe IA → fit_score → 50.
+function axisValue(v, key) {
+    const a = v?.axes
+    if (a && a[key] != null && Number.isFinite(Number(a[key]))) return clamp100(a[key])
+    return clamp100(v?.fit_score ?? 50)
+}
+
+// Score de préférence 0–100 = moyenne des axes pondérée par les curseurs.
+function prefScore(v) {
+    let num = 0, den = 0
+    for (const a of axisDefs) {
+        const w = clamp100(weights.value[a.key])
+        num += w * axisValue(v, a.key)
+        den += w
+    }
+    if (den === 0) return clamp100(v?.fit_score ?? 50) // tous les curseurs à 0 → repli fit
+    return Math.round(num / den)
+}
+
+function onWeightInput() { customized.value = true }
+
+function resetWeights() {
+    for (const a of axisDefs) weights.value[a.key] = 50
+    customized.value = false
+}
+
+// Voies affichées : ordre IA par défaut, re-trié par préférence dès interaction.
+const rankedVoies = computed(() => {
+    const list = voies.value.map((v, i) => ({ v, i }))
+    if (!customized.value || !hasAxes.value) return list.map(x => x.v)
+    return list
+        .sort((a, b) => prefScore(b.v) - prefScore(a.v) || a.i - b.i)
+        .map(x => x.v)
+})
+
 // Pistes de transition (PTP) — nombre total tous paliers confondus.
 const pistesTotal = computed(() => {
     const p = props.pistes ?? {}
@@ -165,11 +221,46 @@ function fitClass(score) {
                         </p>
                     </div>
 
+                    <!-- ── Curseurs de préférences : re-trie les voies en direct ── -->
+                    <div v-if="hasAxes" class="grim-tuner">
+                        <div class="grim-tuner-head">
+                            <h3 class="grim-tuner-title">Ajuste selon ce qui compte pour toi</h3>
+                            <button v-if="customized" type="button" class="grim-tuner-reset" @click="resetWeights">
+                                Réinitialiser
+                            </button>
+                        </div>
+                        <p class="grim-tuner-sub">
+                            Déplace les curseurs : tes voies se réordonnent instantanément selon tes priorités.
+                            <em>(Ce réglage n'est pas enregistré.)</em>
+                        </p>
+                        <div class="grim-tuner-grid">
+                            <label v-for="a in axisDefs" :key="a.key" class="grim-slider">
+                                <span class="grim-slider-label">{{ a.label }}</span>
+                                <input
+                                    type="range" min="0" max="100" step="5"
+                                    v-model.number="weights[a.key]"
+                                    @input="onWeightInput"
+                                    class="grim-slider-input"
+                                    :title="a.hint"
+                                />
+                                <span class="grim-slider-val">{{ weights[a.key] }}</span>
+                            </label>
+                        </div>
+                    </div>
+
                     <div class="grim-voies-grid">
-                        <article v-for="(v, i) in voies" :key="i" class="grim-voie-card">
+                        <article v-for="(v, i) in rankedVoies" :key="v.titre || i" class="grim-voie-card">
                             <div class="grim-voie-head">
                                 <span class="grim-voie-rank">{{ i + 1 }}</span>
-                                <span v-if="v.fit_score != null" class="grim-voie-fit" :class="fitClass(v.fit_score)">
+                                <span
+                                    v-if="customized && hasAxes"
+                                    class="grim-voie-fit"
+                                    :class="fitClass(prefScore(v))"
+                                    title="Correspondance à tes préférences"
+                                >
+                                    {{ prefScore(v) }}%
+                                </span>
+                                <span v-else-if="v.fit_score != null" class="grim-voie-fit" :class="fitClass(v.fit_score)">
                                     {{ v.fit_score }}%
                                 </span>
                             </div>
@@ -443,115 +534,33 @@ function fitClass(score) {
 }
 
 .grim-voies { margin-bottom: 3.5rem; }
-.grim-voies-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 1.1rem; }
-.grim-voie-card {
-    position: relative;
+
+/* ── Curseurs de préférences ──────────────────────────────────────────── */
+.grim-tuner {
     border: 1px solid var(--border-mid, rgba(166,117,32,0.25));
     border-top: 2px solid var(--grim-gold);
     border-radius: var(--r-lg, 12px);
-    padding: 1.4rem 1.4rem 1.5rem;
     background: linear-gradient(180deg, #FBF6EA, #F1E7CF);
     box-shadow: var(--shadow-card, 0 2px 12px rgba(42,30,8,0.10));
-    transition: box-shadow .18s ease, transform .18s ease, border-color .18s ease;
+    padding: 1.25rem 1.4rem 1.4rem;
+    margin-bottom: 1.6rem;
 }
-.grim-voie-card:hover {
-    box-shadow: var(--shadow-elevated, 0 8px 32px rgba(42,30,8,0.15));
-    transform: translateY(-3px);
-    border-color: var(--grim-gold);
-}
-.grim-voie-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: .7rem; }
-.grim-voie-rank {
+.grim-tuner-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.grim-tuner-title {
     font-family: var(--font-display, 'Space Grotesk', sans-serif);
-    font-weight: 700;
-    font-size: 1.25rem;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--grim-gold-dark);
-    border: 1px solid var(--grim-gold);
-    border-radius: 50%;
-    background: radial-gradient(circle at 35% 30%, #FBF3DF, #E9D9B4);
-    box-shadow: inset 0 1px 2px rgba(255,255,255,.6);
+    font-size: 1.05rem; font-weight: 600; color: var(--grim-ink); margin: 0;
 }
-.grim-voie-fit { font-family: var(--font-data, monospace); font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; }
-.voie-fit-high { background: rgba(58,107,72,0.15); color: var(--color-success, #3A6B48); border: 1px solid rgba(58,107,72,0.4); }
-.voie-fit-mid  { background: rgba(166,117,32,0.15); color: var(--grim-gold-dark); border: 1px solid rgba(166,117,32,0.4); }
-.voie-fit-low  { background: rgba(140,122,94,0.12); color: var(--text-muted, #8C7A5E); border: 1px solid rgba(140,122,94,0.35); }
-.grim-voie-titre {
-    font-family: var(--font-display, 'Space Grotesk', sans-serif);
-    font-size: 1.12rem;
-    font-weight: 600;
-    color: var(--grim-ink);
-    line-height: 1.3;
-    margin-bottom: .2rem;
+.grim-tuner-reset {
+    font-family: var(--font-data, monospace);
+    font-size: 11px; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--grim-red); background: transparent;
+    border: 1px solid var(--grim-red); border-radius: var(--r-sm, 6px);
+    padding: 4px 11px; cursor: pointer; transition: background .15s;
 }
-.grim-voie-secteur { font-family: var(--font-data, monospace); font-size: 10px; color: var(--text-muted, #8C7A5E); text-transform: uppercase; letter-spacing: .1em; margin-bottom: .7rem; }
-.grim-voie-why { font-family: var(--font-body, 'Inter', sans-serif); font-size: .98rem; line-height: 1.6; color: var(--text-secondary, #6B5A3E); margin-bottom: .9rem; }
-.grim-voie-appui { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: .9rem; }
-.grim-voie-appui-label { font-family: var(--font-data, monospace); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted, #8C7A5E); }
-.grim-appui-tag { font-family: var(--font-body, 'Inter', sans-serif); font-size: 12px; background: rgba(166,117,32,0.1); color: var(--grim-gold-dark); padding: 2px 9px; border-radius: 4px; border: 1px solid rgba(166,117,32,0.25); }
-.grim-voie-next { font-family: var(--font-body, 'Inter', sans-serif); font-size: .95rem; line-height: 1.55; color: var(--grim-ink); border-top: 1px solid rgba(166,117,32,0.25); padding-top: .75rem; }
-.grim-voie-next-label { display: block; font-family: var(--font-data, monospace); font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--grim-red); margin-bottom: .25rem; }
-
-.grim-tests { margin-bottom: 3rem; }
-.grim-tests-list { display: flex; flex-direction: column; gap: .85rem; }
-.grim-test-card {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 1.2rem;
-    border: 1px solid var(--border-mid, rgba(166,117,32,0.25));
-    border-left: 3px solid var(--grim-gold);
-    border-radius: var(--r-lg, 12px);
-    padding: 1.25rem 1.4rem;
-    background: linear-gradient(180deg, #FBF6EA, #F2E8D1);
-    box-shadow: var(--shadow-xs, 0 1px 3px rgba(42,30,8,0.06));
-    transition: box-shadow .18s ease;
-}
-.grim-test-card:hover { box-shadow: var(--shadow-card, 0 2px 12px rgba(42,30,8,0.10)); }
-.grim-test-main { flex: 1 1 320px; min-width: 0; }
-.grim-test-name { font-family: var(--font-display, 'Space Grotesk', sans-serif); font-size: 1.08rem; font-weight: 600; color: var(--grim-ink); margin-bottom: .45rem; }
-.grim-test-summary { font-family: var(--font-body, 'Inter', sans-serif); font-size: .98rem; line-height: 1.6; color: var(--text-secondary, #6B5A3E); }
-.grim-test-pending { font-style: italic; color: var(--text-muted, #8C7A5E); }
-.grim-test-actions { display: flex; flex-direction: column; gap: .5rem; flex: 0 0 auto; align-items: stretch; }
-.grim-test-link {
-    font-family: var(--font-display, sans-serif);
-    font-size: 13px; font-weight: 500;
-    text-align: center;
-    color: var(--grim-gold-dark);
-    text-decoration: none;
-    padding: 7px 16px;
-    border: 1px solid var(--grim-gold);
-    border-radius: var(--r-sm, 6px);
-    background: rgba(166,117,32,0.05);
-    transition: background .15s;
-}
-.grim-test-link:hover { background: rgba(166,117,32,0.14); }
-.grim-test-pdf {
-    font-family: var(--font-display, sans-serif);
-    font-size: 13px; font-weight: 600;
-    text-align: center;
-    color: #FBF6EA;
-    background: linear-gradient(180deg, var(--grim-gold), var(--grim-gold-dark));
-    text-decoration: none;
-    padding: 8px 16px;
-    border-radius: var(--r-sm, 6px);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.25);
-    transition: filter .15s;
-}
-.grim-test-pdf:hover { filter: brightness(1.09); }
-
-.grim-footer { text-align: center; margin-top: 3rem; }
-.grim-actions { display: flex; gap: .85rem; justify-content: center; flex-wrap: wrap; margin-top: 1.5rem; }
-.grim-disclaimer { font-family: var(--font-body, 'Inter', sans-serif); font-size: 13px; font-style: italic; color: var(--text-muted, #8C7A5E); max-width: 580px; margin: 1.5rem auto 0; line-height: 1.55; }
-
-@media (max-width: 640px) {
-    .grim-scroll { padding: 1.8rem 1.4rem; }
-    .grim-para { text-align: left; }
-    .grim-test-actions { flex-direction: row; width: 100%; }
-    .grim-test-actions > * { flex: 1; }
+.grim-tuner-reset:hover { background: rgba(123,21,21,0.08); }
+.grim-tuner-sub {
+    font-family: var(--font-body, 'Inter', sans-serif);
+    font-size: .92rem; color: var(--text-secondary, #6B5A3E);
+    margin: .35rem 0 1.1rem;
 }
 </style>

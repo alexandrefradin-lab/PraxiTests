@@ -17,6 +17,7 @@ class CampaignMail extends Mailable implements ShouldQueue
         public string $subjectLine,
         public string $bodyHtml,
         public ?string $bodyText = null,
+        public ?int $recipientUserId = null,
     ) {}
 
     public function envelope(): Envelope
@@ -26,9 +27,18 @@ class CampaignMail extends Mailable implements ShouldQueue
 
     public function content(): Content
     {
+        // Lien de désinscription signé et personnalisé (cf. audit E-5).
+        $unsubscribeUrl = $this->recipientUserId
+            ? \Illuminate\Support\Facades\URL::signedRoute('email.unsubscribe', ['user' => $this->recipientUserId])
+            : null;
+
         return new Content(
             view: 'mail.layouts.campaign',
-            with: ['html' => $this->bodyHtml, 'text' => $this->bodyText],
+            with: [
+                'html' => $this->bodyHtml,
+                'text' => $this->bodyText,
+                'unsubscribeUrl' => $unsubscribeUrl,
+            ],
         );
     }
 }

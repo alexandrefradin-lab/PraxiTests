@@ -24,6 +24,15 @@ class AIManager
             throw new InvalidArgumentException("AI driver not configured: {$name}");
         }
 
+        $driverClass = $config['driver'] ?? null;
+
+        // Sécurité (cf. audit E-2) : on n'instancie jamais une classe arbitraire.
+        // Le driver doit exister et implémenter le contrat attendu.
+        if (!is_string($driverClass) || !class_exists($driverClass)
+            || !is_subclass_of($driverClass, AIDriverContract::class)) {
+            throw new InvalidArgumentException("Invalid AI driver class for: {$name}");
+        }
+
         $driverClass = $config['driver'];
         $instance = new $driverClass($config);
 

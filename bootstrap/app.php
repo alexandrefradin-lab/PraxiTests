@@ -14,7 +14,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
+            // En-têtes de sécurité HTTP par défaut sur toutes les réponses (cf. audit F-7).
+            \App\Http\Middleware\SecurityHeaders::class,
         ]);
+
         $middleware->alias([
             'role'       => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'subscribed' => \App\Http\Middleware\EnsureSubscribed::class,

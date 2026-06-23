@@ -19,7 +19,29 @@ $vendorAuto  = $root . '/vendor/autoload.php';
 $vendorReady = file_exists($vendorAuto);
 
 /* ═══════════════ GUARD DEJA INSTALLE (prioritaire) ═══════════════ */
-if (file_exists($installFlag)) {
+/*
+ * Double garde :
+ *  1. Le flag storage/app/.installed (posé en fin d'installation).
+ *  2. Un .env déjà configuré (APP_KEY non vide) — défense en profondeur :
+ *     même si le flag est supprimé par accident ou par une autre faille,
+ *     une application déjà configurée NE PEUT PLUS être ré-installée
+ *     (donc plus de DROP TABLE possible).
+ * Un override explicite reste possible pour une ré-installation volontaire
+ * via la variable d'environnement serveur PT_ALLOW_REINSTALL=1.
+ */
+$allowReinstall = getenv('PT_ALLOW_REINSTALL') === '1';
+
+$envConfigured = false;
+if (!$allowReinstall && is_readable($envPath)) {
+    $envContents = (string) file_get_contents($envPath);
+    if (preg_match('/^\s*APP_KEY\s*=\s*\S+/m', $envContents)) {
+        // APP_KEY présent et non vide => application déjà installée
+        $envConfigured = (bool) preg_match('/^\s*APP_KEY\s*=\s*base64:\S+/m', $envContents)
+            || (bool) preg_match('/^\s*APP_KEY\s*=\s*"?[^\s"]{16,}/m', $envContents);
+    }
+}
+
+if (!$allowReinstall && (file_exists($installFlag) || $envConfigured)) {
     if (isset($_GET['ajax'])) {
         header('Content-Type: application/json');
         echo json_encode(['ok' => false, 'msg' => 'Application already installed.']);

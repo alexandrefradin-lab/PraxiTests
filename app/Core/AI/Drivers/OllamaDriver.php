@@ -23,7 +23,7 @@ class OllamaDriver extends AbstractDriver
         );
 
         if ($response->failed()) {
-            throw new \RuntimeException("Ollama error: " . $response->body());
+            throw new \RuntimeException("Ollama error (HTTP {$response->status()})");
         }
 
         $data = $response->json();
@@ -46,7 +46,7 @@ class OllamaDriver extends AbstractDriver
         );
 
         if ($response->failed()) {
-            throw new \RuntimeException("Ollama error: " . $response->body());
+            throw new \RuntimeException("Ollama error (HTTP {$response->status()})");
         }
 
         $data = $response->json();

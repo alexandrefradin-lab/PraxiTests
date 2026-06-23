@@ -11,31 +11,13 @@ const props = defineProps({
 })
 
 const revealed = ref(false)
-const typewriterText = ref('')
 const ctaVisible = ref(false)
-const typingDone = ref(false)
-let typeInterval = null
 
 // Respect de l'accessibilité : si l'utilisateur préfère moins d'animations,
 // on affiche tout immédiatement (WCAG 2.3.3).
 const prefersReducedMotion = typeof window !== 'undefined'
     && window.matchMedia
     && window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
-function teaser() {
-    return props.result?.ai_synthesis?.slice(0, 300) ?? ''
-}
-function finishTypewriter() {
-    if (typeInterval) { clearInterval(typeInterval); typeInterval = null }
-    typewriterText.value = teaser()
-    typingDone.value = true
-}
-// Permet de passer l'animation : le contenu d'orientation ne doit jamais être retardé.
-function skipAnimation() {
-    revealed.value = true
-    ctaVisible.value = true
-    finishTypewriter()
-}
 
 // ── Dimensions : libellés "parlants" + définitions au clic ──────────────
 // Dictionnaire de secours côté front. Si le moteur de scoring renvoie déjà
@@ -98,19 +80,11 @@ onMounted(() => {
     if (props.ai_pending || !props.result?.ai_synthesis) return
 
     // Accessibilité / pas de rétention : tout afficher d'emblée.
-    if (prefersReducedMotion) { skipAnimation(); return }
+    if (prefersReducedMotion) { revealed.value = true; ctaVisible.value = true; return }
 
-    // Animation cinématique légère — MAIS le téléchargement du PDF est
-    // disponible dès le reveal (plus de gating artificiel à 90 s).
+    // Animation cinématique légère — le téléchargement du PDF est disponible
+    // dès le reveal (plus de gating artificiel).
     setTimeout(() => { revealed.value = true; ctaVisible.value = true }, 800)
-    setTimeout(() => {
-        const text = teaser()
-        let i = 0
-        typeInterval = setInterval(() => {
-            if (i < text.length) { typewriterText.value += text[i]; i++ }
-            else { finishTypewriter() }
-        }, 40)
-    }, 1400)
 })
 </script>
 
@@ -162,31 +136,13 @@ onMounted(() => {
                     <p class="ac-results-subtitle">Grimoire de Synthèse personnalisé par l'IA</p>
                 </header>
 
-                <!-- ── GRIMOIRE DE SYNTHÈSE (typewriter) ─────────── -->
+                <!-- ── GRIMOIRE DE SYNTHÈSE ──────────────────────── -->
                 <section class="ac-card ac-synthesis-card">
                     <h2 class="ac-card-title">Ton Grimoire de Synthèse</h2>
 
-                    <!-- Texte typewriter (premiers 300 chars) -->
-                    <div class="ac-typewriter-text">
-                        {{ typewriterText }}<span
-                            v-if="typewriterText.length < (result.ai_synthesis?.slice(0, 300).length ?? 0)"
-                            class="ac-cursor"
-                        >|</span>
-                    </div>
-
-                    <!-- Bouton « tout afficher » pendant l'animation -->
-                    <button
-                        v-if="revealed && !typingDone"
-                        type="button"
-                        class="ac-skip-btn"
-                        @click="skipAnimation"
-                    >
-                        Tout afficher
-                    </button>
-
-                    <!-- Texte complet après typewriter terminé -->
+                    <!-- Synthèse IA rendue en Markdown (source unique) -->
                     <MarkdownText
-                        v-if="typewriterText.length >= Math.min(300, result.ai_synthesis?.length ?? 0)"
+                        v-if="result.ai_synthesis"
                         :source="result.ai_synthesis"
                         class="ac-synthesis-full"
                     />
@@ -489,9 +445,6 @@ onMounted(() => {
     font-size: 15px;
     line-height: 1.7;
     color: var(--text-primary);
-    margin-top: 1.25rem;
-    padding-top: 1.25rem;
-    border-top: 1px solid var(--glass-border);
 }
 
 /* ── Bouton « tout afficher » (passer l'animation) ── */

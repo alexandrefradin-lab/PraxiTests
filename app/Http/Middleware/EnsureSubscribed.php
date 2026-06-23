@@ -23,8 +23,9 @@ class EnsureSubscribed
             return redirect()->route('login');
         }
 
-        // Admins exemptés
-        if ($user->hasRole('admin|super-admin')) {
+        // Admins exemptés (cf. audit M-2 : hasRole('a|b') ne fonctionne pas avec
+        // Spatie — il faut hasAnyRole([...]), sinon aucun admin n'était jamais exempté).
+        if ($user->hasAnyRole(['admin', 'super-admin'])) {
             return $next($request);
         }
 

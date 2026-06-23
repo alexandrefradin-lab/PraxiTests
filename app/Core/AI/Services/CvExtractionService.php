@@ -5,11 +5,15 @@ namespace Praxis\Core\AI\Services;
 use App\Models\Profile;
 use Illuminate\Support\Facades\Storage;
 use Praxis\Core\AI\AIManager;
+use Praxis\Core\AI\Concerns\ParsesAiJson;
 use Praxis\Core\AI\PromptBuilder;
 use Smalot\PdfParser\Parser as PdfParser;
 
 class CvExtractionService
 {
+    // cf. audit Fo-2 : parsing tolérant à la troncature du JSON renvoyé par l'IA.
+    use ParsesAiJson;
+
     public function __construct(
         protected AIManager $ai,
         protected PromptBuilder $prompts,
@@ -61,17 +65,12 @@ class CvExtractionService
             return [];
         }
 
-        $first = strpos($raw, '{'); $last = strrpos($raw, '}');
-        $structured = ($first !== false && $last !== false)
-            ? json_decode(substr($raw, $first, $last - $first + 1), true)
-            : null;
-
-        if (is_array($structured)) {
-            $profile->update([
-                'cv_extracted_text' => $text,
-                'cv_structured'     => $structured,
-            ]);
-            return $structured;
+        // Parsing tolérant (récupère un JSON tronqué plutôt que de tout perdre).
+        try {
+            $structured = $this->parseJson($raw);
+        } catch (\Throwable $e) {
+            logger()->warning('CV extraction: JSON IA invalide');
+            $structured = null;
         }
         return [];
     }

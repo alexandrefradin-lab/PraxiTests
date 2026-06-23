@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response;
 use Laravel\Cashier\Exceptions\IncompletePayment;
@@ -67,7 +68,16 @@ class BillingController extends Controller
 
         // Si déjà abonné → swap de plan plutôt que nouveau checkout
         if ($user->subscribed('default')) {
-            $user->subscription('default')->swap($priceId);
+            try {
+                $user->subscription('default')->swap($priceId);
+            } catch (IncompletePayment $e) {
+                return redirect()->route('cashier.payment', [$e->payment->id, 'redirect' => route('billing.manage')]);
+            } catch (\Throwable $e) {
+                Log::error('Stripe swap failed', ['user_id' => $user->id, 'status' => method_exists($e, 'getCode') ? $e->getCode() : null]);
+                return redirect()->route('billing.manage')
+                    ->with('error', "La mise à jour de l'abonnement a échoué. Réessaie ou contacte le support.");
+            }
+
             return redirect()->route('billing.manage')
                 ->with('success', 'Ton abonnement a été mis à jour.');
         }

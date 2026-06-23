@@ -1,10 +1,42 @@
 <script setup>
-import { Link, usePage } from '@inertiajs/vue3'
-import { computed, ref } from 'vue'
+import { Link, usePage, router } from '@inertiajs/vue3'
+import { computed, ref, onMounted, onBeforeUnmount, watch } from 'vue'
 import OracleChat from '@/Components/OracleChat.vue'
 
 const mobileOpen = ref(false)
 const page = usePage()
+
+// ─── Polling synthèse IA ───────────────────────────────────────────────
+// Les pages de résultats (core + plugins) affichent un loader tant que
+// result.ai_synthesis n'est pas prête. Le job d'analyse tourne APRÈS la
+// réponse HTTP : sans rechargement, le loader reste figé indéfiniment.
+// Ce poller interroge results.status et recharge la page (partiellement)
+// dès que l'IA a terminé. Inactif sur les pages sans ai_pending.
+let aiPoll = null
+function stopAiPoll () { if (aiPoll) { clearInterval(aiPoll); aiPoll = null } }
+function startAiPoll () {
+    stopAiPoll()
+    const attemptId = page.props.attempt?.id
+    if (!page.props.ai_pending || !attemptId) return
+    let url
+    try { url = route('results.status', attemptId) } catch (e) { return }
+    aiPoll = setInterval(async () => {
+        try {
+            const r = await fetch(url, { headers: { Accept: 'application/json' }, credentials: 'same-origin' })
+            if (!r.ok) return
+            const data = await r.json()
+            if (data.ai_ready) {
+                stopAiPoll()
+                router.reload({ only: ['result', 'ai_pending'] })
+            }
+        } catch (e) { /* réseau : on réessaie au prochain tick */ }
+    }, 5000)
+}
+onMounted(startAiPoll)
+onBeforeUnmount(stopAiPoll)
+// Inertia réutilise le Layout entre navigations même-composant : relancer
+// le poller si ai_pending ou l'attempt change.
+watch(() => [page.props.ai_pending, page.props.attempt?.id], startAiPoll)
 const user = computed(() => page.props.auth?.user)
 const branding = computed(() => page.props.branding ?? { name: 'PraxiQuest', tagline: 'Évaluer. Orienter. Transformer.' })
 const xpProgress = computed(() => page.props.gamification?.xp_progress ?? 0)

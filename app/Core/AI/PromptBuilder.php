@@ -104,8 +104,8 @@ TXT;
                 'depuis'     => $profile?->status_since?->format('Y-m'),
                 'rôle'       => $profile?->current_role,
                 'industrie'  => $profile?->industry,
-                'problématique' => $profile?->problematique,
-                'cv_extrait' => $profile?->cv_structured,
+                'problématique' => $this->safeProfileText($profile?->problematique),
+                'cv_extrait' => $this->safeCvStructured($profile?->cv_structured),
             ],
             'tests'  => $tests,
         ];
@@ -155,8 +155,8 @@ TXT;
                 'depuis'        => $profile?->status_since?->format('Y-m'),
                 'rôle'          => $profile?->current_role,
                 'industrie'     => $profile?->industry,
-                'problématique' => $profile?->problematique,
-                'cv_extrait'    => $profile?->cv_structured,
+                'problématique' => $this->safeProfileText($profile?->problematique),
+                'cv_extrait'    => $this->safeCvStructured($profile?->cv_structured),
             ],
             'tests'  => $tests,
         ];
@@ -224,8 +224,17 @@ TXT;
             . "au moins pertinent, en variant les secteurs et les modèles (salariat / entrepreneuriat / freelance). "
             . "Pour chaque piste : { \"titre\", \"secteur\", \"fit_score\" (0-100), \"pourquoi\" (50 mots max), "
             . "\"appui_tests\" (liste des noms de tests qui soutiennent cette piste), "
-            . "\"prochaine_etape\" (action concrète) }.\n\n"
-            . "Format attendu : { \"voies\": [ { ... }, ... ] }";
+            . "\"prochaine_etape\" (action concrète), "
+            . "\"axes\" : un objet décrivant À QUEL POINT CE MÉTIER satisfait 5 critères, chacun noté 0-100 "
+            . "(0 = pas du tout, 100 = pleinement), en te basant sur la réalité du métier sur le marché francophone : "
+            . "{ \"remuneration\" (potentiel de rémunération), "
+            . "\"accessibilite\" (facilité/rapidité d'accès, formation courte), "
+            . "\"stabilite\" (sécurité de l'emploi, demande durable), "
+            . "\"autonomie\" (indépendance, possibilité freelance/entrepreneuriat), "
+            . "\"sens\" (utilité, impact, sens du travail) } }.\n\n"
+            . "Les scores d'axes décrivent le MÉTIER lui-même (pas le profil du candidat) et doivent être nuancés "
+            . "et différenciés d'une piste à l'autre — évite de tout mettre à 50 ou à 80.\n\n"
+            . "Format attendu : { \"voies\": [ { ..., \"axes\": { \"remuneration\": 0-100, \"accessibilite\": 0-100, \"stabilite\": 0-100, \"autonomie\": 0-100, \"sens\": 0-100 } }, ... ] }";
 
         return [
             ['role' => 'system', 'content' => $system],
@@ -254,8 +263,8 @@ TXT;
                 'depuis'     => $profile?->status_since?->format('Y-m'),
                 'rôle'       => $profile?->current_role,
                 'industrie'  => $profile?->industry,
-                'problématique' => $profile?->problematique,
-                'cv_extrait' => $profile?->cv_structured,
+                'problématique' => $this->safeProfileText($profile?->problematique),
+                'cv_extrait' => $this->safeCvStructured($profile?->cv_structured),
             ],
             'test' => [
                 'nom'  => $test->name,
@@ -327,8 +336,8 @@ TXT;
             'profil'    => [
                 'statut'   => $profile?->status,
                 'rôle'     => $profile?->current_role,
-                'problématique' => $profile?->problematique,
-                'cv'       => $profile?->cv_structured,
+                'problématique' => $this->safeProfileText($profile?->problematique),
+                'cv'       => $this->safeCvStructured($profile?->cv_structured),
             ],
             'scoring'   => $scoring,
             'synthèse'  => $synth,

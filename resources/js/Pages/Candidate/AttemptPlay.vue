@@ -211,12 +211,18 @@ const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
 
                         <!-- SINGLE CHOICE -->
                         <template v-if="currentQuestion.type === 'single'">
+                          <div role="radiogroup" :aria-label="currentQuestion.prompt" class="ac-option-group">
                             <div
                                 v-for="opt in currentQuestion.options"
                                 :key="opt.value"
                                 class="ac-option-card"
                                 :class="{ 'ac-option-card--selected': value === opt.value }"
+                                role="radio"
+                                :aria-checked="value === opt.value"
+                                :tabindex="isSubmitting ? -1 : 0"
                                 @click="selectAndAdvance(opt.value)"
+                                @keydown.enter.prevent="selectAndAdvance(opt.value)"
+                                @keydown.space.prevent="selectAndAdvance(opt.value)"
                             >
                                 <span class="ac-radio-icon">
                                     <svg v-if="value === opt.value" width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -229,6 +235,7 @@ const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
                                 </span>
                                 <span class="ac-option-label">{{ opt.label }}</span>
                             </div>
+                          </div>
                         </template>
 
                         <!-- EXERCICE GUIDÉ (parcours mini-app : praxispeak, etc.) -->
@@ -287,12 +294,18 @@ const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
 
                         <!-- MULTIPLE CHOICE -->
                         <template v-else-if="currentQuestion.type === 'multi' || currentQuestion.type === 'multiple'">
+                          <div role="group" :aria-label="currentQuestion.prompt" class="ac-option-group">
                             <div
                                 v-for="opt in currentQuestion.options"
                                 :key="opt.value"
                                 class="ac-option-card"
                                 :class="{ 'ac-option-card--selected': isMultiSelected(opt.value) }"
+                                role="checkbox"
+                                :aria-checked="isMultiSelected(opt.value)"
+                                tabindex="0"
                                 @click="toggleMultiple(opt.value)"
+                                @keydown.enter.prevent="toggleMultiple(opt.value)"
+                                @keydown.space.prevent="toggleMultiple(opt.value)"
                             >
                                 <span class="ac-checkbox-icon">
                                     <svg v-if="isMultiSelected(opt.value)" width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -305,6 +318,7 @@ const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
                                 </span>
                                 <span class="ac-option-label">{{ opt.label }}</span>
                             </div>
+                          </div>
                         </template>
 
                         <!-- TEXT LIBRE -->
@@ -600,6 +614,13 @@ const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
     gap: 0.625rem;
 }
 
+/* Conteneur ARIA (radiogroup / group) — conserve l'espacement des cartes */
+.ac-option-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+}
+
 /* Single / Multiple cards */
 .ac-option-card {
     display: flex;
@@ -617,6 +638,16 @@ const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
 .ac-option-card:hover {
     border-color: var(--color-primary);
     box-shadow: 0 0 0 1px rgba(166,117,32,0.15);
+}
+
+/* Focus clavier visible (a11y — audit UX-1/UX-3) */
+.ac-option-card:focus-visible,
+.ac-scale-btn:focus-visible,
+.ac-nav-btn:focus-visible,
+.ac-btn-primary:focus-visible,
+.ac-btn-ghost:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
 }
 
 .ac-option-card--selected {
@@ -896,38 +927,6 @@ const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
 
 .ac-insight-score {
     margin-left: auto;
-    font-family: 'Space Mono', monospace;
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--color-primary-dark);
-}
-
-.ac-insight-score-max {
-    font-size: 10px;
-    font-weight: 400;
-    color: var(--text-secondary);
-}
-
-.ac-insight-headline {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin: 0.55rem 0 0;
-    line-height: 1.3;
-}
-
-.ac-insight-body {
-    font-family: 'Inter', sans-serif;
-    font-size: 13px;
-    color: var(--text-secondary);
-    line-height: 1.55;
-    margin: 0.35rem 0 0;
-}
-
-.ac-insight-tag {
-    display: inline-block;
-    margin-top: 0.6rem;
     font-family: 'Space Mono', monospace;
     font-size: 10px;
     color: var(--text-secondary);

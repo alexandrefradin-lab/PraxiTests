@@ -32,9 +32,19 @@ class OracleChatService
     {
         $message = trim($message);
 
+        // Persistance de la QUESTION d'abord (cf. audit Fo-1) : même si l'appel IA
+        // échoue ensuite, le message de l'utilisateur n'est jamais perdu et reste
+        // visible dans l'historique de la conversation.
+        OracleMessage::create([
+            'user_id' => $user->id,
+            'role'    => 'user',
+            'content' => $message,
+        ]);
+
         $attempts = $this->grimoires->completedAttempts($user);
         $grimoire = $user->profileGrimoire;   // peut être null (aucun test encore)
 
+        // L'historique inclut désormais la question qu'on vient de persister.
         $history = $this->history($user)
             ->map(fn (OracleMessage $m) => ['role' => $m->role, 'content' => $m->content])
             ->all();
@@ -42,18 +52,26 @@ class OracleChatService
         $messages = $this->prompts->oracleChat($user, $attempts, $grimoire, $history, $message);
         $messages = PluginHooks::applyFilters('ai.oracle.messages', $messages, $user);
 
-        $driver = $this->ai->forTask('oracle_chat');
-        $reply  = $driver->chat($messages, ['temperature' => 0.7, 'max_tokens' => 900]);
-        $reply  = trim(PluginHooks::applyFilters('ai.oracle.output', $reply, $user));
+        try {
+            $driver = $this->ai->forTask('oracle_chat');
+            $reply  = $driver->chat($messages, ['temperature' => 0.7, 'max_tokens' => 900]);
+            $reply  = trim(PluginHooks::applyFilters('ai.oracle.output', $reply, $user));
+            $usage  = $driver->lastUsage();
+        } catch (\Throwable $e) {
+            // Repli gracieux (cf. audit Fo-1) : jamais de HTTP 500 dans le widget.
+            // On ne logge que le type/statut, pas le contenu (pas de PII — audit T-2).
+            logger()->warning('Oracle IA indisponible: ' . $e::class);
 
-        $usage = $driver->lastUsage();
+            $fallback = OracleMessage::create([
+                'user_id' => $user->id,
+                'role'    => 'assistant',
+                'content' => "Je ne parviens pas à répondre à l'instant — le service est momentanément indisponible. "
+                    . "Ta question est bien enregistrée : réessaie dans quelques minutes.",
+                'tokens'  => 0,
+            ]);
 
-        // Persistance : la question d'abord (sans coût), puis la réponse (coût du tour).
-        OracleMessage::create([
-            'user_id' => $user->id,
-            'role'    => 'user',
-            'content' => $message,
-        ]);
+            return $fallback;
+        }
 
         $assistant = OracleMessage::create([
             'user_id' => $user->id,

@@ -151,10 +151,10 @@ const onFileChange = (e) => {
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium mb-1.5" style="color:var(--text-primary); font-family:'Inter',sans-serif;">
+                        <label for="ob-status" class="block text-sm font-medium mb-1.5" style="color:var(--text-primary); font-family:'Inter',sans-serif;">
                             Ton statut actuel <span style="color:var(--color-secondary);">*</span>
                         </label>
-                        <select v-model="form.status" class="pt-input" required>
+                        <select id="ob-status" v-model="form.status" class="pt-input" required>
                             <option value="" disabled>— Choisir ton statut —</option>
                             <option v-for="(label, key) in statuses" :key="key" :value="key">{{ label }}</option>
                         </select>
@@ -162,10 +162,10 @@ const onFileChange = (e) => {
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium mb-1.5" style="color:var(--text-primary); font-family:'Inter',sans-serif;">
+                        <label for="ob-tenure" class="block text-sm font-medium mb-1.5" style="color:var(--text-primary); font-family:'Inter',sans-serif;">
                             Depuis quand ? <span style="color:var(--color-secondary);">*</span>
                         </label>
-                        <select v-model="tenure" @change="onTenureChange" class="pt-input" required>
+                        <select id="ob-tenure" v-model="tenure" @change="onTenureChange" class="pt-input" required>
                             <option value="" disabled>— Choisir une tranche —</option>
                             <option v-for="opt in tenureOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
                         </select>
@@ -174,18 +174,18 @@ const onFileChange = (e) => {
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium mb-1.5" style="color:var(--text-primary); font-family:'Inter',sans-serif;">
+                            <label for="ob-current-role" class="block text-sm font-medium mb-1.5" style="color:var(--text-primary); font-family:'Inter',sans-serif;">
                                 Poste actuel
                                 <span class="font-normal text-xs" style="color:var(--text-secondary);">(optionnel)</span>
                             </label>
-                            <input type="text" v-model="form.current_role" class="pt-input" placeholder="Ex : Chef de projet">
+                            <input id="ob-current-role" type="text" v-model="form.current_role" class="pt-input" placeholder="Ex : Chef de projet">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium mb-1.5" style="color:var(--text-primary); font-family:'Inter',sans-serif;">
+                            <label for="ob-industry" class="block text-sm font-medium mb-1.5" style="color:var(--text-primary); font-family:'Inter',sans-serif;">
                                 Secteur
                                 <span class="font-normal text-xs" style="color:var(--text-secondary);">(optionnel)</span>
                             </label>
-                            <input type="text" v-model="form.industry" class="pt-input" placeholder="Ex : Industrie">
+                            <input id="ob-industry" type="text" v-model="form.industry" class="pt-input" placeholder="Ex : Industrie">
                         </div>
                     </div>
                 </div>
@@ -201,13 +201,14 @@ const onFileChange = (e) => {
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium mb-1.5" style="color:var(--text-primary); font-family:'Inter',sans-serif;">
+                        <label for="ob-problematique" class="block text-sm font-medium mb-1.5" style="color:var(--text-primary); font-family:'Inter',sans-serif;">
                             Quelle est ta problématique aujourd'hui ? <span style="color:var(--color-secondary);">*</span>
                         </label>
                         <p class="text-xs mb-2" style="color:var(--text-secondary); font-family:'Inter',sans-serif;">
                             En quelques lignes : ce qui t'amène, la question ou le blocage que tu veux éclaircir. Cela oriente ta synthèse et tes pistes de métiers.
                         </p>
                         <textarea
+                            id="ob-problematique"
                             v-model="form.problematique"
                             class="pt-input"
                             rows="4"
@@ -283,26 +284,26 @@ const onFileChange = (e) => {
                         </p>
 
                         <div>
-                            <label class="block text-sm font-medium mb-1.5" style="color:var(--text-primary); font-family:'Inter',sans-serif;">
+                            <label for="ob-cv-job" class="block text-sm font-medium mb-1.5" style="color:var(--text-primary); font-family:'Inter',sans-serif;">
                                 Métier actuel ou dernier poste
                             </label>
-                            <input type="text" v-model="form.cv_job_title" class="pt-input" placeholder="Ex : Développeur Full Stack">
+                            <input id="ob-cv-job" type="text" v-model="form.cv_job_title" class="pt-input" placeholder="Ex : Développeur Full Stack">
                             <p v-if="form.errors.cv_job_title" class="text-xs mt-1" style="color:var(--color-secondary);">{{ form.errors.cv_job_title }}</p>
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm font-medium mb-1.5" style="color:var(--text-primary); font-family:'Inter',sans-serif;">
+                                <label for="ob-cv-sector" class="block text-sm font-medium mb-1.5" style="color:var(--text-primary); font-family:'Inter',sans-serif;">
                                     Secteur d'activité
                                 </label>
-                                <input type="text" v-model="form.cv_sector" class="pt-input" placeholder="Ex : Tech, Santé, Finance…">
+                                <input id="ob-cv-sector" type="text" v-model="form.cv_sector" class="pt-input" placeholder="Ex : Tech, Santé, Finance…">
                                 <p v-if="form.errors.cv_sector" class="text-xs mt-1" style="color:var(--color-secondary);">{{ form.errors.cv_sector }}</p>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium mb-1.5" style="color:var(--text-primary); font-family:'Inter',sans-serif;">
+                                <label for="ob-cv-years" class="block text-sm font-medium mb-1.5" style="color:var(--text-primary); font-family:'Inter',sans-serif;">
                                     Durée d'expérience totale
                                 </label>
-                                <input type="text" v-model="form.cv_years" class="pt-input" placeholder="Ex : 5 ans">
+                                <input id="ob-cv-years" type="text" v-model="form.cv_years" class="pt-input" placeholder="Ex : 5 ans">
                                 <p v-if="form.errors.cv_years" class="text-xs mt-1" style="color:var(--color-secondary);">{{ form.errors.cv_years }}</p>
                             </div>
                         </div>

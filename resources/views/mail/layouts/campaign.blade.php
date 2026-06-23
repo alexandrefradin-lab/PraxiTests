@@ -26,7 +26,9 @@
                     <tr>
                         <td style="padding:0 40px 32px 40px;font-size:11px;color:#9ca3af;border-top:1px solid #e5e7eb;padding-top:24px">
                             Tu reçois cet email parce que tu as un compte sur {{ config('app.name') }}.
-                            <a href="{{ config('app.url') }}/email/unsubscribe" style="color:#9ca3af">Se désabonner</a>
+                            @if(!empty($unsubscribeUrl))
+                                <a href="{{ $unsubscribeUrl }}" style="color:#9ca3af">Se désabonner</a>
+                            @endif
                         </td>
                     </tr>
                 </table>

@@ -27,6 +27,7 @@ class Profile extends Model
         'metadata',
         'consent_data',
         'consent_marketing',
+        'marketing_unsubscribed_at',
         'completed_at',
     ];
 
@@ -36,6 +37,7 @@ class Profile extends Model
         'cv_structured'     => 'array',
         'consent_data'      => 'boolean',
         'consent_marketing' => 'boolean',
+        'marketing_unsubscribed_at' => 'datetime',
         'status_since'      => 'date',
         'completed_at'      => 'datetime',
     ];

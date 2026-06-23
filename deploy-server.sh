@@ -62,6 +62,13 @@ msg "Permissions..."
 chmod -R 775 storage bootstrap/cache
 ok "Permissions OK"
 
+# Sécurité : neutraliser l'installeur web après déploiement (cf. audit C-1).
+# install.php peut DROP toutes les tables ; il ne doit jamais rester accessible
+# sur une app déployée.
+if [ -f public/install.php ]; then
+    rm -f public/install.php && ok "install.php neutralisé (sécurité C-1)"
+fi
+
 echo ""
 ok "Déploiement terminé → https://praxiquest.decisionpro.fr"
 echo -e "${YELLOW}En cas de 500 :${RESET} grep \"production.ERROR\" storage/logs/laravel.log | tail -1"

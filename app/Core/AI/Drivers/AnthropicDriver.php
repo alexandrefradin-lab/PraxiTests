@@ -22,12 +22,19 @@ class AnthropicDriver extends AbstractDriver
     {
         $payload = $this->buildPayload($messages, $options);
 
+        // Retry/backoff (cf. audit T-3) : on rejoue les erreurs de connexion
+        // transitoires (timeout, cURL error 7 fréquent sur OVH mutualisé) avec
+        // un petit délai, au lieu d'échouer net dès le premier hoquet réseau.
         $response = $this->headers()
+            ->retry(2, 1000, throw: false)
             ->timeout(120)
             ->post('https://api.anthropic.com/v1/messages', $payload);
 
         if ($response->failed()) {
-            throw new \RuntimeException("Anthropic API error: " . $response->body());
+            // Sécurité (cf. audit T-2) : ne JAMAIS mettre le corps de la réponse API
+            // dans le message d'exception — il peut contenir des fragments du prompt
+            // (CV, problématique candidat = données personnelles) et finirait loggé.
+            throw new \RuntimeException("Anthropic API error (HTTP {$response->status()})");
         }
 
         $data = $response->json();
@@ -64,6 +71,7 @@ class AnthropicDriver extends AbstractDriver
 
                     $requests[] = $pool->as((string) $key)
                         ->withHeaders($this->headerArray())
+                        ->retry(2, 1000, throw: false)
                         ->timeout(120)
                         ->post('https://api.anthropic.com/v1/messages', $payload);
                 }
@@ -93,7 +101,9 @@ class AnthropicDriver extends AbstractDriver
             $resp = $responses[(string) $key] ?? null;
 
             if (!$resp || $resp->failed()) {
-                throw new \RuntimeException("Anthropic API error (pool {$key}): " . ($resp ? $resp->body() : 'no response'));
+                // Pas de corps de réponse dans le message (cf. audit T-2 — fuite PII).
+                $status = $resp ? "HTTP {$resp->status()}" : 'no response';
+                throw new \RuntimeException("Anthropic API error (pool {$key}): {$status}");
             }
 
             $data = $resp->json();

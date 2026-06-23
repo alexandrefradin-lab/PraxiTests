@@ -143,18 +143,14 @@ class GrimoireController extends Controller
 
         $opts = $this->pdfOptions();
 
-        $pdf = Pdf::loadView('pdf.grimoire', [
+        $slug = \Illuminate\Support\Str::slug($opts['brand']['name'] ?? 'praxiquest');
+
+        return $this->downloadBrandedPdf('pdf.grimoire', [
             'user'     => $user->load('profile'),
             'grimoire' => $grimoire,
             'brand'    => $opts['brand'],
             'org'      => $opts['org'],
-        ])->setPaper(
-            config('praxiquest.pdf.paper', 'a4'),
-            config('praxiquest.pdf.orientation', 'portrait'),
-        );
-
-        $slug = \Illuminate\Support\Str::slug($opts['brand']['name'] ?? 'praxiquest');
-        return $pdf->download("{$slug}-grimoire-{$user->id}.pdf");
+        ], "{$slug}-grimoire-{$user->id}.pdf");
     }
 
     /** Bouton "Régénérer" — force une nouvelle relecture. */
@@ -168,8 +164,21 @@ class GrimoireController extends Controller
             return back()->with('info', 'Ton Grimoire vient d\'être mis à jour. Réessaie dans un instant.');
         }
 
-        $grimoire->update(['status' => 'pending']);
-        GenerateGlobalGrimoire::dispatch($user->id, force: true)->afterResponse();
+        // Verrou atomique (cf. audit M-3 / E-4) : empêche deux clics simultanés —
+        // ou un statut déjà "pending" avec generated_at null — de lancer plusieurs
+        // jobs IA payants en parallèle. La déduplication réelle du travail est
+        // ensuite assurée par ShouldBeUnique côté job.
+        $lock = \Illuminate\Support\Facades\Cache::lock("grimoire_refresh_user_{$user->id}", 30);
+        if (! $lock->get()) {
+            return back()->with('info', 'Ton Grimoire est déjà en cours de relecture…');
+        }
+
+        try {
+            $grimoire->update(['status' => 'pending']);
+            GenerateGlobalGrimoire::dispatch($user->id, force: true)->afterResponse();
+        } finally {
+            $lock->release();
+        }
 
         return back()->with('success', 'Ton Grimoire est en cours de relecture…');
     }

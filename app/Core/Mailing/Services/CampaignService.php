@@ -35,7 +35,7 @@ class CampaignService
                     PluginHooks::applyFilters('email.context', ['user' => $user], $user)
                 ));
 
-                Mail::to($user->email)->queue(new CampaignMail($subject, $html, $campaign->body_text));
+                Mail::to($user->email)->queue(new CampaignMail($subject, $html, $campaign->body_text, $user->id));
 
                 $logBatch[] = [
                     'user_id'     => $user->id,
@@ -82,6 +82,11 @@ class CampaignService
     protected function resolveAudience(array $filter)
     {
         $q = User::query();
+
+        // Conformité (cf. audit E-5) : on n'envoie JAMAIS à un destinataire qui
+        // s'est désabonné. On exclut les profils ayant une date de désinscription.
+        $q->whereDoesntHave('profile', fn ($p) => $p->whereNotNull('marketing_unsubscribed_at'));
+
         if (!empty($filter['status']))      $q->whereHas('profile', fn ($p) => $p->where('status', $filter['status']));
         if (!empty($filter['has_completed_test'])) {
             $q->whereHas('attempts', fn ($a) => $a->where('status', 'completed'));

@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Praxis\Core\Gamification\GamificationEngine;
 use Praxis\Core\Gamification\Listeners\AwardXpOnAnswer;
+use Praxis\Core\Mailing\Listeners\TriggerEmailSequences;
+use Praxis\Core\Mailing\Services\SequenceRunner;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +21,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         AwardXpOnAnswer::register($this->app->make(GamificationEngine::class));
+
+        // Câble les séquences email aux événements du parcours (cf. audit Fo-4).
+        TriggerEmailSequences::register($this->app->make(SequenceRunner::class));
 
         // Charger les paramètres IA depuis la DB et les injecter dans la config.
         // Les valeurs DB ont priorité sur le .env, ce qui permet à l'admin

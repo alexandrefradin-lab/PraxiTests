@@ -199,6 +199,10 @@
        rendu (puis mis en cache dans storage/fonts). Repli DejaVu conservé
        partout : si l'hôte ne peut pas charger les TTF, le rendu actuel
        reste intact (aucune régression). */
+    {{-- embedFonts=false (repli déclenché par le contrôleur si le cache de polices
+         est inaccessible sur l'hôte) → aucun @font-face : DomPDF utilise les DejaVu
+         déjà mises en cache, le PDF sort toujours. --}}
+    @if(($embedFonts ?? true))
     @font-face { font-family:'Lora'; font-style:normal; font-weight:normal; src:url("{{ resource_path('fonts/Lora-Regular.ttf') }}") format("truetype"); }
     @font-face { font-family:'Lora'; font-style:normal; font-weight:bold;   src:url("{{ resource_path('fonts/Lora-Bold.ttf') }}") format("truetype"); }
     @font-face { font-family:'Lora'; font-style:italic; font-weight:normal; src:url("{{ resource_path('fonts/Lora-Italic.ttf') }}") format("truetype"); }
@@ -207,6 +211,7 @@
     @font-face { font-family:'Lato'; font-style:normal; font-weight:bold;   src:url("{{ resource_path('fonts/Lato-Bold.ttf') }}") format("truetype"); }
     @font-face { font-family:'Lato'; font-style:italic; font-weight:normal; src:url("{{ resource_path('fonts/Lato-Italic.ttf') }}") format("truetype"); }
     @font-face { font-family:'Lato'; font-style:italic; font-weight:bold;   src:url("{{ resource_path('fonts/Lato-BoldItalic.ttf') }}") format("truetype"); }
+    @endif
 
     @page { margin: 132px 0 96px 0; }
     * { box-sizing: border-box; }
