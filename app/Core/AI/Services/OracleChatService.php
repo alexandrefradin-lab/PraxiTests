@@ -69,11 +69,17 @@ class OracleChatService
                 ['user_id' => $user->id, 'role' => 'user', 'content' => $message],
             );
 
+            // En mode debug : expose la cause pour faciliter le diagnostic en prod.
+            $debugInfo = config('app.debug')
+                ? "\n[DEBUG] " . $e::class . ': ' . $e->getMessage()
+                    . ' (' . basename($e->getFile()) . ':' . $e->getLine() . ')'
+                : '';
+
             $fallback = OracleMessage::create([
                 'user_id' => $user->id,
                 'role'    => 'assistant',
                 'content' => "Je ne parviens pas à répondre à l'instant — le service est momentanément indisponible. "
-                    . "Ta question est bien enregistrée : réessaie dans quelques minutes.",
+                    . "Ta question est bien enregistrée : réessaie dans quelques minutes." . $debugInfo,
                 'tokens'  => 0,
             ]);
 

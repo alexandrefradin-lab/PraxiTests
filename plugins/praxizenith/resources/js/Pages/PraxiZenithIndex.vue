@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { Link, Head } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
+import JourneyCalendar from '@/Components/JourneyCalendar.vue'
 
 const props = defineProps({
     exercises:  { type: Array,  default: () => [] },
@@ -76,8 +77,13 @@ const blocks = computed(() => {
             </div>
 
             <!-- Barre de progression globale -->
-            <div class="mb-8" style="height: 8px; background: var(--border, #e5e7eb); border-radius: 999px; overflow: hidden;">
+            <div class="mb-6" style="height: 8px; background: var(--border, #e5e7eb); border-radius: 999px; overflow: hidden;">
                 <div :style="{ width: donePercent + '%', height: '100%', background: 'var(--primary, #A67520)', transition: 'width .4s' }"></div>
+            </div>
+
+            <!-- Calendrier des 60 jours -->
+            <div class="mb-8">
+                <JourneyCalendar :items="exercises" :total-days="totalDays" label="Calendrier — 60 jours de concentration" />
             </div>
 
             <!-- Carte « exercice du jour » -->
