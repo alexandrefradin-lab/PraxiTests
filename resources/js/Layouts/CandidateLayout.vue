@@ -114,13 +114,15 @@ const hasTreasure = computed(() => {
                             class="cand-profile-link"
                             style="display: flex; align-items: center; gap: 8px; text-decoration: none; padding: 3px 8px 3px 3px; border-radius: 999px; transition: background 0.15s"
                             title="Modifier mon profil (statut, parcours, CV)">
-                            <div style="width: 30px; height: 30px; border-radius: 50%; background: var(--color-accent); display: flex; align-items: center; justify-content: center; color: var(--color-primary); flex-shrink: 0; border: 1px solid var(--border-mid)">
-                                <!-- Emblème de quête : boussole d'aventurier -->
-                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                    <circle cx="12" cy="12" r="9" />
-                                    <polygon points="15.5 8.5 11 11 8.5 15.5 13 13" fill="currentColor" stroke="none" />
-                                    <circle cx="12" cy="12" r="0.6" fill="currentColor" stroke="none" />
+                            <div style="position: relative; width: 30px; height: 30px; flex-shrink: 0;">
+                                <!-- Hexagone initiales -->
+                                <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
+                                    <polygon points="15,2 26,8.5 26,21.5 15,28 4,21.5 4,8.5" fill="var(--color-accent)" stroke="var(--color-primary)" stroke-width="1"/>
+                                    <polygon points="15,5 23,9.5 23,20.5 15,25 7,20.5 7,9.5" fill="none" stroke="var(--color-primary)" stroke-width="0.4" opacity="0.4"/>
                                 </svg>
+                                <span style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 11px; font-weight: 700; color: var(--color-primary); letter-spacing: 0.03em; text-transform: uppercase; line-height: 1; user-select: none;">
+                                    {{ user.name ? user.name.slice(0, 2) : '?' }}
+                                </span>
                             </div>
                             <span style="font-size: 13px; color: var(--text-secondary); font-family: var(--font-body)">{{ user.name }}</span>
                         </Link>

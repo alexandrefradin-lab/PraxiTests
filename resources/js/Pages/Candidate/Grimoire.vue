@@ -86,30 +86,18 @@ const declarePiste = (piste) => {
     })
 }
 
-// Aere la synthese en paragraphes lisibles, meme si l'IA renvoie un seul bloc.
+// Découpe la synthèse en paragraphes lisibles.
+// Le backend normalise désormais toujours les \n\n (GlobalGrimoireService::normalizeSynthesisParagraphs).
+// On gère aussi le cas rare où des \n échappés (\\n) auraient survécu jusqu'ici.
 const synthParagraphs = computed(() => {
-    // Normalise un \n\n echappe ("\\n\\n") qui aurait survecu jusqu'au front.
-    const raw = (props.grimoire?.synthesis || '').replace(/\\n/g, '\n').trim()
+    let raw = (props.grimoire?.synthesis || '').trim()
     if (!raw) return []
 
-    // 1) Si l'IA a fourni de vrais sauts de ligne, on respecte son decoupage.
-    const parts = raw.split(/\n{1,}/).map(p => p.trim()).filter(Boolean)
-    if (parts.length > 1) return parts
+    // Dé-escape les séquences littérales "\\n" résiduelles (double-encodage JSON rare).
+    raw = raw.replace(/\\n/g, '\n')
 
-    // 2) Bloc unique : on repartit les phrases en paragraphes EQUILIBRES
-    //    (2 a 4 selon la longueur), pour ne jamais laisser un mur de texte.
-    const sentences = (parts[0].match(/[^.!?]+[.!?]+["»')\]]*\s*/g) || [parts[0]])
-        .map(s => s.trim())
-        .filter(Boolean)
-    if (sentences.length <= 2) return sentences.length ? [sentences.join(' ')] : []
-
-    const target = sentences.length <= 5 ? 2 : sentences.length <= 9 ? 3 : 4
-    const per = Math.ceil(sentences.length / target)
-    const out = []
-    for (let i = 0; i < sentences.length; i += per) {
-        out.push(sentences.slice(i, i + per).join(' ').trim())
-    }
-    return out.filter(Boolean)
+    // Découpe sur 1 ou plusieurs sauts de ligne consécutifs.
+    return raw.split(/\n+/).map(p => p.trim()).filter(Boolean)
 })
 
 // Polling de l'état du Grimoire pendant la (re)génération IA.

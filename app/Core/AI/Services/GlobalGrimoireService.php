@@ -65,7 +65,9 @@ class GlobalGrimoireService
         $jsonSynth = $this->parseJson($rawSynth);
         $jsonVoies = $this->parseJson($rawVoies);
 
-        $synthese = (string) ($jsonSynth['synthese'] ?? $jsonSynth['synthèse'] ?? '');
+        $synthese = $this->normalizeSynthesisParagraphs(
+            (string) ($jsonSynth['synthese'] ?? $jsonSynth['synthèse'] ?? '')
+        );
         $voies    = $this->extractVoies($jsonVoies);
         $voies    = PluginHooks::applyFilters('grimoire.voies', $voies, $user, $attempts);
 
@@ -208,6 +210,61 @@ class GlobalGrimoireService
             // est introuvable, pour ne jamais fusionner deux tentatives à tort.
             ->unique(fn (TestAttempt $a) => $a->test?->id ?? 'attempt-' . $a->id)
             ->values();
+    }
+
+    /**
+     * Garantit que la synthèse est découpée en paragraphes lisibles.
+     *
+     * L'IA oublie parfois les \n\n malgré les instructions. Plutôt que de laisser
+     * la responsabilité au front (fragile pour le français), on normalise ici :
+     * 1. Si \n\n déjà présents → rien à faire.
+     * 2. Si \n simples → on les double.
+     * 3. Si bloc sans retour à la ligne → on découpe par phrases puis on regroupe
+     *    en 3-4 paragraphes équilibrés.
+     */
+    protected function normalizeSynthesisParagraphs(string $text): string
+    {
+        $text = trim($text);
+        if ($text === '') {
+            return '';
+        }
+
+        // Cas 1 : déjà des doubles sauts — parfait, on ne touche pas.
+        if (str_contains($text, "\n\n")) {
+            return $text;
+        }
+
+        // Cas 2 : sauts simples → on double.
+        if (str_contains($text, "\n")) {
+            // Normalise d'abord les triples+ en double, puis double les simples restants.
+            $text = preg_replace('/\n{3,}/', "\n\n", $text);
+            return preg_replace('/(?<!\n)\n(?!\n)/', "\n\n", $text);
+        }
+
+        // Cas 3 : bloc monolithique — découpe heuristique par phrases.
+        // On coupe sur ". " / "! " / "? " suivi d'une lettre majuscule ou d'un chiffre,
+        // mais uniquement quand la phrase précédente fait ≥ 40 caractères (évite "M. Dupont").
+        $sentences = preg_split(
+            '/(?<=[\.\!\?])\s+(?=[A-ZÀÂÄÉÈÊËÎÏÔÙÛÜÇ0-9])/u',
+            $text
+        );
+        $sentences = array_values(array_filter(array_map('trim', $sentences ?? [$text])));
+
+        if (count($sentences) <= 1) {
+            return $text; // ne rien toucher si une seule phrase (texte très court)
+        }
+
+        // Regroupe en 3–4 paragraphes équilibrés.
+        $count  = count($sentences);
+        $target = $count <= 5 ? 2 : ($count <= 9 ? 3 : 4);
+        $per    = (int) ceil($count / $target);
+
+        $paras = [];
+        for ($i = 0; $i < $count; $i += $per) {
+            $paras[] = implode(' ', array_slice($sentences, $i, $per));
+        }
+
+        return implode("\n\n", $paras);
     }
 
     protected function testsIncluded(Collection $attempts): array

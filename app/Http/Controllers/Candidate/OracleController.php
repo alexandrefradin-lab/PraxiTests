@@ -36,7 +36,23 @@ class OracleController extends Controller
             'message' => ['required', 'string', 'min:1', 'max:4000'],
         ]);
 
-        $reply = $oracle->ask(auth()->user(), $data['message']);
+        try {
+            $reply = $oracle->ask(auth()->user(), $data['message']);
+        } catch (\Throwable $e) {
+            // Filet de sécurité ultime : l'OracleChatService est censé tout absorber,
+            // mais si une exception remonte quand même (ex : injection impossible),
+            // on renvoie du JSON plutôt qu'un 500 HTML qui fait planter le widget.
+            logger()->error('Oracle controller exception: ' . $e::class . ' — ' . $e->getMessage());
+
+            return response()->json([
+                'reply' => [
+                    'id'      => null,
+                    'role'    => 'assistant',
+                    'content' => "Je ne parviens pas à répondre à l'instant — le service est momentanément indisponible. Réessaie dans quelques minutes.",
+                    'at'      => now()->toIso8601String(),
+                ],
+            ]);
+        }
 
         return response()->json([
             'reply' => [

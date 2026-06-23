@@ -32,35 +32,40 @@ class OracleChatService
     {
         $message = trim($message);
 
-        // Persistance de la QUESTION d'abord (cf. audit Fo-1) : même si l'appel IA
-        // échoue ensuite, le message de l'utilisateur n'est jamais perdu et reste
-        // visible dans l'historique de la conversation.
-        OracleMessage::create([
-            'user_id' => $user->id,
-            'role'    => 'user',
-            'content' => $message,
-        ]);
-
-        $attempts = $this->grimoires->completedAttempts($user);
-        $grimoire = $user->profileGrimoire;   // peut être null (aucun test encore)
-
-        // L'historique inclut désormais la question qu'on vient de persister.
-        $history = $this->history($user)
-            ->map(fn (OracleMessage $m) => ['role' => $m->role, 'content' => $m->content])
-            ->all();
-
-        $messages = $this->prompts->oracleChat($user, $attempts, $grimoire, $history, $message);
-        $messages = PluginHooks::applyFilters('ai.oracle.messages', $messages, $user);
-
         try {
+            // Contexte candidat : tentatives + Grimoire.
+            $attempts = $this->grimoires->completedAttempts($user);
+            $grimoire = $user->profileGrimoire;   // peut être null (aucun test encore)
+
+            // Historique AVANT persistance de la question (évite le double envoi
+            // dans le prompt : la question courante est ajoutée explicitement après).
+            $history = $this->history($user)
+                ->map(fn (OracleMessage $m) => ['role' => $m->role, 'content' => $m->content])
+                ->all();
+
+            // Persistance de la QUESTION (cf. audit Fo-1) : le message est enregistré
+            // après la lecture de l'historique pour ne pas apparaître deux fois dans le prompt.
+            OracleMessage::create([
+                'user_id' => $user->id,
+                'role'    => 'user',
+                'content' => $message,
+            ]);
+
+            $messages = $this->prompts->oracleChat($user, $attempts, $grimoire, $history, $message);
+            $messages = PluginHooks::applyFilters('ai.oracle.messages', $messages, $user);
+
             $driver = $this->ai->forTask('oracle_chat');
             $reply  = $driver->chat($messages, ['temperature' => 0.7, 'max_tokens' => 900]);
             $reply  = trim(PluginHooks::applyFilters('ai.oracle.output', $reply, $user));
             $usage  = $driver->lastUsage();
         } catch (\Throwable $e) {
             // Repli gracieux (cf. audit Fo-1) : jamais de HTTP 500 dans le widget.
-            // On ne logge que le type/statut, pas le contenu (pas de PII — audit T-2).
-            logger()->warning('Oracle IA indisponible: ' . $e::class);
+            logger()->warning('Oracle indisponible: ' . $e::class . ' — ' . $e->getMessage());
+
+            // S'assure que la question est persistée même si l'erreur était avant.
+            OracleMessage::firstOrCreate(
+                ['user_id' => $user->id, 'role' => 'user', 'content' => $message],
+            );
 
             $fallback = OracleMessage::create([
                 'user_id' => $user->id,

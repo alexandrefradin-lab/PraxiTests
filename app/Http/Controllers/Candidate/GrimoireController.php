@@ -186,6 +186,14 @@ class GrimoireController extends Controller
         }
 
         try {
+            // Purge l'éventuel verrou ShouldBeUnique résiduel d'un job précédent tué
+            // par max_execution_time (OVH sync+afterResponse). Sans ça, le dispatch
+            // suivant est silencieusement ignoré et le Grimoire reste figé sur "pending"
+            // indéfiniment (le polling front ne voit jamais ready/failed).
+            \Illuminate\Support\Facades\Cache::forget(
+                'laravel_unique_job:' . GenerateGlobalGrimoire::class . ':grimoire_user_' . $user->id
+            );
+
             $grimoire->update(['status' => 'pending']);
             GenerateGlobalGrimoire::dispatch($user->id, force: true)->afterResponse();
         } finally {
