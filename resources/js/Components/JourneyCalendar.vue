@@ -37,11 +37,11 @@ const cells = computed(() =>
     })
 )
 
-// Semaines (lignes de 7)
+// Lignes de 10
 const weeks = computed(() => {
     const rows = []
-    for (let i = 0; i < cells.value.length; i += 7) {
-        rows.push(cells.value.slice(i, i + 7))
+    for (let i = 0; i < cells.value.length; i += 10) {
+        rows.push(cells.value.slice(i, i + 10))
     }
     return rows
 })
@@ -53,87 +53,65 @@ const weeks = computed(() => {
             {{ label }}
         </p>
 
-        <div style="background: var(--surface, #fff); border: 1px solid var(--border, #e5e7eb); border-radius: var(--r-md, 14px); padding: 1rem 1.1rem;">
+        <div style="background: var(--bg-elevated); border: 1px solid var(--glass-border); border-radius: 10px; padding: 0.9rem 1rem;">
 
-            <!-- En-tête jours de la semaine -->
-            <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 6px;">
-                <div
-                    v-for="(d, di) in ['L','M','M','J','V','S','D']"
-                    :key="di"
-                    style="text-align: center; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.04em; padding-bottom: 2px;"
-                >{{ d }}</div>
-            </div>
-
-            <!-- Grille semaines -->
-            <div style="display: flex; flex-direction: column; gap: 4px;">
+            <!-- Grille 10 colonnes × N lignes -->
+            <div style="display: flex; flex-direction: column; gap: 3px;">
                 <div
                     v-for="(week, wi) in weeks"
                     :key="wi"
-                    style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;"
+                    style="display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px;"
                 >
                     <div
                         v-for="cell in week"
                         :key="cell.day"
                         :title="`Jour ${cell.day}`"
                         :style="{
-                            position: 'relative',
-                            aspectRatio: '1',
-                            borderRadius: '6px',
+                            height: '28px',
+                            borderRadius: '4px',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            fontSize: '0.7rem',
-                            fontFamily: 'var(--font-display)',
-                            fontWeight: cell.is_today ? 800 : 600,
+                            fontSize: '0.6rem',
+                            fontFamily: 'var(--font-data)',
+                            fontWeight: cell.is_today ? 700 : 500,
                             cursor: 'default',
-                            border: cell.is_today
-                                ? '2px solid var(--primary, #A67520)'
-                                : '1px solid transparent',
+                            border: cell.is_today ? '1.5px solid var(--color-primary)' : 'none',
                             background: cell.completed
-                                ? '#10B981'
+                                ? 'var(--color-primary)'
                                 : cell.is_today
-                                    ? 'rgba(166,117,32,.08)'
+                                    ? 'rgba(166,117,32,.12)'
                                     : cell.unlocked
-                                        ? 'rgba(166,117,32,.12)'
-                                        : 'var(--border, #f1f1f0)',
+                                        ? 'rgba(166,117,32,.1)'
+                                        : 'rgba(166,117,32,.04)',
                             color: cell.completed
-                                ? '#fff'
+                                ? '#F0E8D4'
                                 : cell.is_today
-                                    ? 'var(--primary, #A67520)'
+                                    ? 'var(--color-primary)'
                                     : cell.unlocked
-                                        ? 'var(--text-primary)'
-                                        : 'var(--text-secondary)',
-                            opacity: cell.unlocked || cell.completed ? 1 : 0.45,
-                            transition: 'background .25s, transform .2s',
-                            transform: cell.is_today ? 'scale(1.08)' : 'scale(1)',
+                                        ? 'var(--text-secondary)'
+                                        : 'var(--text-muted)',
+                            opacity: cell.unlocked || cell.completed || cell.is_today ? 1 : 0.55,
                         }"
                     >
-                        <!-- Coche si complété -->
-                        <span v-if="cell.completed" style="font-size: 0.75rem; line-height: 1;">✓</span>
-                        <!-- Numéro sinon -->
+                        <span v-if="cell.completed" style="font-size: 0.65rem; line-height: 1;">✓</span>
                         <span v-else style="line-height: 1;">{{ cell.day }}</span>
-
-                        <!-- Point « aujourd'hui » sous le numéro -->
-                        <span
-                            v-if="cell.is_today && !cell.completed"
-                            style="position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; border-radius: 50%; background: var(--primary, #A67520);"
-                        ></span>
                     </div>
                 </div>
             </div>
 
             <!-- Légende -->
-            <div style="display: flex; gap: 1.2rem; margin-top: 0.9rem; flex-wrap: wrap;">
-                <span style="display: flex; align-items: center; gap: 5px; font-size: 0.72rem; color: var(--text-secondary);">
-                    <span style="width: 12px; height: 12px; border-radius: 3px; background: #10B981; display: inline-block;"></span>
+            <div style="display: flex; gap: 1rem; margin-top: 0.65rem; flex-wrap: wrap;">
+                <span style="display: flex; align-items: center; gap: 4px; font-size: 0.68rem; color: var(--text-muted);">
+                    <span style="width: 10px; height: 10px; border-radius: 2px; background: var(--color-primary); display: inline-block;"></span>
                     Fait
                 </span>
-                <span style="display: flex; align-items: center; gap: 5px; font-size: 0.72rem; color: var(--text-secondary);">
-                    <span style="width: 12px; height: 12px; border-radius: 3px; background: rgba(166,117,32,.12); border: 2px solid var(--primary, #A67520); display: inline-block;"></span>
+                <span style="display: flex; align-items: center; gap: 4px; font-size: 0.68rem; color: var(--text-muted);">
+                    <span style="width: 10px; height: 10px; border-radius: 2px; background: rgba(166,117,32,.12); border: 1.5px solid var(--color-primary); display: inline-block;"></span>
                     Aujourd'hui
                 </span>
-                <span style="display: flex; align-items: center; gap: 5px; font-size: 0.72rem; color: var(--text-secondary);">
-                    <span style="width: 12px; height: 12px; border-radius: 3px; background: var(--border, #f1f1f0); display: inline-block;"></span>
+                <span style="display: flex; align-items: center; gap: 4px; font-size: 0.68rem; color: var(--text-muted);">
+                    <span style="width: 10px; height: 10px; border-radius: 2px; background: rgba(166,117,32,.04); display: inline-block;"></span>
                     À venir
                 </span>
             </div>
