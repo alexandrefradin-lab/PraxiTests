@@ -1,6 +1,6 @@
 <script setup>
-import { ref, onMounted } from 'vue'
-import { Link } from '@inertiajs/vue3'
+import { ref, onMounted, watch } from 'vue'
+import { Link, Head } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import MarkdownText from '@/Components/MarkdownText.vue'
 
@@ -76,6 +76,11 @@ function dimDef(key) {
         || "Cette dimension mesure une facette de ton profil. Plus la barre est remplie, plus elle te caractérise."
 }
 
+// Watch réactif : déclenche le reveal dès que ai_synthesis arrive (SPA + polling).
+watch(() => props.result?.ai_synthesis, (val) => {
+    if (val) revealed.value = true
+}, { immediate: true })
+
 onMounted(() => {
     if (props.ai_pending || !props.result?.ai_synthesis) return
 
@@ -91,8 +96,9 @@ onMounted(() => {
 <template>
     <!-- ═══ CAS AI_PENDING ═══════════════════════════════════════════════ -->
     <div v-if="ai_pending" class="ac-pending-shell">
-        <Head title="Révélation en cours…" />
-        <meta http-equiv="refresh" content="10">
+        <Head title="Révélation en cours…">
+            <meta head-key="refresh" http-equiv="refresh" content="10">
+        </Head>
 
         <div class="ac-pending-inner">
             <!-- Ligne décorative -->

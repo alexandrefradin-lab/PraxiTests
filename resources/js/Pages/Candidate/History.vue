@@ -174,7 +174,7 @@ const formatDate = (iso) => {
                         :key="a.id"
                         class="pt-card p-5 flex items-center justify-between gap-4"
                         style="transition: box-shadow 0.15s, transform 0.15s;"
-                        @mouseenter="$event.currentTarget.style.cssText += '; box-shadow: var(--shadow-elevated); transform: translateY(-1px);'"
+                        @mouseenter="$event.currentTarget.style.boxShadow = 'var(--shadow-elevated)'; $event.currentTarget.style.transform = 'translateY(-1px)'"
                         @mouseleave="$event.currentTarget.style.boxShadow = 'var(--shadow-card)'; $event.currentTarget.style.transform = ''"
                     >
                         <!-- Gauche : nom + date + score -->
@@ -249,9 +249,9 @@ const formatDate = (iso) => {
                                 Voir la Révélation
                             </Link>
 
-                            <!-- Bouton PDF si la route existe -->
+                            <!-- Bouton PDF -->
                             <Link
-                                v-if="a.result_id && $page.props.routes && $page.props.routes['results.pdf']"
+                                v-if="a.result_id"
                                 :href="route('results.pdf', a.result_id)"
                                 class="ac-btn-ghost"
                                 style="font-size: 12px; padding: 5px 12px;"

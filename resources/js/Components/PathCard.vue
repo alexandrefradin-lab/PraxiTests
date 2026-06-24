@@ -87,7 +87,7 @@ const salary = computed(() => {
 
 <style scoped>
 .path-card {
-    border: .5px solid var(--pt-border);
+    border: .5px solid var(--pt-border, rgba(166,117,32,0.2));
     border-radius: 12px;
     padding: 1rem 1.1rem;
     background: var(--pt-surface, #fff);
@@ -96,36 +96,36 @@ const salary = computed(() => {
     gap: .7rem;
 }
 .path-card__head { display: flex; align-items: flex-start; justify-content: space-between; gap: .75rem; }
-.path-card__title { font-size: 15px; font-weight: 600; color: var(--pt-navy); margin: 0; }
-.path-card__family { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--pt-text-light); margin: 2px 0 0; }
+.path-card__title { font-size: 15px; font-weight: 600; color: var(--pt-navy, #2A1E08); margin: 0; }
+.path-card__family { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--pt-text-light, #8C7A5E); margin: 2px 0 0; }
 .path-card__opp {
     flex-shrink: 0;
     font-family: 'Space Mono', monospace;
     font-size: 15px;
     font-weight: 600;
-    color: var(--pt-gold-hover);
-    background: var(--pt-gold-pale);
-    border: .5px solid var(--pt-gold-border);
+    color: var(--pt-gold-hover, #A67520);
+    background: var(--pt-gold-pale, #F5E6C8);
+    border: .5px solid var(--pt-gold-border, rgba(166,117,32,0.3));
     border-radius: 8px;
     padding: 3px 9px;
 }
 .path-card__row { display: flex; align-items: center; gap: 10px; }
-.path-card__label { font-size: 12px; color: var(--pt-text-muted); min-width: 110px; }
-.path-card__val { font-size: 12px; font-weight: 600; color: var(--pt-text); min-width: 36px; text-align: right; }
-.path-card__market { font-size: 12.5px; color: var(--pt-text-muted); display: flex; flex-wrap: wrap; gap: 5px; }
-.path-card__salary { color: var(--pt-text); }
+.path-card__label { font-size: 12px; color: var(--pt-text-muted, #6B5A3E); min-width: 110px; }
+.path-card__val { font-size: 12px; font-weight: 600; color: var(--pt-text, #2A1E08); min-width: 36px; text-align: right; }
+.path-card__market { font-size: 12.5px; color: var(--pt-text-muted, #6B5A3E); display: flex; flex-wrap: wrap; gap: 5px; }
+.path-card__salary { color: var(--pt-text, #2A1E08); }
 .path-card__foot { display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin-top: .15rem; }
-.path-card__gap { font-size: 12.5px; font-weight: 500; color: var(--pt-text); }
+.path-card__gap { font-size: 12.5px; font-weight: 500; color: var(--pt-text, #2A1E08); }
 .path-card__unlock {
     font-size: 12px;
     font-weight: 500;
-    color: var(--pt-gold-hover);
+    color: var(--pt-gold-hover, #A67520);
     background: none;
-    border: .5px solid var(--pt-gold-border);
+    border: .5px solid var(--pt-gold-border, rgba(166,117,32,0.3));
     border-radius: 99px;
     padding: 3px 12px;
     cursor: pointer;
 }
-.path-card__unlock:hover { background: var(--pt-gold-pale); }
+.path-card__unlock:hover { background: var(--pt-gold-pale, #F5E6C8); }
 .path-card__unlocked { font-size: 12px; font-weight: 500; color: #3A6B48; }
 </style>

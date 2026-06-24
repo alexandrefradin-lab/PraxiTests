@@ -60,7 +60,7 @@ const pct = computed(() => {
             text-anchor="middle"
             font-family="'Space Mono', monospace"
             font-size="30" font-weight="700"
-            fill="#2A1E08"
+            fill="var(--text-primary, #2A1E08)"
         >{{ score }}</text>
         <text
             v-if="showMax"
@@ -68,7 +68,7 @@ const pct = computed(() => {
             text-anchor="middle"
             font-family="'Space Mono', monospace"
             font-size="9" letter-spacing="1.5"
-            fill="#6B5A3E"
+            fill="var(--text-secondary, #6B5A3E)"
         >/ {{ max }}</text>
     </svg>
 </template>

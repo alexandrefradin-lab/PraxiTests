@@ -58,8 +58,8 @@ const weeks = computed(() => {
             <!-- En-tête jours de la semaine -->
             <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 6px;">
                 <div
-                    v-for="d in ['L','M','M','J','V','S','D']"
-                    :key="d + Math.random()"
+                    v-for="(d, di) in ['L','M','M','J','V','S','D']"
+                    :key="di"
                     style="text-align: center; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.04em; padding-bottom: 2px;"
                 >{{ d }}</div>
             </div>

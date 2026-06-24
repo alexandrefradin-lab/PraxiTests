@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue'
-import { router } from '@inertiajs/vue3'
+import { router, Head } from '@inertiajs/vue3'
 
 const props = defineProps({
     attempt: Object,

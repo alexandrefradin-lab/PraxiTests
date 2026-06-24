@@ -21,13 +21,45 @@ const escapeHtml = (s) => s
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
 
-// Inline : gras, italique, code, liens markdown
-const inline = (s) => escapeHtml(s)
-    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    .replace(/__([^_]+)__/g, '<strong>$1</strong>')
-    .replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>')
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
-    .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+// Inline : Markdown appliqué d'abord sur le texte brut, puis on échappe
+// les parties textuelles restantes pour éviter les injections XSS.
+// Ordre correct : tokeniser les blocs Markdown → échapper le texte pur → recombiner.
+const inline = (s) => {
+    // On découpe la chaîne en tokens Markdown (gras, italique, code, liens)
+    // vs. texte littéral, on échappe uniquement le texte littéral.
+    const tokens = []
+    // Regex globale qui capture tous les motifs Markdown inline
+    const MARKDOWN_RE = /(\*\*([^*]+)\*\*|__([^_]+)__|(?:^|(?<=[^*]))\*([^*\n]+)\*(?=[^*]|$)|`([^`]+)`|\[([^\]]+)\]\((https?:\/\/[^\s)]+)\))/g
+    let lastIndex = 0
+    let match
+    while ((match = MARKDOWN_RE.exec(s)) !== null) {
+        // Texte avant ce token → échapper
+        if (match.index > lastIndex) {
+            tokens.push(escapeHtml(s.slice(lastIndex, match.index)))
+        }
+        const full = match[0]
+        if (full.startsWith('**') || full.startsWith('__')) {
+            const inner = escapeHtml(match[2] ?? match[3] ?? '')
+            tokens.push(`<strong>${inner}</strong>`)
+        } else if (full.startsWith('`')) {
+            tokens.push(`<code>${escapeHtml(match[5] ?? '')}</code>`)
+        } else if (full.startsWith('[')) {
+            const label = escapeHtml(match[6] ?? '')
+            const href  = escapeHtml(match[7] ?? '')
+            tokens.push(`<a href="${href}" target="_blank" rel="noopener">${label}</a>`)
+        } else {
+            // Italique *texte*
+            const inner = escapeHtml(match[4] ?? '')
+            tokens.push(`<em>${inner}</em>`)
+        }
+        lastIndex = match.index + full.length
+    }
+    // Reste du texte après le dernier token
+    if (lastIndex < s.length) {
+        tokens.push(escapeHtml(s.slice(lastIndex)))
+    }
+    return tokens.join('')
+}
 
 const html = computed(() => {
     const src = (props.source || '').replace(/\r\n/g, '\n').trim()

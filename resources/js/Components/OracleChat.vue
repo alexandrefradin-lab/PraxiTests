@@ -1,5 +1,6 @@
 <script setup>
 import { ref, nextTick, watch } from 'vue'
+import MarkdownText from '@/Components/MarkdownText.vue'
 
 const open = ref(false)
 const loaded = ref(false)        // historique déjà chargé ?
@@ -134,7 +135,12 @@ watch(messages, scrollToBottom, { deep: true })
                         class="oracle-msg"
                         :class="m.role === 'user' ? 'oracle-msg--user' : 'oracle-msg--oracle'"
                     >
-                        <p class="oracle-bubble">{{ m.content }}</p>
+                        <div class="oracle-bubble">
+                            <template v-if="m.role === 'assistant'">
+                                <MarkdownText :source="m.content" />
+                            </template>
+                            <template v-else>{{ m.content }}</template>
+                        </div>
                     </div>
 
                     <div v-if="sending" class="oracle-msg oracle-msg--oracle">

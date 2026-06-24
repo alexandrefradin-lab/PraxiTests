@@ -193,8 +193,8 @@ const hasTreasure = computed(() => {
                     v-if="user"
                     :href="route('gdpr.show')"
                     style="font-family: var(--font-data); font-size: 11px; color: var(--text-muted); text-decoration: none; letter-spacing: 0.03em; transition: color 0.15s"
-                    onmouseenter="this.style.color='var(--text-secondary)'"
-                    onmouseleave="this.style.color='var(--text-muted)'"
+                    @mouseenter="(e) => e.currentTarget.style.color = 'var(--text-secondary)'"
+                    @mouseleave="(e) => e.currentTarget.style.color = 'var(--text-muted)'"
                 >
                     🔒 Mes données & RGPD
                 </Link>

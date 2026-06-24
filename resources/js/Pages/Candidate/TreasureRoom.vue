@@ -148,14 +148,22 @@ defineProps({
                         <template v-if="item.estimated_minutes">≈ {{ item.estimated_minutes }} min</template>
                         <template v-else>Module offert</template>
                     </span>
-                    <Link
-                        v-if="item.url"
-                        :href="item.url"
-                        class="pt-btn-primary text-xs px-4 py-2"
-                        :class="{ 'pointer-events-none opacity-40': !profile_complete }"
-                    >
-                        Ouvrir le trésor →
-                    </Link>
+                    <div class="flex flex-col items-end gap-1">
+                        <Link
+                            v-if="item.url"
+                            :href="item.url"
+                            class="pt-btn-primary text-xs px-4 py-2"
+                            :class="{ 'pointer-events-none opacity-40': !profile_complete }"
+                        >
+                            Ouvrir le trésor →
+                        </Link>
+                        <p
+                            v-if="!profile_complete"
+                            style="font-family:'Space Mono',monospace; font-size:10px; color:var(--text-secondary); text-align:right;"
+                        >
+                            Complete ton profil pour accéder à ce trésor
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>

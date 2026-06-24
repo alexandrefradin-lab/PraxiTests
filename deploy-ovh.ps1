@@ -1,13 +1,15 @@
 # ================================================================
-# PraxiQuest — Déploiement LOCAL (build + commit + push)
+# PraxiQuest — Déploiement FULL (build + commit + push + SSH OVH)
 # À lancer sur Windows (clic droit > Exécuter avec PowerShell)
-# Étape 1/2 : envoie tes modifs sur GitHub
-# Étape 2/2 : ensuite, en SSH sur OVH -> bash deploy-server.sh
 # ================================================================
 $ErrorActionPreference = "Stop"
 Set-Location "C:\Users\Fradin Alexandre\Documents\Claude\Projects\PraxiTests"
 
-# Débloque un éventuel verrou git resté coincé (cause des commits qui échouent)
+$SSH_USER = "fa7386-ovh"
+$SSH_HOST = "ssh.cluster121.hosting.ovh.net"
+$SSH_CMD  = "cd ~/praxiquest && bash deploy-server.sh"
+
+# Débloque un éventuel verrou git resté coincé
 if (Test-Path ".git\index.lock") {
     Remove-Item ".git\index.lock" -Force
     Write-Host "Verrou git supprime" -ForegroundColor Yellow
@@ -26,7 +28,12 @@ git push origin main
 if ($LASTEXITCODE -ne 0) { Write-Host "ERREUR git push" -ForegroundColor Red; Read-Host; exit 1 }
 
 Write-Host ""
-Write-Host "=== OK ! Pousse termine. ===" -ForegroundColor Green
-Write-Host "Maintenant connecte-toi en SSH sur OVH et lance :" -ForegroundColor Green
-Write-Host "    cd ~/praxiquest && bash deploy-server.sh" -ForegroundColor White
+Write-Host "=== 3. Deploy SSH sur OVH ===" -ForegroundColor Cyan
+Write-Host "Connexion a ${SSH_USER}@${SSH_HOST}..." -ForegroundColor Yellow
+ssh "${SSH_USER}@${SSH_HOST}" $SSH_CMD
+if ($LASTEXITCODE -ne 0) { Write-Host "ERREUR SSH deploy" -ForegroundColor Red; Read-Host; exit 1 }
+
+Write-Host ""
+Write-Host "=== DEPLOY COMPLET ===" -ForegroundColor Green
+Write-Host "https://praxiquest.decisionpro.fr" -ForegroundColor White
 Read-Host "Appuyez sur Entree pour fermer"
