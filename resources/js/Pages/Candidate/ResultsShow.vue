@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, reactive, onMounted, watch } from 'vue'
 import { Head } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import MarkdownText from '@/Components/MarkdownText.vue'
@@ -8,6 +8,9 @@ const props = defineProps({
     result:       Object,
     ai_pending:   Boolean,
 })
+
+// Scores animés : chaque dimension part de 0 et compte jusqu'à sa vraie valeur.
+const animatedDims = reactive({})
 
 const revealed = ref(false)
 const ctaVisible = ref(false)
@@ -80,6 +83,34 @@ watch(() => props.result?.ai_synthesis, (val) => {
     if (val) revealed.value = true
 }, { immediate: true })
 
+// Dès que revealed passe à true, on initialise animatedDims à 0 puis on
+// lance le count-up de chaque dimension avec un décalage par index.
+watch(revealed, (val) => {
+    if (!val || prefersReducedMotion) {
+        // Accessibilité : valeurs directes, pas d'animation.
+        const dims = props.result?.scoring?.dimensions
+        if (dims) Object.entries(dims).forEach(([k, v]) => { animatedDims[k] = v })
+        return
+    }
+    const dims = props.result?.scoring?.dimensions
+    if (!dims) return
+    Object.entries(dims).forEach(([key, target], i) => {
+        animatedDims[key] = 0
+        setTimeout(() => {
+            const start = Date.now()
+            const duration = 1000 + i * 60
+            const tick = () => {
+                const p = Math.min((Date.now() - start) / duration, 1)
+                const ease = 1 - Math.pow(1 - p, 3)
+                animatedDims[key] = Math.round(ease * target)
+                if (p < 1) requestAnimationFrame(tick)
+                else animatedDims[key] = target
+            }
+            requestAnimationFrame(tick)
+        }, 700 + i * 160)
+    })
+}, { immediate: true })
+
 // FE-05 : ctaVisible doit passer à true dès que le polling marque ai_pending = false.
 // Sans ce watch, le CTA PDF reste caché indéfiniment pour les utilisateurs qui arrivent
 // après le polling (la synthèse est déjà là mais onMounted ne retourne pas à true).
@@ -142,7 +173,7 @@ onMounted(() => {
             <div v-show="revealed" class="ac-content fade-in">
 
                 <!-- EN-TÊTE RÉSULTATS -->
-                <header class="ac-results-header">
+                <header class="ac-results-header ac-reveal-item" style="animation-delay: 0.05s">
                     <span class="ac-revelation-badge">Révélation</span>
                     <h1 class="ac-results-h1">
                         <span v-if="attempt?.test?.name" class="block text-sm font-normal opacity-60 mb-1" style="font-family: var(--font-data); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; color: var(--color-primary); margin-bottom: 0.5rem;">{{ attempt.test.name }}</span>
@@ -152,7 +183,7 @@ onMounted(() => {
                 </header>
 
                 <!-- ── GRIMOIRE DE SYNTHÈSE ──────────────────────── -->
-                <section class="ac-card ac-synthesis-card">
+                <section class="ac-card ac-synthesis-card ac-reveal-item" style="animation-delay: 0.25s">
                     <h2 class="ac-card-title">Ton Grimoire de Synthèse</h2>
 
                     <!-- Synthèse IA rendue en Markdown (source unique) -->
@@ -164,15 +195,16 @@ onMounted(() => {
                 </section>
 
                 <!-- ── DIMENSIONS SCORING ─────────────────────────── -->
-                <section v-if="result.scoring?.dimensions" class="ac-card">
+                <section v-if="result.scoring?.dimensions" class="ac-card ac-reveal-item" style="animation-delay: 0.45s">
                     <h2 class="ac-card-title">Tes Dimensions</h2>
                     <p class="ac-card-hint">Clique sur une dimension pour découvrir ce qu'elle mesure.</p>
                     <div class="ac-dimensions">
                         <div
-                            v-for="(dimValue, key) in result.scoring.dimensions"
+                            v-for="(dimValue, key, index) in result.scoring.dimensions"
                             :key="key"
-                            class="ac-dimension-row"
+                            class="ac-dimension-row ac-reveal-item"
                             :class="{ 'is-open': openDim === key }"
+                            :style="{ animationDelay: (0.55 + index * 0.12) + 's' }"
                         >
                             <button
                                 type="button"
@@ -184,10 +216,10 @@ onMounted(() => {
                                     {{ dimLabel(key) }}
                                     <span class="ac-dimension-info" aria-hidden="true">i</span>
                                 </span>
-                                <span class="ac-dimension-score">{{ dimValue }}/100</span>
+                                <span class="ac-dimension-score">{{ animatedDims[key] ?? dimValue }}/100</span>
                             </button>
                             <div class="ac-progress-track">
-                                <div class="ac-progress-fill" :style="{ width: dimValue + '%' }"></div>
+                                <div class="ac-progress-fill" :style="{ width: (animatedDims[key] ?? 0) + '%' }"></div>
                             </div>
                             <transition name="ac-def">
                                 <p v-if="openDim === key" class="ac-dimension-def">
@@ -199,7 +231,7 @@ onMounted(() => {
                 </section>
 
                 <!-- ── VOIES POSSIBLES (métiers) ───────────────────── -->
-                <section v-if="result.suggested_jobs?.length" class="ac-card">
+                <section v-if="result.suggested_jobs?.length" class="ac-card ac-reveal-item" style="animation-delay: 0.65s">
                     <h2 class="ac-card-title">{{ result.suggested_jobs.length }} Voies Possibles</h2>
                     <div class="ac-jobs-grid">
                         <article
@@ -278,6 +310,18 @@ onMounted(() => {
 
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+}
+
+/* Reveal cinématique : chaque bloc glisse vers le haut et apparaît.
+   animation-delay est posé en inline style sur chaque élément. */
+.ac-reveal-item {
+    opacity: 0;
+    animation: acReveal 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes acReveal {
+    from { opacity: 0; transform: translateY(20px); }
     to   { opacity: 1; transform: none; }
 }
 
@@ -608,7 +652,7 @@ onMounted(() => {
     height: 100%;
     background: var(--color-primary);
     border-radius: 4px;
-    transition: width 1s ease;
+    /* Pas de transition CSS : le count-up JS anime la largeur frame par frame. */
 }
 
 /* ── VOIES POSSIBLES ─────────────────────────── */
@@ -749,12 +793,15 @@ onMounted(() => {
 /* ── Accessibilité : réduire les animations si l'utilisateur le demande ── */
 @media (prefers-reduced-motion: reduce) {
     .fade-in,
+    .ac-reveal-item,
     .ac-cursor,
     .ac-pulse-dots span,
     .ac-progress-fill,
     .ac-btn-primary {
         animation: none !important;
         transition: none !important;
+        opacity: 1 !important;
+        transform: none !important;
     }
 }
 </style>
