@@ -1,14 +1,11 @@
 <script setup>
 import { computed } from 'vue'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
-import TestPistesSection from '@/Components/TestPistesSection.vue'
 import RadarChart from '@/Components/RadarChart.vue'
 
 const props = defineProps({
     attempt:      Object,
     result:       Object,
-    pistes_test:  { type: Array,   default: () => [] },
-    ptp_eligible: { type: Boolean, default: false },
 })
 const scoring = computed(() => props.result?.scoring ?? {})
 const dims = computed(() => scoring.value.scores_dim ?? {})
@@ -138,12 +135,6 @@ const niveauColor = {
             </section>
 
             <div class="text-center mt-12">
-                <!-- Pistes métiers (issues de ce test + profil) -->
-                <TestPistesSection
-                    v-if="pistes_test?.length"
-                    :pistes="pistes_test"
-                    :ptp-eligible="ptp_eligible"
-                />
 
                 <a :href="route('results.pdf', attempt.id)" class="pt-btn-ghost">Télécharger en PDF</a>
             </div>

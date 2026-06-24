@@ -37,6 +37,8 @@ class PraxiFocusScoringEngine implements ScoringEngineContract
         $screenerMax   = 0;
         $partBBurden   = 0;   // Partie B : nb de symptômes à fréquence élevée (≥ Souvent)
         $partBMax      = 0;
+        $partCBurden   = 0;   // Partie C : nb de symptômes émotionnels à fréquence élevée (≥ Souvent)
+        $partCMax      = 0;
         $allSum        = 0.0;
         $allCount      = 0;
 
@@ -67,6 +69,11 @@ class PraxiFocusScoringEngine implements ScoringEngineContract
                 $partBMax++;
                 if ($val >= 3) { // Souvent ou Très souvent
                     $partBBurden++;
+                }
+            } elseif ($part === 'C') {
+                $partCMax++;
+                if ($val >= 3) { // Souvent ou Très souvent
+                    $partCBurden++;
                 }
             }
         }
@@ -115,6 +122,7 @@ class PraxiFocusScoringEngine implements ScoringEngineContract
             'global_score'  => $globalScore,
             'screener'      => $screener,
             'part_b_burden' => ['count' => $partBBurden, 'max' => $partBMax ?: 12],
+            'part_c_burden' => ['count' => $partCBurden, 'max' => $partCMax ?: 6],
             'meta'          => $dims,
             'disclaimer'    => "Cet outil est un test de repérage basé sur l'échelle ASRS-v1.1 de l'OMS. Il ne constitue ni un diagnostic ni un avis médical. Seul un professionnel de santé qualifié (médecin, psychiatre, neuropsychologue) peut établir un diagnostic de TDAH. Vérifie toujours tes résultats avec un professionnel.",
             'computed_at'   => now()->toIso8601String(),

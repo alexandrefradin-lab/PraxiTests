@@ -5,15 +5,12 @@ namespace App\Http\Controllers\Candidate;
 use App\Http\Controllers\Concerns\BuildsBrandedPdf;
 use App\Http\Controllers\Controller;
 use App\Jobs\GenerateGlobalGrimoire;
-use App\Models\ProfilePathMatch;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 use Praxis\Core\AI\Services\GlobalGrimoireService;
-use Praxis\Core\Orientation\PtpPathService;
-
 /**
  * Le Grimoire global — relecture transversale de tous les tests du candidat.
  * Page /grimoire. Couche de conclusion par-dessus les résultats par test.
@@ -22,7 +19,7 @@ class GrimoireController extends Controller
 {
     use BuildsBrandedPdf;
 
-    public function show(GlobalGrimoireService $service, PtpPathService $ptp): Response
+    public function show(GlobalGrimoireService $service): Response
     {
         $user     = auth()->user();
         $attempts = $service->completedAttempts($user);
@@ -55,14 +52,20 @@ class GrimoireController extends Controller
             || $grimoire->tests_signature !== $signature
             || $needsVoiesRetry;
 
-        // Détecte un Grimoire bloqué sur "pending" (job tué par OVH max_execution_time
-        // avant completion) : le statut ne passe jamais à ready/failed, le polling tourne
-        // à vide indéfiniment et l'utilisateur est coincé. On détecte cela si updated_at
-        // (= dernier passage en pending) date de plus de 6 min (> uniqueFor=300s).
-        // On purge alors le verrou ShouldBeUnique pour autoriser un nouveau dispatch.
+        // Détecte un Grimoire bloqué sur "pending" (job tué par OVH avant completion) :
+        // le statut ne passe jamais à ready/failed, le polling tourne à vide indéfiniment.
+        // Seuil ramené à 3 min (l'appel IA le plus long dépasse rarement 2 min sur OVH).
         $stuckPending = $grimoire->status === 'pending'
             && $grimoire->updated_at
-            && $grimoire->updated_at->lt(now()->subMinutes(6));
+            && $grimoire->updated_at->lt(now()->subMinutes(3));
+
+        // Cooldown anti-boucle : si writeFallback a tracé un échec récent (< 3 min),
+        // on ne redispatch pas le job — évite les boucles infinies quand la clé API
+        // est invalide (chaque visite relancerait un appel IA voué à échouer).
+        $lastFailedAt  = isset($grimoire->ai_metadata['last_failed_at'])
+            ? \Carbon\Carbon::parse($grimoire->ai_metadata['last_failed_at'])
+            : null;
+        $recentlyFailed = $lastFailedAt && $lastFailedAt->gt(now()->subMinutes(3));
 
         if ($stuckPending) {
             \Illuminate\Support\Facades\Cache::forget(
@@ -70,7 +73,7 @@ class GrimoireController extends Controller
             );
         }
 
-        if ($needsGeneration && ($grimoire->status !== 'failed' || $stuckPending)) {
+        if ($needsGeneration && ($grimoire->status !== 'failed' || $stuckPending) && !$recentlyFailed) {
             if ($grimoire->status === 'ready') {
                 // périmé : on repasse en pending le temps de la régénération
                 $grimoire->update(['status' => 'pending']);
@@ -89,23 +92,7 @@ class GrimoireController extends Controller
 
         $pending = $grimoire->fresh()->status === 'pending';
 
-        // Pistes métiers dynamiques (PTP) — calculées depuis les tests + acquis déclarés.
-        // Le score des tests ne bouge pas ; seules les pistes ouvertes évoluent.
-        $profile     = $user->profile;
-        $pistes      = ['accessible' => [], 'ptp' => [], 'horizon' => []];
-        $ptpEligible = false;
-        if ($profile) {
-            $ptpEligible = $profile->status === 'employee';
-            // (Re)calcul si un test a changé (même signal que le Grimoire) ou jamais calculé.
-            if ($needsGeneration || !$ptp->hasMatches($profile)) {
-                $ptp->recompute($profile);
-            }
-            $pistes = $ptp->restitutionFor($profile);
-        }
-
         return Inertia::render('Candidate/Grimoire', [
-            'pistes'        => $pistes,
-            'ptp_eligible'  => $ptpEligible,
             'grimoire' => [
                 'synthesis'      => $grimoire->synthesis,
                 'voies'          => $grimoire->voies ?? [],

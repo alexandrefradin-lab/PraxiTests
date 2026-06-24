@@ -2,15 +2,11 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { Head, Link, router } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
-import PathTier from '@/Components/PathTier.vue'
-
 const props = defineProps({
     grimoire:   Object,
     tests:      Array,
     ai_pending: Boolean,
     is_empty:   Boolean,
-    pistes:       { type: Object,  default: () => ({ accessible: [], ptp: [], horizon: [] }) },
-    ptp_eligible: { type: Boolean, default: false },
 })
 
 const voies = computed(() => props.grimoire?.voies ?? [])
@@ -19,7 +15,6 @@ const voies = computed(() => props.grimoire?.voies ?? [])
 const tabs = [
     { key: 'synthese', label: 'Relecture globale' },
     { key: 'tests',    label: 'Résultats des tests' },
-    { key: 'pistes',   label: 'Les 15 pistes' },
 ]
 const activeTab = ref('synthese')
 
@@ -78,21 +73,6 @@ const rankedVoies = computed(() => {
         .sort((a, b) => prefScore(b.v) - prefScore(a.v) || a.i - b.i)
         .map(x => x.v)
 })
-
-// Pistes de transition (PTP) — nombre total tous paliers confondus.
-const pistesTotal = computed(() => {
-    const p = props.pistes ?? {}
-    return (p.accessible?.length ?? 0) + (p.ptp?.length ?? 0) + (p.horizon?.length ?? 0)
-})
-
-// Déblocage déclaratif d'une piste (la personne vise/possède la formation).
-const declarePiste = (piste) => {
-    if (!piste?.id) return
-    router.post(route('grimoire.piste.declare', piste.id), {}, {
-        preserveScroll: true,
-        preserveState: false,
-    })
-}
 
 // Découpe la synthèse en paragraphes affichables.
 const synthParagraphs = computed(() => {
@@ -358,28 +338,6 @@ function fitClass(score) {
                         </div>
                     </section>
 
-                    <!-- Pistes de transition (PTP) — données dispo, affichage optionnel -->
-                    <section v-if="pistesTotal" class="grim-voies" style="margin-top:1rem">
-                        <div class="grim-section-head">
-                            <h2 class="grim-section-title">Tes pistes de transition</h2>
-                            <p class="grim-voies-intro">
-                                Des métiers cibles classés par opportunité, en croisant ton profil, l'écart de
-                                formation et le marché de l'emploi.
-                            </p>
-                            <p v-if="!ptp_eligible" class="grim-voies-intro" style="font-style:italic;margin-top:.4rem">
-                                Le financement via un PTP concerne les salariés. Selon ton statut, d'autres
-                                dispositifs (CPF, AIF…) peuvent s'appliquer.
-                            </p>
-                        </div>
-
-                        <PathTier tier="accessible" :paths="pistes.accessible" @unlock="declarePiste" />
-                        <PathTier tier="ptp"        :paths="pistes.ptp"        @unlock="declarePiste" />
-                        <PathTier tier="horizon"    :paths="pistes.horizon"    @unlock="declarePiste" />
-
-                        <p class="grim-voies-intro" style="font-size:12px;margin-top:.75rem">
-                            Données marché indicatives ({{ new Date().getFullYear() }}) — à affiner avec un conseiller.
-                        </p>
-                    </section>
                 </div>
 
                 <footer class="grim-footer">

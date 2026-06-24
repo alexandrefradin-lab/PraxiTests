@@ -43,6 +43,7 @@ class Questions
         $S1 = 'Organisation & gestion du quotidien';
         $S2 = 'Concentration & agitation';
         $S3 = 'Énergie & relations';
+        $S4 = 'Émotions & gestion du temps';
 
         return [
             // ── Partie A — screener validé (items 1 à 6) ──────────────────
@@ -174,6 +175,53 @@ class Questions
                 'options' => $f,
                 'scoring' => ['dimension' => 'hyperactivite_impulsivite', 'part' => 'B'],
             ],
+
+            // ── Partie C — Dysrégulation émotionnelle (items complémentaires, hors ASRS officiel) ──
+            // Ces items couvrent des dimensions fréquemment associées au TDAH adulte mais absentes
+            // de l'ASRS-v1.1 : labilité émotionnelle, sensibilité au rejet (RSD), hyperfocus,
+            // time blindness et difficulté d'activation. Ils n'entrent pas dans le screener Partie A.
+            [
+                'section' => $S4,
+                'prompt'  => "À quelle fréquence ressentez-vous des émotions soudaines et très intenses (joie, tristesse, rage) qui s'apaisent aussi vite qu'elles surgissent ?",
+                'type'    => 'single',
+                'options' => $f,
+                'scoring' => ['dimension' => 'dysregulation_emotionnelle', 'part' => 'C'],
+            ],
+            [
+                'section' => $S4,
+                'prompt'  => "À quelle fréquence une remarque critique ou un sentiment de rejet, même bénin, vous affecte-t-il de façon très intense ?",
+                'type'    => 'single',
+                'options' => $f,
+                'scoring' => ['dimension' => 'dysregulation_emotionnelle', 'part' => 'C'],
+            ],
+            [
+                'section' => $S4,
+                'prompt'  => "À quelle fréquence perdez-vous rapidement patience ou vous emportez-vous face à une frustration mineure, puis le regrettez-vous aussitôt ?",
+                'type'    => 'single',
+                'options' => $f,
+                'scoring' => ['dimension' => 'dysregulation_emotionnelle', 'part' => 'C'],
+            ],
+            [
+                'section' => $S4,
+                'prompt'  => "À quelle fréquence vous plongez-vous dans une activité qui vous passionne au point de perdre toute notion du temps et d'oublier vos autres obligations ?",
+                'type'    => 'single',
+                'options' => $f,
+                'scoring' => ['dimension' => 'dysregulation_emotionnelle', 'part' => 'C'],
+            ],
+            [
+                'section' => $S4,
+                'prompt'  => "À quelle fréquence sous-estimez-vous le temps qu'il vous reste avant un rendez-vous ou une deadline, au point d'arriver en retard malgré vos intentions ?",
+                'type'    => 'single',
+                'options' => $f,
+                'scoring' => ['dimension' => 'dysregulation_emotionnelle', 'part' => 'C'],
+            ],
+            [
+                'section' => $S4,
+                'prompt'  => "À quelle fréquence restez-vous bloqué(e) à démarrer une tâche — même urgente et importante — jusqu'à ce qu'une pression externe ou une deadline imminente vous y oblige ?",
+                'type'    => 'single',
+                'options' => $f,
+                'scoring' => ['dimension' => 'dysregulation_emotionnelle', 'part' => 'C'],
+            ],
         ];
     }
 
@@ -192,6 +240,11 @@ class Questions
                 'label'       => 'Hyperactivité / Impulsivité',
                 'description' => "Agitation intérieure ou physique, besoin de bouger, difficulté à attendre, tendance à interrompre.",
                 'color'       => '#1B2B3A', // var(--pt-navy)
+            ],
+            'dysregulation_emotionnelle' => [
+                'label'       => 'Dysrégulation émotionnelle',
+                'description' => "Labilité émotionnelle, hypersensibilité au rejet (RSD), irritabilité rapide, hyperfocus, time blindness et difficulté à s'activer — dimensions fréquentes dans le TDAH adulte, hors échelle ASRS officielle.",
+                'color'       => '#c2410c', // orange brique
             ],
         ];
     }

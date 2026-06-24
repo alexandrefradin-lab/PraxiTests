@@ -16,10 +16,10 @@ class QuestionsSeeder extends Seeder
             ['slug' => 'praxifocus'],
             [
                 'name'              => 'La Boussole de l\'Attention — Repères TDAH (ASRS-v1.1)',
-                'description'       => "Auto-questionnaire de repérage des symptômes d'attention et d'hyperactivité chez l'adulte (échelle ASRS-v1.1 de l'OMS, 18 items). ⚠️ Outil de REPÉRAGE uniquement : il ne constitue ni un diagnostic ni un avis médical. Un résultat élevé n'établit pas un TDAH. Seul un professionnel de santé peut poser un diagnostic — vérifie toujours tes résultats avec un professionnel.",
+                'description'       => "Auto-questionnaire de repérage des symptômes d'attention et d'hyperactivité chez l'adulte (ASRS-v1.1 de l'OMS, 18 items + module dysrégulation émotionnelle, 6 items). ⚠️ Outil de REPÉRAGE uniquement : il ne constitue ni un diagnostic ni un avis médical. Un résultat élevé n'établit pas un TDAH. Seul un professionnel de santé peut poser un diagnostic — vérifie toujours tes résultats avec un professionnel.",
                 'type'              => 'questionnaire',
                 'scoring_engine'    => 'praxifocus-asrs',
-                'estimated_minutes' => 7,
+                'estimated_minutes' => 10,
                 'published'         => true,
                 'public'            => false,
             ]

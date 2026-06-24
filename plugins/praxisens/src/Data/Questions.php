@@ -44,6 +44,7 @@ class Questions
         $eoe = 'Sur-stimulation';
         $aes = 'Sensibilité esthétique';
         $lst = 'Seuil sensoriel';
+        $emo = 'Sensibilité émotionnelle';
 
         return [
             // ── EOE — Facilité de saturation / sur-stimulation ──
@@ -69,6 +70,14 @@ class Questions
             self::scale($lst, "Je suis particulièrement sensible aux effets de la caféine.", 'lst'),
             self::scale($lst, "Les textures rugueuses, les étiquettes ou certains tissus sur la peau me dérangent.", 'lst'),
             self::scale($lst, "Une faim intense provoque chez moi une forte réaction (humeur ou concentration perturbées).", 'lst'),
+
+            // ── EMO — Sensibilité émotionnelle ──
+            self::scale($emo, "Même un conflit ou une tension légère dans mon entourage me trouble profondément, même si je n'en suis pas l'objet.", 'emo'),
+            self::scale($emo, "Je ressens les émotions négatives (tristesse, honte, peur) avec une intensité qui peut m'envahir entièrement.", 'emo'),
+            self::scale($emo, "La désapprobation ou le rejet, même perçu(e), m'affecte de façon durable et difficile à mettre de côté.", 'emo'),
+            self::scale($emo, "Je pleure ou suis submergé(e) par l'émotion plus facilement que la plupart des gens autour de moi.", 'emo'),
+            self::scale($emo, "Assister à une scène triste (film, actualité, récit) me laisse avec une émotion forte et persistante bien après.", 'emo'),
+            self::scale($emo, "Mon entourage m'a déjà dit que je réagissais de façon excessive ou que je prenais les choses trop à cœur.", 'emo'),
         ];
     }
 
@@ -92,6 +101,11 @@ class Questions
                 'label'       => 'Seuil sensoriel',
                 'description' => "Réactivité intense aux stimulations sensorielles : bruit, lumière, textures, douleur, substances.",
                 'color'       => '#10b981',
+            ],
+            'emo' => [
+                'label'       => 'Sensibilité émotionnelle',
+                'description' => "Intensité des émotions ressenties, contagion émotionnelle, vulnérabilité au rejet et à la désapprobation, empathie profonde.",
+                'color'       => '#e11d48', // rose vif
             ],
         ];
     }

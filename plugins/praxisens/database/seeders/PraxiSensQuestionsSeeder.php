@@ -17,10 +17,10 @@ class PraxiSensQuestionsSeeder extends Seeder
             ['slug' => 'praxisens'],
             [
                 'name'              => "Le Radar des Sens — Hypersensibilité",
-                'description'       => "Ce que ce test mesure : votre sensibilité de traitement sensoriel — votre rapport à la sur-stimulation, votre seuil sensoriel et votre profondeur de perception. 18 affirmations sur une échelle d'accord, 3 sous-dimensions, restitution par profil. Inspiré du modèle d'Elaine Aron (Sensory Processing Sensitivity).",
+                'description'       => "Ce que ce test mesure : votre sensibilité de traitement sensoriel — sur-stimulation, seuil sensoriel, profondeur esthétique et sensibilité émotionnelle. 24 affirmations sur une échelle d'accord, 4 sous-dimensions, restitution par profil. Inspiré du modèle d'Elaine Aron (Sensory Processing Sensitivity).",
                 'type'              => 'questionnaire',
                 'scoring_engine'    => 'praxisens-sps',
-                'estimated_minutes' => 6,
+                'estimated_minutes' => 8,
                 'published'         => true,
                 'public'            => false,
             ]

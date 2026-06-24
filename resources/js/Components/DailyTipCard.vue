@@ -94,7 +94,7 @@ const apply = () => {
                     type="button"
                     :disabled="applying"
                     @click="apply"
-                    style="font-family: var(--font-display); font-weight: 700; font-size: 0.88rem; color: var(--color-accent); background: var(--color-primary); border: none; border-radius: 999px; padding: 0.55rem 1.3rem; cursor: pointer; transition: opacity .15s;"
+                    style="font-family: var(--font-display); font-weight: 700; font-size: 0.88rem; color: #fff; background: var(--color-primary); border: none; border-radius: 999px; padding: 0.55rem 1.3rem; cursor: pointer; transition: opacity .15s;"
                     :style="{ opacity: applying ? 0.6 : 1 }"
                 >
                     {{ applying ? '…' : "Je l'applique aujourd'hui" }}

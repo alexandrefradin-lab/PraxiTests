@@ -26,7 +26,7 @@ const props = defineProps({
     showValues: { type: Boolean, default: true },
 })
 
-const CX = 230, CY = 230, R = 120   // centre + rayon dans un viewBox 0 0 460 460
+const CX = 230, CY = 230, R = 115   // centre + rayon dans un viewBox 0 0 460 460
 
 const pts = computed(() => {
     const n = props.axes.length || 1
@@ -44,8 +44,8 @@ const pts = computed(() => {
             dx: CX + cos * R * ratio,
             dy: CY + sin * R * ratio,
             // ancrage du label selon la position horizontale
-            lx: CX + cos * (R + 18),
-            ly: CY + sin * (R + 18),
+            lx: CX + cos * (R + 22),
+            ly: CY + sin * (R + 22),
             anchor: cos > 0.25 ? 'start' : cos < -0.25 ? 'end' : 'middle',
         }
     })
@@ -73,16 +73,18 @@ const fill = computed(() => tint(props.accent, 0.16))
 </script>
 
 <template>
-    <svg :width="size" :height="size" viewBox="0 0 460 460" overflow="visible" role="img"
+    <div :style="`width:100%;max-width:${size}px;margin:0 auto`">
+    <svg viewBox="0 0 460 460" overflow="visible" role="img"
+         style="width:100%;height:auto;display:block"
          :aria-label="`Graphique radar à ${axes.length} dimensions`">
         <!-- Anneaux de graduation -->
         <polygon v-for="(poly, i) in ringPolys" :key="'ring' + i"
                  :points="poly" fill="none"
-                 stroke="rgba(42,30,8,0.10)" stroke-width="1" />
+                 stroke="rgba(42,30,8,0.18)" stroke-width="1.2" />
         <!-- Rayons -->
         <line v-for="(p, i) in pts" :key="'spoke' + i"
               :x1="CX" :y1="CY" :x2="p.gx" :y2="p.gy"
-              stroke="rgba(42,30,8,0.10)" stroke-width="1" />
+              stroke="rgba(42,30,8,0.14)" stroke-width="1" />
 
         <!-- Polygone de données -->
         <polygon :points="polygon" :fill="fill" :stroke="accent" stroke-width="2"
@@ -95,14 +97,15 @@ const fill = computed(() => tint(props.accent, 0.16))
 
         <!-- Labels d'axes -->
         <g v-for="(p, i) in pts" :key="'lbl' + i">
-            <text :x="p.lx" :y="p.ly - (showValues ? 4 : 0)"
+            <text :x="p.lx" :y="p.ly - (showValues ? 6 : 0)"
                   :text-anchor="p.anchor" dominant-baseline="middle"
-                  font-family="'Space Grotesk', sans-serif" font-size="11" font-weight="600"
+                  font-family="'Space Grotesk', sans-serif" font-size="14" font-weight="600"
                   fill="#4A3C20">{{ p.label }}</text>
-            <text v-if="showValues" :x="p.lx" :y="p.ly + 9"
+            <text v-if="showValues" :x="p.lx" :y="p.ly + 11"
                   :text-anchor="p.anchor" dominant-baseline="middle"
-                  font-family="'Space Mono', monospace" font-size="10"
-                  :fill="p.color || '#8a7550'">{{ Math.round(p.value ?? 0) }}</text>
+                  font-family="'Space Mono', monospace" font-size="12"
+                  :fill="p.color || '#6B5A3E'">{{ Math.round(p.value ?? 0) }}</text>
         </g>
     </svg>
+    </div>
 </template>

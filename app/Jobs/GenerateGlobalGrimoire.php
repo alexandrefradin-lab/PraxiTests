@@ -106,23 +106,40 @@ class GenerateGlobalGrimoire implements ShouldQueue, ShouldBeUnique
 
     /**
      * En cas d'échec IA, ne jamais laisser le candidat sur un écran de chargement.
-     * On écrit un état "failed" + message de repli si aucune synthèse n'existe encore.
+     *
+     * — S'il existe déjà une synthèse valable (issue d'une précédente génération),
+     *   on restaure le statut à "ready" avec l'ancien contenu : l'utilisateur voit
+     *   son Grimoire précédent plutôt qu'un écran d'erreur ou un loader infini.
+     *   Un timestamp "last_failed_at" est inscrit dans ai_metadata pour activer
+     *   le cooldown anti-boucle du contrôleur (3 min sans redispatch).
+     *
+     * — Sans synthèse, on inscrit un statut "failed" + message de repli.
      */
     protected function writeFallback(User $user): void
     {
         $grimoire = $user->getOrCreateGrimoire();
+        $meta     = $grimoire->ai_metadata ?? [];
 
-        if ($grimoire->status === 'ready' && $grimoire->synthesis) {
-            return; // on garde la version précédente valable
+        if ($grimoire->synthesis) {
+            // Ancienne synthèse disponible → on revient à "ready" pour ne pas
+            // bloquer l'utilisateur, tout en traçant l'échec pour le cooldown.
+            $meta['last_failed_at'] = now()->toIso8601String();
+            $grimoire->update([
+                'status'      => 'ready',
+                'ai_metadata' => $meta,
+            ]);
+            return;
         }
 
+        // Aucune synthèse existante → on affiche l'état d'erreur.
+        $meta['last_failed_at'] = now()->toIso8601String();
         $grimoire->update([
             'status'       => 'failed',
-            'synthesis'    => $grimoire->synthesis
-                ?: "La relecture globale n'a pas pu être générée pour le moment. "
+            'synthesis'    => "La relecture globale n'a pas pu être générée pour le moment. "
                 . "Tes synthèses par test restent disponibles. Tu peux réessayer plus tard "
                 . "ou en parler avec ton conseiller.",
             'generated_at' => now(),
+            'ai_metadata'  => $meta,
         ]);
     }
 

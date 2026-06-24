@@ -50,16 +50,20 @@ const nextPercent = computed(() => {
             <DailyTipCard plugin="praxiboost" :tip="dailyTip" :engagement="tipEngagement" />
 
             <!-- Progression vers le prochain palier -->
-            <div v-if="nextLocked" class="mb-8" style="background: var(--surface, #fff); border: 1px solid var(--border, #e5e7eb); border-radius: var(--r-md, 12px); padding: 1rem 1.25rem;">
-                <div class="flex items-center justify-between mb-2" style="font-size: 0.85rem; color: var(--text-secondary);">
-                    <span>Prochain : <strong>{{ nextLocked.title }}</strong></span>
-                    <span>{{ totalEclats }} / {{ nextLocked.threshold_eclats }} Éclats</span>
+            <div v-if="nextLocked" class="mb-8" style="background:var(--bg-elevated);border:1px solid var(--glass-border);border-top:2px solid var(--color-primary);border-radius:10px;padding:1rem 1.25rem;">
+                <div class="flex items-center justify-between mb-2" style="font-size:0.85rem;color:var(--text-secondary);">
+                    <span>Prochain : <strong style="color:var(--text-primary);">{{ nextLocked.title }}</strong></span>
+                    <span style="font-family:var(--font-data);font-size:0.78rem;">{{ totalEclats }} / {{ nextLocked.threshold_eclats }} Éclats</span>
                 </div>
-                <div style="height: 8px; background: var(--border, #e5e7eb); border-radius: 999px; overflow: hidden;">
-                    <div :style="{ width: nextPercent + '%', height: '100%', background: 'var(--primary, #4F46E5)', transition: 'width .4s' }"></div>
+                <div style="display:flex;align-items:center;gap:0.75rem;">
+                    <div style="flex:1;height:5px;background:rgba(166,117,32,0.15);border-radius:999px;overflow:hidden;">
+                        <div :style="{ width: nextPercent + '%', height:'100%', background:'var(--color-primary)', transition:'width .4s' }"></div>
+                    </div>
+                    <span style="font-family:var(--font-data);font-size:0.7rem;color:var(--text-muted);flex-shrink:0;">{{ nextPercent }}%</span>
                 </div>
-                <p class="mt-2" style="font-size: 0.8rem; color: var(--text-secondary);">
-                    Encore <strong>{{ nextLocked.remaining }} Éclats</strong> pour le débloquer.
+                <p class="mt-2" style="font-size:0.8rem;color:var(--text-muted);">
+                    <i class="ti ti-diamond" style="font-size:0.9rem;color:var(--color-primary);" aria-hidden="true"></i>
+                    Encore <strong style="color:var(--text-secondary);">{{ nextLocked.remaining }} Éclats</strong> pour le débloquer.
                 </p>
             </div>
 
@@ -77,9 +81,9 @@ const nextPercent = computed(() => {
                         :style="{
                             display: 'flex', gap: '1rem', alignItems: 'flex-start',
                             padding: '1.1rem 1.25rem',
-                            background: 'var(--surface, #fff)',
-                            border: '1px solid var(--border, #e5e7eb)',
-                            borderRadius: 'var(--r-md, 12px)',
+                            background: 'var(--bg-elevated)',
+                            border: '1px solid var(--glass-border)',
+                            borderRadius: '10px',
                             opacity: ex.unlocked ? 1 : 0.6,
                             transition: 'transform .15s, box-shadow .15s',
                             cursor: ex.unlocked ? 'pointer' : 'default',
@@ -103,7 +107,7 @@ const nextPercent = computed(() => {
                             <p class="mt-2" style="font-size: 0.9rem; color: var(--text-secondary);">
                                 {{ ex.summary }}
                             </p>
-                            <p v-if="!ex.unlocked" class="mt-2" style="font-size: 0.8rem; font-weight: 600; color: var(--primary, #4F46E5);">
+                            <p v-if="!ex.unlocked" class="mt-2" style="font-size: 0.8rem; font-weight: 600; color: var(--color-primary);">
                                 🔒 Se débloque à {{ ex.threshold_eclats }} Éclats — encore {{ ex.remaining }}
                             </p>
                         </div>

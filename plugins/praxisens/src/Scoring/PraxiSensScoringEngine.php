@@ -11,7 +11,8 @@ use Praxis\Plugins\PraxiSens\Data\Questions;
  * Moteur de scoring du test d'hypersensibilité (Sensory Processing Sensitivity).
  *
  * Échelle 1-5 par item. Score par dimension = moyenne des items, normalisée 0-100.
- * Score global = moyenne des 3 dimensions (propriété exacte car 6 items/dimension).
+ * Score global = moyenne des dimensions (6 items/dimension, calcul dynamique).
+ * Dimensions : eoe (sur-stimulation), aes (esthétique), lst (seuil sensoriel), emo (émotionnel).
  * Restitution en 4 paliers : faible <40, modérée 40-59, élevée 60-77, haute ≥78.
  */
 class PraxiSensScoringEngine implements ScoringEngineContract
