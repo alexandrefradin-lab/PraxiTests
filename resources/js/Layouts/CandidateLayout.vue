@@ -32,11 +32,32 @@ function startAiPoll () {
         } catch (e) { /* réseau : on réessaie au prochain tick */ }
     }, 5000)
 }
-onMounted(startAiPoll)
-onBeforeUnmount(stopAiPoll)
+
+function onKeydown(e) {
+    if (e.key === 'Escape') mobileOpen.value = false
+}
+
+onMounted(() => {
+    startAiPoll()
+    window.addEventListener('keydown', onKeydown)
+})
+onBeforeUnmount(() => {
+    stopAiPoll()
+    window.removeEventListener('keydown', onKeydown)
+})
+
 // Inertia réutilise le Layout entre navigations même-composant : relancer
 // le poller si ai_pending ou l'attempt change.
 watch(() => [page.props.ai_pending, page.props.attempt?.id], startAiPoll)
+
+// Fermer le drawer à chaque navigation Inertia
+watch(() => page.url, () => { mobileOpen.value = false })
+
+// Bloquer le scroll du body quand le drawer est ouvert
+watch(mobileOpen, (open) => {
+    document.body.style.overflow = open ? 'hidden' : ''
+})
+
 const user = computed(() => page.props.auth?.user)
 const branding = computed(() => page.props.branding ?? { name: 'PraxiQuest', tagline: 'Évaluer. Orienter. Transformer.' })
 const xpProgress = computed(() => page.props.gamification?.xp_progress ?? 0)
@@ -58,7 +79,7 @@ const hasTreasure = computed(() => {
         <header class="ac-glass" style="position: sticky; top: 0; z-index: 50; box-shadow: var(--shadow-card)">
             <div class="mx-auto" style="max-width: 1100px; padding: 0 2rem; height: 62px; display: flex; align-items: center; justify-content: space-between">
 
-                <!-- Logo (aligné sur la page d'accueil : boussole + nom + sous-titre) -->
+                <!-- Logo -->
                 <Link :href="route('home')" style="display: flex; align-items: center; gap: 10px; text-decoration: none">
                     <svg width="34" height="34" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink: 0">
                         <circle cx="19" cy="19" r="17.5" stroke="var(--color-primary)" stroke-width="1"/>
@@ -74,11 +95,12 @@ const hasTreasure = computed(() => {
                     </div>
                 </Link>
 
-                <!-- Bouton burger (mobile uniquement) -->
+                <!-- Bouton burger (mobile uniquement) — anime en X quand ouvert -->
                 <button
                     v-if="user"
                     type="button"
                     class="cand-burger"
+                    :class="{ 'cand-burger--open': mobileOpen }"
                     :aria-expanded="mobileOpen"
                     aria-label="Ouvrir le menu"
                     @click="mobileOpen = !mobileOpen"
@@ -117,13 +139,11 @@ const hasTreasure = computed(() => {
 
                     <!-- User zone -->
                     <div style="display: flex; align-items: center; gap: 8px">
-                        <!-- Avatar + nom : cliquable → édition du profil (statut, parcours, CV) -->
                         <Link :href="route('profile.edit')"
                             class="cand-profile-link"
                             style="display: flex; align-items: center; gap: 8px; text-decoration: none; padding: 3px 8px 3px 3px; border-radius: 999px; transition: background 0.15s"
                             title="Modifier mon profil (statut, parcours, CV)">
                             <div style="position: relative; width: 30px; height: 30px; flex-shrink: 0;">
-                                <!-- Hexagone initiales -->
                                 <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
                                     <polygon points="15,2 26,8.5 26,21.5 15,28 4,21.5 4,8.5" fill="var(--color-accent)" stroke="var(--color-primary)" stroke-width="1"/>
                                     <polygon points="15,5 23,9.5 23,20.5 15,25 7,20.5 7,9.5" fill="none" stroke="var(--color-primary)" stroke-width="0.4" opacity="0.4"/>
@@ -150,17 +170,6 @@ const hasTreasure = computed(() => {
                     </div>
                 </nav>
             </div>
-
-            <!-- Menu mobile déroulant -->
-            <nav v-if="user && mobileOpen" class="cand-mobile-menu">
-                <Link :href="route('tests.index')" class="cand-mobile-link" @click="mobileOpen = false">L'Armurerie</Link>
-                <Link :href="route('grimoire.show')" class="cand-mobile-link" @click="mobileOpen = false">Le Grimoire</Link>
-                <Link :href="route('history')" class="cand-mobile-link" @click="mobileOpen = false">Chroniques</Link>
-                <Link v-if="hasTreasure" :href="route('treasure.index')" class="cand-mobile-link" @click="mobileOpen = false">Le Trésor</Link>
-                <Link :href="route('profile.edit')" class="cand-mobile-link" @click="mobileOpen = false"><i class="ti ti-user" style="margin-right:6px"></i>Mon profil (statut, parcours, CV)</Link>
-                <Link :href="route('gdpr.show')" class="cand-mobile-link" @click="mobileOpen = false"><i class="ti ti-shield-lock" style="margin-right:6px"></i>Mes données & RGPD</Link>
-                <Link :href="route('logout')" method="post" as="button" class="cand-mobile-link cand-mobile-link--danger" @click="mobileOpen = false">Quitter la Quête</Link>
-            </nav>
         </header>
 
         <!-- Barre XP -->
@@ -207,6 +216,103 @@ const hasTreasure = computed(() => {
             </div>
         </Teleport>
 
+        <!-- Drawer mobile (Teleport → body pour stacking context propre) -->
+        <Teleport to="body">
+            <!-- Backdrop flouté -->
+            <Transition name="pt-backdrop">
+                <div
+                    v-if="user && mobileOpen"
+                    class="cand-drawer-backdrop"
+                    @click="mobileOpen = false"
+                ></div>
+            </Transition>
+
+            <!-- Panneau latéral droit -->
+            <Transition name="pt-drawer">
+                <nav v-if="user && mobileOpen" class="cand-drawer" aria-label="Menu navigation">
+
+                    <!-- En-tête : avatar + bouton fermer -->
+                    <div class="cand-drawer-header">
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <div style="position:relative;width:38px;height:38px;flex-shrink:0;">
+                                <svg width="38" height="38" viewBox="0 0 30 30" aria-hidden="true">
+                                    <polygon points="15,2 26,8.5 26,21.5 15,28 4,21.5 4,8.5" fill="var(--color-accent)" stroke="var(--color-primary)" stroke-width="1"/>
+                                    <polygon points="15,5 23,9.5 23,20.5 15,25 7,20.5 7,9.5" fill="none" stroke="var(--color-primary)" stroke-width="0.4" opacity="0.4"/>
+                                </svg>
+                                <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:13px;font-weight:700;color:var(--color-primary);text-transform:uppercase;user-select:none;">
+                                    {{ user.name ? user.name.slice(0, 2) : '?' }}
+                                </span>
+                            </div>
+                            <div>
+                                <div style="font-size:14px;font-weight:600;color:var(--text-primary);font-family:var(--font-display);line-height:1.2;">{{ user.name }}</div>
+                                <div style="font-size:10px;color:var(--color-primary);font-family:var(--font-data);letter-spacing:0.1em;text-transform:uppercase;margin-top:2px;">Héros de la Quête</div>
+                            </div>
+                        </div>
+                        <button class="cand-drawer-close" @click="mobileOpen = false" aria-label="Fermer le menu">
+                            <i class="ti ti-x"></i>
+                        </button>
+                    </div>
+
+                    <div class="cand-drawer-divider"></div>
+
+                    <!-- Liens de navigation principaux -->
+                    <div class="cand-drawer-section">
+                        <Link :href="route('tests.index')"
+                            class="cand-drawer-link"
+                            :class="{ 'cand-drawer-link--active': isActive('/tests') }">
+                            <i class="ti ti-sword"></i>
+                            <span>L'Armurerie</span>
+                        </Link>
+                        <Link :href="route('grimoire.show')"
+                            class="cand-drawer-link"
+                            :class="{ 'cand-drawer-link--active': isActive('/grimoire') }">
+                            <i class="ti ti-book-2"></i>
+                            <span>Le Grimoire</span>
+                        </Link>
+                        <Link :href="route('history')"
+                            class="cand-drawer-link"
+                            :class="{ 'cand-drawer-link--active': isActive('/history') }">
+                            <i class="ti ti-scroll"></i>
+                            <span>Chroniques</span>
+                        </Link>
+                        <Link v-if="hasTreasure" :href="route('treasure.index')"
+                            class="cand-drawer-link"
+                            :class="{ 'cand-drawer-link--active': isActive('/treasure') }">
+                            <i class="ti ti-stars"></i>
+                            <span>Le Trésor</span>
+                        </Link>
+                    </div>
+
+                    <div class="cand-drawer-divider"></div>
+
+                    <!-- Liens compte -->
+                    <div class="cand-drawer-section">
+                        <Link :href="route('profile.edit')"
+                            class="cand-drawer-link"
+                            :class="{ 'cand-drawer-link--active': isActive('/profile') }">
+                            <i class="ti ti-user-circle"></i>
+                            <span>Mon profil</span>
+                        </Link>
+                        <Link :href="route('gdpr.show')"
+                            class="cand-drawer-link"
+                            :class="{ 'cand-drawer-link--active': isActive('/gdpr') }">
+                            <i class="ti ti-shield-lock"></i>
+                            <span>Mes données & RGPD</span>
+                        </Link>
+                    </div>
+
+                    <!-- Pied de drawer : Quitter la Quête -->
+                    <div style="margin-top:auto;padding:1rem 1.25rem 1.5rem;">
+                        <Link :href="route('logout')" method="post" as="button" class="cand-drawer-logout">
+                            <i class="ti ti-door-exit"></i>
+                            <span>Quitter la Quête</span>
+                        </Link>
+                    </div>
+
+                </nav>
+            </Transition>
+        </Teleport>
+
         <!-- Footer -->
         <footer style="border-top: 1px solid var(--glass-border); padding: 1.25rem 2rem; text-align: center">
             <div style="display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap">
@@ -236,6 +342,7 @@ const hasTreasure = computed(() => {
 </template>
 
 <style scoped>
+/* ── Nav desktop ── */
 .cand-nav-link:hover {
     color: var(--text-primary) !important;
     background: var(--bg-elevated) !important;
@@ -250,22 +357,7 @@ const hasTreasure = computed(() => {
     background: rgba(166, 117, 32, 0.15) !important;
 }
 
-/* Page fade-in */
-.pt-page-enter-active {
-    transition: opacity 0.2s ease, transform 0.2s ease;
-}
-.pt-page-enter-from {
-    opacity: 0;
-    transform: translateY(8px);
-}
-
-/* Toast slide-in */
-.pt-toast-enter-active { transition: opacity 0.22s ease, transform 0.22s ease; }
-.pt-toast-enter-from   { opacity: 0; transform: translateX(16px); }
-.pt-toast-leave-active { transition: opacity 0.18s ease; }
-.pt-toast-leave-to     { opacity: 0; }
-
-/* Avatar + nom cliquable (édition profil) */
+/* Avatar + nom cliquable */
 .cand-profile-link:hover {
     background: var(--bg-elevated);
 }
@@ -280,12 +372,12 @@ const hasTreasure = computed(() => {
     gap: 4px;
 }
 
-/* Burger masqué sur desktop */
+/* ── Burger ── */
 .cand-burger {
     display: none;
     flex-direction: column;
     justify-content: center;
-    gap: 4px;
+    gap: 5px;
     width: 38px;
     height: 38px;
     padding: 8px;
@@ -301,43 +393,197 @@ const hasTreasure = computed(() => {
     width: 100%;
     background: var(--color-primary);
     border-radius: 2px;
+    transform-origin: center;
+    transition: transform 0.25s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.2s ease;
 }
 
-/* Menu mobile déroulant */
-.cand-mobile-menu {
+/* Animation burger → X */
+.cand-burger--open span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+}
+.cand-burger--open span:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+}
+.cand-burger--open span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+}
+
+/* ── Drawer backdrop ── */
+.cand-drawer-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(30, 20, 5, 0.45);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    z-index: 200;
+}
+
+/* ── Drawer panneau ── */
+.cand-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(320px, 86vw);
+    background: var(--bg-base);
+    border-left: 1px solid var(--glass-border);
+    z-index: 201;
     display: flex;
     flex-direction: column;
-    padding: 8px 1.25rem 16px;
-    gap: 2px;
-    border-top: 1px solid var(--glass-border);
+    box-shadow: -12px 0 48px rgba(30, 20, 5, 0.18);
+    overflow-y: auto;
 }
 
-.cand-mobile-link {
+.cand-drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.1rem 1.25rem;
+    flex-shrink: 0;
+}
+
+.cand-drawer-close {
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-mid);
+    border-radius: var(--r-sm);
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 18px;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
+}
+.cand-drawer-close:hover {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+}
+
+.cand-drawer-divider {
+    height: 1px;
+    background: var(--glass-border);
+    margin: 0 1.25rem;
+    flex-shrink: 0;
+}
+
+.cand-drawer-section {
+    display: flex;
+    flex-direction: column;
+    padding: 0.6rem 1rem;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
+.cand-drawer-link {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
     font-family: var(--font-display);
     font-size: 15px;
     font-weight: 500;
     color: var(--text-secondary);
     text-decoration: none;
-    text-align: left;
-    padding: 12px 8px;
+    padding: 11px 12px;
     border-radius: var(--r);
     background: none;
     border: none;
     cursor: pointer;
     width: 100%;
+    transition: color 0.15s, background 0.15s;
 }
-
-.cand-mobile-link:hover {
+.cand-drawer-link i {
+    font-size: 19px;
+    width: 22px;
+    text-align: center;
+    flex-shrink: 0;
+    opacity: 0.65;
+    transition: opacity 0.15s;
+}
+.cand-drawer-link:hover {
     color: var(--text-primary);
     background: var(--bg-elevated);
 }
-
-.cand-mobile-link--danger {
-    color: var(--color-danger, #B03020);
-    margin-top: 4px;
+.cand-drawer-link:hover i {
+    opacity: 1;
+}
+.cand-drawer-link--active {
+    color: var(--color-primary) !important;
+    font-weight: 700 !important;
+    background: rgba(166, 117, 32, 0.1) !important;
+}
+.cand-drawer-link--active i {
+    opacity: 1 !important;
+}
+.cand-drawer-link--active:hover {
+    background: rgba(166, 117, 32, 0.15) !important;
 }
 
-/* Bascule responsive : burger < 768px, nav desktop cachée */
+.cand-drawer-logout {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 11px 14px;
+    background: rgba(176, 48, 32, 0.07);
+    border: 1px solid rgba(176, 48, 32, 0.18);
+    border-radius: var(--r);
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-danger, #B03020);
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s;
+    text-align: left;
+}
+.cand-drawer-logout i {
+    font-size: 18px;
+    flex-shrink: 0;
+}
+.cand-drawer-logout:hover {
+    background: rgba(176, 48, 32, 0.13);
+}
+
+/* ── Transitions drawer ── */
+.pt-drawer-enter-active,
+.pt-drawer-leave-active {
+    transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.pt-drawer-enter-from,
+.pt-drawer-leave-to {
+    transform: translateX(100%);
+}
+
+/* Backdrop fade */
+.pt-backdrop-enter-active,
+.pt-backdrop-leave-active {
+    transition: opacity 0.25s ease;
+}
+.pt-backdrop-enter-from,
+.pt-backdrop-leave-to {
+    opacity: 0;
+}
+
+/* ── Page fade-in ── */
+.pt-page-enter-active {
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.pt-page-enter-from {
+    opacity: 0;
+    transform: translateY(8px);
+}
+
+/* ── Toast slide-in ── */
+.pt-toast-enter-active { transition: opacity 0.22s ease, transform 0.22s ease; }
+.pt-toast-enter-from   { opacity: 0; transform: translateX(16px); }
+.pt-toast-leave-active { transition: opacity 0.18s ease; }
+.pt-toast-leave-to     { opacity: 0; }
+
+/* ── Responsive : burger visible < 768px, nav desktop masquée ── */
 @media (max-width: 768px) {
     .cand-nav-desktop {
         display: none;
