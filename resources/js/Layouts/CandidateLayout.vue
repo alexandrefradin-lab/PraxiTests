@@ -129,9 +129,9 @@ const hasTreasure = computed(() => {
 
                         <Link :href="route('gdpr.show')"
                             class="cand-nav-link"
-                            style="font-family: var(--font-display); font-size: 12px; font-weight: 500; color: var(--text-muted); text-decoration: none; padding: 5px 10px; border-radius: var(--r-sm); transition: color 0.15s, background 0.15s"
+                            style="font-family: var(--font-display); font-size: 12px; font-weight: 500; color: var(--text-muted); text-decoration: none; padding: 5px 10px; border-radius: var(--r-sm); transition: color 0.15s, background 0.15s; display: inline-flex; align-items: center;"
                             title="Mes données & confidentialité">
-                            🔒
+                            <i class="ti ti-shield-lock" style="font-size: 15px;"></i>
                         </Link>
 
                         <Link :href="route('logout')" method="post" as="button"
@@ -149,8 +149,8 @@ const hasTreasure = computed(() => {
                 <Link :href="route('grimoire.show')" class="cand-mobile-link" @click="mobileOpen = false">Le Grimoire</Link>
                 <Link :href="route('history')" class="cand-mobile-link" @click="mobileOpen = false">Chroniques</Link>
                 <Link v-if="hasTreasure" :href="route('treasure.index')" class="cand-mobile-link" @click="mobileOpen = false">Le Trésor</Link>
-                <Link :href="route('profile.edit')" class="cand-mobile-link" @click="mobileOpen = false">👤 Mon profil (statut, parcours, CV)</Link>
-                <Link :href="route('gdpr.show')" class="cand-mobile-link" @click="mobileOpen = false">🔒 Mes données & RGPD</Link>
+                <Link :href="route('profile.edit')" class="cand-mobile-link" @click="mobileOpen = false"><i class="ti ti-user" style="margin-right:6px"></i>Mon profil (statut, parcours, CV)</Link>
+                <Link :href="route('gdpr.show')" class="cand-mobile-link" @click="mobileOpen = false"><i class="ti ti-shield-lock" style="margin-right:6px"></i>Mes données & RGPD</Link>
                 <Link :href="route('logout')" method="post" as="button" class="cand-mobile-link cand-mobile-link--danger" @click="mobileOpen = false">Quitter la Quête</Link>
             </nav>
         </header>
@@ -192,11 +192,11 @@ const hasTreasure = computed(() => {
                 <Link
                     v-if="user"
                     :href="route('gdpr.show')"
-                    style="font-family: var(--font-data); font-size: 11px; color: var(--text-muted); text-decoration: none; letter-spacing: 0.03em; transition: color 0.15s"
+                    style="font-family: var(--font-data); font-size: 11px; color: var(--text-muted); text-decoration: none; letter-spacing: 0.03em; transition: color 0.15s; display: inline-flex; align-items: center; gap: 4px;"
                     @mouseenter="(e) => e.currentTarget.style.color = 'var(--text-secondary)'"
                     @mouseleave="(e) => e.currentTarget.style.color = 'var(--text-muted)'"
                 >
-                    🔒 Mes données & RGPD
+                    <i class="ti ti-shield-lock" style="font-size: 12px;"></i> Mes données & RGPD
                 </Link>
                 <span style="color: var(--border-mid)">·</span>
                 <Link :href="route('cgu')" style="font-family: var(--font-data); font-size: 11px; color: var(--text-muted); text-decoration: none; letter-spacing: 0.03em">

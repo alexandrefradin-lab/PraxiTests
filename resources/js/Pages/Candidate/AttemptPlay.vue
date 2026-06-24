@@ -64,10 +64,10 @@ const goForward = () => { if (canGoForward.value) goTo(currentIndex.value + 1) }
 // ses propres boutons ; tout le reste (multi, text, ranking, ET tout type non
 // géré rendu via le repli textarea) passe par le bouton Valider → jamais de
 // cul-de-sac.
-const SELF_ADVANCING_TYPES = ['single', 'scale', 'exercise']
+const SELF_ADVANCING_TYPES = ['single', 'scale', 'likert', 'exercise']
 const needsConfirmButton = computed(() => {
     const t = currentQuestion.value?.type
-    return !!t && !SELF_ADVANCING_TYPES.includes(t)
+    return !t || !SELF_ADVANCING_TYPES.includes(t)
 })
 
 const recordAndAdvance = () => {
@@ -216,7 +216,10 @@ const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
                                 v-for="opt in currentQuestion.options"
                                 :key="opt.value"
                                 class="ac-option-card"
-                                :class="{ 'ac-option-card--selected': value === opt.value }"
+                                :class="{
+                                    'ac-option-card--selected':   value === opt.value,
+                                    'ac-option-card--processing': isSubmitting && value === opt.value,
+                                }"
                                 role="radio"
                                 :aria-checked="value === opt.value"
                                 :tabindex="isSubmitting ? -1 : 0"
@@ -272,8 +275,8 @@ const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
                             </div>
                         </template>
 
-                        <!-- SCALE -->
-                        <template v-else-if="currentQuestion.type === 'scale'">
+                        <!-- SCALE / LIKERT (alias) -->
+                        <template v-else-if="currentQuestion.type === 'scale' || currentQuestion.type === 'likert'">
                             <div class="ac-scale-wrap">
                                 <span class="ac-scale-label">{{ currentQuestion.options?.min_label || 'Pas du tout' }}</span>
                                 <div class="ac-scale-buttons">
@@ -282,7 +285,11 @@ const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
                                         :key="n"
                                         type="button"
                                         class="ac-scale-btn"
-                                        :class="{ 'ac-scale-btn--active': value === n }"
+                                        :class="{
+                                            'ac-scale-btn--active':      value === n,
+                                            'ac-scale-btn--processing':  isSubmitting && value === n,
+                                        }"
+                                        :disabled="isSubmitting"
                                         @click="selectAndAdvance(n)"
                                     >
                                         {{ n }}
@@ -347,8 +354,13 @@ const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
 
                     </div>
 
-                    <!-- BOUTON VALIDER (multi / texte uniquement : pas d'auto-avance possible) -->
-                    <div v-if="needsConfirmButton" class="ac-submit-wrap">
+                    <!-- BOUTON VALIDER :
+                         – multi/texte       : toujours nécessaire (pas d'auto-avance possible)
+                         – single/scale      : fallback si l'auto-avance n'a pas pu s'exécuter
+                           (serveur lent ou erreur réseau). Conditions : une valeur est sélectionnée,
+                           on n'est pas en train de soumettre, et la réponse n'est pas encore dans
+                           savedAnswers → l'utilisateur n'est jamais bloqué sans bouton d'action.  -->
+                    <div v-if="needsConfirmButton || (hasValue(value) && !isSubmitting && savedAnswers[currentQuestion?.id] === undefined)" class="ac-submit-wrap">
                         <button
                             class="ac-btn-primary"
                             :class="{ 'ac-btn-primary--disabled': !canSubmit }"
@@ -655,6 +667,17 @@ const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
     background: var(--bg-elevated);
 }
 
+/* Carte en cours de soumission : curseur d'attente + animation subtile */
+.ac-option-card--processing {
+    cursor: wait;
+    animation: ac-processing-pulse 0.9s ease-in-out infinite;
+}
+
+@keyframes ac-processing-pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.6; }
+}
+
 .ac-radio-icon,
 .ac-checkbox-icon {
     flex-shrink: 0;
@@ -793,6 +816,11 @@ const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
     background: var(--color-primary);
     color: #fff;
     border-color: var(--color-primary);
+}
+
+.ac-scale-btn--processing {
+    cursor: wait;
+    animation: ac-processing-pulse 0.9s ease-in-out infinite;
 }
 
 /* ── TEXTAREA ─────────────────────────────────── */

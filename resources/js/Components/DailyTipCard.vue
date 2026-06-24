@@ -12,10 +12,10 @@ const applying = ref(false)
 
 // Niveau de preuve → pastille + libellé.
 const evidenceMeta = computed(() => ({
-    solide:     { dot: '🟢', label: 'Preuve solide',     hint: 'Méta-analyses ou essais contrôlés randomisés convergents.' },
-    prometteur: { dot: '🟡', label: 'Preuve prometteuse', hint: 'Résultats encourageants, à confirmer.' },
-    emergent:   { dot: '🟠', label: 'Piste émergente',    hint: 'Données préliminaires ou théoriques.' },
-}[props.tip?.evidence] ?? { dot: '🟡', label: 'Preuve prometteuse', hint: '' }))
+    solide:     { color: '#10B981', label: 'Preuve solide',     hint: 'Méta-analyses ou essais contrôlés randomisés convergents.' },
+    prometteur: { color: '#F59E0B', label: 'Preuve prometteuse', hint: 'Résultats encourageants, à confirmer.' },
+    emergent:   { color: '#F97316', label: 'Piste émergente',    hint: 'Données préliminaires ou théoriques.' },
+}[props.tip?.evidence] ?? { color: '#F59E0B', label: 'Preuve prometteuse', hint: '' }))
 
 const appliedToday = computed(() => props.engagement?.applied_today)
 const streak = computed(() => props.engagement?.streak ?? 0)
@@ -31,14 +31,14 @@ const apply = () => {
 </script>
 
 <template>
-    <div v-if="tip" class="mb-8" style="position: relative; background: var(--surface, #fff); border: 1px solid var(--border, #e5e7eb); border-radius: var(--r-md, 12px); overflow: hidden;">
+    <div v-if="tip" class="mb-8" style="position: relative; background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--r-lg); overflow: hidden;">
         <!-- Liseré thématique -->
-        <div style="height: 4px; background: linear-gradient(90deg, var(--primary, #4F46E5), #8B5CF6);"></div>
+        <div style="height: 4px; background: linear-gradient(90deg, var(--color-primary), var(--color-primary-dark));"></div>
 
         <div style="padding: 1.25rem 1.4rem 1.4rem;">
             <!-- Bandeau : label + série -->
             <div class="flex items-center justify-between" style="margin-bottom: 0.85rem;">
-                <span style="font-family: var(--font-display); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; color: var(--primary, #4F46E5);">
+                <span style="font-family: var(--font-display); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; color: var(--color-primary);">
                     ✦ Tip du jour
                 </span>
                 <span
@@ -46,14 +46,15 @@ const apply = () => {
                     :title="`Plus longue série : ${engagement.longest_streak} j`"
                     style="font-size: 0.78rem; font-weight: 700; color: #EA580C; background: #FFF7ED; border: 1px solid #FED7AA; border-radius: 999px; padding: 0.15rem 0.6rem;"
                 >
-                    🔥 {{ streak }} jour{{ streak > 1 ? 's' : '' }}
+                    <i class="ti ti-flame" style="font-size: 0.9rem;"></i> {{ streak }} jour{{ streak > 1 ? 's' : '' }}
                 </span>
             </div>
 
             <!-- Niveau de preuve + thème -->
             <div class="flex items-center gap-2" style="margin-bottom: 0.5rem; flex-wrap: wrap;">
-                <span :title="evidenceMeta.hint" style="font-size: 0.72rem; font-weight: 600; color: var(--text-secondary); background: var(--bg, #f9fafb); border: 1px solid var(--border, #e5e7eb); border-radius: 999px; padding: 0.12rem 0.55rem;">
-                    {{ evidenceMeta.dot }} {{ evidenceMeta.label }}
+                <span :title="evidenceMeta.hint" style="font-size: 0.72rem; font-weight: 600; color: var(--text-secondary); background: var(--bg-elevated); border: 1px solid var(--border-light); border-radius: 999px; padding: 0.12rem 0.55rem; display: inline-flex; align-items: center; gap: 0.3rem;">
+                    <span :style="{ width: '7px', height: '7px', borderRadius: '50%', background: evidenceMeta.color, flexShrink: 0, display: 'inline-block' }"></span>
+                    {{ evidenceMeta.label }}
                 </span>
                 <span v-if="tip.theme" style="font-size: 0.72rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em;">
                     {{ tip.theme }}
@@ -74,7 +75,7 @@ const apply = () => {
             </p>
 
             <!-- Micro-action -->
-            <div v-if="tip.action" style="margin-top: 0.9rem; padding: 0.8rem 1rem; background: var(--bg, #f9fafb); border-left: 3px solid var(--primary, #4F46E5); border-radius: 8px;">
+            <div v-if="tip.action" style="margin-top: 0.9rem; padding: 0.8rem 1rem; background: var(--bg-elevated); border-left: 3px solid var(--color-primary); border-radius: 8px;">
                 <span style="display: block; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; color: var(--text-secondary); margin-bottom: 0.2rem;">
                     Ta micro-action du jour
                 </span>
@@ -93,7 +94,7 @@ const apply = () => {
                     type="button"
                     :disabled="applying"
                     @click="apply"
-                    style="font-family: var(--font-display); font-weight: 700; font-size: 0.88rem; color: #fff; background: var(--primary, #4F46E5); border: none; border-radius: 999px; padding: 0.55rem 1.3rem; cursor: pointer; transition: opacity .15s;"
+                    style="font-family: var(--font-display); font-weight: 700; font-size: 0.88rem; color: var(--color-accent); background: var(--color-primary); border: none; border-radius: 999px; padding: 0.55rem 1.3rem; cursor: pointer; transition: opacity .15s;"
                     :style="{ opacity: applying ? 0.6 : 1 }"
                 >
                     {{ applying ? '…' : "Je l'applique aujourd'hui" }}

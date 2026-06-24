@@ -1,4 +1,5 @@
 <script setup>
+import { ref } from 'vue'
 import { Link, useForm } from '@inertiajs/vue3'
 import AuthLayout from '@/Layouts/AuthLayout.vue'
 
@@ -8,6 +9,7 @@ const form = useForm({
     remember: false,
 })
 
+const showPassword = ref(false)
 const submit = () => form.post(route('login'), { onFinish: () => form.reset('password') })
 </script>
 
@@ -71,15 +73,26 @@ const submit = () => form.post(route('login'), { onFinish: () => form.reset('pas
                         color:var(--color-primary);text-decoration:none;
                     " class="hover:underline">Sceau oublié ?</Link>
                 </div>
-                <input
-                    id="login-password"
-                    type="password"
-                    v-model="form.password"
-                    required
-                    autocomplete="current-password"
-                    class="pt-input"
-                    placeholder="••••••••"
-                >
+                <div style="position:relative;">
+                    <input
+                        id="login-password"
+                        :type="showPassword ? 'text' : 'password'"
+                        v-model="form.password"
+                        required
+                        autocomplete="current-password"
+                        class="pt-input"
+                        placeholder="••••••••"
+                        style="padding-right:2.5rem;"
+                    >
+                    <button
+                        type="button"
+                        @click="showPassword = !showPassword"
+                        tabindex="-1"
+                        style="position:absolute;right:0.65rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted);padding:0;display:flex;align-items:center;"
+                    >
+                        <i :class="showPassword ? 'ti ti-eye-off' : 'ti ti-eye'" style="font-size:16px;"></i>
+                    </button>
+                </div>
                 <p v-if="form.errors.password" style="
                     font-family:'Inter',sans-serif;font-size:12px;
                     color:var(--color-secondary);margin:0.35rem 0 0;

@@ -107,7 +107,7 @@ function resume() {
                     </div>
                     <div v-if="card" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem">
                         <div style="display: flex; align-items: center; gap: 10px">
-                            <span style="font-size: 20px">💳</span>
+                            <i class="ti ti-credit-card" style="font-size: 20px; color: var(--color-primary);"></i>
                             <div>
                                 <span style="font-weight: 600; text-transform: capitalize">{{ card.brand }}</span>
                                 <span style="color: var(--pt-text-muted); margin-left: 8px">•••• {{ card.last4 }}</span>

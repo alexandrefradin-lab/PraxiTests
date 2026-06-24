@@ -322,6 +322,35 @@ h1, h2, h3, h4, .font-display {
         color: #1d4ed8;
     }
 
+    /* ── Cards interactives (cursor + hover) ── */
+    .ac-card-interactive {
+        cursor: pointer;
+        transition: box-shadow 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
+    }
+    .ac-card-interactive:hover {
+        box-shadow: var(--shadow-elevated);
+        border-color: var(--border-mid);
+    }
+    .ac-card-interactive:active {
+        transform: translateY(1px);
+    }
+    .ac-card-interactive:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+    }
+
+    /* ── Skeleton loading ── */
+    .ac-skeleton {
+        background: linear-gradient(90deg, var(--bg-elevated) 25%, var(--bg-surface) 50%, var(--bg-elevated) 75%);
+        background-size: 200% 100%;
+        animation: ac-skeleton-shimmer 1.4s ease-in-out infinite;
+        border-radius: var(--r);
+    }
+    @keyframes ac-skeleton-shimmer {
+        0%   { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+
     /* ── Divers ── */
     .ac-divider {
         border: none;

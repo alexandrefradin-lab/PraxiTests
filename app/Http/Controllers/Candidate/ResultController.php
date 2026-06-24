@@ -93,7 +93,7 @@ class ResultController extends Controller
 
         // Feedback 360° — injecter l'agrégat des regards si un panel existe.
         $panel360 = null;
-        if (($attempt->test->slug ?? null) === 'praxis360') {
+        if ($testSlug === 'praxis360') {
             $panel = \App\Models\EvaluationPanel::where('user_id', auth()->id())
                 ->where('self_attempt_id', $attempt->id)
                 ->first();

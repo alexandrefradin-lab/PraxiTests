@@ -37,7 +37,7 @@ const planList = computed(() =>
 
             <!-- Header -->
             <div style="text-align: center; margin-bottom: 3rem">
-                <h1 style="font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700; color: var(--pt-navy); margin-bottom: 0.75rem">
+                <h1 style="font-family: var(--font-display); font-size: 2rem; font-weight: 700; color: var(--pt-navy); margin-bottom: 0.75rem">
                     Choisissez votre plan
                 </h1>
                 <p style="font-size: 1rem; color: var(--pt-text-muted); max-width: 480px; margin: 0 auto">
@@ -62,8 +62,8 @@ const planList = computed(() =>
                             border: 'none',
                             cursor: 'pointer',
                             transition: 'all 0.15s',
-                            background: period === 'monthly' ? 'var(--pt-navy)' : 'transparent',
-                            color: period === 'monthly' ? '#fff' : 'var(--pt-text-muted)',
+                            background: period === 'monthly' ? 'var(--color-primary)' : 'transparent',
+                            color: period === 'monthly' ? 'var(--color-accent)' : 'var(--pt-text-muted)',
                         }"
                     >Mensuel</button>
                     <button
@@ -75,8 +75,8 @@ const planList = computed(() =>
                             border: 'none',
                             cursor: 'pointer',
                             transition: 'all 0.15s',
-                            background: period === 'yearly' ? 'var(--pt-navy)' : 'transparent',
-                            color: period === 'yearly' ? '#fff' : 'var(--pt-text-muted)',
+                            background: period === 'yearly' ? 'var(--color-primary)' : 'transparent',
+                            color: period === 'yearly' ? 'var(--color-accent)' : 'var(--pt-text-muted)',
                         }"
                     >
                         Annuel
@@ -91,18 +91,18 @@ const planList = computed(() =>
                     v-for="plan in planList"
                     :key="plan.key"
                     :style="{
-                        border: plan.highlighted ? '2px solid var(--pt-navy)' : '1px solid var(--pt-border)',
+                        border: plan.highlighted ? '2px solid var(--color-primary)' : '1px solid var(--pt-border)',
                         borderRadius: '16px',
                         background: 'var(--pt-white)',
                         padding: '1.75rem',
                         position: 'relative',
-                        boxShadow: plan.highlighted ? 'var(--pt-shadow-md)' : 'var(--pt-shadow-xs)',
+                        boxShadow: plan.highlighted ? 'var(--shadow-elevated)' : 'var(--shadow-xs)',
                     }"
                 >
                     <!-- Badge populaire -->
                     <div
                         v-if="plan.highlighted"
-                        style="position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: var(--pt-navy); color: #fff; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; border-radius: 20px; padding: 3px 14px; white-space: nowrap"
+                        style="position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: var(--color-primary); color: var(--color-accent); font-size: 11px; font-weight: 700; letter-spacing: 0.05em; border-radius: 20px; padding: 3px 14px; white-space: nowrap"
                     >
                         LE PLUS POPULAIRE
                     </div>
@@ -154,14 +154,14 @@ const planList = computed(() =>
                             fontSize: '14px',
                             transition: 'all 0.15s',
                             background: activePlan === plan.key
-                                ? '#E5E7EB'
+                                ? 'var(--bg-elevated)'
                                 : plan.highlighted
-                                    ? 'var(--pt-navy)'
+                                    ? 'var(--color-primary)'
                                     : 'var(--pt-cream)',
                             color: activePlan === plan.key
-                                ? '#6B7280'
+                                ? 'var(--text-muted)'
                                 : plan.highlighted
-                                    ? '#fff'
+                                    ? 'var(--color-accent)'
                                     : 'var(--pt-navy)',
                             border: plan.highlighted ? 'none' : '1px solid var(--pt-border)',
                         }"

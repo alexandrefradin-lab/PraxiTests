@@ -14,23 +14,23 @@ const props = defineProps({
 })
 
 const iconFor = (name) => ({
-    'sparkles': '✨',
-    'heart-pulse': '🫀',
-    'brain': '🧠',
-    'compass': '🧭',
-    'rocket': '🚀',
-    'mic': '🎤',
-    'target': '🎯',
-    'calendar': '🗓️',
-    'zap': '⚡',
-    'list-checks': '✅',
-    'list-ordered': '🔢',
-    'person-standing': '🧍',
-    'flame': '🔥',
-    'messages': '💬',
-    'yin-yang': '☯️',
-    'hourglass-high': '⏳',
-}[name] ?? '⭐')
+    'sparkles':        'ti-sparkles',
+    'heart-pulse':     'ti-heartbeat',
+    'brain':           'ti-brain',
+    'compass':         'ti-compass',
+    'rocket':          'ti-rocket',
+    'mic':             'ti-microphone',
+    'target':          'ti-target',
+    'calendar':        'ti-calendar',
+    'zap':             'ti-bolt',
+    'list-checks':     'ti-list-check',
+    'list-ordered':    'ti-list-numbers',
+    'person-standing': 'ti-man',
+    'flame':           'ti-flame',
+    'messages':        'ti-messages',
+    'yin-yang':        'ti-yin-yang',
+    'hourglass-high':  'ti-hourglass-high',
+}[name] ?? 'ti-star')
 
 // Regroupe les exercices par catégorie en conservant l'ordre d'apparition.
 const groups = computed(() => {
@@ -69,6 +69,14 @@ const total = computed(() => props.exercises.length)
                 <p class="mt-2" style="font-size: 0.85rem; color: var(--text-secondary);">
                     {{ completedCount }}/{{ total }} exercices réalisés · choisis ce qui te parle, dans l'ordre que tu veux.
                 </p>
+                <div v-if="total > 0" class="mt-3" style="display: flex; align-items: center; gap: 0.75rem;">
+                    <div style="flex: 1; height: 5px; border-radius: 99px; background: var(--bg-elevated); overflow: hidden;">
+                        <div :style="{ width: Math.round((completedCount / total) * 100) + '%', height: '100%', background: 'var(--color-primary)', borderRadius: '99px', transition: 'width 0.4s ease' }"></div>
+                    </div>
+                    <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); flex-shrink: 0;">
+                        {{ Math.round((completedCount / total) * 100) }}%
+                    </span>
+                </div>
             </div>
 
             <!-- Tip du jour -->
@@ -89,9 +97,11 @@ const total = computed(() => props.exercises.length)
                         style="text-decoration: none;"
                     >
                         <div
-                            style="display: flex; gap: 1rem; align-items: flex-start; padding: 1.1rem 1.25rem; background: var(--surface, #fff); border: 1px solid var(--border, #e5e7eb); border-radius: var(--r-md, 12px); transition: transform .15s, box-shadow .15s; cursor: pointer;"
+                            style="display: flex; gap: 1rem; align-items: flex-start; padding: 1.1rem 1.25rem; background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--r-lg); transition: transform .15s, box-shadow .15s; cursor: pointer;"
                         >
-                            <div style="font-size: 1.5rem; line-height: 1;">{{ iconFor(ex.icon) }}</div>
+                            <div style="width: 2rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                                <i :class="['ti', iconFor(ex.icon)]" style="font-size: 1.4rem; color: var(--color-primary);"></i>
+                            </div>
 
                             <div style="flex: 1; min-width: 0;">
                                 <div class="flex items-center justify-between gap-3">

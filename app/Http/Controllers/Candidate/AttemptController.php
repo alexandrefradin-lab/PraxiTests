@@ -159,7 +159,7 @@ class AttemptController extends Controller
         $valueRules = match ($question->type) {
             'scale'             => ['required', 'numeric', "between:{$scaleMin},{$scaleMax}"],
             'text'              => ['required', 'string', 'max:5000'],
-            'multi', 'ranking'  => ['required', 'array', 'min:1'],
+            'multi', 'multiple', 'ranking'  => ['required', 'array', 'min:1'],
             default             => ['required', function ($attr, $val, $fail) {
                 // Pour single/situational et tout type inconnu : refuser les tableaux
                 if (is_array($val)) {
