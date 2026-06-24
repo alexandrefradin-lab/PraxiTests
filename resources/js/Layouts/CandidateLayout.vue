@@ -4,6 +4,11 @@ import { computed, ref, onMounted, onBeforeUnmount, watch } from 'vue'
 import OracleChat from '@/Components/OracleChat.vue'
 
 const mobileOpen = ref(false)
+const navigating = ref(false)
+const navTarget = ref('')
+let navTimeout = null
+let stopNavStart = null
+let stopNavFinish = null
 const page = usePage()
 
 // ─── Polling synthèse IA ───────────────────────────────────────────────
@@ -40,10 +45,22 @@ function onKeydown(e) {
 onMounted(() => {
     startAiPoll()
     window.addEventListener('keydown', onKeydown)
+    stopNavStart = router.on('start', (event) => {
+        navTarget.value = event.detail?.visit?.url ?? ''
+        navTimeout = setTimeout(() => { navigating.value = true }, 120)
+    })
+    stopNavFinish = router.on('finish', () => {
+        clearTimeout(navTimeout)
+        navTimeout = null
+        navigating.value = false
+    })
 })
 onBeforeUnmount(() => {
     stopAiPoll()
     window.removeEventListener('keydown', onKeydown)
+    if (stopNavStart) stopNavStart()
+    if (stopNavFinish) stopNavFinish()
+    clearTimeout(navTimeout)
 })
 
 // Inertia réutilise le Layout entre navigations même-composant : relancer
@@ -182,7 +199,35 @@ const hasTreasure = computed(() => {
 
         <!-- Body -->
         <main class="flex-1">
-            <Transition name="pt-page" appear>
+            <!-- Skeleton screens pendant la navigation Inertia -->
+            <template v-if="navigating">
+                <!-- Grille de cartes : tests, grimoire, trésor -->
+                <div v-if="/\/(tests|grimoire|salle-du-tresor)/.test(navTarget)"
+                    class="mx-auto" style="max-width:1100px;padding:2.5rem 2rem">
+                    <div class="pt-skel" style="width:200px;height:34px;border-radius:8px;margin-bottom:10px"></div>
+                    <div class="pt-skel" style="width:320px;height:13px;border-radius:6px;margin-bottom:2rem"></div>
+                    <div style="height:1px;background:var(--glass-border);margin-bottom:1.5rem"></div>
+                    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem">
+                        <div v-for="i in 6" :key="i" class="pt-skel" style="height:210px;border-radius:14px"></div>
+                    </div>
+                </div>
+                <!-- Liste : chroniques -->
+                <div v-else-if="navTarget.includes('/history')"
+                    class="mx-auto" style="max-width:1100px;padding:2.5rem 2rem">
+                    <div class="pt-skel" style="width:200px;height:34px;border-radius:8px;margin-bottom:10px"></div>
+                    <div class="pt-skel" style="width:320px;height:13px;border-radius:6px;margin-bottom:2rem"></div>
+                    <div style="display:flex;flex-direction:column;gap:0.75rem">
+                        <div v-for="i in 5" :key="i" class="pt-skel" style="height:84px;border-radius:14px"></div>
+                    </div>
+                </div>
+                <!-- Générique : profil, RGPD, billing, etc. -->
+                <div v-else class="mx-auto" style="max-width:1100px;padding:2.5rem 2rem">
+                    <div class="pt-skel" style="width:200px;height:34px;border-radius:8px;margin-bottom:10px"></div>
+                    <div class="pt-skel" style="width:320px;height:13px;border-radius:6px;margin-bottom:2rem"></div>
+                    <div class="pt-skel" style="height:420px;border-radius:14px"></div>
+                </div>
+            </template>
+            <Transition v-else name="pt-page" appear>
                 <div :key="$page.url" class="mx-auto" style="max-width: 1100px; padding: 2.5rem 2rem">
                     <slot />
                 </div>
@@ -582,6 +627,22 @@ const hasTreasure = computed(() => {
 .pt-toast-enter-from   { opacity: 0; transform: translateX(16px); }
 .pt-toast-leave-active { transition: opacity 0.18s ease; }
 .pt-toast-leave-to     { opacity: 0; }
+
+/* ── Skeleton shimmer ── */
+@keyframes pt-shimmer {
+    0%   { background-position: -200% 0 }
+    100% { background-position:  200% 0 }
+}
+.pt-skel {
+    background: linear-gradient(
+        90deg,
+        var(--bg-elevated) 25%,
+        var(--bg-surface)  50%,
+        var(--bg-elevated) 75%
+    );
+    background-size: 200% 100%;
+    animation: pt-shimmer 1.6s ease-in-out infinite;
+}
 
 /* ── Responsive : burger visible < 768px, nav desktop masquée ── */
 @media (max-width: 768px) {
