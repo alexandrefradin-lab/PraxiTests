@@ -10,6 +10,7 @@ use App\Http\Controllers\Candidate\TestController;
 use App\Http\Controllers\Candidate\TreasureController;
 use App\Http\Controllers\BillingController;
 use App\Http\Controllers\GdprController;
+use App\Http\Controllers\BlockingBeliefsController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LegalController;
 use Illuminate\Support\Facades\Route;
@@ -91,6 +92,12 @@ Route::middleware(['auth'])->group(function () {
     // Édition du profil (mise à jour post-onboarding)
     Route::get('/profile/edit',   [OnboardingController::class, 'edit'])->name('profile.edit');
     Route::put('/profile',        [OnboardingController::class, 'update'])->name('profile.update');
+});
+
+// ─── Croyances bloquantes (relance parcours journaliers) ────────────────────
+Route::middleware(['auth'])->prefix('mon-parcours')->name('beliefs.')->group(function () {
+    Route::get('/croyances',  [BlockingBeliefsController::class, 'show'])->name('show');
+    Route::post('/croyances', [BlockingBeliefsController::class, 'store'])->name('store');
 });
 
 // ─── Billing / Stripe ────────────────────────────────────────────────────────

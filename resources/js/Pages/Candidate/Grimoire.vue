@@ -15,6 +15,14 @@ const props = defineProps({
 
 const voies = computed(() => props.grimoire?.voies ?? [])
 
+// ── Onglets ───────────────────────────────────────────────────────────────
+const tabs = [
+    { key: 'synthese', label: 'Relecture globale' },
+    { key: 'tests',    label: 'Résultats des tests' },
+    { key: 'pistes',   label: 'Les 15 pistes' },
+]
+const activeTab = ref('synthese')
+
 // ── Ajustement des voies par préférences (curseurs) ──────────────────────
 // Re-tri 100 % côté front, non sauvegardé : on pondère 5 axes décrivant chaque
 // métier (renvoyés par l'IA dans v.axes) selon ce qui compte pour la personne.
@@ -201,7 +209,6 @@ function fitClass(score) {
 
                 <header class="grim-header">
                     <div class="grim-flourish">&#10087;&nbsp;&nbsp;&#10022;&nbsp;&nbsp;&#10087;</div>
-                    <span class="grim-badge">Relecture globale</span>
                     <h1 class="grim-title">Le Grimoire</h1>
                     <div class="grim-rule"><span>&#10022;</span></div>
                     <p class="grim-sub">
@@ -213,139 +220,156 @@ function fitClass(score) {
                     </div>
                 </header>
 
-                <div v-if="grimoire?.status === 'failed'" class="grim-alert">
-                    {{ grimoire.synthesis }}
+                <!-- ── Barre d'onglets ──────────────────────────────────── -->
+                <nav class="grim-tabs" role="tablist">
+                    <button
+                        v-for="tab in tabs"
+                        :key="tab.key"
+                        role="tab"
+                        :aria-selected="activeTab === tab.key"
+                        class="grim-tab"
+                        :class="{ 'grim-tab--active': activeTab === tab.key }"
+                        @click="activeTab = tab.key"
+                    >
+                        {{ tab.label }}
+                    </button>
+                </nav>
+
+                <!-- ── Onglet 1 : Relecture globale ───────────────────── -->
+                <div v-show="activeTab === 'synthese'" role="tabpanel">
+                    <div v-if="grimoire?.status === 'failed'" class="grim-alert">
+                        {{ grimoire.synthesis }}
+                    </div>
+                    <section v-else class="grim-synthesis">
+                        <div class="grim-scroll">
+                            <h2 class="grim-scroll-title">Le fil conducteur</h2>
+                            <p v-for="(para, i) in synthParagraphs" :key="i" class="grim-para">{{ para }}</p>
+                        </div>
+                    </section>
                 </div>
 
-                <section v-else class="grim-synthesis">
-                    <div class="grim-scroll">
-                        <h2 class="grim-scroll-title">Le fil conducteur</h2>
-                        <p v-for="(para, i) in synthParagraphs" :key="i" class="grim-para">{{ para }}</p>
-                    </div>
-                </section>
-
-                <section v-if="voies.length" class="grim-voies">
-                    <div class="grim-section-head">
-                        <h2 class="grim-section-title">Tes Voies Possibles</h2>
-                        <p class="grim-voies-intro">
-                            {{ voies.length }} pistes tracées en croisant l'ensemble de tes résultats.
-                        </p>
-                    </div>
-
-                    <!-- ── Curseurs de préférences : re-trie les voies en direct ── -->
-                    <div v-if="hasAxes" class="grim-tuner">
-                        <div class="grim-tuner-head">
-                            <h3 class="grim-tuner-title">Ajuste selon ce qui compte pour toi</h3>
-                            <button v-if="customized" type="button" class="grim-tuner-reset" @click="resetWeights">
-                                Réinitialiser
-                            </button>
-                        </div>
-                        <p class="grim-tuner-sub">
-                            Déplace les curseurs : tes voies se réordonnent instantanément selon tes priorités.
-                            <em>(Ce réglage n'est pas enregistré.)</em>
-                        </p>
-                        <div class="grim-tuner-grid">
-                            <label v-for="a in axisDefs" :key="a.key" class="grim-slider">
-                                <span class="grim-slider-label">{{ a.label }}</span>
-                                <input
-                                    type="range" min="0" max="100" step="5"
-                                    v-model.number="weights[a.key]"
-                                    @input="onWeightInput"
-                                    class="grim-slider-input"
-                                    :title="a.hint"
-                                />
-                                <span class="grim-slider-val">{{ weights[a.key] }}</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="grim-voies-grid">
-                        <article v-for="(v, i) in rankedVoies" :key="v.titre || i" class="grim-voie-card">
-                            <div class="grim-voie-head">
-                                <span class="grim-voie-rank">{{ i + 1 }}</span>
-                                <span
-                                    v-if="customized && hasAxes"
-                                    class="grim-voie-fit"
-                                    :class="fitClass(prefScore(v))"
-                                    title="Correspondance à tes préférences"
-                                >
-                                    {{ prefScore(v) }}%
-                                </span>
-                                <span v-else-if="v.fit_score != null" class="grim-voie-fit" :class="fitClass(clamp100(v.fit_score))">
-                                    {{ clamp100(v.fit_score) }}%
-                                </span>
-                            </div>
-                            <h3 class="grim-voie-titre">{{ v.titre }}</h3>
-                            <p v-if="v.secteur" class="grim-voie-secteur">{{ v.secteur }}</p>
-                            <p v-if="v.pourquoi" class="grim-voie-why">{{ v.pourquoi }}</p>
-
-                            <div v-if="v.appui_tests?.length" class="grim-voie-appui">
-                                <span class="grim-voie-appui-label">Appuyé par</span>
-                                <span v-for="(t, j) in v.appui_tests" :key="j" class="grim-appui-tag">{{ t }}</span>
-                            </div>
-
-                            <p v-if="v.prochaine_etape" class="grim-voie-next">
-                                <span class="grim-voie-next-label">Prochaine étape</span>
-                                {{ v.prochaine_etape }}
+                <!-- ── Onglet 2 : Résultats des tests ────────────────── -->
+                <div v-show="activeTab === 'tests'" role="tabpanel">
+                    <section v-if="tests.length" class="grim-tests">
+                        <div class="grim-section-head">
+                            <h2 class="grim-section-title">Tes épreuves relues</h2>
+                            <p class="grim-voies-intro">
+                                Le résumé de chacune de tes épreuves. Télécharge le détail complet en PDF.
                             </p>
-                        </article>
-                    </div>
-                </section>
+                        </div>
+                        <div class="grim-tests-list">
+                            <article v-for="t in tests" :key="t.attempt_id" class="grim-test-card">
+                                <div class="grim-test-main">
+                                    <h3 class="grim-test-name">{{ t.name }}</h3>
+                                    <p v-if="t.summary" class="grim-test-summary">{{ t.summary }}</p>
+                                    <p v-else class="grim-test-summary grim-test-pending">
+                                        Synthèse en cours de génération…
+                                    </p>
+                                </div>
+                                <div class="grim-test-actions">
+                                    <Link :href="t.results_url" class="grim-test-link">Voir le détail</Link>
+                                    <a v-if="t.pdf_url" :href="t.pdf_url" class="grim-test-pdf">
+                                        Télécharger le PDF
+                                    </a>
+                                </div>
+                            </article>
+                        </div>
+                    </section>
+                </div>
 
-                <!-- ── Pistes de transition (PTP) ─────────────────────────────
-                     Masqué côté front : remplacé par l'Oracle (chat d'orientation).
-                     Le calcul backend (PtpPathService) et les données restent en place ;
-                     seul l'affichage est désactivé. Réactiver en retirant `false &&`. -->
-                <section v-if="false && pistesTotal" class="grim-voies" style="margin-top:1rem">
-                    <div class="grim-section-head">
-                        <h2 class="grim-section-title">Tes pistes de transition</h2>
-                        <p class="grim-voies-intro">
-                            Des métiers cibles classés par opportunité, en croisant ton profil, l'écart de
-                            formation et le marché de l'emploi. Le score de tes tests ne change pas — ce sont
-                            les pistes ouvertes qui évoluent quand tu déclares une formation.
-                        </p>
-                        <p v-if="!ptp_eligible" class="grim-voies-intro" style="font-style:italic;margin-top:.4rem">
-                            Le financement via un PTP (Projet de Transition Professionnelle) concerne les
-                            salariés. Selon ton statut, d'autres dispositifs (CPF, AIF…) peuvent s'appliquer.
-                        </p>
-                    </div>
+                <!-- ── Onglet 3 : Les 15 pistes ──────────────────────── -->
+                <div v-show="activeTab === 'pistes'" role="tabpanel">
+                    <section v-if="voies.length" class="grim-voies">
+                        <div class="grim-section-head">
+                            <h2 class="grim-section-title">Tes Voies Possibles</h2>
+                            <p class="grim-voies-intro">
+                                {{ voies.length }} pistes tracées en croisant l'ensemble de tes résultats.
+                            </p>
+                        </div>
 
-                    <PathTier tier="accessible" :paths="pistes.accessible" @unlock="declarePiste" />
-                    <PathTier tier="ptp"        :paths="pistes.ptp"        @unlock="declarePiste" />
-                    <PathTier tier="horizon"    :paths="pistes.horizon"    @unlock="declarePiste" />
+                        <!-- ── Curseurs de préférences : re-trie les voies en direct ── -->
+                        <div v-if="hasAxes" class="grim-tuner">
+                            <div class="grim-tuner-head">
+                                <h3 class="grim-tuner-title">Ajuste selon ce qui compte pour toi</h3>
+                                <button v-if="customized" type="button" class="grim-tuner-reset" @click="resetWeights">
+                                    Réinitialiser
+                                </button>
+                            </div>
+                            <p class="grim-tuner-sub">
+                                Déplace les curseurs : tes voies se réordonnent instantanément selon tes priorités.
+                                <em>(Ce réglage n'est pas enregistré.)</em>
+                            </p>
+                            <div class="grim-tuner-grid">
+                                <label v-for="a in axisDefs" :key="a.key" class="grim-slider">
+                                    <span class="grim-slider-label">{{ a.label }}</span>
+                                    <input
+                                        type="range" min="0" max="100" step="5"
+                                        v-model.number="weights[a.key]"
+                                        @input="onWeightInput"
+                                        class="grim-slider-input"
+                                        :title="a.hint"
+                                    />
+                                    <span class="grim-slider-val">{{ weights[a.key] }}</span>
+                                </label>
+                            </div>
+                        </div>
 
-                    <p class="grim-voies-intro" style="font-size:12px;margin-top:.75rem">
-                        Données marché indicatives (estimations par famille de métiers, {{ new Date().getFullYear() }})
-                        — à affiner avec un conseiller en évolution professionnelle.
-                    </p>
-                </section>
+                        <div class="grim-voies-grid">
+                            <article v-for="(v, i) in rankedVoies" :key="v.titre || i" class="grim-voie-card">
+                                <div class="grim-voie-head">
+                                    <span class="grim-voie-rank">{{ i + 1 }}</span>
+                                    <span
+                                        v-if="customized && hasAxes"
+                                        class="grim-voie-fit"
+                                        :class="fitClass(prefScore(v))"
+                                        title="Correspondance à tes préférences"
+                                    >
+                                        {{ prefScore(v) }}%
+                                    </span>
+                                    <span v-else-if="v.fit_score != null" class="grim-voie-fit" :class="fitClass(clamp100(v.fit_score))">
+                                        {{ clamp100(v.fit_score) }}%
+                                    </span>
+                                </div>
+                                <h3 class="grim-voie-titre">{{ v.titre }}</h3>
+                                <p v-if="v.secteur" class="grim-voie-secteur">{{ v.secteur }}</p>
+                                <p v-if="v.pourquoi" class="grim-voie-why">{{ v.pourquoi }}</p>
 
-                <section v-if="tests.length" class="grim-tests">
-                    <div class="grim-section-head">
-                        <h2 class="grim-section-title">Tes épreuves relues</h2>
-                        <p class="grim-voies-intro">
-                            Le résumé de chacune de tes épreuves. Télécharge le détail complet en PDF.
-                        </p>
-                    </div>
+                                <div v-if="v.appui_tests?.length" class="grim-voie-appui">
+                                    <span class="grim-voie-appui-label">Appuyé par</span>
+                                    <span v-for="(t, j) in v.appui_tests" :key="j" class="grim-appui-tag">{{ t }}</span>
+                                </div>
 
-                    <div class="grim-tests-list">
-                        <article v-for="t in tests" :key="t.attempt_id" class="grim-test-card">
-                            <div class="grim-test-main">
-                                <h3 class="grim-test-name">{{ t.name }}</h3>
-                                <p v-if="t.summary" class="grim-test-summary">{{ t.summary }}</p>
-                                <p v-else class="grim-test-summary grim-test-pending">
-                                    Synthèse en cours de génération…
+                                <p v-if="v.prochaine_etape" class="grim-voie-next">
+                                    <span class="grim-voie-next-label">Prochaine étape</span>
+                                    {{ v.prochaine_etape }}
                                 </p>
-                            </div>
-                            <div class="grim-test-actions">
-                                <Link :href="t.results_url" class="grim-test-link">Voir le détail</Link>
-                                <a v-if="t.pdf_url" :href="t.pdf_url" class="grim-test-pdf">
-                                    Télécharger le PDF
-                                </a>
-                            </div>
-                        </article>
-                    </div>
-                </section>
+                            </article>
+                        </div>
+                    </section>
+
+                    <!-- Pistes de transition (PTP) — données dispo, affichage optionnel -->
+                    <section v-if="pistesTotal" class="grim-voies" style="margin-top:1rem">
+                        <div class="grim-section-head">
+                            <h2 class="grim-section-title">Tes pistes de transition</h2>
+                            <p class="grim-voies-intro">
+                                Des métiers cibles classés par opportunité, en croisant ton profil, l'écart de
+                                formation et le marché de l'emploi.
+                            </p>
+                            <p v-if="!ptp_eligible" class="grim-voies-intro" style="font-style:italic;margin-top:.4rem">
+                                Le financement via un PTP concerne les salariés. Selon ton statut, d'autres
+                                dispositifs (CPF, AIF…) peuvent s'appliquer.
+                            </p>
+                        </div>
+
+                        <PathTier tier="accessible" :paths="pistes.accessible" @unlock="declarePiste" />
+                        <PathTier tier="ptp"        :paths="pistes.ptp"        @unlock="declarePiste" />
+                        <PathTier tier="horizon"    :paths="pistes.horizon"    @unlock="declarePiste" />
+
+                        <p class="grim-voies-intro" style="font-size:12px;margin-top:.75rem">
+                            Données marché indicatives ({{ new Date().getFullYear() }}) — à affiner avec un conseiller.
+                        </p>
+                    </section>
+                </div>
 
                 <footer class="grim-footer">
                     <div class="grim-rule"><span>&#10022;</span></div>
@@ -439,6 +463,38 @@ function fitClass(score) {
 .grim-pulse-dots span:nth-child(2) { animation-delay: .2s; }
 .grim-pulse-dots span:nth-child(3) { animation-delay: .4s; }
 @keyframes grimPulse { 0%, 80%, 100% { opacity: .25; transform: scale(.8); } 40% { opacity: 1; transform: scale(1); } }
+
+/* ── Onglets ──────────────────────────────────────────────────────────── */
+.grim-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid var(--border-mid, rgba(166,117,32,0.25));
+    margin-bottom: 2.5rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.grim-tabs::-webkit-scrollbar { display: none; }
+
+.grim-tab {
+    font-family: var(--font-display, 'Space Grotesk', sans-serif);
+    font-size: .95rem;
+    font-weight: 500;
+    color: var(--text-secondary, #6B5A3E);
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    padding: .75rem 1.5rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color .15s, border-color .15s;
+}
+.grim-tab:hover { color: var(--grim-gold-dark); }
+.grim-tab--active {
+    color: var(--grim-gold-dark);
+    font-weight: 700;
+    border-bottom-color: var(--grim-gold);
+}
 
 .grim-header { text-align: center; margin-bottom: 2.75rem; }
 .grim-badge {

@@ -23,35 +23,86 @@ trait BuildsBrandedPdf
      */
     protected function downloadBrandedPdf(string $view, array $data, string $filename): \Symfony\Component\HttpFoundation\Response
     {
-        $render = function (bool $embedFonts) use ($view, $data): string {
+        // Garantit un dossier cache dompdf inscriptible (OVH peut bloquer storage/fonts).
+        $fontCache = $this->resolveFontCacheDir();
+
+        $render = function (bool $embedFonts) use ($view, $data, $fontCache): string {
             $html = view($view, array_merge($data, ['embedFonts' => $embedFonts]))->render();
-            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html)
+            $pdf  = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html)
                 ->setPaper('A4', 'portrait');
 
-            // Accès au dompdf sous-jacent pour activer les scripts PHP (numérotation).
-            $dompdf = $pdf->getDomPDF();
+            // Accès au dompdf sous-jacent : activer les scripts PHP (numérotation)
+            // et pointer le cache polices vers un dossier garanti inscriptible.
+            $dompdf  = $pdf->getDomPDF();
             $options = $dompdf->getOptions();
             $options->setIsPhpEnabled(true);
+            $options->setFontCache($fontCache);
             $dompdf->setOptions($options);
 
             $pdf->render();
             return $pdf->output();
         };
 
+        $output    = null;
+        $lastError = null;
+
+        // Tentative 1 : polices Lora/Lato embarquées.
         try {
             $output = $render(true);
         } catch (\Throwable $e) {
-            // Polices inaccessibles (storage/fonts vide ou permissions OVH) → repli DejaVu.
+            $lastError = $e;
             \Illuminate\Support\Facades\Log::warning('PDF: repli DejaVu (embedFonts=false)', [
                 'error' => $e->getMessage(),
+                'file'  => $e->getFile() . ':' . $e->getLine(),
             ]);
-            $output = $render(false);
+        }
+
+        // Tentative 2 : repli DejaVu (sans @font-face).
+        if ($output === null) {
+            try {
+                $output = $render(false);
+            } catch (\Throwable $e) {
+                $lastError = $e;
+                \Illuminate\Support\Facades\Log::error('PDF: échec du repli DejaVu', [
+                    'error' => $e->getMessage(),
+                    'file'  => $e->getFile() . ':' . $e->getLine(),
+                    'trace' => substr($e->getTraceAsString(), 0, 1500),
+                ]);
+            }
+        }
+
+        if ($output === null) {
+            abort(503, 'Génération PDF temporairement indisponible — veuillez réessayer dans quelques instants.');
         }
 
         return response($output, 200, [
             'Content-Type'        => 'application/pdf',
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ]);
+    }
+
+    /**
+     * Résout un dossier cache polices garanti inscriptible.
+     * Priorité : storage/fonts → /tmp/praxiquest-fonts.
+     * Retourne le chemin réel (créé si besoin).
+     */
+    private function resolveFontCacheDir(): string
+    {
+        $primary = storage_path('fonts');
+        if (! is_dir($primary)) {
+            @mkdir($primary, 0755, true);
+        }
+        if (is_writable($primary)) {
+            return $primary;
+        }
+
+        // Fallback : répertoire temporaire système (toujours inscriptible).
+        $tmp = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'praxiquest-fonts';
+        if (! is_dir($tmp)) {
+            @mkdir($tmp, 0755, true);
+        }
+        \Illuminate\Support\Facades\Log::info('PDF: fontCache → ' . $tmp . ' (storage/fonts non inscriptible)');
+        return $tmp;
     }
 
     protected function pdfOptions(): array

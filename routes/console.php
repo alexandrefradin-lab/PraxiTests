@@ -57,6 +57,16 @@ Schedule::call(function () {
         ->update(['status' => 'abandoned']);
 })->daily()->name('attempts:cleanup');
 
+// ── Relances parcours journaliers ────────────────────────────────────────────
+// Chaque soir à 20h : envoie un email de questionnement sur les croyances
+// bloquantes aux utilisateurs n'ayant pas accompli leur action du jour
+// (praxilead, praxizenith).
+Schedule::command('journey:nudge')
+    ->dailyAt('20:00')
+    ->name('journey:nudge')
+    ->withoutOverlapping()
+    ->appendOutputTo(storage_path('logs/journey_nudge.log'));
+
 // ── Nettoyage des invitations expirées ────────────────────────────────────
 Schedule::call(function () {
     \App\Models\TestInvitation::where('status', 'pending')
