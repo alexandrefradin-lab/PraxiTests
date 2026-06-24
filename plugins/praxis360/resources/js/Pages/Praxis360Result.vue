@@ -12,14 +12,17 @@
 import { computed } from 'vue'
 import { Link }     from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
+import TestPistesSection from '@/Components/TestPistesSection.vue'
 import RadarChart      from '@/Components/RadarChart.vue'
 import SynthesisCard from '@/Components/SynthesisCard.vue'
 import JobCard       from '@/Components/JobCard.vue'
 
 const props = defineProps({
-    attempt: Object,
-    result:  Object,
-    panel360: Object,   // { manage_url, started, aggregate } — feedback 360° multi-évaluateurs
+    attempt:      Object,
+    result:       Object,
+    panel360:     Object,   // { manage_url, started, aggregate } — feedback 360° multi-évaluateurs
+    pistes_test:  { type: Array,   default: () => [] },
+    ptp_eligible: { type: Boolean, default: false },
 })
 
 const agg        = computed(() => props.panel360?.aggregate ?? null)
@@ -281,6 +284,13 @@ const barWidth = (dimKey) => {
 
             <!-- Actions -->
             <div style="display:flex;gap:.75rem;justify-content:center;margin-top:2rem;flex-wrap:wrap">
+                <!-- Pistes métiers (issues de ce test + profil) -->
+                <TestPistesSection
+                    v-if="pistes_test?.length"
+                    :pistes="pistes_test"
+                    :ptp-eligible="ptp_eligible"
+                />
+
                 <a :href="route('results.pdf', attempt.id)" class="pt-btn-ghost">
                     Télécharger en PDF
                 </a>

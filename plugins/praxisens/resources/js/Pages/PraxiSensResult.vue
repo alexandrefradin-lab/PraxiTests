@@ -8,6 +8,7 @@
 import { computed } from 'vue'
 import { Head, Link } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
+import TestPistesSection from '@/Components/TestPistesSection.vue'
 import ScoreGauge from '@/Components/ScoreGauge.vue'
 import RadarChart from '@/Components/RadarChart.vue'
 import SynthesisCard from '@/Components/SynthesisCard.vue'
@@ -15,8 +16,10 @@ import JobCard from '@/Components/JobCard.vue'
 import Disclaimer from '@/Components/Disclaimer.vue'
 
 const props = defineProps({
-    attempt: Object,
-    result:  Object,
+    attempt:      Object,
+    result:       Object,
+    pistes_test:  { type: Array,   default: () => [] },
+    ptp_eligible: { type: Boolean, default: false },
 })
 
 const scoring     = computed(() => props.result?.scoring ?? {})
@@ -164,6 +167,13 @@ const radarAxes = computed(() =>
 
             <!-- Actions -->
             <div style="display:flex;gap:.75rem;justify-content:center;margin-top:2rem;flex-wrap:wrap">
+                <!-- Pistes métiers (issues de ce test + profil) -->
+                <TestPistesSection
+                    v-if="pistes_test?.length"
+                    :pistes="pistes_test"
+                    :ptp-eligible="ptp_eligible"
+                />
+
                 <a :href="route('results.pdf', attempt.id)" class="pt-btn-ghost">Télécharger en PDF</a>
                 <Link :href="route('tests.index')" class="pt-btn-ghost">Voir les autres tests</Link>
                 <Link :href="route('history')" class="pt-btn-primary">Mon historique →</Link>

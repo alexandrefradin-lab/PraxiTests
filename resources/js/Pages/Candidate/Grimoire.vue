@@ -95,10 +95,16 @@ const declarePiste = (piste) => {
     })
 }
 
-// Synthèse normalisée pour MarkdownText (dé-escape les \n littéraux résiduels).
+// Synthèse normalisée pour MarkdownText.
+// MarkdownText suit CommonMark : un \n seul = continuation du même §.
+// L'IA génère souvent des \n simples entre paragraphes → on les double.
 const synthSource = computed(() => {
-    const raw = (props.grimoire?.synthesis || '').trim()
-    return raw.replace(/\\n/g, '\n')
+    let raw = (props.grimoire?.synthesis || '').trim()
+    // Dé-escape les séquences littérales "\\n" résiduelles
+    raw = raw.replace(/\\n/g, '\n')
+    // Tout \n isolé (pas déjà suivi d'un \n) → \n\n pour créer un vrai §
+    raw = raw.replace(/\n(?!\n)/g, '\n\n')
+    return raw
 })
 
 // Polling de l'état du Grimoire pendant la (re)génération IA.
@@ -151,8 +157,9 @@ onUnmounted(stopPolling)
 const refreshing = ref(false)
 function regenerate() {
     refreshing.value = true
+    window.scrollTo({ top: 0, behavior: 'smooth' })
     router.post(route('grimoire.refresh'), {}, {
-        preserveScroll: true,
+        preserveScroll: false,
         onFinish: () => { refreshing.value = false },
     })
 }

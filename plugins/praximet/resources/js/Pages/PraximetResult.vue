@@ -4,10 +4,13 @@ import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import SynthesisCard from '@/Components/SynthesisCard.vue'
 import RadarChart from '@/Components/RadarChart.vue'
 import JobCard from '@/Components/JobCard.vue'
+import TestPistesSection from '@/Components/TestPistesSection.vue'
 
 const props = defineProps({
-    attempt: Object,
-    result: Object,
+    attempt:      Object,
+    result:       Object,
+    pistes_test:  { type: Array,   default: () => [] },
+    ptp_eligible: { type: Boolean, default: false },
 })
 
 const scoring = computed(() => props.result?.scoring ?? {})
@@ -89,13 +92,12 @@ const radarAxes = computed(() =>
                 </div>
             </section>
 
-            <!-- Métiers IA -->
-            <section v-if="result?.suggested_jobs?.length" class="pt-card p-8 mb-8">
-                <h2 class="text-xl font-semibold mb-6">{{ result.suggested_jobs.length }} métiers à explorer</h2>
-                <div class="grid md:grid-cols-2 gap-4">
-                    <JobCard v-for="(job, i) in result.suggested_jobs" :key="i" :job="job" />
-                </div>
-            </section>
+            <!-- Pistes métiers (issues de ce test + profil) -->
+            <TestPistesSection
+                v-if="pistes_test?.length"
+                :pistes="pistes_test"
+                :ptp-eligible="ptp_eligible"
+            />
 
             <div class="text-center mt-12">
                 <a :href="route('results.pdf', attempt.id)" class="pt-btn-ghost">Télécharger en PDF</a>

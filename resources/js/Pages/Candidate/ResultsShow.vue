@@ -3,11 +3,14 @@ import { ref, onMounted, watch } from 'vue'
 import { Link, Head } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import MarkdownText from '@/Components/MarkdownText.vue'
+import TestPistesSection from '@/Components/TestPistesSection.vue'
 
 const props = defineProps({
-    attempt: Object,
-    result: Object,
-    ai_pending: Boolean,
+    attempt:      Object,
+    result:       Object,
+    ai_pending:   Boolean,
+    pistes_test:  { type: Array,   default: () => [] },
+    ptp_eligible: { type: Boolean, default: false },
 })
 
 const revealed = ref(false)
@@ -227,6 +230,14 @@ onMounted(() => {
                     réflexion, pas un verdict. Pour aller plus loin, échange avec un
                     conseiller d'orientation ou ton accompagnant France&nbsp;Travail.
                 </p>
+
+                <!-- ── PISTES MÉTIERS (issues de ce test + profil) ────── -->
+                <TestPistesSection
+                    v-if="pistes_test?.length"
+                    :pistes="pistes_test"
+                    :ptp-eligible="ptp_eligible"
+                    class="fade-in"
+                />
 
                 <!-- ── CTA PDF (disponible dès le reveal) ─────────────── -->
                 <div v-if="ctaVisible" class="ac-cta-pdf fade-in">

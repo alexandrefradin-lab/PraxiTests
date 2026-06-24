@@ -8,13 +8,14 @@ use App\Models\JourneyProgress;
 use App\Models\TestAttempt;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Inertia\Inertia;
+use Praxis\Core\Orientation\PtpPathService;
 use Praxis\Core\Plugins\PluginHooks;
 
 class ResultController extends Controller
 {
     use BuildsBrandedPdf;
 
-    public function show(TestAttempt $attempt)
+    public function show(TestAttempt $attempt, PtpPathService $ptp)
     {
         abort_unless($attempt->user_id === auth()->id(), 403);
         $attempt->load('test', 'result');
@@ -103,11 +104,25 @@ class ResultController extends Controller
             ];
         }
 
+        // Pistes métiers issues de CE test + contexte profil (CV / quête).
+        // Non calculées pour les mini-apps (parcours 60 jours, pas des évaluations).
+        $miniAppSlugsNoPath = ['praxizen', 'praxiself', 'praxispeak', 'praxiflow', 'praxilink',
+                               'praxiboost', 'praxizenith', 'praxilead'];
+        $profile     = auth()->user()->profile;
+        $pistesTest  = [];
+        $ptpEligible = false;
+        if (!in_array($testSlug, $miniAppSlugsNoPath, true) && $attempt->result) {
+            $pistesTest  = $ptp->computeForAttempt($attempt, $profile);
+            $ptpEligible = $profile?->status === 'employee';
+        }
+
         return Inertia::render($page, array_merge([
-            'attempt'    => $attempt,
-            'result'     => $attempt->result,
-            'ai_pending' => !$attempt->result?->ai_synthesis,
-            'panel360'   => $panel360,
+            'attempt'      => $attempt,
+            'result'       => $attempt->result,
+            'ai_pending'   => !$attempt->result?->ai_synthesis,
+            'panel360'     => $panel360,
+            'pistes_test'  => $pistesTest,
+            'ptp_eligible' => $ptpEligible,
         ], $journeyProps));
     }
 
