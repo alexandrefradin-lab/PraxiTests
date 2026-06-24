@@ -26,7 +26,7 @@ const props = defineProps({
     showValues: { type: Boolean, default: true },
 })
 
-const CX = 160, CY = 160, R = 120   // centre + rayon dans un viewBox 0 0 320 320
+const CX = 230, CY = 230, R = 120   // centre + rayon dans un viewBox 0 0 460 460
 
 const pts = computed(() => {
     const n = props.axes.length || 1
@@ -73,7 +73,7 @@ const fill = computed(() => tint(props.accent, 0.16))
 </script>
 
 <template>
-    <svg :width="size" :height="size" viewBox="0 0 320 320" role="img"
+    <svg :width="size" :height="size" viewBox="0 0 460 460" overflow="visible" role="img"
          :aria-label="`Graphique radar à ${axes.length} dimensions`">
         <!-- Anneaux de graduation -->
         <polygon v-for="(poly, i) in ringPolys" :key="'ring' + i"
