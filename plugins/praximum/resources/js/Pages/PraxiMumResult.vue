@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, reactive, onMounted } from 'vue'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import RadarChart from '@/Components/RadarChart.vue'
 import MarkdownText from '@/Components/MarkdownText.vue'
@@ -13,6 +13,39 @@ const dims = computed(() => scoring.value.scores_dim ?? {})
 const facettes = computed(() => scoring.value.scores_facette ?? {})
 const metaDim = computed(() => scoring.value.meta_dimensions ?? {})
 const metaFac = computed(() => scoring.value.meta_facettes ?? {})
+
+const prefersReducedMotion = typeof window !== 'undefined'
+    && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+
+const animatedDims = reactive({})
+const animatedFacs = reactive({})
+
+function countUp(target, durationMs, onTick) {
+    if (prefersReducedMotion) { onTick(target); return }
+    const start = Date.now()
+    const tick = () => {
+        const p = Math.min((Date.now() - start) / durationMs, 1)
+        const ease = 1 - Math.pow(1 - p, 3)
+        onTick(Math.round(ease * target))
+        if (p < 1) requestAnimationFrame(tick)
+        else onTick(target)
+    }
+    requestAnimationFrame(tick)
+}
+
+onMounted(() => {
+    const dimEntries = Object.entries(dims.value)
+    dimEntries.forEach(([key, d], i) => {
+        animatedDims[key] = 0
+        setTimeout(() => countUp(Number(d.pct ?? 0), 1000, v => { animatedDims[key] = v }), 300 + i * 120)
+    })
+
+    const facEntries = Object.entries(facettes.value)
+    facEntries.forEach(([key, f], i) => {
+        animatedFacs[key] = 0
+        setTimeout(() => countUp(Number(f.pct ?? 0), 900, v => { animatedFacs[key] = v }), 800 + i * 40)
+    })
+})
 const archetype = computed(() => scoring.value.archetype ?? null)
 
 // Toile d'araignée OCEAN — 5 axes (pct 0–100). Couleur depuis meta_dimensions,
@@ -53,14 +86,14 @@ const niveauColor = {
         <Head title="Tes résultats — PraxiMum" />
 
         <div class="max-w-4xl mx-auto">
-            <div class="text-center mb-12">
+            <div class="text-center mb-12 pq-reveal" style="animation-delay:0.05s">
                 <span class="pt-badge">PraxiMum · Big Five OCEAN</span>
                 <h1 class="text-4xl font-semibold tracking-tight mt-4">Ta personnalité en 5 dimensions</h1>
                 <p class="text-slate-600 mt-2 text-sm">Scores T normés (50 = moyenne). 30 facettes détaillées.</p>
             </div>
 
             <!-- Archétype principal -->
-            <section v-if="archetype" class="pt-card overflow-hidden mb-8" :style="{ background: `linear-gradient(135deg, ${archetype.couleur1}, ${archetype.couleur2})` }">
+            <section v-if="archetype" class="pt-card overflow-hidden mb-8 pq-reveal" style="animation-delay:0.2s" :style="{ background: `linear-gradient(135deg, ${archetype.couleur1}, ${archetype.couleur2})` }">
                 <div class="p-10 text-white">
                     <div class="flex items-start justify-between gap-6 flex-wrap">
                         <div class="flex items-center gap-4">
@@ -85,13 +118,13 @@ const niveauColor = {
             </section>
 
             <!-- Alerte DS -->
-            <section v-if="scoring.desirabilite?.alert" class="pt-card p-6 mb-8 border-l-4 border-amber-400 bg-amber-50">
+            <section v-if="scoring.desirabilite?.alert" class="pt-card p-6 mb-8 border-l-4 border-amber-400 bg-amber-50 pq-reveal" style="animation-delay:0.35s">
                 <p class="font-semibold text-amber-900">Désirabilité sociale élevée ({{ scoring.desirabilite.pct }}%)</p>
                 <p class="text-sm text-amber-800 mt-1">Tes réponses pourraient refléter une image idéalisée de toi-même. Considère les résultats avec ce filtre.</p>
             </section>
 
             <!-- Toile d'araignée OCEAN -->
-            <section class="pt-card p-8 mb-8">
+            <section class="pt-card p-8 mb-8 pq-reveal" style="animation-delay:0.4s">
                 <h2 class="text-xl font-semibold mb-1">Ton profil en un coup d'œil</h2>
                 <p class="text-sm text-slate-500 mb-6">Tes 5 dimensions OCEAN sur une même toile.</p>
                 <div class="flex justify-center">
@@ -100,7 +133,7 @@ const niveauColor = {
             </section>
 
             <!-- 5 dimensions OCEAN -->
-            <section class="pt-card p-8 mb-8">
+            <section class="pt-card p-8 mb-8 pq-reveal" style="animation-delay:0.55s">
                 <h2 class="text-xl font-semibold mb-6">Tes 5 dimensions OCEAN</h2>
                 <div class="space-y-5">
                     <div v-for="(d, key) in dims" :key="key">
@@ -112,14 +145,14 @@ const niveauColor = {
                             <span class="text-xs font-medium" :style="{ color: niveauColor[d.niveau] }">{{ niveauLabel[d.niveau] }} · T={{ d.T }}</span>
                         </div>
                         <div class="pt-progress-track">
-                            <div class="h-full rounded-full transition-all duration-700" :style="{ width: d.pct + '%', backgroundColor: metaDim[key]?.color }"></div>
+                            <div class="h-full rounded-full" :style="{ width: (animatedDims[key] ?? 0) + '%', backgroundColor: metaDim[key]?.color }"></div>
                         </div>
                     </div>
                 </div>
             </section>
 
             <!-- Facettes par dimension -->
-            <section v-for="(facs, dimKey) in facettesByDim" :key="dimKey" class="pt-card p-8 mb-6">
+            <section v-for="(facs, dimKey, di) in facettesByDim" :key="dimKey" class="pt-card p-8 mb-6 pq-reveal" :style="{ animationDelay: (0.65 + di * 0.12) + 's' }">
                 <h2 class="text-xl font-semibold mb-1" :style="{ color: metaDim[dimKey]?.color }">{{ metaDim[dimKey]?.label }}</h2>
                 <p class="text-sm text-slate-500 mb-6">{{ metaDim[dimKey]?.court }}</p>
                 <div class="grid md:grid-cols-2 gap-4">
@@ -129,7 +162,7 @@ const niveauColor = {
                             <span class="text-xs" :style="{ color: niveauColor[f.niveau] }">T={{ f.T }} · {{ niveauLabel[f.niveau] }}</span>
                         </div>
                         <div class="pt-progress-track">
-                            <div class="h-full rounded-full transition-all duration-700" :style="{ width: f.pct + '%', backgroundColor: metaDim[dimKey]?.color }"></div>
+                            <div class="h-full rounded-full" :style="{ width: (animatedFacs[f.key] ?? 0) + '%', backgroundColor: metaDim[dimKey]?.color }"></div>
                         </div>
                     </div>
                 </div>
@@ -147,3 +180,17 @@ const niveauColor = {
         </div>
     </CandidateLayout>
 </template>
+
+<style scoped>
+.pq-reveal {
+    opacity: 0;
+    animation: pqReveal 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes pqReveal {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .pq-reveal { animation: none; opacity: 1; transform: none; }
+}
+</style>
