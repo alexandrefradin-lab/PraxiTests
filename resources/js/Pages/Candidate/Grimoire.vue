@@ -3,7 +3,6 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { Head, Link, router } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import PathTier from '@/Components/PathTier.vue'
-import MarkdownText from '@/Components/MarkdownText.vue'
 
 const props = defineProps({
     grimoire:   Object,
@@ -95,41 +94,30 @@ const declarePiste = (piste) => {
     })
 }
 
-// Synthèse normalisée pour MarkdownText.
-// Miroir du normalizeSynthesisParagraphs PHP pour couvrir les anciens grimoires.
-const synthSource = computed(() => {
+// Découpe la synthèse en paragraphes affichables.
+const synthParagraphs = computed(() => {
     let raw = (props.grimoire?.synthesis || '').trim()
-    if (!raw) return ''
+    if (!raw) return []
 
-    // Dé-escape les séquences littérales "\\n" résiduelles (double-encodage JSON rare).
     raw = raw.replace(/\\n/g, '\n')
 
-    // Cas 1 : \n\n déjà présents → parfait.
-    if (raw.includes('\n\n')) return raw
+    // Découpe sur tout saut de ligne → paragraphes propres
+    const paras = raw.split(/\n+/).map(p => p.trim()).filter(Boolean)
+    if (paras.length > 1) return paras
 
-    // Cas 2 : sauts simples → on double.
-    if (raw.includes('\n')) {
-        raw = raw.replace(/\n{3,}/g, '\n\n')
-        raw = raw.replace(/\n(?!\n)/g, '\n\n')
-        return raw
-    }
-
-    // Cas 3 : bloc monolithique (anciens grimoires sans retour à la ligne).
-    // Pas de lookbehind (compatibilité) : on marque les coupures avec \x00,
-    // puis on regroupe en 3–4 paragraphes équilibrés.
+    // Bloc monolithique : découpe par phrases
     const marked = raw.replace(/([.!?])\s+([A-ZÀÂÄÉÈÊËÎÏÔÙÛÜÇ«"])/g, '$1\x00$2')
     const sentences = marked.split('\x00').map(s => s.trim()).filter(s => s.length >= 30)
-
-    if (sentences.length <= 1) return raw
+    if (sentences.length <= 1) return [raw]
 
     const count  = sentences.length
     const target = count <= 5 ? 2 : count <= 9 ? 3 : 4
     const per    = Math.ceil(count / target)
-    const paras  = []
+    const groups = []
     for (let i = 0; i < count; i += per) {
-        paras.push(sentences.slice(i, i + per).join(' '))
+        groups.push(sentences.slice(i, i + per).join(' '))
     }
-    return paras.join('\n\n')
+    return groups
 })
 
 // Polling de l'état du Grimoire pendant la (re)génération IA.
@@ -266,7 +254,7 @@ function fitClass(score) {
                     <section v-else class="grim-synthesis">
                         <div class="grim-scroll">
                             <h2 class="grim-scroll-title">Le fil conducteur</h2>
-                            <MarkdownText :source="synthSource" />
+                            <p v-for="(para, i) in synthParagraphs" :key="i" class="grim-para">{{ para }}</p>
                         </div>
                     </section>
                 </div>
