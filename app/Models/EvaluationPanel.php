@@ -64,6 +64,10 @@ class EvaluationPanel extends Model
     /** Nombre d'évaluateurs ayant complété leur réponse. */
     public function completedRaterCount(): int
     {
+        if ($this->relationLoaded('invitations')) {
+            return $this->invitations->where('status', 'completed')->count();
+        }
+
         return $this->invitations()->where('status', 'completed')->count();
     }
 }

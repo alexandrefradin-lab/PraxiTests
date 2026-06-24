@@ -11,7 +11,7 @@ use Illuminate\Queue\SerializesModels;
  * Invitation envoyée à un évaluateur dans le cadre d'un feedback 360°.
  * Contient son lien tokenisé personnel (réponse anonyme, sans compte).
  */
-class EvaluatorInvitationMail extends Mailable
+class EvaluatorInvitationMail extends Mailable implements \Illuminate\Contracts\Queue\ShouldQueue
 {
     use Queueable, SerializesModels;
 

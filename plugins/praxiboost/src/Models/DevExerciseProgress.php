@@ -17,12 +17,14 @@ class DevExerciseProgress extends Model
         'completed_at',
         'felt_score',
         'notes',
+        'eclats_awarded',
     ];
 
     protected $casts = [
-        'unlocked_at'  => 'datetime',
-        'completed_at' => 'datetime',
-        'felt_score'   => 'integer',
+        'unlocked_at'   => 'datetime',
+        'completed_at'  => 'datetime',
+        'felt_score'    => 'integer',
+        'eclats_awarded' => 'boolean',
     ];
 
     public function user(): BelongsTo

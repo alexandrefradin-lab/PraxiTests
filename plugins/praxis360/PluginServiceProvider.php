@@ -14,6 +14,9 @@ class PluginServiceProvider extends AbstractPlugin
 
     public function boot(): void
     {
+        // Charger les migrations propres au plugin (si le dossier existe).
+        $this->loadMigrationsFrom($this->pluginPath('database/migrations'));
+
         // Enregistrer le moteur de scoring (obligatoire).
         $this->app->make(TestEngine::class)
             ->registerScoringEngine(new Scoring\Praxis360ScoringEngine());

@@ -110,23 +110,37 @@ class TestNormsSeeder extends Seeder
                 'computed_at' => null, 'created_at' => $now, 'updated_at' => $now];
         }
 
-        // Upsert — ne remplace pas les normes recalculées dynamiquement
-        // (computed_at non null = calculé depuis les données plateforme = prioritaire)
-        foreach ($rows as $row) {
-            $existing = DB::table('test_norms')
-                ->where('test_slug', $row['test_slug'])
-                ->where('dimension', $row['dimension'])
-                ->where('group_key', $row['group_key'])
-                ->first();
+        // Batch upsert — ne remplace pas les normes recalculées dynamiquement
+        // (computed_at non null = calculé depuis les données plateforme = prioritaire).
+        // On sépare les lignes à insérer de celles à mettre à jour pour éviter
+        // d'écraser computed_at sur les enregistrements déjà calculés.
+        $existing = DB::table('test_norms')
+            ->select(['id', 'test_slug', 'dimension', 'group_key', 'computed_at'])
+            ->get()
+            ->keyBy(fn ($r) => $r->test_slug . '|' . $r->dimension . '|' . $r->group_key);
 
-            if (!$existing) {
-                DB::table('test_norms')->insert($row);
-            } elseif ($existing->computed_at === null) {
-                // Mise à jour uniquement si pas encore recalculé depuis la plateforme
-                DB::table('test_norms')
-                    ->where('id', $existing->id)
-                    ->update(array_intersect_key($row, ['mean' => 1, 'std_dev' => 1, 'n_responses' => 1, 'source' => 1, 'updated_at' => 1]));
+        $toInsert = [];
+        $toUpdate = []; // [id => [...fields]]
+
+        foreach ($rows as $row) {
+            $key = $row['test_slug'] . '|' . $row['dimension'] . '|' . $row['group_key'];
+            if (!isset($existing[$key])) {
+                $toInsert[] = $row;
+            } elseif ($existing[$key]->computed_at === null) {
+                $toUpdate[$existing[$key]->id] = array_intersect_key(
+                    $row,
+                    array_flip(['mean', 'std_dev', 'n_responses', 'source', 'updated_at'])
+                );
             }
+            // Si computed_at non null : données plateforme prioritaires, on ne touche pas
+        }
+
+        if (!empty($toInsert)) {
+            DB::table('test_norms')->insert($toInsert);
+        }
+
+        foreach ($toUpdate as $id => $fields) {
+            DB::table('test_norms')->where('id', $id)->update($fields);
         }
     }
 }

@@ -32,7 +32,7 @@ return new class extends Migration {
         Schema::create('gamification_progress', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('test_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->foreignId('test_id')->nullable()->constrained()->nullOnDelete();
             $table->unsignedInteger('xp_total')->default(0);
             $table->unsignedTinyInteger('level')->default(1);
             $table->json('milestones_reached')->nullable();

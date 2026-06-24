@@ -73,7 +73,7 @@ class GlobalGrimoireService
 
         $usage = $driver->lastUsage();
 
-        $grimoire = $user->grimoire();
+        $grimoire = $user->getOrCreateGrimoire();
 
         // Compteur de tentatives « voies vides » : tant que l'IA ne renvoie aucune voie
         // on incrémente (le contrôleur relance jusqu'à 2 essais) ; dès qu'on en a, reset.
@@ -248,7 +248,10 @@ class GlobalGrimoireService
             '/(?<=[\.\!\?])\s+(?=[A-ZÀÂÄÉÈÊËÎÏÔÙÛÜÇ0-9])/u',
             $text
         );
-        $sentences = array_values(array_filter(array_map('trim', $sentences ?? [$text])));
+        $sentences = array_values(array_filter(
+            array_map('trim', $sentences ?? [$text]),
+            fn ($p) => mb_strlen($p) >= 40
+        ));
 
         if (count($sentences) <= 1) {
             return $text; // ne rien toucher si une seule phrase (texte très court)

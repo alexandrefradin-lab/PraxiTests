@@ -66,14 +66,14 @@ class PluginServiceProvider extends AbstractPlugin
 
     public function onActivate(): void
     {
-        \Artisan::call('db:seed', [
-            '--class' => 'Praxis\\Plugins\\PraxiSelf\\Database\\Seeders\\ExercisesSeeder',
+        // Migration en premier : les tables doivent exister avant le seed.
+        \Artisan::call('migrate', [
+            '--path'  => 'plugins/praxiself/database/migrations',
             '--force' => true,
         ]);
 
-        // Migration du parcours 60 jours
-        \Artisan::call('migrate', [
-            '--path'  => 'plugins/praxiself/database/migrations',
+        \Artisan::call('db:seed', [
+            '--class' => 'Praxis\\Plugins\\PraxiSelf\\Database\\Seeders\\ExercisesSeeder',
             '--force' => true,
         ]);
     }

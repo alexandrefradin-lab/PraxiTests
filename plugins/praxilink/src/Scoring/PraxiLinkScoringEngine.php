@@ -80,7 +80,7 @@ class PraxiLinkScoringEngine implements ScoringEngineContract
 
         return [
             'engine'       => $this->key(),
-            'dimensions'   => array_keys($dimensions),
+            'dimensions'   => $dimensions,
             'norm_scores'  => $normalizedScores,
             'global_score' => $globalScore,
             'meta'         => [

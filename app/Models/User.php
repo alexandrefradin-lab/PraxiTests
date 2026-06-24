@@ -44,7 +44,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /** Récupère le Grimoire global du candidat, en le créant si absent. */
-    public function grimoire(): ProfileGrimoire
+    public function getOrCreateGrimoire(): ProfileGrimoire
     {
         return $this->profileGrimoire()->firstOrCreate(['user_id' => $this->id]);
     }

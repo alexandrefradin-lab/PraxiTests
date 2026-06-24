@@ -176,6 +176,8 @@ class BillingController extends Controller
      */
     public function cancel(Request $request)
     {
+        abort_unless($request->user()->subscribed('default'), 422, 'Aucun abonnement actif.');
+
         $request->user()->subscription('default')->cancel();
 
         return redirect()->route('billing.manage')
@@ -187,6 +189,8 @@ class BillingController extends Controller
      */
     public function resume(Request $request)
     {
+        abort_unless($request->user()->subscribed('default'), 422, 'Aucun abonnement actif.');
+
         $request->user()->subscription('default')->resume();
 
         return redirect()->route('billing.manage')

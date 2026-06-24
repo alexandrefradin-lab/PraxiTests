@@ -76,7 +76,7 @@ class GenerateGlobalGrimoire implements ShouldQueue, ShouldBeUnique
 
         // Anti-régénération : si la composition des tests n'a pas changé, on ne
         // rappelle pas l'IA. Le bouton "Régénérer" passe force=true pour outrepasser.
-        $grimoire  = $user->grimoire();
+        $grimoire  = $user->getOrCreateGrimoire();
         $signature = $service->signature($attempts);
         if (!$this->force && $grimoire->status === 'ready' && $grimoire->tests_signature === $signature) {
             logger()->info("GenerateGlobalGrimoire: signature inchangée pour user #{$this->userId}, skip.");
@@ -110,7 +110,7 @@ class GenerateGlobalGrimoire implements ShouldQueue, ShouldBeUnique
      */
     protected function writeFallback(User $user): void
     {
-        $grimoire = $user->grimoire();
+        $grimoire = $user->getOrCreateGrimoire();
 
         if ($grimoire->status === 'ready' && $grimoire->synthesis) {
             return; // on garde la version précédente valable

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Praxis\Core\Gamification\GamificationEngine;
+use Praxis\Core\Gamification\RewardCatalog;
 use Praxis\Plugins\PraxiZenith\Models\FocusExercise;
 use Praxis\Plugins\PraxiZenith\Models\FocusExerciseProgress;
 use Praxis\Plugins\PraxiZenith\Services\FocusJourneyService;
@@ -15,11 +16,26 @@ class FocusController extends Controller
     public function __construct(
         protected FocusJourneyService $journeys,
         protected GamificationEngine $gamification,
+        protected RewardCatalog $rewards,
     ) {}
 
     public function index(Request $request)
     {
         $user    = $request->user();
+
+        // Gating Éclats : la mini-app est un trésor (palier 2400 Éclats).
+        if (! $this->rewards->isRouteUnlocked('praxizenith.index', $user)) {
+            $reward = $this->rewards->rewardForRoute('praxizenith.index');
+            $seuil  = $reward['threshold'] ?? null;
+
+            return redirect()->route('treasure.index')->with(
+                'error',
+                $seuil
+                    ? "Ce trésor est encore scellé. Il se révèle à {$seuil} Éclats."
+                    : "Ce trésor est encore scellé."
+            );
+        }
+
         $journey = $this->journeys->journeyFor($user);
         $current = $this->journeys->currentDay($journey);
 

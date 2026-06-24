@@ -13,5 +13,8 @@
   "requires": {
     "praxiquest": ">=1.0.0",
     "php": ">=8.2"
+  },
+  "reward": {
+    "threshold_eclats": 700
   }
 }

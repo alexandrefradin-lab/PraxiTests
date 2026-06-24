@@ -19,7 +19,7 @@ class TestEditorController extends Controller
     public function index()
     {
         return Inertia::render('Admin/Tests/Index', [
-            'tests' => Test::with('plugin')->latest()->get(),
+            'tests' => Test::with('plugin')->latest()->take(200)->get(),
         ]);
     }
 
@@ -76,7 +76,7 @@ class TestEditorController extends Controller
             'sections.*.order'                  => ['required', 'integer', 'min:0'],
             'sections.*.questions'              => ['array'],
             'sections.*.questions.*.id'         => ['nullable', 'integer'],
-            'sections.*.questions.*.type'       => ['required', 'string'],
+            'sections.*.questions.*.type'       => ['required', 'string', 'in:scale,text,multi,ranking,single,situational,exercise'],
             'sections.*.questions.*.prompt'     => ['required', 'string'],
             'sections.*.questions.*.helper'     => ['nullable', 'string'],
             'sections.*.questions.*.order'      => ['required', 'integer', 'min:0'],

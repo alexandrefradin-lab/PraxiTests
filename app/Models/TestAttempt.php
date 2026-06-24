@@ -78,7 +78,9 @@ class TestAttempt extends Model
     {
         $total = $this->test->totalQuestions();
         if ($total === 0) return 0;
-        $answered = $this->answers()->count();
+        $answered = $this->relationLoaded('answers')
+            ? $this->answers->count()
+            : $this->answers()->count();
         return round(($answered / $total) * 100, 1);
     }
 }

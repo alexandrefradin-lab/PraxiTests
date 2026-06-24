@@ -41,7 +41,10 @@ class DashboardController extends Controller
             ->limit(10)
             ->get();
 
-        $recent_leads = Lead::latest()->limit(10)->get();
+        $recent_leads = Lead::with(['user', 'professionalAccount'])
+            ->latest()
+            ->limit(10)
+            ->get();
 
         return Inertia::render('Admin/Dashboard', [
             'stats'           => $stats,

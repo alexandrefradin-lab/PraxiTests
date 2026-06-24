@@ -72,6 +72,6 @@ class CvExtractionService
             logger()->warning('CV extraction: JSON IA invalide');
             $structured = null;
         }
-        return [];
+        return $structured ?? [];
     }
 }

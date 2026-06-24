@@ -24,6 +24,19 @@ class AwardXpOnAnswer
 
         PluginHooks::action('attempt.completed', function (TestAttempt $attempt) use ($engine) {
             if (!$attempt->user) return;
+
+            // Anti-doublon : vérifie qu'aucun XP de complétion n'a déjà été octroyé
+            // pour cette tentative (ex. retry du listener ou double-fire d'event).
+            $alreadyAwarded = \DB::table('xp_events')
+                ->where('user_id', $attempt->user->id)
+                ->where('reason', 'complete_test')
+                ->whereJsonContains('context->attempt_id', $attempt->id)
+                ->exists();
+
+            if ($alreadyAwarded) {
+                return;
+            }
+
             $engine->awardXp(
                 $attempt->user,
                 config('gamification.xp.complete_test', 200),

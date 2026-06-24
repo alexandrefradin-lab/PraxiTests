@@ -6,6 +6,7 @@ use App\Models\Badge;
 use App\Models\GamificationProgress;
 use App\Models\Test;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Praxis\Core\Plugins\PluginHooks;
 
 class GamificationEngine
@@ -20,20 +21,26 @@ class GamificationEngine
      */
     public function awardXp(User $user, int $amount, string $reason, ?Test $test = null, array $context = [], bool $evaluateBadges = true): GamificationProgress
     {
-        // S'assurer que la ligne existe
-        GamificationProgress::firstOrCreate(
-            ['user_id' => $user->id, 'test_id' => $test?->id],
-            ['xp_total' => 0, 'level' => 1]
-        );
+        // S'assurer que la ligne existe — protégé contre les race conditions par transaction
+        DB::transaction(function () use ($user, $test, $amount) {
+            try {
+                GamificationProgress::firstOrCreate(
+                    ['user_id' => $user->id, 'test_id' => $test?->id],
+                    ['xp_total' => 0, 'level' => 1]
+                );
+            } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
+                // Insertion concurrente : la ligne existe déjà, on continue.
+            }
 
-        // Incrément atomique (pas de race condition)
-        $query = GamificationProgress::where('user_id', $user->id)
-            ->where('test_id', $test?->id);
-        if ($amount >= 0) {
-            $query->increment('xp_total', $amount);
-        } else {
-            $query->decrement('xp_total', abs($amount));
-        }
+            // Incrément atomique
+            $query = GamificationProgress::where('user_id', $user->id)
+                ->where('test_id', $test?->id);
+            if ($amount >= 0) {
+                $query->increment('xp_total', $amount);
+            } else {
+                $query->decrement('xp_total', abs($amount));
+            }
+        });
 
         // Recharger pour avoir la valeur à jour et recalculer le level
         $progress = GamificationProgress::where('user_id', $user->id)

@@ -122,21 +122,42 @@ class ExerciseController extends Controller
             'notes'      => ['nullable', 'string', 'max:2000'],
         ]);
 
-        DevExerciseProgress::updateOrCreate(
-            ['user_id' => $user->id, 'exercise_slug' => $slug],
-            [
-                'completed_at' => now(),
-                'felt_score'   => $data['felt_score'] ?? null,
-                'notes'        => $data['notes'] ?? null,
-            ]
-        );
+        $progress = DevExerciseProgress::firstOrNew([
+            'user_id'       => $user->id,
+            'exercise_slug' => $slug,
+        ]);
+
+        $firstTime = $progress->completed_at === null;
+
+        $progress->completed_at = $progress->completed_at ?? now();
+        $progress->felt_score   = $data['felt_score'] ?? $progress->felt_score;
+        $progress->notes        = $data['notes'] ?? $progress->notes;
 
         // Garantit unlocked_at non nul sans écraser une date existante.
-        DevExerciseProgress::forUser($user->id)
-            ->where('exercise_slug', $slug)
-            ->whereNull('unlocked_at')
-            ->update(['unlocked_at' => now()]);
+        $progress->unlocked_at = $progress->unlocked_at ?? now();
 
-        return back()->with('success', 'Exercice marqué comme fait. Bravo !');
+        // Octroi d'Éclats une seule fois par exercice (anti-doublon via eclats_awarded).
+        $eclatsAwarded = 0;
+        if ($firstTime && ! $progress->eclats_awarded) {
+            $this->gamification->awardXp(
+                $user,
+                15,
+                'praxiboost.exercise_done',
+                null,
+                ['slug' => $slug, 'title' => $exercise->title],
+                false,
+            );
+            $progress->eclats_awarded = true;
+            $eclatsAwarded = 15;
+        }
+
+        $progress->save();
+
+        return back()->with(
+            'success',
+            $firstTime
+                ? 'Exercice marqué comme fait.' . ($eclatsAwarded ? ' +' . $eclatsAwarded . ' Éclats !' : '')
+                : 'Ressenti mis à jour.'
+        );
     }
 }

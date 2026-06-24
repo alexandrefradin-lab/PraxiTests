@@ -37,7 +37,7 @@ class GrimoireController extends Controller
             ]);
         }
 
-        $grimoire  = $user->grimoire();
+        $grimoire  = $user->getOrCreateGrimoire();
         $signature = $service->signature($attempts);
 
         // Garde-fou « synthèse OK mais aucune voie » : un Grimoire marqué ready dont
@@ -197,7 +197,7 @@ class GrimoireController extends Controller
     public function refresh(): RedirectResponse
     {
         $user     = auth()->user();
-        $grimoire = $user->grimoire();
+        $grimoire = $user->getOrCreateGrimoire();
 
         // Garde-fou anti-spam : 1 régénération manuelle / minute.
         if ($grimoire->generated_at && $grimoire->generated_at->gt(now()->subMinute())) {

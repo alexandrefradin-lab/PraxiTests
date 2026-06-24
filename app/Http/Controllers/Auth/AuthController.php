@@ -38,7 +38,7 @@ class AuthController extends Controller
 
     public function showRegister(Request $request)
     {
-        return Inertia::render('Auth/Register', ['email' => $request->query('email')]);
+        return Inertia::render('Auth/Register', ['email' => filter_var($request->query('email'), FILTER_VALIDATE_EMAIL) ?: null]);
     }
 
     /** Version des CGU actuellement en vigueur — à incrémenter à chaque nouvelle version */

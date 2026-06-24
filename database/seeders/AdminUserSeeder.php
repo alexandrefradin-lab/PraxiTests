@@ -10,9 +10,16 @@ class AdminUserSeeder extends Seeder
 {
     public function run(): void
     {
-        $email    = env('PRAXIQUEST_ADMIN_EMAIL', 'admin@praxiquest.local');
-        $password = env('PRAXIQUEST_ADMIN_PASSWORD', 'changeme123');
-        $name     = env('PRAXIQUEST_ADMIN_NAME', 'Administrateur');
+        $email = env('PRAXIQUEST_ADMIN_EMAIL', 'admin@praxiquest.local');
+        $name  = env('PRAXIQUEST_ADMIN_NAME', 'Administrateur');
+
+        $password = env('PRAXIQUEST_ADMIN_PASSWORD');
+        if (empty($password) || in_array($password, ['changeme-immediately', 'changeme123'])) {
+            $password = \Illuminate\Support\Str::random(32);
+            if (isset($this->command)) {
+                $this->command->info("Admin password generated: {$password}");
+            }
+        }
 
         $admin = User::firstOrCreate(
             ['email' => $email],
@@ -29,9 +36,6 @@ class AdminUserSeeder extends Seeder
 
         if ($this->command) {
             $this->command->info("Admin user ready: {$email}");
-            if ($password === 'changeme123') {
-                $this->command->warn('⚠ Change le mot de passe par défaut "changeme123" immédiatement.');
-            }
         }
     }
 }

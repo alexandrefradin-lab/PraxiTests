@@ -70,7 +70,7 @@ class Evaluation360Controller extends Controller
 
         $data = $request->validate([
             'question_id' => ['required', 'integer'],
-            'value'       => ['required', 'numeric'],
+            'value'       => ['required', 'numeric', 'min:1', 'max:5'],
         ]);
 
         // La question doit appartenir au test du panel.
