@@ -383,6 +383,49 @@ TXT;
     }
 
     /**
+     * Sanitise un texte court du profil (problématique, etc.) avant envoi au LLM.
+     * Renvoie null si vide pour ne pas encombrer le prompt.
+     */
+    protected function safeProfileText(?string $text, int $maxChars = 2000): ?string
+    {
+        if ($text === null || trim($text) === '') {
+            return null;
+        }
+
+        return $this->sanitizeUserContent(trim($text), $maxChars);
+    }
+
+    /**
+     * Extrait les informations essentielles du CV structuré (tableau JSON) pour le prompt.
+     * Limite la taille et sanitise pour éviter le prompt injection.
+     */
+    protected function safeCvStructured(mixed $cvStructured, int $maxChars = 3000): ?string
+    {
+        if (empty($cvStructured)) {
+            return null;
+        }
+
+        // cv_structured peut être un tableau ou une chaîne JSON déjà décodée.
+        $data = is_array($cvStructured) ? $cvStructured : (json_decode((string) $cvStructured, true) ?? []);
+
+        if (empty($data)) {
+            return null;
+        }
+
+        // Ne garder que les clés utiles pour l'orientation, sans les détails verbeux.
+        $safe = [];
+        foreach (['identité', 'expériences', 'formations', 'compétences', 'mots_clés'] as $key) {
+            if (isset($data[$key])) {
+                $safe[$key] = $data[$key];
+            }
+        }
+
+        $json = json_encode($safe ?: $data, JSON_UNESCAPED_UNICODE);
+
+        return $this->sanitizeUserContent($json ?: '', $maxChars);
+    }
+
+    /**
      * Sanitise un texte utilisateur avant envoi au LLM.
      *
      * Protections appliquées :
