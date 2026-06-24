@@ -1,11 +1,18 @@
 <script setup>
-import { Link, Head } from '@inertiajs/vue3'
+import { computed } from 'vue'
+import { Link, Head, router } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 
-defineProps({
+const props = defineProps({
     tests: Array,
     profile_complete: Boolean,
 })
+
+const completedCount = computed(() => props.tests.filter(t => t.completed_at || t.completed).length)
+
+function goToTest(test) {
+    if (props.profile_complete) router.visit(route('tests.show', test.slug))
+}
 
 // ── Emblèmes médiévaux (line-art) par test, mappés sur le slug ──
 const ICONS = {
@@ -73,6 +80,16 @@ function emblem(slug) {
                 </span>
             </div>
 
+            <!-- Barre de progression globale -->
+            <div v-if="tests.length > 0" class="mt-3" style="display:flex;align-items:center;gap:0.75rem;">
+                <div style="flex:1;height:5px;border-radius:99px;background:var(--bg-elevated);overflow:hidden;">
+                    <div :style="{ width: Math.round(completedCount / tests.length * 100) + '%', height:'100%', background:'var(--color-primary)', borderRadius:'99px', transition:'width 0.4s ease' }"></div>
+                </div>
+                <span style="font-size:0.72rem;font-weight:600;color:var(--text-secondary);flex-shrink:0;white-space:nowrap;">
+                    {{ completedCount }}/{{ tests.length }} complétées
+                </span>
+            </div>
+
             <!-- Ligne décorative or -->
             <div class="flex items-center gap-3 mt-5">
                 <div class="h-px flex-1" style="background:linear-gradient(to right, var(--color-primary), transparent);"></div>
@@ -113,19 +130,26 @@ function emblem(slug) {
                 v-for="test in tests"
                 :key="test.id"
                 class="pt-card p-6 flex flex-col transition-all duration-200 group"
-                style="cursor:default;"
-                :style="{
-                    '--hover-border': 'var(--color-primary)',
-                }"
+                :style="{ cursor: profile_complete ? 'pointer' : 'default' }"
+                @click="goToTest(test)"
             >
-                <!-- Badge type + emblème médiéval -->
+                <!-- Badge type + emblème médiéval + complété -->
                 <div class="flex items-start justify-between mb-3 gap-3">
-                    <span
-                        class="inline-block px-2 py-0.5 rounded text-[10px] uppercase tracking-widest mt-1"
-                        style="font-family:'Space Mono',monospace; color:var(--text-secondary); background:var(--bg-elevated);"
-                    >
-                        {{ test.type ?? 'Épreuve' }}
-                    </span>
+                    <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+                        <span
+                            class="inline-block px-2 py-0.5 rounded text-[10px] uppercase tracking-widest mt-1"
+                            style="font-family:'Space Mono',monospace; color:var(--text-secondary); background:var(--bg-elevated);"
+                        >
+                            {{ test.type ?? 'Épreuve' }}
+                        </span>
+                        <span
+                            v-if="test.completed_at || test.completed"
+                            class="mt-1"
+                            style="font-size:10px;font-weight:700;color:#10B981;background:#D1FAE5;border-radius:20px;padding:2px 8px;display:inline-flex;align-items:center;gap:3px;"
+                        >
+                            ✓ Complété
+                        </span>
+                    </div>
                     <span class="pt-emblem" v-html="emblem(test.slug)"></span>
                 </div>
 
@@ -153,13 +177,13 @@ function emblem(slug) {
                     >
                         ≈ {{ test.estimated_minutes }} min
                     </span>
-                    <Link
-                        :href="route('tests.show', test.slug)"
+                    <span
                         class="pt-btn-primary text-xs px-4 py-2"
-                        :class="{ 'pointer-events-none opacity-40': !profile_complete }"
+                        :class="{ 'opacity-40': !profile_complete }"
+                        style="pointer-events:none;"
                     >
                         Entrer dans l'Épreuve →
-                    </Link>
+                    </span>
                 </div>
             </div>
         </div>
@@ -183,11 +207,12 @@ function emblem(slug) {
 
 <style scoped>
 .pt-card {
-    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 }
 .pt-card:hover {
     border-color: var(--color-primary) !important;
-    box-shadow: 0 4px 20px rgba(166, 117, 32, 0.12);
+    box-shadow: 0 8px 28px rgba(166, 117, 32, 0.16);
+    transform: translateY(-3px);
 }
 .pt-emblem {
     width: 44px;

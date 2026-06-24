@@ -34,7 +34,7 @@ function resume() {
         <div style="max-width: 700px; margin: 0 auto; padding: 3rem 1.5rem">
 
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem">
-                <h1 style="font-family: 'Playfair Display', serif; font-size: 1.75rem; font-weight: 700; color: var(--pt-navy)">
+                <h1 style="font-family: var(--font-display); font-size: 1.75rem; font-weight: 700; color: var(--pt-navy)">
                     Mon abonnement
                 </h1>
                 <Link :href="route('billing.plans')" style="font-size: 13px; color: var(--pt-text-muted); text-decoration: none; border: 1px solid var(--pt-border); border-radius: 8px; padding: 6px 14px">
@@ -52,7 +52,7 @@ function resume() {
                 </p>
                 <Link
                     :href="route('billing.plans')"
-                    style="display: inline-block; background: var(--pt-navy); color: #fff; border-radius: 10px; padding: 11px 24px; font-size: 14px; font-weight: 600; text-decoration: none"
+                    style="display: inline-block; background: var(--color-primary); color: var(--color-accent); border-radius: 10px; padding: 11px 24px; font-size: 14px; font-weight: 600; text-decoration: none"
                 >
                     Choisir un plan
                 </Link>

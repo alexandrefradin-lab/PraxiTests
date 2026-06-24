@@ -41,6 +41,10 @@ const user = computed(() => page.props.auth?.user)
 const branding = computed(() => page.props.branding ?? { name: 'PraxiQuest', tagline: 'Évaluer. Orienter. Transformer.' })
 const xpProgress = computed(() => page.props.gamification?.xp_progress ?? 0)
 const xpTotal = computed(() => page.props.gamification?.xp_total ?? 0)
+
+function isActive(path) {
+    return page.url === path || page.url.startsWith(path + '/')
+}
 // Lien Salle du Trésor (route core, toujours présente — guard par sécurité).
 const hasTreasure = computed(() => {
     try { return route().has('treasure.index') } catch (e) { return false }
@@ -86,21 +90,25 @@ const hasTreasure = computed(() => {
                 <nav v-if="user" class="cand-nav-desktop">
                     <Link :href="route('tests.index')"
                         class="cand-nav-link"
+                        :class="{ 'cand-nav-link--active': isActive('/tests') }"
                         style="font-family: var(--font-display); font-size: 13px; font-weight: 500; color: var(--text-secondary); text-decoration: none; padding: 6px 13px; border-radius: var(--r); transition: color 0.15s, background 0.15s">
                         L'Armurerie
                     </Link>
                     <Link :href="route('grimoire.show')"
                         class="cand-nav-link"
+                        :class="{ 'cand-nav-link--active': isActive('/grimoire') }"
                         style="font-family: var(--font-display); font-size: 13px; font-weight: 500; color: var(--text-secondary); text-decoration: none; padding: 6px 13px; border-radius: var(--r); transition: color 0.15s, background 0.15s">
                         Le Grimoire
                     </Link>
                     <Link :href="route('history')"
                         class="cand-nav-link"
+                        :class="{ 'cand-nav-link--active': isActive('/history') }"
                         style="font-family: var(--font-display); font-size: 13px; font-weight: 500; color: var(--text-secondary); text-decoration: none; padding: 6px 13px; border-radius: var(--r); transition: color 0.15s, background 0.15s">
                         Chroniques
                     </Link>
                     <Link v-if="hasTreasure" :href="route('treasure.index')"
                         class="cand-nav-link"
+                        :class="{ 'cand-nav-link--active': isActive('/treasure') }"
                         style="font-family: var(--font-display); font-size: 13px; font-weight: 500; color: var(--text-secondary); text-decoration: none; padding: 6px 13px; border-radius: var(--r); transition: color 0.15s, background 0.15s">
                         Le Trésor
                     </Link>
@@ -165,22 +173,39 @@ const hasTreasure = computed(() => {
 
         <!-- Body -->
         <main class="flex-1">
-            <div class="mx-auto" style="max-width: 1100px; padding: 2.5rem 2rem">
-
-                <!-- Flash messages -->
-                <div v-if="$page.props.flash?.success" class="ac-flash-success mb-6 ac-fade-in">
-                    {{ $page.props.flash.success }}
+            <Transition name="pt-page" appear>
+                <div :key="$page.url" class="mx-auto" style="max-width: 1100px; padding: 2.5rem 2rem">
+                    <slot />
                 </div>
-                <div v-if="$page.props.flash?.error" class="ac-flash-error mb-6 ac-fade-in">
-                    {{ $page.props.flash.error }}
-                </div>
-                <div v-if="$page.props.flash?.info" class="ac-flash-info mb-6 ac-fade-in">
-                    {{ $page.props.flash.info }}
-                </div>
-
-                <slot />
-            </div>
+            </Transition>
         </main>
+
+        <!-- Toasts flash (bottom-right) -->
+        <Teleport to="body">
+            <div style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:0.5rem;align-items:flex-end;pointer-events:none;">
+                <Transition name="pt-toast">
+                    <div v-if="$page.props.flash?.success"
+                        style="background:var(--bg-surface);border:1px solid var(--border-light);border-left:3px solid var(--color-primary);padding:0.7rem 1rem;border-radius:10px;font-size:13px;font-weight:600;color:var(--text-primary);display:flex;align-items:center;gap:0.5rem;pointer-events:auto;box-shadow:0 4px 20px rgba(0,0,0,0.12);max-width:320px;">
+                        <i class="ti ti-circle-check" style="color:var(--color-primary);font-size:17px;flex-shrink:0;"></i>
+                        {{ $page.props.flash.success }}
+                    </div>
+                </Transition>
+                <Transition name="pt-toast">
+                    <div v-if="$page.props.flash?.error"
+                        style="background:#FFF5F5;border:1px solid #FCA5A5;border-left:3px solid #EF4444;padding:0.7rem 1rem;border-radius:10px;font-size:13px;font-weight:600;color:#991B1B;display:flex;align-items:center;gap:0.5rem;pointer-events:auto;box-shadow:0 4px 20px rgba(0,0,0,0.12);max-width:320px;">
+                        <i class="ti ti-circle-x" style="color:#EF4444;font-size:17px;flex-shrink:0;"></i>
+                        {{ $page.props.flash.error }}
+                    </div>
+                </Transition>
+                <Transition name="pt-toast">
+                    <div v-if="$page.props.flash?.info"
+                        style="background:var(--bg-surface);border:1px solid var(--border-light);border-left:3px solid #6366F1;padding:0.7rem 1rem;border-radius:10px;font-size:13px;font-weight:600;color:var(--text-primary);display:flex;align-items:center;gap:0.5rem;pointer-events:auto;box-shadow:0 4px 20px rgba(0,0,0,0.12);max-width:320px;">
+                        <i class="ti ti-info-circle" style="color:#6366F1;font-size:17px;flex-shrink:0;"></i>
+                        {{ $page.props.flash.info }}
+                    </div>
+                </Transition>
+            </div>
+        </Teleport>
 
         <!-- Footer -->
         <footer style="border-top: 1px solid var(--glass-border); padding: 1.25rem 2rem; text-align: center">
@@ -215,6 +240,30 @@ const hasTreasure = computed(() => {
     color: var(--text-primary) !important;
     background: var(--bg-elevated) !important;
 }
+.cand-nav-link--active {
+    color: var(--color-primary) !important;
+    font-weight: 700 !important;
+    background: rgba(166, 117, 32, 0.1) !important;
+}
+.cand-nav-link--active:hover {
+    color: var(--color-primary) !important;
+    background: rgba(166, 117, 32, 0.15) !important;
+}
+
+/* Page fade-in */
+.pt-page-enter-active {
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.pt-page-enter-from {
+    opacity: 0;
+    transform: translateY(8px);
+}
+
+/* Toast slide-in */
+.pt-toast-enter-active { transition: opacity 0.22s ease, transform 0.22s ease; }
+.pt-toast-enter-from   { opacity: 0; transform: translateX(16px); }
+.pt-toast-leave-active { transition: opacity 0.18s ease; }
+.pt-toast-leave-to     { opacity: 0; }
 
 /* Avatar + nom cliquable (édition profil) */
 .cand-profile-link:hover {
