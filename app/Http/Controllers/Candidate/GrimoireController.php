@@ -79,7 +79,12 @@ class GrimoireController extends Controller
                 // Bloqué depuis trop longtemps → reset + relance forcée
                 $grimoire->update(['status' => 'pending']);
             }
-            GenerateGlobalGrimoire::dispatch($user->id)->afterResponse();
+            // force=true si le candidat a cliqué "Régénérer" (tests_signature vidée par refresh())
+            // ou si le job est bloqué depuis trop longtemps (stuckPending).
+            // Sans force, le job pourrait sauter silencieusement si un verrou résiduel
+            // ou une vérification d'idempotence l'empêche de tourner.
+            $forceRegen = ($grimoire->fresh()->tests_signature === '') || $stuckPending;
+            GenerateGlobalGrimoire::dispatch($user->id, force: $forceRegen)->afterResponse();
         }
 
         $pending = $grimoire->fresh()->status === 'pending';
@@ -222,8 +227,15 @@ class GrimoireController extends Controller
                 'laravel_unique_job:' . GenerateGlobalGrimoire::class . ':grimoire_user_' . $user->id
             );
 
-            $grimoire->update(['status' => 'pending']);
-            GenerateGlobalGrimoire::dispatch($user->id, force: true)->afterResponse();
+            // On met uniquement en "pending" sans dispatcher ici.
+            // Sur OVH (QUEUE_CONNECTION=sync sans fastcgi_finish_request), un dispatch
+            // afterResponse() dans ce POST bloque la réponse tant que l'IA tourne (~1-2 min).
+            // Inertia reçoit alors le redirect APRÈS que le job est terminé → show() voit
+            // status='ready' → ai_pending=false → l'écran pending ne s'affiche jamais.
+            // Solution : show() dispatch déjà le job dans son propre afterResponse quand il
+            // voit needsGeneration=true. La valeur $pending est calculée AVANT afterResponse,
+            // donc ai_pending=true est retourné immédiatement au client → pending screen OK.
+            $grimoire->update(['status' => 'pending', 'tests_signature' => '']);
         } finally {
             $lock->release();
         }
