@@ -96,15 +96,42 @@ const declarePiste = (piste) => {
 }
 
 // Synthèse normalisée pour MarkdownText.
-// MarkdownText suit CommonMark : un \n seul = continuation du même §.
-// L'IA génère souvent des \n simples entre paragraphes → on les double.
+// Miroir du normalizeSynthesisParagraphs PHP pour couvrir les anciens grimoires.
 const synthSource = computed(() => {
     let raw = (props.grimoire?.synthesis || '').trim()
-    // Dé-escape les séquences littérales "\\n" résiduelles
+    if (!raw) return ''
+
+    // Dé-escape les séquences littérales "\\n" résiduelles (double-encodage JSON rare).
     raw = raw.replace(/\\n/g, '\n')
-    // Tout \n isolé (pas déjà suivi d'un \n) → \n\n pour créer un vrai §
-    raw = raw.replace(/\n(?!\n)/g, '\n\n')
-    return raw
+
+    // Cas 1 : \n\n déjà présents → parfait.
+    if (raw.includes('\n\n')) return raw
+
+    // Cas 2 : sauts simples → on double.
+    if (raw.includes('\n')) {
+        raw = raw.replace(/\n{3,}/g, '\n\n')
+        raw = raw.replace(/\n(?!\n)/g, '\n\n')
+        return raw
+    }
+
+    // Cas 3 : bloc monolithique (anciens grimoires sans aucun retour à la ligne).
+    // On découpe par phrases puis on regroupe en 3–4 paragraphes équilibrés,
+    // comme le fait normalizeSynthesisParagraphs côté PHP.
+    const sentences = raw
+        .split(/(?<=[.!?])\s+(?=[A-ZÀÂÄÉÈÊËÎÏÔÙÛÜÇ])/)
+        .map(s => s.trim())
+        .filter(s => s.length >= 40)
+
+    if (sentences.length <= 1) return raw
+
+    const count  = sentences.length
+    const target = count <= 5 ? 2 : count <= 9 ? 3 : 4
+    const per    = Math.ceil(count / target)
+    const paras  = []
+    for (let i = 0; i < count; i += per) {
+        paras.push(sentences.slice(i, i + per).join(' '))
+    }
+    return paras.join('\n\n')
 })
 
 // Polling de l'état du Grimoire pendant la (re)génération IA.
@@ -215,9 +242,7 @@ function fitClass(score) {
                         Ce que révèle le croisement de
                         <strong>{{ tests.length }}</strong> de tes épreuves.
                     </p>
-                    <div class="grim-tests-chips">
-                        <span v-for="t in tests" :key="t.attempt_id" class="grim-chip">{{ t.name }}</span>
-                    </div>
+
                 </header>
 
                 <!-- ── Barre d'onglets ──────────────────────────────────── -->
