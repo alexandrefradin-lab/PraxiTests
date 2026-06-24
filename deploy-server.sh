@@ -36,7 +36,7 @@ msg "Pull du code..."
 # manquants (MIME text/html / 404) → page blanche. public/build est suivi par
 # git ; on force juste sa cohérence avec le commit distant après le pull.
 git pull origin main
-git checkout -- public/build 2>/dev/null || true
+git checkout HEAD -- public/build 2>/dev/null || true
 ok "Code à jour"
 
 msg "Composer install ($COMPOSER_BIN)..."
