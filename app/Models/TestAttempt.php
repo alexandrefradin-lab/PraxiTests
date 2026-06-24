@@ -6,9 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TestAttempt extends Model
 {
+    use SoftDeletes;
+
     // #3 — $guarded=[] remplacé par $fillable explicite (protection mass assignment)
     protected $fillable = [
         'user_id',
@@ -80,7 +83,4 @@ class TestAttempt extends Model
         if ($total === 0) return 0;
         $answered = $this->relationLoaded('answers')
             ? $this->answers->count()
-            : $this->answers()->count();
-        return round(($answered / $total) * 100, 1);
-    }
-}
+            : $th

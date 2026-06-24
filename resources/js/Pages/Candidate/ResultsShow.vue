@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
-import { Link, Head } from '@inertiajs/vue3'
+import { Head } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import MarkdownText from '@/Components/MarkdownText.vue'
 const props = defineProps({
@@ -80,6 +80,15 @@ watch(() => props.result?.ai_synthesis, (val) => {
     if (val) revealed.value = true
 }, { immediate: true })
 
+// FE-05 : ctaVisible doit passer à true dès que le polling marque ai_pending = false.
+// Sans ce watch, le CTA PDF reste caché indéfiniment pour les utilisateurs qui arrivent
+// après le polling (la synthèse est déjà là mais onMounted ne retourne pas à true).
+watch(() => props.attempt?.ai_pending, (pending) => {
+    if (pending === false) {
+        setTimeout(() => { ctaVisible.value = true }, 300)
+    }
+}, { immediate: true })
+
 onMounted(() => {
     if (props.ai_pending || !props.result?.ai_synthesis) return
 
@@ -95,9 +104,7 @@ onMounted(() => {
 <template>
     <!-- ═══ CAS AI_PENDING ═══════════════════════════════════════════════ -->
     <div v-if="ai_pending" class="ac-pending-shell">
-        <Head title="Révélation en cours…">
-            <meta head-key="refresh" http-equiv="refresh" content="10">
-        </Head>
+        <Head title="Révélation en cours…" />
 
         <div class="ac-pending-inner">
             <!-- Ligne décorative -->
@@ -137,7 +144,10 @@ onMounted(() => {
                 <!-- EN-TÊTE RÉSULTATS -->
                 <header class="ac-results-header">
                     <span class="ac-revelation-badge">Révélation</span>
-                    <h1 class="ac-results-h1">Voilà ce qui te ressemble.</h1>
+                    <h1 class="ac-results-h1">
+                        <span v-if="attempt?.test?.name" class="block text-sm font-normal opacity-60 mb-1" style="font-family: var(--font-data); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 500; color: var(--color-primary); margin-bottom: 0.5rem;">{{ attempt.test.name }}</span>
+                        Voilà ce qui te ressemble.
+                    </h1>
                     <p class="ac-results-subtitle">Grimoire de Synthèse personnalisé par l'IA</p>
                 </header>
 

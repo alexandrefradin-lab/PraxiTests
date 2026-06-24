@@ -119,6 +119,11 @@ class SendJourneyNudges extends Command
                 continue;
             }
 
+            // Ne pas envoyer aux utilisateurs désabonnés des emails marketing (TECH-03).
+            if ($user->profile && $user->profile->marketing_unsubscribed_at !== null) {
+                continue;
+            }
+
             // Titre de l'action du jour
             $actionTitle = $this->resolveTitle($cfg, $currentDay);
 

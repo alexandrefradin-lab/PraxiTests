@@ -330,6 +330,7 @@ const phaseLabel = (key) => PHASES[key]?.label ?? key
                             @mouseleave="$event.currentTarget.style.background='transparent'"
                             @click="toggleExercise(ex.id)"
                             :aria-expanded="openExercise === ex.id"
+                            :aria-controls="'zen-exercise-panel-' + ex.id"
                         >
                             <span class="text-xl flex-shrink-0">{{ categoryIcon(ex.category) }}</span>
                             <div class="flex-1">
@@ -359,7 +360,7 @@ const phaseLabel = (key) => PHASES[key]?.label ?? key
                         </button>
 
                         <!-- Corps accordéon -->
-                        <div v-if="openExercise === ex.id" class="px-6 pb-6">
+                        <div v-if="openExercise === ex.id" :id="'zen-exercise-panel-' + ex.id" class="px-6 pb-6">
                             <p class="text-xs italic mb-4" style="color: var(--pt-text-muted)">
                                 📚 {{ ex.scientific_basis }}
                             </p>

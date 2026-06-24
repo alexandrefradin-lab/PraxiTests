@@ -2,6 +2,35 @@
 import { ref, nextTick, watch } from 'vue'
 import MarkdownText from '@/Components/MarkdownText.vue'
 
+// ── Modale de confirmation suppression (UX-07) ──
+const showDeleteConfirm = ref(false)
+
+function askDelete() {
+    showDeleteConfirm.value = true
+}
+
+function cancelDelete() {
+    showDeleteConfirm.value = false
+}
+
+async function executeDelete() {
+    showDeleteConfirm.value = false
+    try {
+        await fetch(route('oracle.clear'), {
+            method: 'DELETE',
+            headers: { Accept: 'application/json', 'X-XSRF-TOKEN': xsrfToken() },
+            credentials: 'same-origin',
+        })
+        messages.value = []
+    } catch (e) { /* ignore */ }
+}
+
+// ── Suggestions conversation vide (UX-04) ──
+function sendSuggestion(text) {
+    draft.value = text
+    send()
+}
+
 const open = ref(false)
 const loaded = ref(false)        // historique déjà chargé ?
 const sending = ref(false)
@@ -77,16 +106,8 @@ async function send() {
     }
 }
 
-async function clearConversation() {
-    if (!confirm('Effacer toute la conversation avec l\'Oracle ?')) return
-    try {
-        await fetch(route('oracle.clear'), {
-            method: 'DELETE',
-            headers: { Accept: 'application/json', 'X-XSRF-TOKEN': xsrfToken() },
-            credentials: 'same-origin',
-        })
-        messages.value = []
-    } catch (e) { /* ignore */ }
+function clearConversation() {
+    askDelete()
 }
 
 function onKeydown(e) {
@@ -127,6 +148,19 @@ watch(messages, scrollToBottom, { deep: true })
                             Il connaît tes épreuves et ton Grimoire. Demande-lui d'éclairer ton profil,
                             d'explorer une voie, ou de te suggérer des métiers qui te ressemblent.
                         </p>
+
+                        <!-- Suggestions (UX-04) -->
+                        <div class="oracle-suggestions">
+                            <p class="oracle-suggestions-label">Commence par ici :</p>
+                            <div class="oracle-suggestions-list">
+                                <button
+                                    v-for="s in ['Quels métiers me correspondent le mieux ?', 'Comment interpréter mon score ?', 'Quelle épreuve passer en priorité ?']"
+                                    :key="s"
+                                    @click="sendSuggestion(s)"
+                                    class="oracle-suggestion-chip"
+                                >{{ s }}</button>
+                            </div>
+                        </div>
                     </div>
 
                     <div
@@ -164,6 +198,24 @@ watch(messages, scrollToBottom, { deep: true })
                 </footer>
             </section>
         </transition>
+
+        <!-- Modale confirmation suppression (UX-07) -->
+        <Transition name="fade">
+            <div
+                v-if="showDeleteConfirm"
+                class="oracle-confirm-overlay"
+                @click.self="cancelDelete"
+            >
+                <div class="oracle-confirm-dialog" role="dialog" aria-modal="true">
+                    <p class="oracle-confirm-title">Effacer la conversation ?</p>
+                    <p class="oracle-confirm-body">Cette action est irréversible.</p>
+                    <div class="oracle-confirm-actions">
+                        <button @click="cancelDelete" class="oracle-confirm-cancel">Annuler</button>
+                        <button @click="executeDelete" class="oracle-confirm-delete">Effacer</button>
+                    </div>
+                </div>
+            </div>
+        </Transition>
 
         <!-- Bulle flottante -->
         <button class="oracle-fab" :class="{ 'oracle-fab--open': open }" @click="toggle" aria-label="Ouvrir l'Oracle">
@@ -373,4 +425,106 @@ watch(messages, scrollToBottom, { deep: true })
     .oracle-root { right: 14px; bottom: 14px; }
     .oracle-panel { bottom: 66px; height: min(70vh, calc(100vh - 110px)); }
 }
+
+/* ── Suggestions (UX-04) ── */
+.oracle-suggestions {
+    margin-top: 1.25rem;
+    text-align: left;
+}
+.oracle-suggestions-label {
+    font-family: var(--font-body, 'Inter', sans-serif);
+    font-size: 11px;
+    color: var(--or-gold-dark);
+    opacity: 0.7;
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.04em;
+}
+.oracle-suggestions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+.oracle-suggestion-chip {
+    text-align: left;
+    font-family: var(--font-body, 'Inter', sans-serif);
+    font-size: 12.5px;
+    padding: 7px 12px;
+    border-radius: 10px;
+    background: rgba(166, 117, 32, 0.09);
+    border: 1px solid rgba(166, 117, 32, 0.25);
+    color: var(--or-ink);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    line-height: 1.4;
+}
+.oracle-suggestion-chip:hover {
+    background: rgba(166, 117, 32, 0.18);
+    border-color: rgba(166, 117, 32, 0.45);
+}
+
+/* ── Modale confirmation suppression (UX-07) ── */
+.oracle-confirm-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.oracle-confirm-dialog {
+    background: #FBF3DF;
+    border: 1px solid rgba(166, 117, 32, 0.35);
+    border-radius: 14px;
+    padding: 1.5rem;
+    max-width: 320px;
+    margin: 0 1rem;
+    box-shadow: 0 12px 40px rgba(42, 30, 8, 0.28);
+}
+.oracle-confirm-title {
+    font-family: var(--font-display, sans-serif);
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--or-ink);
+    margin: 0 0 0.4rem;
+}
+.oracle-confirm-body {
+    font-family: var(--font-body, 'Inter', sans-serif);
+    font-size: 13px;
+    color: #6B5A3E;
+    margin: 0 0 1.1rem;
+    line-height: 1.5;
+}
+.oracle-confirm-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+.oracle-confirm-cancel {
+    padding: 0.45rem 1rem;
+    font-size: 13px;
+    border: 1px solid rgba(166, 117, 32, 0.3);
+    border-radius: 8px;
+    background: transparent;
+    color: #6B5A3E;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.oracle-confirm-cancel:hover { background: rgba(166, 117, 32, 0.1); }
+.oracle-confirm-delete {
+    padding: 0.45rem 1rem;
+    font-size: 13px;
+    border: none;
+    border-radius: 8px;
+    background: #B03020;
+    color: #fff;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.15s;
+}
+.oracle-confirm-delete:hover { background: #8B2316; }
+
+/* ── Transition fade (modale) ── */
+.fade-enter-active, .fade-leave-active { transition: opacity 0.18s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
 </style>

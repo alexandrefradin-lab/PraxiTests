@@ -320,6 +320,14 @@
       </section>
 
       <!-- ══════════════════════════════════════════════
+           SYNTHÈSE IA
+      ══════════════════════════════════════════════ -->
+      <div v-if="result?.ai_synthesis" class="mt-6 pt-4 border-t border-amber-200">
+        <h3 class="font-semibold mb-2">Synthèse personnalisée</h3>
+        <MarkdownText :source="result.ai_synthesis" />
+      </div>
+
+      <!-- ══════════════════════════════════════════════
            ACTIONS
       ══════════════════════════════════════════════ -->
       <div class="pt-result-actions">
@@ -344,6 +352,7 @@ import { router } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import ScoreGauge from '@/Components/ScoreGauge.vue'
 import RadarChart from '@/Components/RadarChart.vue'
+import MarkdownText from '@/Components/MarkdownText.vue'
 
 // ─────────────────────────────────────────────
 // Props

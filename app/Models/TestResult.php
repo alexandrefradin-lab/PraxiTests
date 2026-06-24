@@ -4,9 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TestResult extends Model
 {
+    use SoftDeletes;
+
     // #3 — $guarded=[] remplacé par $fillable explicite (protection mass assignment)
     protected $fillable = [
         'attempt_id',

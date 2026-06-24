@@ -227,8 +227,8 @@ watch(() => page.props.gamification?.level, (newLevel) => {
         <!-- Barre XP -->
         <div v-if="user" class="xp-bar" style="position: relative">
             <div class="xp-bar__fill" :style="{ width: xpProgress + '%' }"></div>
-            <span v-if="xpTotal > 0" class="xp-bar__label" style="line-height: 4px; top: 2px; transform: none">
-                {{ xpTotal }} Éclats
+            <span class="xp-bar__label" style="line-height: 4px; top: 2px; transform: none">
+                {{ xpTotal > 0 ? xpTotal + ' ✦' : '✦ Ta quête commence !' }}
             </span>
         </div>
 
@@ -271,7 +271,7 @@ watch(() => page.props.gamification?.level, (newLevel) => {
 
         <!-- Toasts flash (bottom-right) -->
         <Teleport to="body">
-            <div style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:0.5rem;align-items:flex-end;pointer-events:none;">
+            <div role="alert" aria-live="polite" aria-atomic="true" style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:0.5rem;align-items:flex-end;pointer-events:none;">
                 <Transition name="pt-toast">
                     <div v-if="$page.props.flash?.success"
                         style="background:var(--bg-surface);border:1px solid var(--border-light);border-left:3px solid var(--color-primary);padding:0.7rem 1rem;border-radius:10px;font-size:13px;font-weight:600;color:var(--text-primary);display:flex;align-items:center;gap:0.5rem;pointer-events:auto;box-shadow:0 4px 20px rgba(0,0,0,0.12);max-width:320px;">

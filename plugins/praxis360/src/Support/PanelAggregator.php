@@ -5,6 +5,7 @@ namespace Praxis\Plugins\Praxis360\Support;
 use App\Models\EvaluationPanel;
 use App\Models\TestAttempt;
 use Praxis\Plugins\Praxis360\Data\Questions;
+use Praxis\Plugins\Praxis360\Scoring\Praxis360ScoringEngine;
 
 /**
  * Agrège un panel 360° : compare l'auto-évaluation du candidat aux regards des
@@ -138,7 +139,7 @@ class PanelAggregator
         foreach ($dimKeys as $k) {
             if ($counts[$k] > 0) {
                 $avg = $sums[$k] / $counts[$k];
-                $out[$k] = (int) round(($avg - 1) / 4 * 100);
+                $out[$k] = Praxis360ScoringEngine::normalizeAvg($avg);
             }
         }
         return $out;

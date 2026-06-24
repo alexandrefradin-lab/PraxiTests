@@ -81,7 +81,7 @@ const submit = () => {
             ></div>
 
             <!-- Marquer comme fait -->
-            <div class="mt-10" style="background: var(--surface, #fff); border: 1px solid var(--border, #e5e7eb); border-radius: var(--r-md, 12px); padding: 1.25rem 1.5rem;">
+            <div class="mt-10" style="background: var(--color-surface, #F5EDD8); border: 1px solid var(--glass-border, #e5d9c0); border-radius: var(--r-md, 12px); padding: 1.25rem 1.5rem;">
                 <div v-if="done" class="flex items-center gap-2 mb-3" style="color: #10B981; font-weight: 600;">
                     ✓ Exercice marqué comme fait
                 </div>
@@ -96,8 +96,8 @@ const submit = () => {
                         @click="form.felt_score = n"
                         :style="{
                             width: '40px', height: '40px', borderRadius: '8px',
-                            border: '1px solid var(--border, #e5e7eb)',
-                            background: form.felt_score === n ? 'var(--primary, #4F46E5)' : 'transparent',
+                            border: '1px solid var(--glass-border, #e5d9c0)',
+                            background: form.felt_score === n ? 'var(--color-primary, #A67520)' : 'transparent',
                             color: form.felt_score === n ? '#fff' : 'var(--text-secondary)',
                             cursor: 'pointer', fontWeight: 600,
                         }"
@@ -108,7 +108,7 @@ const submit = () => {
                 <textarea
                     v-model="form.notes" rows="3"
                     class="mt-2 w-full"
-                    style="border: 1px solid var(--border, #e5e7eb); border-radius: 8px; padding: 0.6rem 0.75rem; font-family: var(--font-body); resize: vertical;"
+                    style="border: 1px solid var(--glass-border, #e5d9c0); border-radius: 8px; padding: 0.6rem 0.75rem; font-family: var(--font-body); resize: vertical;"
                     placeholder="Ce que tu retiens, ce que tu ressens…"
                 ></textarea>
 

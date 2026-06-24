@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import RadarChart from '@/Components/RadarChart.vue'
+import MarkdownText from '@/Components/MarkdownText.vue'
 
 const props = defineProps({
     attempt:      Object,
@@ -122,6 +123,11 @@ const dimLabel = (score) => {
                         </li>
                     </ol>
                 </section>
+            </div>
+
+            <div v-if="result?.ai_synthesis" class="mt-6 pt-4 border-t border-amber-200">
+                <h3 class="font-semibold mb-2">Synthèse personnalisée</h3>
+                <MarkdownText :source="result.ai_synthesis" />
             </div>
 
             <div class="text-center mt-12">

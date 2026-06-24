@@ -72,7 +72,7 @@ class Praxis360ScoringEngine implements ScoringEngineContract
             $avg = $n > 0 ? $sums[$dimKey] / $n : (float) self::SCALE_MIN;
 
             $rawScores[$dimKey]  = round($avg, 2);
-            $normalized[$dimKey] = (int) round(($avg - self::SCALE_MIN) / $span * 100);
+            $normalized[$dimKey] = self::normalizeAvg($avg);
         }
 
         // ── 4. Étalonnage — percentile + label candidat ───────────────────
@@ -103,5 +103,14 @@ class Praxis360ScoringEngine implements ScoringEngineContract
             'meta'         => $dims,          // libellés + couleurs
             'computed_at'  => now()->toIso8601String(),
         ];
+    }
+
+    /**
+     * Normalise une moyenne brute 1-5 en score 0-100.
+     * Partagé avec PanelAggregator pour garantir la cohérence du calcul.
+     */
+    public static function normalizeAvg(float $avg): int
+    {
+        return (int) round(($avg - self::SCALE_MIN) / (self::SCALE_MAX - self::SCALE_MIN) * 100);
     }
 }

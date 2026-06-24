@@ -11,8 +11,8 @@ class InvitationController extends Controller
     {
         $invitation = TestInvitation::where('token', $token)->firstOrFail();
 
-        if ($invitation->isExpired()) {
-            abort(410, 'Invitation expirée');
+        if (in_array($invitation->status, ['completed', 'expired'])) {
+            abort(410, 'Ce lien a déjà été utilisé ou a expiré.');
         }
 
         $invitation->update([

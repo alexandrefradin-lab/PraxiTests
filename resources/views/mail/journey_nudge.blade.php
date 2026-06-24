@@ -73,7 +73,9 @@
         <tr><td style="padding:16px 32px 26px;border-top:1px solid #E5DAC2;">
           <p style="font-size:11px;color:#8A7A58;line-height:1.6;margin:0;">
             Tu reçois ce message car tu participes au parcours <em>{{ $pluginLabel }}</em> sur PraxiQuest.
-            Pour ne plus recevoir ces rappels, accède à ton profil &gt; notifications.
+          </p>
+          <p style="font-size:12px;color:#888;text-align:center;margin-top:20px;">
+            <a href="{{ $unsubscribeUrl }}" style="color:#8A7A58;">Se désabonner des notifications</a>
           </p>
         </td></tr>
 

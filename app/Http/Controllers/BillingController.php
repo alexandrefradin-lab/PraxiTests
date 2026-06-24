@@ -178,7 +178,15 @@ class BillingController extends Controller
     {
         abort_unless($request->user()->subscribed('default'), 422, 'Aucun abonnement actif.');
 
-        $request->user()->subscription('default')->cancel();
+        try {
+            $request->user()->subscription('default')->cancel();
+        } catch (\Stripe\Exception\ApiErrorException $e) {
+            Log::error('Stripe error', ['msg' => $e->getMessage(), 'user' => auth()->id()]);
+            return back()->withErrors(['stripe' => 'Une erreur Stripe est survenue. Réessayez dans quelques instants.']);
+        } catch (\Exception $e) {
+            Log::error('Billing error', ['msg' => $e->getMessage()]);
+            return back()->withErrors(['stripe' => 'Une erreur inattendue est survenue.']);
+        }
 
         return redirect()->route('billing.manage')
             ->with('success', 'Ton abonnement sera actif jusqu\'à la fin de la période en cours.');
@@ -191,7 +199,15 @@ class BillingController extends Controller
     {
         abort_unless($request->user()->subscribed('default'), 422, 'Aucun abonnement actif.');
 
-        $request->user()->subscription('default')->resume();
+        try {
+            $request->user()->subscription('default')->resume();
+        } catch (\Stripe\Exception\ApiErrorException $e) {
+            Log::error('Stripe error', ['msg' => $e->getMessage(), 'user' => auth()->id()]);
+            return back()->withErrors(['stripe' => 'Une erreur Stripe est survenue. Réessayez dans quelques instants.']);
+        } catch (\Exception $e) {
+            Log::error('Billing error', ['msg' => $e->getMessage()]);
+            return back()->withErrors(['stripe' => 'Une erreur inattendue est survenue.']);
+        }
 
         return redirect()->route('billing.manage')
             ->with('success', 'Ton abonnement a été réactivé.');

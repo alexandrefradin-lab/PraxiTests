@@ -29,28 +29,42 @@ const inline = (s) => {
     // vs. texte littéral, on échappe uniquement le texte littéral.
     const tokens = []
     // Regex globale qui capture tous les motifs Markdown inline
-    const MARKDOWN_RE = /(\*\*([^*]+)\*\*|__([^_]+)__|(?:^|(?<=[^*]))\*([^*\n]+)\*(?=[^*]|$)|`([^`]+)`|\[([^\]]+)\]\((https?:\/\/[^\s)]+)\))/g
+    // Regex sans lookbehind (compatibilité Safari < 16.4) :
+    // L'italique *texte* est capturé en incluant le caractère précédent dans le groupe 1
+    // (caractère nul de début de chaîne OU non-astérisque). Le groupe 4 contient le texte.
+    const MARKDOWN_RE = /(\*\*([^*]+)\*\*|__([^_]+)__|(^|[^*])\*([^*\n]+)\*(?=[^*]|$)|`([^`]+)`|\[([^\]]+)\]\((https?:\/\/[^\s)]+)\))/gm
     let lastIndex = 0
     let match
     while ((match = MARKDOWN_RE.exec(s)) !== null) {
-        // Texte avant ce token → échapper
-        if (match.index > lastIndex) {
-            tokens.push(escapeHtml(s.slice(lastIndex, match.index)))
-        }
         const full = match[0]
-        if (full.startsWith('**') || full.startsWith('__')) {
+        // Détection du type de token selon les groupes capturés.
+        // Groupes : 2=gras**, 3=gras__, 4=préfixe italique, 5=texte italique, 6=code, 7=lien label, 8=lien href
+        const isBold   = match[2] !== undefined || match[3] !== undefined
+        const isItalic = match[5] !== undefined && !isBold
+        const isCode   = match[6] !== undefined
+        const isLink   = match[7] !== undefined
+
+        // Calcul du vrai début du token (hors préfixe éventuel pour l'italique)
+        const prefix = isItalic ? (match[4] ?? '') : ''
+        const tokenStart = match.index + prefix.length
+
+        // Texte avant ce token → échapper
+        if (tokenStart > lastIndex) {
+            tokens.push(escapeHtml(s.slice(lastIndex, tokenStart)))
+        }
+
+        if (isBold) {
             const inner = escapeHtml(match[2] ?? match[3] ?? '')
             tokens.push(`<strong>${inner}</strong>`)
-        } else if (full.startsWith('`')) {
-            tokens.push(`<code>${escapeHtml(match[5] ?? '')}</code>`)
-        } else if (full.startsWith('[')) {
-            const label = escapeHtml(match[6] ?? '')
-            const href  = escapeHtml(match[7] ?? '')
-            tokens.push(`<a href="${href}" target="_blank" rel="noopener">${label}</a>`)
-        } else {
-            // Italique *texte*
-            const inner = escapeHtml(match[4] ?? '')
+        } else if (isItalic) {
+            const inner = escapeHtml(match[5])
             tokens.push(`<em>${inner}</em>`)
+        } else if (isCode) {
+            tokens.push(`<code>${escapeHtml(match[6])}</code>`)
+        } else if (isLink) {
+            const label = escapeHtml(match[7] ?? '')
+            const href  = escapeHtml(match[8] ?? '')
+            tokens.push(`<a href="${href}" target="_blank" rel="noopener">${label}</a>`)
         }
         lastIndex = match.index + full.length
     }

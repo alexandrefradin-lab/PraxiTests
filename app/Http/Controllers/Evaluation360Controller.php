@@ -6,6 +6,7 @@ use App\Models\EvaluationInvitation;
 use App\Models\TestAttempt;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\DB;
 use Praxis\Plugins\Praxis360\Data\Questions;
 
 /**
@@ -28,26 +29,28 @@ class Evaluation360Controller extends Controller
             return Inertia::render('Evaluation/Thanks', ['already' => true]);
         }
 
-        // Marquer comme ouverte (1re visite).
-        if ($invitation->status === 'sent' || $invitation->status === 'pending') {
-            $invitation->update(['status' => 'opened', 'opened_at' => now()]);
-        }
+        // Marquer comme ouverte (1re visite) + créer la tentative invitée.
+        $attempt = DB::transaction(function () use ($invitation, $panel) {
+            if ($invitation->status === 'sent' || $invitation->status === 'pending') {
+                $invitation->update(['status' => 'opened', 'opened_at' => now()]);
+            }
 
-        // Tentative « invitée » : réutilisée si déjà entamée.
-        $attempt = $invitation->attempt;
-        if (!$attempt) {
-            $attempt = TestAttempt::create([
-                'user_id'          => null,
-                'test_id'          => $panel->test_id,
-                'panel_id'         => $panel->id,
-                'rater_relation'   => $invitation->relation,
-                'status'           => 'in_progress',
-                'started_at'       => now(),
-                'last_activity_at' => now(),
-                'progress'         => [],
-            ]);
-            $invitation->update(['attempt_id' => $attempt->id]);
-        }
+            $attempt = $invitation->attempt;
+            if (!$attempt) {
+                $attempt = TestAttempt::create([
+                    'user_id'          => null,
+                    'test_id'          => $panel->test_id,
+                    'panel_id'         => $panel->id,
+                    'rater_relation'   => $invitation->relation,
+                    'status'           => 'in_progress',
+                    'started_at'       => now(),
+                    'last_activity_at' => now(),
+                    'progress'         => [],
+                ]);
+                $invitation->update(['attempt_id' => $attempt->id]);
+            }
+            return $attempt;
+        });
 
         return Inertia::render('Evaluation/Rater360', [
             'token'        => $token,
@@ -103,12 +106,14 @@ class Evaluation360Controller extends Controller
             'verbatims.advice'    => ['nullable', 'string', 'max:2000'],
         ]);
 
-        $attempt->update(['status' => 'completed', 'completed_at' => now()]);
-        $invitation->update([
-            'status'       => 'completed',
-            'completed_at' => now(),
-            'verbatims'    => $data['verbatims'] ?? null,
-        ]);
+        DB::transaction(function () use ($attempt, $invitation, $data) {
+            $attempt->update(['status' => 'completed', 'completed_at' => now()]);
+            $invitation->update([
+                'status'       => 'completed',
+                'completed_at' => now(),
+                'verbatims'    => $data['verbatims'] ?? null,
+            ]);
+        });
 
         return redirect()->route('eval360.thanks', $token);
     }

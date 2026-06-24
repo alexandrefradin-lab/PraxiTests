@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\EmailLog;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -25,6 +26,26 @@ class SendSequenceStepJob implements ShouldQueue
 
     public function handle(SequenceRunner $runner): void
     {
+        // Idempotence : ne pas renvoyer un step déjà tracé dans email_logs (TECH-08).
+        $alreadySent = EmailLog::where('user_id', $this->userId)
+            ->where('sequence_id', $this->sequenceId)
+            ->where('step', $this->stepIndex)
+            ->exists();
+
+        if ($alreadySent) {
+            return;
+        }
+
         $runner->runStep($this->sequenceId, $this->userId, $this->stepIndex, $this->context);
+    }
+
+    /**
+     * Délai (en secondes) entre chaque tentative de retry (TECH-08).
+     *
+     * @return array<int>
+     */
+    public function backoff(): array
+    {
+        return [30, 60, 120];
     }
 }

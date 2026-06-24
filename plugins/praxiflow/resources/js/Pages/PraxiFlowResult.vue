@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import ScoreGauge from '@/Components/ScoreGauge.vue'
 import RadarChart from '@/Components/RadarChart.vue'
+import MarkdownText from '@/Components/MarkdownText.vue'
 
 const props = defineProps({ attempt: Object, result: Object })
 const scoring   = computed(() => props.result?.scoring ?? {})
@@ -425,6 +426,8 @@ const allExercises = computed(() => {
                         <button
                             style="width: 100%; text-align: left; padding: 1.25rem 1.5rem; display: flex; align-items: flex-start; gap: 1rem; background: none; border: none; cursor: pointer;"
                             @click="toggleExercise(ex.id)"
+                            :aria-expanded="openExercise === ex.id"
+                            :aria-controls="'flow-exercise-panel-' + ex.id"
                         >
                             <div style="width: 4px; align-self: stretch; border-radius: 9999px; flex-shrink: 0;" :style="{ backgroundColor: dimColor(ex.dimKey) }"></div>
                             <div style="flex: 1; min-width: 0;">
@@ -443,7 +446,7 @@ const allExercises = computed(() => {
                             >▾</span>
                         </button>
 
-                        <div v-show="openExercise === ex.id" style="padding: 0 1.5rem 1.5rem; border-top: 1px solid var(--pt-cream, #F3F4F6);">
+                        <div v-show="openExercise === ex.id" :id="'flow-exercise-panel-' + ex.id" style="padding: 0 1.5rem 1.5rem; border-top: 1px solid var(--pt-cream, #F3F4F6);">
                             <div style="margin-top: 1rem; margin-bottom: 1rem; padding: 1rem; border-radius: 0.5rem; font-size: 0.875rem; background: var(--pt-cream, #F8F7F4); color: var(--pt-text-muted);">
                                 <p style="font-weight: 500; margin-bottom: 0.25rem; color: var(--pt-navy);">Base scientifique</p>
                                 <p>{{ ex.scientific_basis }}</p>
@@ -497,6 +500,14 @@ const allExercises = computed(() => {
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- ══════════════════════════════════════════════════
+                 SYNTHÈSE IA
+            ══════════════════════════════════════════════════ -->
+            <div v-if="result?.ai_synthesis" class="mt-6 pt-4 border-t border-amber-200">
+                <h3 class="font-semibold mb-2">Synthèse personnalisée</h3>
+                <MarkdownText :source="result.ai_synthesis" />
             </div>
 
             <!-- ══════════════════════════════════════════════════

@@ -42,7 +42,13 @@ class DefaultScoringEngine implements ScoringEngineContract
             // On normalise sur la plage réelle [min..max] pour que la réponse
             // minimale vaille 0 % et non min/max %.
             $hasValues = isset($rules['values']) && !empty($rules['values']);
-            $maxVal = $rules['max'] ?? ($hasValues ? max($rules['values']) : 1);
+            // Pour les questions multi-select, l'utilisateur peut cocher toutes les options
+            // → le max théorique est la SOMME de toutes les valeurs, pas le max d'une seule.
+            $isMulti = in_array($rules['type'] ?? '', ['multi', 'multiple'], true)
+                || is_array($answer->value);
+            $maxVal = $rules['max'] ?? ($hasValues
+                ? ($isMulti ? array_sum(array_values($rules['values'])) : max($rules['values']))
+                : 1);
             $minVal = $rules['min'] ?? ($hasValues ? min($rules['values']) : 1);
             $maxByDimension[$dim] = ($maxByDimension[$dim] ?? 0) + ($maxVal * $weight);
             $minByDimension[$dim] = ($minByDimension[$dim] ?? 0) + ($minVal * $weight);

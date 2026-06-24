@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import ScoreGauge from '@/Components/ScoreGauge.vue'
 import RadarChart from '@/Components/RadarChart.vue'
+import MarkdownText from '@/Components/MarkdownText.vue'
 
 const props = defineProps({
     attempt:              Object,
@@ -525,6 +526,12 @@ const gridRows = computed(() => {
                 </div>
 
             </section>
+
+            <!-- Synthèse IA ──────────────────────────────────────────── -->
+            <div v-if="result?.ai_synthesis" class="mt-6 pt-4 border-t border-amber-200">
+                <h3 class="font-semibold mb-2">Synthèse personnalisée</h3>
+                <MarkdownText :source="result.ai_synthesis" />
+            </div>
 
             <!-- Actions ──────────────────────────────────────────────── -->
             <div class="flex flex-wrap gap-4 justify-center mt-8 mb-12">

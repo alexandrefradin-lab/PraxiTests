@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\URL;
 
 /**
  * Email envoyé le soir aux utilisateurs qui n'ont pas accompli
@@ -18,6 +19,8 @@ class JourneyNudgeMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public string $unsubscribeUrl;
+
     public function __construct(
         public User   $user,
         public string $plugin,       // 'praxilead' | 'praxizenith'
@@ -25,7 +28,9 @@ class JourneyNudgeMail extends Mailable
         public string $actionTitle,  // titre de l'action du jour
         public string $pluginLabel,  // libellé humain du parcours
         public string $actionRoute,  // route nommée vers l'action du jour
-    ) {}
+    ) {
+        $this->unsubscribeUrl = URL::signedRoute('email.unsubscribe', ['user' => $this->user->id]);
+    }
 
     public function build(): self
     {
@@ -41,12 +46,13 @@ class JourneyNudgeMail extends Mailable
         return $this
             ->subject("Jour {$this->day} t'attend encore — 2 minutes suffisent 🌱")
             ->view('mail.journey_nudge', [
-                'firstName'   => $firstName,
-                'day'         => $this->day,
-                'pluginLabel' => $this->pluginLabel,
-                'actionTitle' => $this->actionTitle,
-                'beliefUrl'   => $beliefUrl,
-                'actionUrl'   => $this->actionUrl($actionUrl),
+                'firstName'      => $firstName,
+                'day'            => $this->day,
+                'pluginLabel'    => $this->pluginLabel,
+                'actionTitle'    => $this->actionTitle,
+                'beliefUrl'      => $beliefUrl,
+                'actionUrl'      => $this->actionUrl($actionUrl),
+                'unsubscribeUrl' => $this->unsubscribeUrl,
             ]);
     }
 

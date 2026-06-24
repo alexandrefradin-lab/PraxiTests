@@ -15,6 +15,7 @@ const voies = computed(() => props.grimoire?.voies ?? [])
 const tabs = [
     { key: 'synthese', label: 'Relecture globale' },
     { key: 'tests',    label: 'Résultats des tests' },
+    { key: 'pistes',   label: '15 Pistes métiers' },
 ]
 const activeTab = ref('synthese')
 

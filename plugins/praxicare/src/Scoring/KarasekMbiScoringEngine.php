@@ -82,7 +82,7 @@ class KarasekMbiScoringEngine implements ScoringEngineContract
                 // AP inversé ≈ 35 %. L'ancien calibrage (10/18, 4/9, 9/16) était
                 // bien plus restrictif → sous-détection du burnout (audit 2026-06-21).
                 'ee' => $ee, 'ee_max' => 27, 'ee_severite' => $this->severite($ee, 8, 13),
-                'dp' => $dp, 'dp_max' => 15, 'dp_severite' => $this->severite($dp, 2, 4),
+                'dp' => $dp, 'dp_max' => 15, 'dp_severite' => $this->severite($dp, 2, 5),
                 'ap' => $ap, 'ap_max' => 24, 'ap_severite' => $this->severite($ap, 4, 8),
             ],
             'profile'       => $profile,

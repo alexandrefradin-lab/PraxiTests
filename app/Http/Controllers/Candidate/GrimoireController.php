@@ -8,6 +8,7 @@ use App\Jobs\GenerateGlobalGrimoire;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\RateLimiter;
 use Inertia\Inertia;
 use Inertia\Response;
 use Praxis\Core\AI\Services\GlobalGrimoireService;
@@ -188,13 +189,17 @@ class GrimoireController extends Controller
     /** Bouton "Régénérer" — force une nouvelle relecture. */
     public function refresh(): RedirectResponse
     {
-        $user     = auth()->user();
-        $grimoire = $user->getOrCreateGrimoire();
+        $user = auth()->user();
 
-        // Garde-fou anti-spam : 1 régénération manuelle / minute.
-        if ($grimoire->generated_at && $grimoire->generated_at->gt(now()->subMinute())) {
-            return back()->with('info', 'Ton Grimoire vient d\'être mis à jour. Réessaie dans un instant.');
+        // Garde-fou anti-spam : 1 régénération manuelle / 10 minutes (TECH-11).
+        $key = 'grimoire-regen:' . $user->id;
+        if (RateLimiter::tooManyAttempts($key, 1)) {
+            $seconds = RateLimiter::availableIn($key);
+            return back()->withErrors(['regen' => "Vous pouvez régénérer dans {$seconds} secondes. (Limite : 1 fois par 10 minutes)"]);
         }
+        RateLimiter::hit($key, 600);
+
+        $grimoire = $user->getOrCreateGrimoire();
 
         // Verrou atomique (cf. audit M-3 / E-4) : empêche deux clics simultanés —
         // ou un statut déjà "pending" avec generated_at null — de lancer plusieurs

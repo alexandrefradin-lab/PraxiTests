@@ -354,12 +354,33 @@ TXT;
     {
         $system = "Tu es un copywriter spécialisé en emails neuromarketing. Tu personnalises un template email en gardant sa structure mais en adaptant le ton, les références et les exemples au destinataire. Réponds uniquement avec l'email final, sans commentaire.";
 
-        $user_msg = "Template :\n---\n{$template}\n---\n\nContexte destinataire :\n" . json_encode($contextVariables, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+        // Sanitiser le template et les variables de contexte avant injection dans le prompt (TECH-12).
+        $safeTemplate = $this->sanitizeForPrompt($template);
+        $safeContext  = array_map(
+            fn ($v) => is_string($v) ? $this->sanitizeForPrompt($v) : $v,
+            $contextVariables
+        );
+
+        $user_msg = "Template :\n---\n{$safeTemplate}\n---\n\nContexte destinataire :\n" . json_encode($safeContext, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 
         return [
             ['role' => 'system', 'content' => $system],
             ['role' => 'user',   'content' => $user_msg],
         ];
+    }
+
+    /**
+     * Sanitise une entrée courte avant injection dans un prompt IA (TECH-12).
+     * Neutralise les patterns d'injection de prompt les plus courants et tronque à 500 chars.
+     */
+    private function sanitizeForPrompt(string $input): string
+    {
+        $dangerous = ['ignore previous', 'ignore all', 'system:', 'assistant:', 'human:', '###', '<|'];
+        $cleaned   = $input;
+        foreach ($dangerous as $pattern) {
+            $cleaned = str_ireplace($pattern, '[...]', $cleaned);
+        }
+        return mb_substr(strip_tags($cleaned), 0, 500);
     }
 
     public function cvExtraction(string $cvText): array

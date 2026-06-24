@@ -18,9 +18,20 @@ class TestController extends Controller
         // on les retire de L'Armurerie pour éviter les doublons.
         $rewardSlugs = $this->rewards->testSlugs();
 
+        $userId = auth()->id();
+
+        $completedIds = TestAttempt::where('user_id', $userId)
+            ->where('status', 'completed')
+            ->pluck('test_id')
+            ->flip()
+            ->toArray();
+
         $tests = Test::where('published', true)
             ->when($rewardSlugs, fn ($q) => $q->whereNotIn('slug', $rewardSlugs))
-            ->get(['id','slug','name','description','estimated_minutes']);
+            ->get(['id','slug','name','description','estimated_minutes'])
+            ->map(fn ($t) => array_merge($t->toArray(), [
+                'completed' => isset($completedIds[$t->id]),
+            ]));
 
         return Inertia::render('Candidate/TestsIndex', [
             'tests' => $tests,

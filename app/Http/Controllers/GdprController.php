@@ -127,7 +127,7 @@ class GdprController extends Controller
             // 3. Supprimer toutes les données utilisateur (cascade en DB)
             //    Les tentatives, réponses, résultats, profil sont supprimés
             //    par cascade DB (foreignId(...)->cascadeOnDelete())
-            $user->delete();
+            $user->forceDelete();
         });
 
         // Déconnecter la session

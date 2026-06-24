@@ -87,7 +87,7 @@ class BigFiveScoringEngine implements ScoringEngineContract
 
         // ── Désirabilité Sociale (% simple) ───────────────────
         $dsPct = $dsCount > 0
-            ? (int) round((($dsBrut - $dsCount) / (4 * $dsCount)) * 100)
+            ? (int) round((($dsBrut - $dsCount) / (3 * $dsCount)) * 100)
             : 0;
 
         // Correction douce de désirabilité : un biais de présentation positive
