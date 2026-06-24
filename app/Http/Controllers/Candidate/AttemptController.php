@@ -186,7 +186,13 @@ class AttemptController extends Controller
         // synthèse. afterResponse() libère la réponse HTTP avant l'appel IA (P-07).
         GenerateAttemptInsights::dispatch($attempt->id)->afterResponse();
 
-        return redirect()->route('results.show', $attempt);
+        $attempt->loadMissing('test');
+
+        return redirect()->route('results.show', $attempt)
+            ->with('achievement', [
+                'name' => $attempt->test->name,
+                'xp'   => config('gamification.xp.complete_test', 200),
+            ]);
     }
 
     protected function authorizeAttempt(TestAttempt $attempt): void

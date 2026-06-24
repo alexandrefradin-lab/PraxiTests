@@ -33,9 +33,10 @@ class HandleInertiaRequests extends Middleware
                 'secondary_color' => config('praxiquest.branding.secondary_color'),
             ],
             'flash' => [
-                'success' => fn () => $request->session()->get('success'),
-                'error'   => fn () => $request->session()->get('error'),
-                'info'    => fn () => $request->session()->get('info'),
+                'success'     => fn () => $request->session()->get('success'),
+                'error'       => fn () => $request->session()->get('error'),
+                'info'        => fn () => $request->session()->get('info'),
+                'achievement' => fn () => $request->session()->get('achievement'),
             ],
         ]);
     }

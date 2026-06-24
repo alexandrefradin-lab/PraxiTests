@@ -61,6 +61,8 @@ onBeforeUnmount(() => {
     if (stopNavStart) stopNavStart()
     if (stopNavFinish) stopNavFinish()
     clearTimeout(navTimeout)
+    clearTimeout(achievementTimeout)
+    clearTimeout(levelUpTimeout)
 })
 
 // Inertia réutilise le Layout entre navigations même-composant : relancer
@@ -87,6 +89,39 @@ function isActive(path) {
 const hasTreasure = computed(() => {
     try { return route().has('treasure.index') } catch (e) { return false }
 })
+
+// ─── Achievement toast ────────────────────────────────────────────────────
+const showAchievement = ref(false)
+const achievementData = ref(null)
+let achievementTimeout = null
+
+watch(() => page.props.flash?.achievement, (achievement) => {
+    if (achievement) {
+        achievementData.value = achievement
+        showAchievement.value = true
+        clearTimeout(achievementTimeout)
+        achievementTimeout = setTimeout(() => { showAchievement.value = false }, 4500)
+    }
+}, { immediate: true })
+
+// ─── Level Up overlay ─────────────────────────────────────────────────────
+const showLevelUp = ref(false)
+const levelUpData = ref(null)
+const prevLevel = ref(null)
+let levelUpTimeout = null
+
+watch(() => page.props.gamification?.level, (newLevel) => {
+    if (prevLevel.value !== null && newLevel > prevLevel.value) {
+        levelUpData.value = {
+            level: newLevel,
+            name: page.props.gamification?.level_name ?? `Niveau ${newLevel}`,
+        }
+        showLevelUp.value = true
+        clearTimeout(levelUpTimeout)
+        levelUpTimeout = setTimeout(() => { showLevelUp.value = false }, 2800)
+    }
+    if (newLevel != null) prevLevel.value = newLevel
+}, { immediate: true })
 </script>
 
 <template>
@@ -383,6 +418,64 @@ const hasTreasure = computed(() => {
 
         <!-- L'Oracle — chat IA d'orientation, flottant en bas à droite -->
         <OracleChat v-if="user" />
+
+        <!-- Achievement toast (style Xbox, bottom-left) -->
+        <Teleport to="body">
+            <Transition name="pt-achievement">
+                <div
+                    v-if="showAchievement && achievementData"
+                    style="position:fixed;bottom:1.5rem;left:1.5rem;z-index:9998;background:#2A1E08;border:1px solid rgba(166,117,32,0.4);border-radius:12px;padding:12px 14px 12px 12px;display:flex;align-items:center;gap:12px;max-width:320px;pointer-events:none;"
+                >
+                    <div style="position:relative;flex-shrink:0;width:42px;height:42px;">
+                        <svg width="42" height="42" viewBox="0 0 30 30" fill="none" aria-hidden="true">
+                            <polygon points="15,2 26,8.5 26,21.5 15,28 4,21.5 4,8.5" fill="#A67520"/>
+                            <polygon points="15,5 23,9.5 23,20.5 15,25 7,20.5 7,9.5" fill="none" stroke="rgba(240,232,212,0.22)" stroke-width="0.5"/>
+                        </svg>
+                        <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:16px;color:#F0E8D4;font-weight:700;line-height:1;">✓</span>
+                    </div>
+                    <div style="flex:1;min-width:0;">
+                        <div style="font-size:9px;font-weight:600;color:rgba(166,117,32,0.85);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:3px;font-family:var(--font-data);">Épreuve déverrouillée</div>
+                        <div style="font-size:13px;font-weight:600;color:#F0E8D4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:var(--font-display);">{{ achievementData.name }}</div>
+                    </div>
+                    <div style="flex-shrink:0;text-align:right;">
+                        <div style="font-size:13px;font-weight:700;color:#A67520;font-family:var(--font-data);line-height:1;">+{{ achievementData.xp }}</div>
+                        <div style="font-size:8px;color:rgba(166,117,32,0.6);letter-spacing:0.1em;font-family:var(--font-data);margin-top:1px;">ÉCLATS</div>
+                    </div>
+                </div>
+            </Transition>
+        </Teleport>
+
+        <!-- Level Up overlay (plein écran, cliquable pour fermer) -->
+        <Teleport to="body">
+            <Transition name="pt-levelup">
+                <div
+                    v-if="showLevelUp && levelUpData"
+                    style="position:fixed;inset:0;z-index:10000;background:rgba(42,30,8,0.92);display:flex;align-items:center;justify-content:center;cursor:pointer;"
+                    @click="showLevelUp = false"
+                    role="dialog"
+                    aria-label="Niveau supérieur atteint"
+                >
+                    <div class="pt-lvl-content" style="text-align:center;padding:2rem;max-width:420px;">
+                        <div style="font-size:10px;font-weight:600;color:rgba(166,117,32,0.7);text-transform:uppercase;letter-spacing:0.24em;margin-bottom:0.75rem;font-family:var(--font-data);">Voyage intérieur</div>
+                        <div style="font-size:clamp(2.5rem,8vw,4.5rem);font-weight:700;color:#F0E8D4;letter-spacing:-0.04em;line-height:1;font-family:var(--font-data);margin-bottom:0.35rem;">NIVEAU {{ levelUpData.level }}</div>
+                        <div style="font-size:1.3rem;font-weight:600;color:#A67520;font-family:var(--font-display);margin-bottom:1.5rem;">{{ levelUpData.name }}</div>
+                        <div style="position:relative;display:inline-flex;align-items:center;justify-content:center;margin-bottom:1.5rem;">
+                            <svg width="72" height="72" viewBox="0 0 30 30" fill="none" aria-hidden="true">
+                                <polygon points="15,2 26,8.5 26,21.5 15,28 4,21.5 4,8.5" fill="none" stroke="#A67520" stroke-width="1.2"/>
+                                <polygon points="15,5 23,9.5 23,20.5 15,25 7,20.5 7,9.5" fill="none" stroke="#A67520" stroke-width="0.4" opacity="0.35"/>
+                            </svg>
+                            <span style="position:absolute;font-size:22px;font-weight:700;color:#A67520;font-family:var(--font-data);">{{ levelUpData.level }}</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;">
+                            <div style="flex:1;height:1px;background:rgba(166,117,32,0.2);"></div>
+                            <svg width="10" height="10" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 0L9.6 6.4L16 8L9.6 9.6L8 16L6.4 9.6L0 8L6.4 6.4L8 0Z" fill="#A67520" opacity="0.45"/></svg>
+                            <div style="flex:1;height:1px;background:rgba(166,117,32,0.2);"></div>
+                        </div>
+                        <div style="font-size:11px;color:rgba(240,232,212,0.3);font-family:var(--font-data);letter-spacing:0.08em;">Cliquer pour continuer</div>
+                    </div>
+                </div>
+            </Transition>
+        </Teleport>
     </div>
 </template>
 
@@ -652,5 +745,42 @@ const hasTreasure = computed(() => {
     .cand-burger {
         display: flex;
     }
+}
+
+/* ── Achievement toast transitions ── */
+.pt-achievement-enter-active {
+    transition: opacity 0.32s ease, transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.pt-achievement-enter-from {
+    opacity: 0;
+    transform: translateX(-28px) scale(0.9);
+}
+.pt-achievement-leave-active {
+    transition: opacity 0.22s ease, transform 0.22s ease;
+}
+.pt-achievement-leave-to {
+    opacity: 0;
+    transform: translateX(-10px);
+}
+
+/* ── Level Up overlay transitions ── */
+.pt-levelup-enter-active {
+    transition: opacity 0.38s ease;
+}
+.pt-levelup-leave-active {
+    transition: opacity 0.35s ease;
+}
+.pt-levelup-enter-from,
+.pt-levelup-leave-to {
+    opacity: 0;
+}
+
+/* ── Level Up content : animation de pulsation douce ── */
+@keyframes pt-lvlpulse {
+    0%, 100% { transform: scale(1); }
+    50%       { transform: scale(1.025); }
+}
+.pt-lvl-content {
+    animation: pt-lvlpulse 2.2s ease-in-out infinite;
 }
 </style>
