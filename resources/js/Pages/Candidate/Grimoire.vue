@@ -114,13 +114,11 @@ const synthSource = computed(() => {
         return raw
     }
 
-    // Cas 3 : bloc monolithique (anciens grimoires sans aucun retour à la ligne).
-    // On découpe par phrases puis on regroupe en 3–4 paragraphes équilibrés,
-    // comme le fait normalizeSynthesisParagraphs côté PHP.
-    const sentences = raw
-        .split(/(?<=[.!?])\s+(?=[A-ZÀÂÄÉÈÊËÎÏÔÙÛÜÇ])/)
-        .map(s => s.trim())
-        .filter(s => s.length >= 40)
+    // Cas 3 : bloc monolithique (anciens grimoires sans retour à la ligne).
+    // Pas de lookbehind (compatibilité) : on marque les coupures avec \x00,
+    // puis on regroupe en 3–4 paragraphes équilibrés.
+    const marked = raw.replace(/([.!?])\s+([A-ZÀÂÄÉÈÊËÎÏÔÙÛÜÇ«"])/g, '$1\x00$2')
+    const sentences = marked.split('\x00').map(s => s.trim()).filter(s => s.length >= 30)
 
     if (sentences.length <= 1) return raw
 
