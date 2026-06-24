@@ -5,6 +5,7 @@ namespace Praxis\Core\Orientation;
 use App\Models\CareerPath;
 use App\Models\Profile;
 use App\Models\ProfilePathMatch;
+use App\Models\TestAttempt;
 use Illuminate\Support\Collection;
 
 /**
@@ -102,6 +103,67 @@ class PtpPathService
         }
 
         return $grouped;
+    }
+
+    /**
+     * Calcule les pistes pour UNE passation spécifique (affichage sous la page de résultats).
+     *
+     * Différences vs recompute() (grimoire global) :
+     * — Dimensions issues de CE test uniquement (pas d'agrégat cross-tests).
+     * — Filtre strict formation_months ≤ 12 (paliers accessible + ptp seulement).
+     * — Boost contextuel profil : secteur / rôle / quête / extrait CV → affinité famille.
+     * — Limite 15 pistes, classées par indice d'opportunité décroissant.
+     * — Résultat éphémère : pas d'écriture en base (≠ ProfilePathMatch globaux).
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function computeForAttempt(TestAttempt $attempt, ?Profile $profile): array
+    {
+        $scoring = $attempt->result?->scoring ?? [];
+
+        // Dimensions de ce test. Repli sur norm_scores si dimensions absentes.
+        $dims = $scoring['dimensions'] ?? [];
+        if (empty($dims) && !empty($scoring['norm_scores'])) {
+            $dims = $scoring['norm_scores'];
+        }
+
+        $formationCredit = $profile ? $this->declaredFormationCredit($profile) : 0;
+        $contextBoosts   = $profile ? $this->contextBoosts($profile) : [];
+        $count           = (int) config('praxiquest.results.career_paths_per_test', 15);
+
+        $results = [];
+
+        foreach (CareerPath::where('active', true)->get() as $path) {
+            // Filtre strict : on n'affiche que ce qui est atteignable en ≤ 1 an.
+            if ((int) $path->formation_months > 12) {
+                continue;
+            }
+
+            $fit  = $this->computeFit($dims, $path->fit_dimensions ?? []);
+            // Boost contextuel plafonné à +10 par famille.
+            $fit  = min(100, $fit + ($contextBoosts[$path->family] ?? 0));
+            $gap  = max(0, (int) $path->formation_months - $formationCredit);
+            $tier = self::tierForGap($gap);
+            $opp  = self::opportunityIndex($fit, $gap, $path->market_demand, $path->market_trend);
+
+            $results[] = [
+                'slug'                 => $path->slug,
+                'title'                => $path->title,
+                'family'               => $path->family,
+                'fit_score'            => $fit,
+                'formation_gap_months' => $gap,
+                'tier'                 => $tier,
+                'opportunity_index'    => $opp,
+                'market_demand'        => $path->market_demand,
+                'market_trend'         => $path->market_trend,
+                'salary_indicative'    => $path->salary_indicative,
+                'unlocked'             => false, // éphémère, pas de déclaration ici
+            ];
+        }
+
+        usort($results, static fn ($a, $b) => $b['opportunity_index'] <=> $a['opportunity_index']);
+
+        return array_slice($results, 0, $count);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -242,5 +304,69 @@ class PtpPathService
         $meta = $profile->metadata ?? [];
 
         return (int) ($meta['formation_credit_months'] ?? 0);
+    }
+
+    /**
+     * Boosts contextuels par famille de métiers, calculés depuis le profil (CV + quête).
+     *
+     * Heuristique niveau 1 : correspondance mots-clés dans rôle / secteur / problématique
+     * / extrait CV (tronqué à 2 000 chars pour la perf). Chaque mot-clé trouvé ajoute +5,
+     * plafond à +10 par famille. Aucune écriture en base, calcul pur.
+     *
+     * @return array<string, int>  Ex. : ['Numérique' => 10, 'Santé' => 5]
+     */
+    protected function contextBoosts(Profile $profile): array
+    {
+        $boosts = [];
+
+        $ctx = mb_strtolower(implode(' ', array_filter([
+            $profile->current_role                       ?? '',
+            $profile->industry                           ?? '',
+            $profile->problematique                      ?? '',
+            mb_substr($profile->cv_extracted_text ?? '', 0, 2000),
+        ])));
+
+        if ($ctx === '') {
+            return $boosts;
+        }
+
+        // Famille → mots-clés déclencheurs (correspondances partielles suffisent)
+        $affinities = [
+            'Numérique'           => ['digital', 'numérique', 'informatique', 'web', 'développ', 'data', 'tech', 'logiciel', 'code', 'système'],
+            'Communication'       => ['communication', 'médias', 'rédact', 'journalis', 'content', 'marketing', 'publicité'],
+            'Santé'               => ['santé', 'médecin', 'infirmier', 'soignant', 'médical', 'clinique', 'hôpital', 'paramédical'],
+            'Social'              => ['social', 'éducatif', 'insertion', 'accompagnement', 'association', 'médiateur'],
+            'Formation'           => ['formation', 'enseignement', 'pédagogie', 'formateur', 'éducation', 'tuteur'],
+            'Ressources humaines' => ['ressources humaines', 'recrutement', 'paie', 'talent', 'people', ' rh '],
+            'Gestion'             => ['comptable', 'gestion', 'finance', 'contrôle de gestion', 'audit', 'trésorerie'],
+            'Commerce'            => ['vente', 'commercial', 'business', 'immobilier', 'négoci'],
+            'Bâtiment'            => ['bâtiment', 'travaux', 'construction', 'chantier', 'électricien', 'plombier'],
+            'Artisanat'           => ['artisan', 'menuisier', 'boulanger', 'artisanat', 'manuel'],
+            'Restauration'        => ['restauration', 'cuisine', 'cuisinier', 'hôtellerie', 'chef', 'traiteur'],
+            'Transport'           => ['transport', 'logistique', 'conducteur', 'chauffeur', 'livraison'],
+            'Industrie'           => ['industrie', 'production', 'maintenance', 'technicien', 'mécanique'],
+            'Accompagnement'      => ['coaching', 'accompagnement', 'bilan', 'orientation', 'conseil'],
+            'Design'              => ['design', 'graphiste', 'illustration', 'créatif', 'visuel'],
+            'Administration'      => ['administratif', 'secrétariat', 'accueil', 'assistant administratif'],
+            'Management'          => ['management', 'manager', 'encadrement', 'responsable équipe', 'chef de projet'],
+            'Relation client'     => ['relation client', 'support client', 'service client', 'téléconseiller'],
+        ];
+
+        foreach ($affinities as $family => $keywords) {
+            $score = 0;
+            foreach ($keywords as $kw) {
+                if (str_contains($ctx, $kw)) {
+                    $score += 5;
+                    if ($score >= 10) {
+                        break;
+                    }
+                }
+            }
+            if ($score > 0) {
+                $boosts[$family] = $score;
+            }
+        }
+
+        return $boosts;
     }
 }

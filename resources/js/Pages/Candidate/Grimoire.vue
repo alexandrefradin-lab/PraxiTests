@@ -3,6 +3,7 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { Head, Link, router } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import PathTier from '@/Components/PathTier.vue'
+import MarkdownText from '@/Components/MarkdownText.vue'
 
 const props = defineProps({
     grimoire:   Object,
@@ -94,18 +95,10 @@ const declarePiste = (piste) => {
     })
 }
 
-// Découpe la synthèse en paragraphes lisibles.
-// Le backend normalise désormais toujours les \n\n (GlobalGrimoireService::normalizeSynthesisParagraphs).
-// On gère aussi le cas rare où des \n échappés (\\n) auraient survécu jusqu'ici.
-const synthParagraphs = computed(() => {
-    let raw = (props.grimoire?.synthesis || '').trim()
-    if (!raw) return []
-
-    // Dé-escape les séquences littérales "\\n" résiduelles (double-encodage JSON rare).
-    raw = raw.replace(/\\n/g, '\n')
-
-    // Découpe sur 1 ou plusieurs sauts de ligne consécutifs.
-    return raw.split(/\n+/).map(p => p.trim()).filter(Boolean)
+// Synthèse normalisée pour MarkdownText (dé-escape les \n littéraux résiduels).
+const synthSource = computed(() => {
+    const raw = (props.grimoire?.synthesis || '').trim()
+    return raw.replace(/\\n/g, '\n')
 })
 
 // Polling de l'état du Grimoire pendant la (re)génération IA.
@@ -243,7 +236,7 @@ function fitClass(score) {
                     <section v-else class="grim-synthesis">
                         <div class="grim-scroll">
                             <h2 class="grim-scroll-title">Le fil conducteur</h2>
-                            <p v-for="(para, i) in synthParagraphs" :key="i" class="grim-para">{{ para }}</p>
+                            <MarkdownText :source="synthSource" />
                         </div>
                     </section>
                 </div>
@@ -533,6 +526,16 @@ function fitClass(score) {
     border-radius: var(--r-lg, 12px);
     padding: 2.5rem 2.4rem 2.2rem;
     box-shadow: var(--shadow-elevated, 0 8px 32px rgba(42,30,8,0.15)), inset 0 0 0 1px rgba(255,255,255,.35);
+
+    /* Remapping des variables --pt-* de MarkdownText vers le thème Grimoire */
+    --pt-text:        var(--grim-ink);
+    --pt-navy:        var(--grim-ink);
+    --pt-gold:        var(--grim-gold);
+    --pt-gold-hover:  var(--grim-gold-dark);
+    --pt-gold-pale:   rgba(166,117,32,0.10);
+    --pt-gold-border: var(--grim-gold);
+    --pt-border:      rgba(166,117,32,0.30);
+    --pt-text-muted:  var(--text-secondary, #6B5A3E);
 }
 .grim-scroll::before {
     content: '';
@@ -552,17 +555,21 @@ function fitClass(score) {
     color: var(--grim-red);
     margin: 0 0 1.4rem;
 }
-.grim-para {
+
+/* MarkdownText dans le parchemin — surcharge du rendu par défaut */
+.grim-scroll :deep(.pt-md) {
     font-family: var(--font-body, 'Inter', sans-serif);
     font-size: 1.05rem;
     line-height: 1.78;
     color: var(--grim-ink);
+}
+.grim-scroll :deep(.pt-md p) {
     margin: 0 0 1.35rem;
     text-align: justify;
     hyphens: auto;
 }
-.grim-para:last-child { margin-bottom: 0; }
-.grim-scroll .grim-para:first-of-type::first-letter {
+.grim-scroll :deep(.pt-md p:last-child) { margin-bottom: 0; }
+.grim-scroll :deep(.pt-md p:first-of-type::first-letter) {
     font-family: var(--font-display, 'Space Grotesk', sans-serif);
     font-weight: 700;
     font-size: 3.1rem;
@@ -571,6 +578,44 @@ function fitClass(score) {
     padding: .08em .12em 0 0;
     margin-right: .04em;
     color: var(--grim-red);
+}
+.grim-scroll :deep(.pt-md h2) {
+    font-family: var(--font-display, 'Space Grotesk', sans-serif);
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--grim-red);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    margin: 2rem 0 .6rem;
+}
+.grim-scroll :deep(.pt-md h2:first-child) { margin-top: 0; }
+.grim-scroll :deep(.pt-md h3) {
+    font-family: var(--font-display, 'Space Grotesk', sans-serif);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--grim-gold-dark);
+    margin: 1.5rem 0 .4rem;
+}
+.grim-scroll :deep(.pt-md strong) { color: var(--grim-ink); font-weight: 700; }
+.grim-scroll :deep(.pt-md ul),
+.grim-scroll :deep(.pt-md ol) {
+    margin: .4rem 0 1.2rem;
+    padding-left: 1.4rem;
+}
+.grim-scroll :deep(.pt-md li) { margin: .35rem 0; }
+.grim-scroll :deep(.pt-md ul li)::marker { color: var(--grim-gold); }
+.grim-scroll :deep(.pt-md ol li)::marker { color: var(--grim-gold-dark); font-weight: 700; }
+.grim-scroll :deep(.pt-md hr) {
+    border: none;
+    border-top: 1px solid rgba(166,117,32,0.40);
+    margin: 1.6rem 0;
+}
+.grim-scroll :deep(.pt-md blockquote) {
+    border-left: 2px solid var(--grim-gold);
+    padding: .3rem 0 .3rem 1rem;
+    margin: .9rem 0;
+    color: var(--text-secondary, #6B5A3E);
+    font-style: italic;
 }
 
 .grim-alert {
@@ -773,7 +818,7 @@ function fitClass(score) {
 
 @media (max-width: 640px) {
     .grim-scroll { padding: 1.8rem 1.4rem; }
-    .grim-para { text-align: left; }
+    .grim-scroll :deep(.pt-md p) { text-align: left; }
     .grim-test-actions { flex-direction: row; width: 100%; }
     .grim-test-actions > * { flex: 1; }
     .grim-tuner-grid { grid-template-columns: 1fr; }
