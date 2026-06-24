@@ -574,6 +574,28 @@ function fitClass(score) {
     margin: 0 0 1.4rem;
 }
 
+/* Paragraphes directs (v-for synthParagraphs) */
+.grim-para {
+    font-family: var(--font-body, 'Inter', sans-serif);
+    font-size: 1.05rem;
+    line-height: 1.78;
+    color: var(--grim-ink);
+    margin: 0 0 1.35rem;
+    text-align: justify;
+    hyphens: auto;
+}
+.grim-para:last-child { margin-bottom: 0; }
+.grim-para:first-of-type::first-letter {
+    font-family: var(--font-display, 'Space Grotesk', sans-serif);
+    font-weight: 700;
+    font-size: 3.1rem;
+    line-height: .82;
+    float: left;
+    padding: .08em .12em 0 0;
+    margin-right: .04em;
+    color: var(--grim-red);
+}
+
 /* MarkdownText dans le parchemin — surcharge du rendu par défaut */
 .grim-scroll :deep(.pt-md) {
     font-family: var(--font-body, 'Inter', sans-serif);
