@@ -187,16 +187,6 @@ const barWidth = (dimKey) => {
                 </div>
             </div>
 
-            <!-- Métiers suggérés -->
-            <div v-if="result?.suggested_jobs?.length" class="pt-card" style="padding:1.5rem;margin-bottom:1rem">
-                <h2 style="font-size:16px;font-weight:500;margin-bottom:1.25rem">
-                    {{ result.suggested_jobs.length }} pistes à explorer
-                </h2>
-                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.75rem">
-                    <JobCard v-for="(job, i) in result.suggested_jobs" :key="i" :job="job" />
-                </div>
-            </div>
-
             <!-- ════════ FEEDBACK 360° — regards croisés ════════ -->
             <div v-if="panel360" class="pt-card" style="padding:1.5rem;margin-bottom:1rem;border:1px solid var(--pt-gold-border)">
                 <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px">

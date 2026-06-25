@@ -230,45 +230,6 @@ onMounted(() => {
                     </div>
                 </section>
 
-                <!-- ── VOIES POSSIBLES (métiers) ───────────────────── -->
-                <section v-if="result.suggested_jobs?.length" class="ac-card ac-reveal-item" style="animation-delay: 0.65s">
-                    <h2 class="ac-card-title">{{ result.suggested_jobs.length }} Voies Possibles</h2>
-                    <div class="ac-jobs-grid">
-                        <article
-                            v-for="(job, i) in result.suggested_jobs"
-                            :key="i"
-                            class="ac-job-card"
-                        >
-                            <!-- Numéro -->
-                            <span class="ac-job-num">{{ String(i + 1).padStart(2, '0') }}</span>
-
-                            <!-- Header métier -->
-                            <div class="ac-job-header">
-                                <h3 class="ac-job-title">{{ job.titre || job.title }}</h3>
-                                <span class="ac-job-fit">{{ job.fit_score }}%</span>
-                            </div>
-
-                            <!-- Secteur -->
-                            <p class="ac-job-sector">{{ job.secteur || job.sector }}</p>
-
-                            <!-- Description -->
-                            <p class="ac-job-desc">{{ job.pourquoi || job.why }}</p>
-
-                            <!-- Prochaine étape -->
-                            <p v-if="job.prochaine_étape || job.next_step" class="ac-job-step">
-                                → {{ job.prochaine_étape || job.next_step }}
-                            </p>
-                        </article>
-                    </div>
-                </section>
-
-                <!-- ── DISCLAIMER bienveillant (public en orientation) ── -->
-                <p class="ac-disclaimer">
-                    À titre indicatif — ces pistes sont un point de départ pour ta
-                    réflexion, pas un verdict. Pour aller plus loin, échange avec un
-                    conseiller d'orientation ou ton accompagnant France&nbsp;Travail.
-                </p>
-
                 <!-- ── CTA PDF (disponible dès le reveal) ─────────────── -->
                 <div v-if="ctaVisible" class="ac-cta-pdf fade-in">
                     <p class="ac-cta-label">Ton Grimoire complet t'attend.</p>

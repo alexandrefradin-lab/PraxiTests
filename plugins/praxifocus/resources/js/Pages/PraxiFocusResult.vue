@@ -164,25 +164,6 @@ const gaugeColor = computed(() => 'var(--pt-gold)')
                 </p>
             </div>
 
-            <!-- Métiers suggérés (si fournis par le core) -->
-            <div v-if="result?.suggested_jobs?.length" class="pt-card" style="padding:1.5rem;margin-bottom:1rem">
-                <h2 style="font-size:16px;font-weight:500;margin-bottom:1.25rem">
-                    {{ result.suggested_jobs.length }} pistes à explorer
-                </h2>
-                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.75rem">
-                    <div v-for="(job, i) in result.suggested_jobs" :key="i"
-                        style="border:.5px solid var(--pt-border);border-radius:10px;padding:1rem">
-                        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px">
-                            <h3 style="font-size:14px;font-weight:500">{{ job.titre || job.title }}</h3>
-                            <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--pt-gold-pale);color:var(--pt-gold-hover);border:.5px solid var(--pt-gold-border);white-space:nowrap">
-                                {{ job.fit_score }}%
-                            </span>
-                        </div>
-                        <p style="font-size:13px;color:var(--pt-text-muted);line-height:1.45">{{ job.pourquoi || job.why }}</p>
-                    </div>
-                </div>
-            </div>
-
             <!-- Avertissement médical (rappel en pied) -->
             <div style="font-size:11px;color:var(--pt-text-light);line-height:1.6;margin:1.5rem 0;padding:0 .5rem;text-align:center">
                 {{ disclaimer }}
