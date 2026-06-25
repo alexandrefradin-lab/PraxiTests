@@ -27,12 +27,13 @@ const branding = computed(() => usePage().props.branding ?? { name: 'PraxiQuest'
             <!-- Logo -->
             <Link href="/" style="display: flex; align-items: center; gap: 12px; text-decoration: none; position: relative; z-index: 1">
                 <svg width="38" height="38" viewBox="0 0 38 38" fill="none" style="flex-shrink:0">
-                    <circle cx="19" cy="19" r="17.5" stroke="rgba(166,117,32,0.7)" stroke-width="1"/>
-                    <circle cx="19" cy="19" r="13" stroke="rgba(166,117,32,0.35)" stroke-width="0.5"/>
-                    <polygon points="19,6 20.4,18 19,21 17.6,18" fill="#A67520"/>
-                    <polygon points="19,32 20.4,20 19,17 17.6,20" fill="#A67520" opacity="0.35"/>
-                    <circle cx="19" cy="19" r="2" fill="#A67520"/>
-                    <circle cx="19" cy="19" r="1" fill="#1C1408"/>
+                    <circle cx="19" cy="19" r="18" fill="#A67520" opacity="0.15"/>
+                    <circle cx="19" cy="19" r="17.5" stroke="#A67520" stroke-width="1.5"/>
+                    <circle cx="19" cy="19" r="12.5" stroke="#A67520" stroke-width="0.8" opacity="0.5"/>
+                    <polygon points="19,5 21,17.5 19,21 17,17.5" fill="#F0E8D4"/>
+                    <polygon points="19,33 21,20.5 19,17 17,20.5" fill="#A67520" opacity="0.5"/>
+                    <circle cx="19" cy="19" r="2.5" fill="#A67520"/>
+                    <circle cx="19" cy="19" r="1.2" fill="#1C1408"/>
                 </svg>
                 <div>
                     <div style="font-family: var(--font-display); font-size: 16px; font-weight: 600; color: #F0E8D4; letter-spacing: -0.01em">{{ branding.name }}</div>
@@ -74,12 +75,13 @@ const branding = computed(() => usePage().props.branding ?? { name: 'PraxiQuest'
             <!-- Logo mobile uniquement -->
             <Link href="/" class="lg:hidden mb-10 flex items-center gap-3" style="text-decoration: none">
                 <svg width="34" height="34" viewBox="0 0 38 38" fill="none" style="flex-shrink:0">
-                    <circle cx="19" cy="19" r="17.5" stroke="#A67520" stroke-width="1"/>
-                    <circle cx="19" cy="19" r="13" stroke="#A67520" stroke-width="0.5" opacity="0.5"/>
-                    <polygon points="19,6 20.4,18 19,21 17.6,18" fill="#A67520"/>
-                    <polygon points="19,32 20.4,20 19,17 17.6,20" fill="#A67520" opacity="0.35"/>
-                    <circle cx="19" cy="19" r="2" fill="#A67520"/>
-                    <circle cx="19" cy="19" r="1" fill="#F0E8D4"/>
+                    <circle cx="19" cy="19" r="18" fill="rgba(166,117,32,0.1)"/>
+                    <circle cx="19" cy="19" r="17.5" stroke="#A67520" stroke-width="1.5"/>
+                    <circle cx="19" cy="19" r="12.5" stroke="#A67520" stroke-width="0.8" opacity="0.5"/>
+                    <polygon points="19,5 21,17.5 19,21 17,17.5" fill="#A67520"/>
+                    <polygon points="19,33 21,20.5 19,17 17,20.5" fill="#A67520" opacity="0.35"/>
+                    <circle cx="19" cy="19" r="2.5" fill="#A67520"/>
+                    <circle cx="19" cy="19" r="1.2" fill="#F0E8D4"/>
                 </svg>
                 <div>
                     <div style="font-family: var(--font-display); font-size: 15px; font-weight: 600; color: var(--text-primary); letter-spacing: -0.01em; line-height: 1">{{ branding.name }}</div>

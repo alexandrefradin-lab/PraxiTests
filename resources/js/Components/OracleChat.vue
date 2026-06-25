@@ -95,11 +95,14 @@ async function send() {
             credentials: 'same-origin',
             body: JSON.stringify({ message: text }),
         })
-        if (!r.ok) throw new Error('http ' + r.status)
+        if (!r.ok) {
+            const body = await r.text().catch(() => '')
+            throw new Error(`HTTP ${r.status} — ${body.slice(0, 120)}`)
+        }
         const data = await r.json()
         messages.value.push({ role: 'assistant', content: data.reply?.content ?? '…' })
     } catch (e) {
-        error.value = "L'Oracle n'a pas pu répondre. Réessaie dans un instant."
+        error.value = `L'Oracle n'a pas pu répondre (${e.message}). Réessaie dans un instant.`
     } finally {
         sending.value = false
         scrollToBottom()

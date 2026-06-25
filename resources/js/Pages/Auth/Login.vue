@@ -18,14 +18,14 @@ const submit = () => form.post(route('login'), { onFinish: () => form.reset('pas
         <Head title="Entrer dans la Quête — PraxiQuest" />
 
         <!-- En-tête -->
-        <div style="margin-bottom:2rem">
-            <h1 style="
+        <div class="lp-anim-badge" style="margin-bottom:2rem">
+            <h1 class="lp-h1-gradient lp-anim-h1a" style="
                 font-family:'Space Grotesk',sans-serif;
                 font-size:1.625rem;font-weight:700;
                 letter-spacing:-0.02em;line-height:1.15;
-                color:var(--color-accent);margin:0 0 0.5rem;
+                margin:0 0 0.5rem;
             ">Entrer dans la Quête</h1>
-            <p style="
+            <p class="lp-anim-sub" style="
                 font-family:'Inter',sans-serif;
                 font-size:14px;color:var(--text-secondary);margin:0;line-height:1.5;
             ">Reprenez là où vous en étiez.</p>
