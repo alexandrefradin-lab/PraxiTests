@@ -147,6 +147,6 @@ require __DIR__ . '/profile_share.php';
 // Guard : si cashier n'est pas encore installé (composer.lock ancien), la route
 // est simplement absente plutôt que de crasher package:discover.
 if (class_exists(\Laravel\Cashier\Http\Controllers\WebhookController::class)) {
-    Route::post('/stripe/webhook', \Laravel\Cashier\Http\Controllers\WebhookController::class)
+    Route::post('/stripe/webhook', [\Laravel\Cashier\Http\Controllers\WebhookController::class, 'handleWebhook'])
         ->name('cashier.webhook');
 }

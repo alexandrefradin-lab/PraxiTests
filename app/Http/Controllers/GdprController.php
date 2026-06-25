@@ -173,4 +173,31 @@ class GdprController extends Controller
         return back()->with('success', 'Votre CV a été supprimé définitivement.');
     }
 
-    // ─────────────────────────────────────────────
+    // ──────────────────────────────────────────────────────────────────────────
+    // Helpers privés
+    // ──────────────────────────────────────────────────────────────────────────
+
+    protected function cancelSubscription(User $user): void
+    {
+        try {
+            if (method_exists($user, 'subscribed') && $user->subscribed()) {
+                $user->subscription()->cancelNow();
+            }
+        } catch (\Throwable $e) {
+            logger()->warning("GDPR: Stripe subscription cancel failed for user #{$user->id}: {$e->getMessage()}");
+            // Ne pas bloquer la suppression si Stripe échoue
+        }
+    }
+
+    protected function deleteCvFile(User $user): void
+    {
+        $profile = $user->profile;
+        if ($profile && $profile->cv_path) {
+            try {
+                Storage::disk('local')->delete($profile->cv_path);
+            } catch (\Throwable $e) {
+                logger()->warning("GDPR: CV file deletion failed for user #{$user->id}: {$e->getMessage()}");
+            }
+        }
+    }
+}

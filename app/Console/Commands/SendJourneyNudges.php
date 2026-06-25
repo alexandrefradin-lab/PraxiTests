@@ -173,4 +173,19 @@ class SendJourneyNudges extends Command
     }
 
     /**
-     * Retrouve le titre de l'item au 
+     * Retrouve le titre de l'item au jour $day depuis la classe Data du plugin.
+     */
+    private function resolveTitle(array $cfg, int $day): string
+    {
+        try {
+            $class = $cfg['practices_class'];
+            $all   = $class::all();
+            $item  = collect($all)->firstWhere('day', $day)
+                  ?? collect($all)->get($day - 1);
+
+            return $item?->title ?? "Action du jour {$day}";
+        } catch (\Throwable) {
+            return "Action du jour {$day}";
+        }
+    }
+}

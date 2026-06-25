@@ -62,12 +62,13 @@ class GamificationEngine
         }
 
         \DB::table('xp_events')->insert([
-            'user_id' => $user->id,
-            'reason'  => $reason,
-            'xp'      => $amount,
-            'context' => json_encode($context, JSON_UNESCAPED_UNICODE),
-            'created_at' => now(),
-            'updated_at' => now(),
+            'user_id'         => $user->id,
+            'idempotency_key' => $idempotencyKey,
+            'reason'          => $reason,
+            'xp'              => $amount,
+            'context'         => json_encode($context, JSON_UNESCAPED_UNICODE),
+            'created_at'      => now(),
+            'updated_at'      => now(),
         ]);
 
         // Invalider le cache Éclats partagé avec HandleInertiaRequests (ARC-m2).
