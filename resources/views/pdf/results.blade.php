@@ -1,11 +1,12 @@
 {{--
   ════════════════════════════════════════════════════════════════════════════
-  PraxiQuest — Rapport de synthèse PDF « Conseil »
-  Direction artistique : fond blanc professionnel + palette PraxiQuest (or de la
-  Fraternité #A67520, encre ancienne #1C1408, cramoisi #7B1515, vert Eagle #3A6B48).
+  PraxiQuest — Rapport de synthèse PDF « Consulting Navy »
+  Direction artistique : fond encre ancienne #1C1408 en header/cover,
+  corps blanc professionnel, palette or #A67520 / cramoisi #7B1515 / vert #3A6B48.
   Titres en Lora (serif), corps en Lato (sans-serif), données en DejaVu Sans Mono.
   Lora + Lato embarquées (resources/fonts, licence OFL) ; repli DejaVu conservé.
   Moteur : barryvdh/laravel-dompdf (CSS 2.1 → mise en page par <table>).
+  AUCUN flexbox, AUCUN grid, AUCUN SVG, AUCUN pseudo-élément ::before/::after.
 
   Variables (toutes optionnelles, valeurs par défaut gérées ici) :
     $attempt   App\Models\TestAttempt (->test, ->result, ->user.profile)
@@ -52,14 +53,14 @@
     $accent    = $brand['accent'];      // encre
 
     /* Tokens issus du design brief */
-    $ink        = '#2A1E08';   // texte principal
+    $ink        = '#1C1408';   // texte principal (encre ancienne)
     $inkSoft    = '#6B5A3E';   // texte secondaire / labels
-    $parchment  = '#F0E8D4';   // conservé pour textes sur fond sombre (cover, hero, job-rank)
-    $velin      = '#F8F7F4';   // surface cards — neutre professionnel
-    $stone      = '#EEECE7';   // fond élevé / tracks
+    $parchment  = '#F0E8D4';   // textes sur fond sombre (header, cover, hero)
+    $velin      = '#FAF8F4';   // surface cards — neutre chaud
+    $stone      = '#EDE8DE';   // fond tracks / élevé
     $goldDark   = '#7D5510';   // or brûlé
     $eagle      = '#3A6B48';   // vert Eagle Vision (succès / matching)
-    $hair       = '#E0DBD0';   // filet discret neutre
+    $hair       = '#E2D8C8';   // filet discret chaud
 
     $synthesis  = $result?->ai_synthesis;
     /* Normalisation universelle : quel que soit le moteur du test, on obtient
@@ -198,9 +199,6 @@
        rendu (puis mis en cache dans storage/fonts). Repli DejaVu conservé
        partout : si l'hôte ne peut pas charger les TTF, le rendu actuel
        reste intact (aucune régression). */
-    {{-- embedFonts=false (repli déclenché par le contrôleur si le cache de polices
-         est inaccessible sur l'hôte) → aucun @font-face : DomPDF utilise les DejaVu
-         déjà mises en cache, le PDF sort toujours. --}}
     @if(($embedFonts ?? true))
     @font-face { font-family:'Lora'; font-style:normal; font-weight:normal; src:url("{{ resource_path('fonts/Lora-Regular.ttf') }}") format("truetype"); }
     @font-face { font-family:'Lora'; font-style:normal; font-weight:bold;   src:url("{{ resource_path('fonts/Lora-Bold.ttf') }}") format("truetype"); }
@@ -212,7 +210,9 @@
     @font-face { font-family:'Lato'; font-style:italic; font-weight:bold;   src:url("{{ resource_path('fonts/Lato-BoldItalic.ttf') }}") format("truetype"); }
     @endif
 
-    @page { margin: 132px 0 96px 0; }
+    /* @page margin : top=header (72px fond sombre + 4px accent bar + 16px espace = 92px)
+                      bottom=footer (64px + 16px espace = 80px) */
+    @page { margin: 96px 0 84px 0; }
     * { box-sizing: border-box; }
     html { background: #FFFFFF; }
     body {
@@ -224,193 +224,444 @@
         margin: 0;
     }
     .serif { font-family: "Lora", "DejaVu Serif", serif; }
-    .px { padding-left: 50px; padding-right: 50px; }
+    .mono  { font-family: "DejaVu Sans Mono", monospace; }
+    .px    { padding-left: 44px; padding-right: 44px; }
 
-    /* ── En-tête répété ───────────────────────────────────────────────── */
-    .run-header { position: fixed; top: -112px; left: 0; right: 0; height: 74px; padding: 0 50px; }
-    .run-header .mark {
-        font-family: "Lora", "DejaVu Serif", serif; font-size: 13px; font-weight: bold;
-        color: {{ $accent }}; letter-spacing: .5px;
+    /* ══════════════════════════════════════════════════════
+       EN-TÊTE RÉPÉTÉ (running header — dompdf fixed)
+       Fond encre ancienne, hauteur 72px + barre accent 4px
+       ══════════════════════════════════════════════════════ */
+    .run-header {
+        position: fixed;
+        top: -96px;
+        left: 0; right: 0;
+        height: 72px;
+        background: {{ $accent }};
+        padding: 0 44px;
     }
-    .run-header .mark .q { color: {{ $primary }}; }
-    .run-header .doc { font-size: 8.5px; color: {{ $inkSoft }}; text-align: right;
-        text-transform: uppercase; letter-spacing: 1.2px; padding-top: 4px; }
-    /* double filet or — épais + fin */
-    .run-rule  { position: fixed; top: -52px; left: 50px; right: 50px; border-top: 2px solid {{ $primary }}; }
-    .run-rule2 { position: fixed; top: -48px; left: 50px; right: 50px; border-top: 0.5px solid {{ $hair }}; }
+    .run-header table { width: 100%; height: 72px; border-collapse: collapse; }
+    .run-header td { vertical-align: middle; padding: 0; }
 
-    /* ── Pied répété ──────────────────────────────────────────────────── */
+    /* Logo PraxiQuest côté gauche */
+    .rh-brand {
+        font-family: "Lora", "DejaVu Serif", serif;
+        font-size: 13px;
+        font-weight: bold;
+        color: #FFFFFF;
+        letter-spacing: 0.3px;
+    }
+    .rh-brand-q { color: {{ $primary }}; }
+
+    /* Infos test + candidat */
+    .rh-info {
+        font-size: 8px;
+        color: #C8B48A;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-top: 3px;
+    }
+
+    /* Date côté droit */
+    .rh-date {
+        font-size: 9px;
+        color: #8A7050;
+        text-align: right;
+    }
+
+    /* Barre accent or sous le header */
+    .run-accent {
+        position: fixed;
+        top: -24px;
+        left: 0; right: 0;
+        height: 4px;
+        background: {{ $primary }};
+    }
+
+    /* ══════════════════════════════════════════════════════
+       PIED DE PAGE RÉPÉTÉ (running footer)
+       ══════════════════════════════════════════════════════ */
     .run-footer {
-        position: fixed; bottom: -74px; left: 0; right: 0; height: 64px;
-        padding: 10px 50px 0; font-size: 7.8px; color: {{ $inkSoft }};
-        border-top: 0.75px solid {{ $hair }};
+        position: fixed;
+        bottom: -84px;
+        left: 0; right: 0;
+        height: 68px;
+        background: {{ $velin }};
+        border-top: 2px solid {{ $primary }};
+        padding: 10px 44px 0;
+    }
+    .run-footer table { width: 100%; border-collapse: collapse; }
+    .run-footer td { vertical-align: top; padding: 0; }
+    .rf-legal {
+        font-size: 7.5px;
+        color: #9A8870;
+        line-height: 1.5;
+    }
+    .rf-brand {
+        font-size: 8px;
+        font-weight: bold;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: {{ $primary }};
+        text-align: right;
+    }
+    .rf-date {
+        font-size: 9px;
+        color: {{ $ink }};
+        font-weight: bold;
+        text-align: right;
+        margin-top: 2px;
     }
 
-    /* ── Titres de section ────────────────────────────────────────────── */
+    /* ══════════════════════════════════════════════════════
+       TITRES DE SECTION
+       Filet or 2px sur 36px + filet fin #E2D8C8 qui s'étend
+       Simulé via tableau 2 cellules (dompdf-safe)
+       ══════════════════════════════════════════════════════ */
     .kicker {
-        font-size: 8px; letter-spacing: 3px; text-transform: uppercase;
-        color: {{ $primary }}; font-weight: bold; margin: 0; font-family: "DejaVu Sans Mono", monospace;
+        font-size: 8.5px;
+        letter-spacing: 2.5px;
+        text-transform: uppercase;
+        color: {{ $ink }};
+        font-weight: bold;
+        margin: 0;
+        font-family: "DejaVu Sans Mono", monospace;
     }
-    h2.section {
-        font-family: "Lora", "DejaVu Serif", serif; font-size: 17px; color: {{ $accent }};
-        margin: 4px 0 0; padding: 0; letter-spacing: .2px;
-    }
-    .sec { margin-top: 26px; }
+    /* Filet de section : segment or épais + prolongement filiforme */
+    .s-rule { width: 100%; border-collapse: collapse; margin: 10px 0 18px; }
+    .s-rule td.g { width: 36px; border-top: 2px solid {{ $primary }}; font-size: 0; line-height: 0; padding: 0; }
+    .s-rule td.h { border-top: 0.75px solid {{ $hair }}; font-size: 0; line-height: 0; padding: 0; }
+
+    .sec { margin-top: 28px; }
     .avoid-break { page-break-inside: avoid; }
 
-    /* ── Cartes / blocs ───────────────────────────────────────────────── */
-    .card { background: {{ $velin }}; border: 0.75px solid {{ $hair }}; border-radius: 10px; }
-    .lead-gold { border-left: 4px solid {{ $primary }}; }
+    /* ══════════════════════════════════════════════════════
+       SCORE HERO — bloc résultat-phare
+       border-left 4px encre + fond velin + cercle de score
+       via tableau (pas de SVG)
+       ══════════════════════════════════════════════════════ */
+    .score-hero {
+        border-left: 4px solid {{ $accent }};
+        background: {{ $velin }};
+        border-top: 0.75px solid {{ $hair }};
+        border-right: 0.75px solid {{ $hair }};
+        border-bottom: 0.75px solid {{ $hair }};
+        padding: 0;
+        margin-bottom: 24px;
+    }
+    .score-hero table { width: 100%; border-collapse: collapse; }
+    .score-hero td { vertical-align: middle; padding: 20px 20px; }
 
-    /* ── Synthèse IA (markdown rendu, paginé sur plusieurs pages) ─────────── */
-    .synth { border-left: 3px solid {{ $primary }}; padding: 2px 0 2px 20px; }
-    .synth-p { font-size: 11.5px; line-height: 1.78; color: {{ $ink }};
-        margin: 0 0 10px; text-align: justify; }
-    .synth-h { font-family: "Lora", "DejaVu Serif", serif; color: {{ $accent }};
-        margin: 15px 0 6px; line-height: 1.35; }
+    /* Cercle de score : tableau centré, border-radius, bordure or */
+    .score-circle {
+        width: 72px;
+        height: 72px;
+        border-radius: 36px;
+        border: 3px solid {{ $primary }};
+        background: {{ $accent }};
+    }
+    .score-circle table { width: 66px; height: 66px; border-collapse: collapse; }
+    .score-circle td {
+        padding: 0;
+        text-align: center;
+        vertical-align: middle;
+        line-height: 1;
+    }
+    .score-number {
+        font-family: "Lora", "DejaVu Serif", serif;
+        font-size: 22px;
+        font-weight: bold;
+        color: {{ $parchment }};
+        display: block;
+    }
+    .score-denom {
+        font-size: 9px;
+        color: {{ $primary }};
+        font-weight: bold;
+        font-family: "DejaVu Sans Mono", monospace;
+        display: block;
+    }
+
+    /* Badge profil — fond cramoisi */
+    .profile-badge {
+        display: inline-block;
+        background: {{ $secondary }};
+        color: #F5DDB0;
+        font-size: 9px;
+        font-weight: bold;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        padding: 3px 10px;
+        border-radius: 2px;
+        margin-bottom: 6px;
+        font-family: "DejaVu Sans Mono", monospace;
+    }
+    .hero-label {
+        font-family: "Lora", "DejaVu Serif", serif;
+        font-size: 17px;
+        font-weight: bold;
+        color: {{ $ink }};
+        line-height: 1.25;
+        margin-bottom: 4px;
+    }
+    .hero-score-line {
+        font-family: "DejaVu Sans Mono", monospace;
+        font-size: 9.5px;
+        color: {{ $inkSoft }};
+        margin-top: 4px;
+    }
+    .hero-score-line b { color: {{ $goldDark }}; }
+    .hero-phrase {
+        font-size: 11px;
+        color: {{ $inkSoft }};
+        line-height: 1.6;
+        margin-top: 6px;
+    }
+
+    /* ══════════════════════════════════════════════════════
+       DIMENSIONS — barres de scores
+       Nom 31% | barre 55% | score 14%
+       Track fond #EDE8DE, hauteur 7px, radius 3px
+       Fill fond or uniforme #A67520 (pas de gradient dompdf)
+       ══════════════════════════════════════════════════════ */
+    table.dims { width: 100%; border-collapse: collapse; }
+    table.dims td { padding: 7px 0; vertical-align: middle; }
+    .dim-name  { font-size: 11px; color: {{ $ink }}; }
+    .dim-level { font-size: 8px; color: {{ $inkSoft }}; text-transform: uppercase;
+                 letter-spacing: 0.8px; font-family: "DejaVu Sans Mono", monospace; }
+    .track { background: {{ $stone }}; height: 7px; border-radius: 3px; width: 100%; }
+    .fill  { height: 7px; border-radius: 3px; background: {{ $primary }}; }
+    .dim-score { font-family: "DejaVu Sans Mono", monospace; font-size: 11px; font-weight: bold;
+                 text-align: right; color: {{ $goldDark }}; }
+
+    /* ══════════════════════════════════════════════════════
+       SYNTHÈSE IA — bloc border-left or + fond velin
+       ══════════════════════════════════════════════════════ */
+    .synth-box {
+        border-left: 3px solid {{ $primary }};
+        background: {{ $velin }};
+        padding: 14px 18px;
+    }
+    .synth-p  { font-size: 11px; line-height: 1.75; color: {{ $ink }};
+                margin: 0 0 10px; text-align: justify; }
+    .synth-h  { font-family: "Lora", "DejaVu Serif", serif; color: {{ $accent }};
+                margin: 14px 0 6px; line-height: 1.35; }
     .synth-h1 { font-size: 14px; font-weight: bold; }
     .synth-h2 { font-size: 12.5px; font-weight: bold; }
     .synth-h3 { font-size: 11.5px; font-weight: bold; }
     .synth-hr { border-top: 0.75px solid {{ $hair }}; margin: 12px 0; height: 0; }
     .synth-ul { margin: 4px 0 11px; padding-left: 17px; }
-    .synth-ul li { font-size: 11.5px; line-height: 1.7; color: {{ $ink }}; margin-bottom: 4px; }
+    .synth-ul li { font-size: 11px; line-height: 1.7; color: {{ $ink }}; margin-bottom: 4px; }
     .synth strong { color: {{ $accent }}; }
+    .ai-badge {
+        font-family: "DejaVu Sans Mono", monospace;
+        font-size: 7.5px;
+        font-weight: bold;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: {{ $inkSoft }};
+        margin-top: 10px;
+    }
 
-    /* Profil — table d'identité */
+    /* ══════════════════════════════════════════════════════
+       POINTS FORTS / AXES DE DÉVELOPPEMENT
+       Deux colonnes via <table>
+       Bullets: cercles colorés avec chiffre/lettre centrés
+       via cellule de tableau
+       ══════════════════════════════════════════════════════ */
+    .bullet-wrap {
+        width: 20px;
+        height: 20px;
+        border-radius: 10px;
+    }
+    .bullet-wrap table { width: 20px; height: 20px; border-collapse: collapse; }
+    .bullet-wrap td {
+        padding: 0;
+        text-align: center;
+        vertical-align: middle;
+        line-height: 1;
+        font-size: 9px;
+        font-weight: bold;
+        font-family: "DejaVu Sans Mono", monospace;
+        color: #FFFFFF;
+    }
+    .bullet-strength { background: {{ $eagle }}; }
+    .bullet-dev      { background: {{ $secondary }}; }
+    .bullet-dev td   { color: #F5DDB0; }
+
+    .points-list { width: 100%; border-collapse: collapse; }
+    .points-list td { padding: 0 0 9px 0; vertical-align: top; }
+    .point-label { font-size: 11px; line-height: 1.5; color: {{ $ink }}; padding-left: 10px; }
+    .point-label strong { color: {{ $accent }}; }
+
+    /* Séparateur entre points forts et axes */
+    .pts-separator { border-top: 0.75px solid {{ $hair }}; margin: 10px 0 12px; }
+
+    /* ══════════════════════════════════════════════════════
+       MÉTIERS — cards avec border-left or
+       ══════════════════════════════════════════════════════ */
     table.kv { width: 100%; border-collapse: collapse; }
     table.kv td { padding: 8px 14px; vertical-align: top; border-bottom: 0.75px solid {{ $hair }}; }
     table.kv td.k { width: 34%; color: {{ $inkSoft }}; font-size: 8.5px; text-transform: uppercase;
-        letter-spacing: 1.2px; font-family: "DejaVu Sans Mono", monospace; }
+                    letter-spacing: 1.2px; font-family: "DejaVu Sans Mono", monospace; }
     table.kv td.v { font-size: 11.5px; font-weight: bold; color: {{ $accent }}; }
 
-    /* Dimensions — barres */
-    table.dims { width: 100%; border-collapse: collapse; }
-    table.dims td { padding: 7px 0; vertical-align: middle; }
-    .dim-name { font-size: 10.5px; text-transform: capitalize; color: {{ $ink }}; }
-    .track { background: {{ $stone }}; height: 10px; border-radius: 6px; width: 100%; border: 0.5px solid {{ $hair }}; }
-    .fill { height: 10px; border-radius: 6px; }
-    .dim-score { font-family: "DejaVu Sans Mono", monospace; font-size: 11px; font-weight: bold;
-        text-align: right; color: {{ $goldDark }}; }
+    .job-card {
+        border-left: 3px solid {{ $primary }};
+        background: {{ $velin }};
+        border-top: 0.75px solid {{ $hair }};
+        border-right: 0.75px solid {{ $hair }};
+        border-bottom: 0.75px solid {{ $hair }};
+        margin-bottom: 11px;
+        padding: 0;
+    }
+    .job-card table { width: 100%; border-collapse: collapse; }
+    .job-card td { vertical-align: top; padding: 13px 14px; }
 
-    /* Métiers */
-    .job { padding: 13px 16px; margin-bottom: 11px; }
-    /* Pastille de rang — centrage vertical via cellule de tableau (dompdf ne
-       centre pas via line-height : le chiffre tombait au bas du cercle). */
-    .job-rank { display: inline-block; width: 26px; height: 26px;
-        border-radius: 13px; background: {{ $primary }}; }
+    /* Pastille rang : cercle or avec chiffre centré via cellule */
+    .job-rank {
+        width: 26px;
+        height: 26px;
+        border-radius: 13px;
+        background: {{ $primary }};
+    }
     .job-rank table { width: 26px; height: 26px; border-collapse: collapse; }
-    .job-rank td { padding: 0; text-align: center; vertical-align: middle; line-height: 1;
-        color: {{ $parchment }}; font-weight: bold; font-size: 12px; font-family: "Lora", "DejaVu Serif", serif; }
-    .job-sector { font-size: 8px; text-transform: uppercase; letter-spacing: 1.5px; color: {{ $inkSoft }};
-        font-family: "DejaVu Sans Mono", monospace; }
-    .job-title { font-family: "Lora", "DejaVu Serif", serif; font-size: 13px; font-weight: bold; color: {{ $accent }}; }
-    .job-why  { font-size: 10.5px; color: {{ $ink }}; margin: 5px 0 0; }
+    .job-rank td {
+        padding: 0;
+        text-align: center;
+        vertical-align: middle;
+        line-height: 1;
+        color: {{ $accent }};
+        font-weight: bold;
+        font-size: 12px;
+        font-family: "Lora", "DejaVu Serif", serif;
+    }
+    .job-sector {
+        font-size: 8px;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: {{ $inkSoft }};
+        font-family: "DejaVu Sans Mono", monospace;
+        margin-bottom: 3px;
+    }
+    .job-title {
+        font-family: "Lora", "DejaVu Serif", serif;
+        font-size: 13px;
+        font-weight: bold;
+        color: {{ $accent }};
+    }
+    .job-why  { font-size: 10.5px; color: {{ $ink }}; margin-top: 5px; }
     .job-next { font-size: 10px; color: {{ $secondary }}; margin-top: 6px; font-weight: bold; }
-    .fit-pill { font-family: "DejaVu Sans Mono", monospace; font-size: 11px; font-weight: bold;
-        color: {{ $parchment }}; padding: 4px 10px; border-radius: 11px; }
+    .fit-pill {
+        font-family: "DejaVu Sans Mono", monospace;
+        font-size: 11px;
+        font-weight: bold;
+        color: #FFFFFF;
+        padding: 4px 10px;
+        border-radius: 11px;
+    }
 
-    .chip { display: inline-block; padding: 5px 11px; margin: 0 5px 6px 0; border-radius: 13px;
-        font-size: 10px; border: 0.5px solid; }
-    .chip-up   { background: #EAF1E9; color: {{ $eagle }};     border-color: #BcD3BE; }
-    .chip-grow { background: #F3E4DF; color: {{ $secondary }}; border-color: #E0BFb6; }
-
-    /* ── Carte « Verdict » — résultat-phare ───────────────────────────── */
-    .hero { background: {{ $accent }}; border: 1.5px solid {{ $primary }}; border-radius: 14px; }
-    .medallion { display: inline-block; width: 86px; height: 86px;
-        border-radius: 43px; border: 3px solid {{ $primary }}; background: {{ $accent }}; }
-    .medallion table { width: 80px; height: 80px; border-collapse: collapse; }
-    .medallion td { padding: 0; text-align: center; vertical-align: middle; line-height: 1;
-        color: {{ $parchment }}; font-family: "Lora", "DejaVu Serif", serif; font-weight: bold; font-size: 30px; }
-    .medallion .pctsign { font-size: 14px; color: {{ $primary }}; }
-    .medallion-cap { font-size: 7.5px; letter-spacing: 1.5px; text-transform: uppercase;
-        color: #9C8A60; text-align: center; margin-top: 7px; font-family: "DejaVu Sans Mono", monospace; }
-    .hero-kicker { font-size: 8px; letter-spacing: 3px; text-transform: uppercase;
-        color: {{ $primary }}; font-weight: bold; font-family: "DejaVu Sans Mono", monospace; }
-    .hero-label  { font-family: "Lora", "DejaVu Serif", serif; font-size: 22px; font-weight: bold;
-        color: {{ $parchment }}; line-height: 1.2; margin-top: 5px; }
-    .code-chip { display: inline-block; margin-left: 8px; padding: 2px 10px; border-radius: 11px;
-        background: {{ $primary }}; color: {{ $accent }}; font-size: 12px; font-weight: bold;
-        font-family: "DejaVu Sans Mono", monospace; letter-spacing: 2px; vertical-align: middle; }
-    .hero-score { font-family: "DejaVu Sans Mono", monospace; font-size: 9px; color: #B9A87E;
-        text-transform: uppercase; letter-spacing: 1.2px; margin-top: 8px; }
-    .hero-score b { color: {{ $primary }}; font-size: 11px; }
-    .hero-phrase { font-size: 11px; color: #E9DFC6; line-height: 1.65; margin-top: 9px; }
-
-    /* ── Niveau (étiquette à droite des barres) ───────────────────────── */
-    .dim-level { font-size: 8px; color: {{ $inkSoft }}; text-transform: uppercase;
-        letter-spacing: .8px; font-family: "DejaVu Sans Mono", monospace; }
-
-    /* ── Sous-échelles groupées ───────────────────────────────────────── */
+    /* ══════════════════════════════════════════════════════
+       SOUS-ÉCHELLES groupées
+       ══════════════════════════════════════════════════════ */
     .sub-group { margin-top: 14px; }
     .sub-title { font-family: "DejaVu Sans Mono", monospace; font-size: 8.5px; font-weight: bold;
-        letter-spacing: 1.5px; text-transform: uppercase; color: {{ $goldDark }}; margin-bottom: 6px; }
-    .fig-cap { font-family: "DejaVu Sans Mono", monospace; font-size: 7.5px; letter-spacing: 1.2px;
-        text-transform: uppercase; color: {{ $inkSoft }}; text-align: center; margin-top: 4px; }
-    .sub-val { font-family: "DejaVu Sans Mono", monospace; font-size: 10px; font-weight: bold;
-        color: {{ $goldDark }}; text-align: right; }
-    .sev-pill { display: inline-block; padding: 2px 8px; border-radius: 9px; font-size: 8px;
-        font-weight: bold; color: {{ $parchment }}; font-family: "DejaVu Sans Mono", monospace; }
+                 letter-spacing: 1.5px; text-transform: uppercase; color: {{ $goldDark }}; margin-bottom: 6px; }
+    .fig-cap   { font-family: "DejaVu Sans Mono", monospace; font-size: 7.5px; letter-spacing: 1.2px;
+                 text-transform: uppercase; color: {{ $inkSoft }}; text-align: center; margin-top: 4px; }
+    .sub-val   { font-family: "DejaVu Sans Mono", monospace; font-size: 10px; font-weight: bold;
+                 color: {{ $goldDark }}; text-align: right; }
+    .sev-pill  { display: inline-block; padding: 2px 8px; border-radius: 9px; font-size: 8px;
+                 font-weight: bold; color: {{ $parchment }}; font-family: "DejaVu Sans Mono", monospace; }
 
-    /* ── Avertissement non-diagnostique ───────────────────────────────── */
-    .disclaimer { background: {{ $stone }}; border-left: 3px solid {{ $secondary }};
-        border-radius: 0 8px 8px 0; padding: 12px 16px; }
+    /* ══════════════════════════════════════════════════════
+       AVERTISSEMENT NON-DIAGNOSTIQUE
+       ══════════════════════════════════════════════════════ */
+    .disclaimer {
+        background: {{ $stone }};
+        border-left: 3px solid {{ $secondary }};
+        padding: 12px 16px;
+    }
     .disclaimer .dtitle { font-family: "DejaVu Sans Mono", monospace; font-size: 8px;
-        letter-spacing: 1.5px; text-transform: uppercase; color: {{ $secondary }}; font-weight: bold; }
-    .disclaimer .dbody { font-size: 9.5px; color: {{ $ink }}; line-height: 1.55; margin-top: 4px; }
+                          letter-spacing: 1.5px; text-transform: uppercase; color: {{ $secondary }}; font-weight: bold; }
+    .disclaimer .dbody  { font-size: 9.5px; color: {{ $ink }}; line-height: 1.55; margin-top: 4px; }
 
-    /* ════════════════ RENDU D'EXCELLENCE — raffinements ════════════════
-       Surcharges en fin de feuille (priorité à l'ordre CSS). Esprit Codex :
-       chapitres en chiffres romains, filets or, sceau, barres affinées. */
-    .sec { margin-top: 32px; }
-    h2.section { font-size: 18px; margin-top: 6px; letter-spacing: .3px; line-height: 1.25; }
-    .kicker { letter-spacing: 3.4px; }
-    /* Chiffre romain de chapitre, en or serif, devant l'intitulé */
-    .chap { font-family: "Lora", "DejaVu Serif", serif; font-weight: bold;
-        font-size: 12.5px; color: {{ $primary }}; margin-right: 10px; letter-spacing: 0; }
-    /* Filet de section : segment or épais + prolongement filiforme */
-    .s-rule { width: 100%; border-collapse: collapse; margin: 11px 0 20px; }
-    .s-rule td.g { width: 46px; border-top: 2px solid {{ $primary }}; font-size: 0; line-height: 0; }
-    .s-rule td.h { border-top: 0.6px solid {{ $hair }}; font-size: 0; line-height: 0; }
-    /* Barres de dimensions affinées */
-    .track { height: 7px; border-radius: 4px; background: #DFD6BE; border: 0.5px solid {{ $hair }}; }
-    .fill  { height: 7px; border-radius: 4px; }
-    table.dims td { padding: 8px 0; }
-    .dim-name { font-size: 11px; }
-    .dim-score { color: {{ $accent }}; font-size: 11px; }
-    /* Cartes & métiers — accent or à gauche */
-    .card { border-radius: 12px; }
-    .job  { border-left: 3px solid {{ $primary }}; padding: 15px 18px 15px 16px; }
-    .hero { border-radius: 16px; }
-    .medallion { border-width: 2px; }
-    /* Ornement centré (couverture) */
-    .ornament { text-align: center; color: {{ $primary }};
-        font-family: "DejaVu Sans Mono", monospace; font-size: 9px; letter-spacing: 8px; }
-    /* Sceau monogramme (couverture) */
-    .seal { display: inline-block; width: 52px; height: 52px; border-radius: 26px;
-        border: 1.5px solid {{ $primary }}; background: {{ $accent }}; }
-    .seal table { width: 52px; height: 52px; border-collapse: collapse; }
-    .seal td { padding: 0; text-align: center; vertical-align: middle; line-height: 1;
-        font-family: "Lora", "DejaVu Serif", serif; font-weight: bold; font-size: 22px; color: {{ $primary }}; }
+    /* ══════════════════════════════════════════════════════
+       PAGE DE COUVERTURE
+       Bloc encre ancienne pleine largeur
+       ══════════════════════════════════════════════════════ */
+    .cover-block {
+        background: {{ $accent }};
+        padding: 0;
+    }
+    .cover-block table { width: 100%; border-collapse: collapse; }
+    .cover-block td { padding: 0; }
+
+    /* Barre accent or sous le bloc cover */
+    .cover-accent { height: 4px; background: {{ $primary }}; }
+
+    /* Chip de score inline dans hero */
+    .code-chip {
+        display: inline-block;
+        margin-left: 8px;
+        padding: 2px 10px;
+        border-radius: 11px;
+        background: {{ $primary }};
+        color: {{ $accent }};
+        font-size: 11px;
+        font-weight: bold;
+        font-family: "DejaVu Sans Mono", monospace;
+        letter-spacing: 2px;
+    }
+
+    /* Chip points forts / axes (section strengths, fallback) */
+    .chip { display: inline-block; padding: 4px 10px; margin: 0 5px 6px 0; border-radius: 11px;
+            font-size: 10px; border: 0.5px solid; }
+    .chip-up   { background: #EAF1E9; color: {{ $eagle }};     border-color: #BCD3BE; }
+    .chip-grow { background: #F3E4DF; color: {{ $secondary }}; border-color: #E0BFB6; }
+
+    /* Bloc coordonnées */
+    .contact-block { background: {{ $stone }}; padding: 18px 22px; }
 </style>
 </head>
 <body>
 
-{{-- ═══════════════ EN-TÊTE & PIED RÉPÉTÉS ═══════════════ --}}
+{{-- ═══════════════════════════════════════════════════════
+     EN-TÊTE RÉPÉTÉ — fond encre ancienne #1C1408
+     Gauche : PraxiQuest + test + candidat
+     Droite : date du rapport
+     Dessous : barre accent 4px or
+     ═══════════════════════════════════════════════════════ --}}
 <div class="run-header">
-    <table style="width:100%"><tr>
-        <td class="mark serif">Praxi<span class="q">Quest</span></td>
-        <td class="doc">{{ $test->name }} · {{ $candidate }}</td>
-    </tr></table>
+    <table>
+        <tr>
+            <td style="vertical-align:middle;">
+                <div class="rh-brand">Praxi<span class="rh-brand-q">Quest</span></div>
+                <div class="rh-info">{{ $test->name }} &middot; {{ $candidate }}</div>
+            </td>
+            <td style="vertical-align:middle; text-align:right;">
+                <div class="rh-date">{{ $dateDone->format('d/m/Y') }}</div>
+            </td>
+        </tr>
+    </table>
 </div>
-<div class="run-rule"></div>
-<div class="run-rule2"></div>
+<div class="run-accent"></div>
 
+{{-- ═══════════════════════════════════════════════════════
+     PIED DE PAGE RÉPÉTÉ
+     ═══════════════════════════════════════════════════════ --}}
 @if($sections['footer'])
 <div class="run-footer">
-    <table style="width:100%"><tr>
-        <td style="width:68%">{{ $org['legal'] }}</td>
-        <td style="width:32%; text-align:right">{{ $org['website'] ?? $brand['name'] }} · {{ $dateDone->format('d/m/Y') }}</td>
-    </tr></table>
+    <table>
+        <tr>
+            <td style="width:68%;">
+                <div class="rf-legal">{{ $org['legal'] }}</div>
+            </td>
+            <td style="width:32%; text-align:right;">
+                <div class="rf-brand">{{ $brand['name'] }}</div>
+                <div class="rf-date">{{ $dateDone->format('d/m/Y') }}</div>
+            </td>
+        </tr>
+    </table>
 </div>
 @endif
 
@@ -422,172 +673,191 @@
     }
 </script>
 
-{{-- ═══════════════ PAGE DE GARDE — PLAQUE CODEX ═══════════════ --}}
+{{-- ═══════════════════════════════════════════════════════
+     PAGE DE COUVERTURE
+     Grand bloc sombre encre ancienne
+     Gauche : kicker + nom candidat + test + méta-données
+     Droite : logo PraxiQuest + date
+     ═══════════════════════════════════════════════════════ --}}
 @if($sections['cover'])
-<div style="height: 26px;"></div>
+<div style="height: 20px;"></div>
 <div class="px">
-    {{-- Plaque d'encre encadrée d'or, façon planche de manuscrit --}}
-    <table style="width:100%; border-collapse:separate; background:{{ $accent }}; border:1.5px solid {{ $primary }}; border-radius:14px;">
-        <tr><td style="padding:42px 40px 38px;">
-            {{-- filet or intérieur + sceau monogramme --}}
-            <table style="width:100%; border-collapse:collapse; margin-bottom:24px;"><tr>
-                <td style="vertical-align:middle;">
-                    <div style="border-top:0.75px solid {{ $primary }}; width:54px;"></div>
+    <div class="cover-block">
+        <table>
+            <tr>
+                {{-- Colonne gauche : identité candidat --}}
+                <td style="vertical-align:top; padding:38px 32px 38px 36px; width:65%;">
+                    <div style="font-size:8.5px; font-weight:bold; letter-spacing:2.5px; text-transform:uppercase;
+                                color:{{ $primary }}; font-family:'DejaVu Sans Mono',monospace; margin-bottom:14px;">
+                        RAPPORT D'&Eacute;VALUATION
+                    </div>
+                    <div class="serif" style="font-size:26px; font-weight:bold; color:#FFFFFF;
+                                             line-height:1.15; margin-bottom:6px;">
+                        {{ $candidate }}
+                    </div>
+                    <div style="font-size:14px; color:{{ $primary }}; font-family:'Lora','DejaVu Serif',serif;
+                                margin-bottom:20px; font-style:italic;">
+                        {{ $test->name }}
+                    </div>
+                    {{-- Méta-données en tableau compact --}}
+                    <table style="border-collapse:collapse;">
+                        <tr>
+                            @if($statusLabel)
+                            <td style="padding-right:24px; vertical-align:top;">
+                                <div style="font-size:7.5px; font-weight:bold; letter-spacing:1.5px;
+                                            text-transform:uppercase; color:{{ $primary }};
+                                            font-family:'DejaVu Sans Mono',monospace; margin-bottom:2px;">Statut</div>
+                                <div style="font-size:10.5px; font-weight:500; color:#E8D8B8;">{{ $statusLabel }}</div>
+                            </td>
+                            @endif
+                            @if($seniority)
+                            <td style="padding-right:24px; vertical-align:top;">
+                                <div style="font-size:7.5px; font-weight:bold; letter-spacing:1.5px;
+                                            text-transform:uppercase; color:{{ $primary }};
+                                            font-family:'DejaVu Sans Mono',monospace; margin-bottom:2px;">Anciennet&eacute;</div>
+                                <div style="font-size:10.5px; font-weight:500; color:#E8D8B8;">{{ $seniority }}</div>
+                            </td>
+                            @endif
+                            <td style="padding-right:24px; vertical-align:top;">
+                                <div style="font-size:7.5px; font-weight:bold; letter-spacing:1.5px;
+                                            text-transform:uppercase; color:{{ $primary }};
+                                            font-family:'DejaVu Sans Mono',monospace; margin-bottom:2px;">Date</div>
+                                <div style="font-size:10.5px; font-weight:500; color:#E8D8B8;">{{ $dateDone->format('d/m/Y') }}</div>
+                            </td>
+                            @if(count($jobs))
+                            <td style="vertical-align:top;">
+                                <div style="font-size:7.5px; font-weight:bold; letter-spacing:1.5px;
+                                            text-transform:uppercase; color:{{ $primary }};
+                                            font-family:'DejaVu Sans Mono',monospace; margin-bottom:2px;">Pistes</div>
+                                <div style="font-size:10.5px; font-weight:500; color:#E8D8B8;">{{ count($jobs) }} m&eacute;tiers</div>
+                            </td>
+                            @endif
+                        </tr>
+                    </table>
                 </td>
-                <td style="vertical-align:middle; text-align:right; width:60px;">
-                    <div class="seal"><table><tr><td>Q</td></tr></table></div>
+                {{-- Colonne droite : logo + date --}}
+                <td style="vertical-align:top; padding:38px 36px 38px 20px; text-align:right; width:35%;">
+                    @if(!empty($brand['logo']))
+                        <img src="{{ $brand['logo'] }}" alt="{{ $brand['name'] }}"
+                             style="max-height:44px; margin-bottom:14px;">
+                    @else
+                        {{-- Cercle or avec "Q" comme logo fallback --}}
+                        <table style="border-collapse:collapse; margin-left:auto;">
+                            <tr>
+                                <td style="width:44px; height:44px; border-radius:22px;
+                                           background:{{ $primary }}; text-align:center;
+                                           vertical-align:middle; padding:0;">
+                                    <span class="serif" style="font-size:22px; font-weight:bold;
+                                                               color:{{ $accent }};">Q</span>
+                                </td>
+                            </tr>
+                        </table>
+                        <div class="serif" style="font-size:16px; font-weight:bold; color:#FFFFFF;
+                                                  letter-spacing:.3px; margin-top:6px;">
+                            Praxi<span style="color:{{ $primary }};">Quest</span>
+                        </div>
+                    @endif
+                    <div style="font-size:9px; color:#8A7050; margin-top:12px;">
+                        &Eacute;mis le {{ $dateDone->format('d/m/Y') }}
+                    </div>
+                    @if($org['advisor'])
+                    <div style="font-size:9px; color:#B9A87E; margin-top:4px;">{{ $org['advisor'] }}</div>
+                    @endif
                 </td>
-            </tr></table>
-
-            @if(!empty($brand['logo']))
-                <img src="{{ $brand['logo'] }}" alt="{{ $brand['name'] }}" style="max-height:48px; margin-bottom:18px;">
-            @else
-                <div class="serif" style="font-size:24px; font-weight:bold; color:{{ $parchment }}; letter-spacing:.5px;">
-                    Praxi<span style="color:{{ $primary }};">Quest</span>
-                </div>
-            @endif
-            <div style="font-size:9px; color:#B9A87E; margin-top:4px; font-style:italic;">{{ $brand['tagline'] }}</div>
-
-            <div style="height:30px;"></div>
-            <div class="kicker" style="color:{{ $primary }};">Rapport de synthèse &amp; orientation</div>
-            <div class="serif" style="font-size:30px; font-weight:bold; color:{{ $parchment }}; line-height:1.18; margin-top:8px;">
-                {{ $test->name }}
-            </div>
-
-            <div style="height:20px;"></div>
-            <div class="ornament" style="margin-bottom:20px;">✦&nbsp;&nbsp;◆&nbsp;&nbsp;✦</div>
-            <table style="width:100%; border-collapse:collapse;">
-                <tr>
-                    <td style="vertical-align:top; border-top:0.75px solid #463a22; padding-top:14px; width:55%;">
-                        <div class="kicker" style="color:#9C8A60;">Établi pour</div>
-                        <div class="serif" style="font-size:17px; font-weight:bold; color:{{ $parchment }}; margin-top:4px;">{{ $candidate }}</div>
-                        @if($statusLabel)
-                            <div style="font-size:10px; color:#B9A87E; margin-top:3px;">{{ $statusLabel }}@if($seniority) · {{ $seniority }} d'ancienneté @endif</div>
-                        @endif
-                    </td>
-                    <td style="vertical-align:top; border-top:0.75px solid #463a22; padding-top:14px; padding-left:18px; text-align:right;">
-                        <div class="kicker" style="color:#9C8A60;">Date</div>
-                        <div class="serif" style="font-size:15px; font-weight:bold; color:{{ $parchment }}; margin-top:4px;">{{ $dateDone->format('d/m/Y') }}</div>
-                        @if(count($jobs))
-                            <div style="font-size:10px; color:#B9A87E; margin-top:3px;">{{ count($jobs) }} pistes métiers</div>
-                        @endif
-                    </td>
-                </tr>
-            </table>
-        </td></tr>
-    </table>
-
-    @if($org['advisor'] || $org['email'] || $org['phone'])
-    <div style="margin-top:20px; font-size:10px; color:{{ $inkSoft }};">
-        Accompagné par
-        <strong style="color:{{ $accent }}">{{ $org['advisor'] ?? $org['name'] }}</strong>@if($org['email']) · {{ $org['email'] }}@endif @if($org['phone']) · {{ $org['phone'] }}@endif
+            </tr>
+        </table>
     </div>
-    @endif
+    {{-- Barre accent or sous le bloc cover --}}
+    <div class="cover-accent"></div>
 </div>
 <div style="page-break-after: always;"></div>
 @endif
 
-{{-- ═══════════════ PROFIL DU CANDIDAT ═══════════════ --}}
+{{-- ═══════════════════════════════════════════════════════
+     PROFIL DU CANDIDAT
+     ═══════════════════════════════════════════════════════ --}}
 @if($sections['profile'] && $profile)
 <div class="px avoid-break sec">
-    <p class="kicker"><span class="chap">{{ $roman(++$chapN) }}</span>Contexte</p>
-    <h2 class="section serif">Profil du candidat</h2>
+    <div class="kicker">{{ $roman(++$chapN) }}. Contexte</div>
     <table class="s-rule"><tr><td class="g"></td><td class="h"></td></tr></table>
     <table class="kv">
         <tr><td class="k">Nom</td><td class="v">{{ $candidate }}</td></tr>
         @if($statusLabel)<tr><td class="k">Statut</td><td class="v">{{ $statusLabel }}</td></tr>@endif
-        @if($seniority)<tr><td class="k">Ancienneté</td><td class="v">{{ $seniority }}</td></tr>@endif
+        @if($seniority)<tr><td class="k">Anciennet&eacute;</td><td class="v">{{ $seniority }}</td></tr>@endif
         @if($profile->current_role)<tr><td class="k">Poste actuel</td><td class="v">{{ $profile->current_role }}</td></tr>@endif
         @if($profile->industry)<tr><td class="k">Secteur</td><td class="v">{{ $profile->industry }}</td></tr>@endif
         @if($profile->cv_original_name)<tr><td class="k">CV fourni</td><td class="v">{{ $profile->cv_original_name }}</td></tr>@endif
-        <tr><td class="k">Évaluation</td><td class="v">{{ $test->name }}</td></tr>
+        <tr><td class="k">&Eacute;valuation</td><td class="v">{{ $test->name }}</td></tr>
     </table>
 </div>
 @endif
 
-{{-- ═══════════════ RÉSULTAT-PHARE (toujours affiché si disponible) ═══════════════ --}}
+{{-- ═══════════════════════════════════════════════════════
+     RÉSULTAT-PHARE — Verdict / Score hero
+     Cercle de score via tableau + badge profil cramoisi
+     ═══════════════════════════════════════════════════════ --}}
 @if($headline)
 <div class="px sec avoid-break">
-    <p class="kicker"><span class="chap">{{ $roman(++$chapN) }}</span>Votre résultat</p>
-    <h2 class="section serif">Verdict de l'évaluation</h2>
+    <div class="kicker">{{ $roman(++$chapN) }}. Votre r&eacute;sultat</div>
     <table class="s-rule"><tr><td class="g"></td><td class="h"></td></tr></table>
-    <table class="hero" style="width:100%; border-collapse:separate;">
-        <tr>
-            @if($headline['pct'] !== null)
-            <td style="width:118px; vertical-align:middle; padding:20px 0 20px 22px;">
-                <div class="medallion"><table><tr><td>{{ $headline['pct'] }}<span class="pctsign">%</span></td></tr></table></div>
-                <div class="medallion-cap">Indice global</div>
-            </td>
-            @endif
-            <td style="vertical-align:middle; padding:20px 24px;">
-                <div class="hero-kicker">Profil identifié</div>
-                <div class="hero-label">
-                    {{ $headline['label'] ?? 'Profil établi' }}@if($headline['code'])<span class="code-chip">{{ $headline['code'] }}</span>@endif
-                </div>
-                @if($headline['score'] !== null && $headline['score_max'])
-                    <div class="hero-score">Score global&nbsp; <b>{{ $headline['score'] }}</b> / {{ $headline['score_max'] }}</div>
+    <div class="score-hero">
+        <table>
+            <tr>
+                @if($headline['pct'] !== null)
+                <td style="width:110px; vertical-align:middle; padding:20px 16px 20px 20px;">
+                    <div class="score-circle">
+                        <table>
+                            <tr>
+                                <td>
+                                    <span class="score-number">{{ $headline['pct'] }}</span>
+                                    <span class="score-denom">/100</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
                 @endif
-                @if($headline['phrase'])
-                    <div class="hero-phrase">{{ $headline['phrase'] }}</div>
-                @endif
-            </td>
-        </tr>
-    </table>
+                <td style="vertical-align:middle; padding:20px 20px;">
+                    @if($headline['code'])
+                        <div class="profile-badge">&#9670; Profil : {{ $headline['code'] }}</div>
+                    @endif
+                    <div class="hero-label">
+                        {{ $headline['label'] ?? 'Profil établi' }}
+                    </div>
+                    @if($headline['score'] !== null && $headline['score_max'])
+                        <div class="hero-score-line">
+                            Score global&nbsp;&nbsp;<b>{{ $headline['score'] }}</b> / {{ $headline['score_max'] }}
+                        </div>
+                    @endif
+                    @if($headline['phrase'])
+                        <div class="hero-phrase">{{ $headline['phrase'] }}</div>
+                    @endif
+                </td>
+            </tr>
+        </table>
+    </div>
 </div>
 @endif
 
-{{-- ═══════════════ SYNTHÈSE IA ═══════════════ --}}
-@if($sections['synthesis'] && $synthesis)
-<div class="px sec">
-    <p class="kicker"><span class="chap">{{ $roman(++$chapN) }}</span>Lecture du profil</p>
-    <h2 class="section serif">Synthèse</h2>
-    <table class="s-rule"><tr><td class="g"></td><td class="h"></td></tr></table>
-    <div class="synth">{!! $mdToHtml($synthesis) !!}</div>
-</div>
-@endif
-
-{{-- ═══════════════ FORCES & AXES DE PROGRESSION ═══════════════ --}}
-@if($sections['strengths'] && (count($strengths) || count($growth)))
-<div class="px avoid-break sec">
-    <p class="kicker"><span class="chap">{{ $roman(++$chapN) }}</span>Leviers</p>
-    <h2 class="section serif">Points forts &amp; axes de progression</h2>
-    <table class="s-rule"><tr><td class="g"></td><td class="h"></td></tr></table>
-    <table style="width:100%; border-collapse:separate;">
-        <tr>
-            @if(count($strengths))
-            <td style="width:50%; vertical-align:top; padding-right:10px;">
-                <div class="kicker" style="color:{{ $eagle }}; margin-bottom:9px;">● Points forts</div>
-                @foreach($strengths as $s)
-                    <span class="chip chip-up">{{ is_array($s) ? ($s['label'] ?? $s['name'] ?? reset($s)) : $s }}</span>
-                @endforeach
-            </td>
-            @endif
-            @if(count($growth))
-            <td style="width:50%; vertical-align:top; padding-left:10px;">
-                <div class="kicker" style="color:{{ $secondary }}; margin-bottom:9px;">▲ Axes de progression</div>
-                @foreach($growth as $g)
-                    <span class="chip chip-grow">{{ is_array($g) ? ($g['label'] ?? $g['name'] ?? reset($g)) : $g }}</span>
-                @endforeach
-            </td>
-            @endif
-        </tr>
-    </table>
-</div>
-@endif
-
-{{-- ═══════════════ DIMENSIONS ═══════════════ --}}
+{{-- ═══════════════════════════════════════════════════════
+     DIMENSIONS — barres de score
+     Nom 31% | barre 55% | score 14%
+     ═══════════════════════════════════════════════════════ --}}
 @if($sections['dimensions'] && count($dimensions))
 <div class="px sec">
-    <p class="kicker"><span class="chap">{{ $roman(++$chapN) }}</span>Mesures</p>
-    <h2 class="section serif">Profil par dimension</h2>
+    <div class="kicker">{{ $roman(++$chapN) }}. Profil dimensionnel</div>
     <table class="s-rule"><tr><td class="g"></td><td class="h"></td></tr></table>
 
     @if($radarUri)
-    <table style="width:100%; border-collapse:collapse;"><tr><td class="avoid-break" style="text-align:center; padding:2px 0 16px;">
-        <img src="{{ $radarUri }}" style="width:330px; height:auto;">
-        <div class="fig-cap">Profil en un coup d'œil — score par dimension (sur 100)</div>
-    </td></tr></table>
-    <div class="sub-title" style="margin-bottom:2px;">Détail par dimension</div>
+    <table style="width:100%; border-collapse:collapse;">
+        <tr>
+            <td class="avoid-break" style="text-align:center; padding:2px 0 16px;">
+                <img src="{{ $radarUri }}" style="width:330px; height:auto;">
+                <div class="fig-cap">Profil en un coup d'oeil — score par dimension (sur 100)</div>
+            </td>
+        </tr>
+    </table>
+    <div class="sub-title" style="margin-bottom:4px;">D&eacute;tail par dimension</div>
     @endif
 
     <table class="dims">
@@ -595,31 +865,111 @@
             @php $sc = max(0, min(100, (int) $dim['pct'])); @endphp
             <tr>
                 <td style="width:31%;">
-                    <span class="dim-name">{{ $dim['name'] }}</span>
+                    <div class="dim-name">{{ $dim['name'] }}</div>
                     @if(!empty($dim['level']))<div class="dim-level">{{ $dim['level'] }}</div>@endif
                 </td>
                 <td style="width:55%; padding-left:12px; padding-right:12px;">
                     <div class="track"><div class="fill" style="width:{{ $sc }}%; background:{{ $fitColor($sc) }};"></div></div>
                 </td>
-                <td style="width:14%;"><div class="dim-score">{{ $sc }}</div></td>
+                <td style="width:14%;">
+                    <div class="dim-score">{{ $sc }}</div>
+                </td>
             </tr>
         @endforeach
     </table>
 </div>
 @endif
 
-{{-- ═══════════════ SOUS-ÉCHELLES (Karasek, MBI, facettes…) ═══════════════ --}}
+{{-- ═══════════════════════════════════════════════════════
+     SYNTHÈSE IA — bloc or à gauche + fond velin
+     ═══════════════════════════════════════════════════════ --}}
+@if($sections['synthesis'] && $synthesis)
+<div class="px sec">
+    <div class="kicker">{{ $roman(++$chapN) }}. Synth&egrave;se analytique</div>
+    <table class="s-rule"><tr><td class="g"></td><td class="h"></td></tr></table>
+    <div class="synth-box">
+        <div>{!! $mdToHtml($synthesis) !!}</div>
+        <div class="ai-badge">&#9679; Analyse g&eacute;n&eacute;r&eacute;e par {{ $brand['name'] }} IA</div>
+    </div>
+</div>
+@endif
+
+{{-- ═══════════════════════════════════════════════════════
+     POINTS FORTS & AXES DE DÉVELOPPEMENT
+     Deux colonnes via <table> — bullets cercles colorés
+     ═══════════════════════════════════════════════════════ --}}
+@if($sections['strengths'] && (count($strengths) || count($growth)))
+<div class="px sec avoid-break">
+    <div class="kicker">{{ $roman(++$chapN) }}. Leviers de d&eacute;veloppement</div>
+    <table class="s-rule"><tr><td class="g"></td><td class="h"></td></tr></table>
+    <table style="width:100%; border-collapse:collapse;">
+        <tr>
+            @if(count($strengths))
+            <td style="width:50%; vertical-align:top; padding-right:14px;">
+                <div style="font-size:8px; font-weight:bold; letter-spacing:2px; text-transform:uppercase;
+                            color:{{ $eagle }}; font-family:'DejaVu Sans Mono',monospace; margin-bottom:11px;">
+                    Points forts identifi&eacute;s
+                </div>
+                <table class="points-list">
+                    @foreach($strengths as $i => $s)
+                    <tr>
+                        <td style="width:20px; vertical-align:top; padding-bottom:9px; padding-right:0;">
+                            <div class="bullet-wrap bullet-strength">
+                                <table><tr><td>{{ $i + 1 }}</td></tr></table>
+                            </div>
+                        </td>
+                        <td class="point-label">
+                            {{ is_array($s) ? ($s['label'] ?? $s['name'] ?? reset($s)) : $s }}
+                        </td>
+                    </tr>
+                    @endforeach
+                </table>
+            </td>
+            @endif
+            @if(count($growth))
+            <td style="width:50%; vertical-align:top; padding-left:14px; border-left:0.75px solid {{ $hair }};">
+                <div style="font-size:8px; font-weight:bold; letter-spacing:2px; text-transform:uppercase;
+                            color:{{ $secondary }}; font-family:'DejaVu Sans Mono',monospace; margin-bottom:11px;">
+                    Axes de d&eacute;veloppement
+                </div>
+                <table class="points-list">
+                    @foreach($growth as $i => $g)
+                    <tr>
+                        <td style="width:20px; vertical-align:top; padding-bottom:9px; padding-right:0;">
+                            <div class="bullet-wrap bullet-dev">
+                                <table><tr><td>{{ chr(65 + $i) }}</td></tr></table>
+                            </div>
+                        </td>
+                        <td class="point-label">
+                            {{ is_array($g) ? ($g['label'] ?? $g['name'] ?? reset($g)) : $g }}
+                        </td>
+                    </tr>
+                    @endforeach
+                </table>
+            </td>
+            @endif
+        </tr>
+    </table>
+</div>
+@endif
+
+{{-- ═══════════════════════════════════════════════════════
+     SOUS-ÉCHELLES (Karasek, MBI, facettes…)
+     ═══════════════════════════════════════════════════════ --}}
 @if($sections['dimensions'] && count($subscales))
 <div class="px avoid-break sec">
-    <p class="kicker"><span class="chap">{{ $roman(++$chapN) }}</span>Détail</p>
-    <h2 class="section serif">Sous-échelles</h2>
+    <div class="kicker">{{ $roman(++$chapN) }}. Sous-&eacute;chelles</div>
     <table class="s-rule"><tr><td class="g"></td><td class="h"></td></tr></table>
 
     @if($quadrantUri)
-    <table style="width:100%; border-collapse:collapse;"><tr><td class="avoid-break" style="text-align:center; padding:2px 0 14px;">
-        <img src="{{ $quadrantUri }}" style="width:330px; height:auto;">
-        <div class="fig-cap">Modèle de Karasek — tension perçue × marge de manœuvre</div>
-    </td></tr></table>
+    <table style="width:100%; border-collapse:collapse;">
+        <tr>
+            <td class="avoid-break" style="text-align:center; padding:2px 0 14px;">
+                <img src="{{ $quadrantUri }}" style="width:330px; height:auto;">
+                <div class="fig-cap">Mod&egrave;le de Karasek — tension per&ccedil;ue &times; marge de manoeuvre</div>
+            </td>
+        </tr>
+    </table>
     @endif
 
     @foreach($subscales as $group)
@@ -629,14 +979,18 @@
                 @foreach($group['items'] as $item)
                     @php $sc = $item['pct'] !== null ? max(0, min(100, (int) $item['pct'])) : null; @endphp
                     <tr>
-                        <td style="width:34%;"><span class="dim-name">{{ $item['name'] }}</span></td>
+                        <td style="width:34%;"><div class="dim-name">{{ $item['name'] }}</div></td>
                         <td style="width:42%; padding-left:12px; padding-right:12px;">
                             @if($sc !== null)
                                 <div class="track"><div class="fill" style="width:{{ $sc }}%; background:{{ $primary }};"></div></div>
                             @endif
                         </td>
                         <td style="width:12%;">
-                            <div class="sub-val">@if($item['value'] !== null){{ $item['value'] }}@if($item['max'])<span style="color:{{ $inkSoft }}; font-weight:normal;">/{{ $item['max'] }}</span>@endif @endif</div>
+                            <div class="sub-val">
+                                @if($item['value'] !== null)
+                                    {{ $item['value'] }}@if($item['max'])<span style="color:{{ $inkSoft }}; font-weight:normal;">/{{ $item['max'] }}</span>@endif
+                                @endif
+                            </div>
                         </td>
                         <td style="width:12%; text-align:right;">
                             @if(!empty($item['level']))<span class="sev-pill" style="background:{{ $goldDark }};">{{ $item['level'] }}</span>@endif
@@ -649,25 +1003,33 @@
 </div>
 @endif
 
-{{-- ═══════════════ AVERTISSEMENT NON-DIAGNOSTIQUE ═══════════════ --}}
+{{-- ═══════════════════════════════════════════════════════
+     AVERTISSEMENT NON-DIAGNOSTIQUE
+     ═══════════════════════════════════════════════════════ --}}
 @if($disclaimer)
 <div class="px avoid-break sec">
     <table class="disclaimer" style="width:100%; border-collapse:separate;">
         <tr><td>
-            <div class="dtitle">À lire — portée de ce bilan</div>
+            <div class="dtitle">&Agrave; lire — port&eacute;e de ce bilan</div>
             <div class="dbody">{{ $disclaimer }}</div>
         </td></tr>
     </table>
 </div>
 @endif
 
-{{-- ═══════════════ MÉTIERS À EXPLORER ═══════════════ --}}
+{{-- ═══════════════════════════════════════════════════════
+     MÉTIERS À EXPLORER
+     Cards avec border-left or, pastille rang, fit-pill
+     ═══════════════════════════════════════════════════════ --}}
 @if($sections['jobs'] && count($jobs))
 <div style="page-break-before: always;"></div>
 <div class="px sec">
-    <p class="kicker"><span class="chap">{{ $roman(++$chapN) }}</span>Orientation</p>
-    <h2 class="section serif">{{ count($jobs) }} métiers à explorer</h2>
+    <div class="kicker">{{ $roman(++$chapN) }}. Orientation</div>
     <table class="s-rule"><tr><td class="g"></td><td class="h"></td></tr></table>
+    <div style="font-family:'Lora','DejaVu Serif',serif; font-size:16px; font-weight:bold;
+                color:{{ $accent }}; margin-bottom:16px;">
+        {{ count($jobs) }} m&eacute;tiers &agrave; explorer
+    </div>
 
     @foreach($jobs as $i => $job)
         @php
@@ -676,49 +1038,59 @@
             $fit     = $job['fit_score'] ?? $job['fit'] ?? null;
             $why     = $job['pourquoi'] ?? $job['why'] ?? '';
             $next    = $job['prochaine_étape'] ?? $job['prochaine_etape'] ?? $job['next_step'] ?? null;
+            $fitPct  = $fit !== null ? min(100, max(0, (int) $fit)) : null;
         @endphp
-        <table class="card job avoid-break" style="width:100%; border-collapse:separate;">
-            <tr>
-                <td style="width:34px; vertical-align:top; padding-top:1px;">
-                    <div class="job-rank"><table><tr><td>{{ $i + 1 }}</td></tr></table></div>
-                </td>
-                <td style="vertical-align:top;">
-                    <div class="job-sector">{{ $secteur }}</div>
-                    <div class="job-title serif">{{ $titre }}</div>
-                    @if($why)<div class="job-why">{{ $why }}</div>@endif
-                    @if($next)<div class="job-next">→ {{ $next }}</div>@endif
-                </td>
-                @if($fit !== null)
-                <td style="width:56px; text-align:right; vertical-align:top;">
-                    <span class="fit-pill" style="background:{{ $fitColor($fit) }};">{{ (int) $fit }}%</span>
-                </td>
-                @endif
-            </tr>
-        </table>
+        <div class="job-card avoid-break">
+            <table>
+                <tr>
+                    <td style="width:42px; vertical-align:top; padding:13px 6px 13px 14px;">
+                        <div class="job-rank">
+                            <table><tr><td>{{ $i + 1 }}</td></tr></table>
+                        </div>
+                    </td>
+                    <td style="vertical-align:top; padding:13px 14px;">
+                        <div class="job-sector">{{ $secteur }}</div>
+                        <div class="job-title">{{ $titre }}</div>
+                        @if($why)<div class="job-why">{{ $why }}</div>@endif
+                        @if($next)<div class="job-next">&rarr; {{ $next }}</div>@endif
+                    </td>
+                    @if($fitPct !== null)
+                    <td style="width:60px; text-align:right; vertical-align:top; padding:13px 14px 13px 6px;">
+                        <span class="fit-pill" style="background:{{ $fitColor($fitPct) }};">{{ $fitPct }}%</span>
+                    </td>
+                    @endif
+                </tr>
+            </table>
+        </div>
     @endforeach
 </div>
 @endif
 
-{{-- ═══════════════ BLOC COORDONNÉES / CONTACT ═══════════════ --}}
+{{-- ═══════════════════════════════════════════════════════
+     BLOC COORDONNÉES / CONTACT
+     ═══════════════════════════════════════════════════════ --}}
 @if($sections['footer'] && ($org['advisor'] || $org['email'] || $org['phone'] || $org['website'] || $org['address']))
 <div class="px avoid-break sec">
-    <table class="card" style="width:100%; border-collapse:separate; background:{{ $stone }};">
-        <tr><td style="padding:18px 22px;">
-            <div class="kicker" style="margin-bottom:8px;">Pour aller plus loin</div>
-            <table style="width:100%"><tr>
-                <td style="vertical-align:top;">
+    <div class="contact-block" style="border-left:3px solid {{ $primary }};">
+        <div style="font-size:8px; font-weight:bold; letter-spacing:2px; text-transform:uppercase;
+                    color:{{ $primary }}; font-family:'DejaVu Sans Mono',monospace; margin-bottom:10px;">
+            Pour aller plus loin
+        </div>
+        <table style="width:100%; border-collapse:collapse;">
+            <tr>
+                <td style="vertical-align:top; width:55%;">
                     <div class="serif" style="font-size:13px; font-weight:bold; color:{{ $accent }};">{{ $org['name'] }}</div>
-                    @if($org['advisor'])<div style="font-size:10.5px; color:{{ $ink }};">{{ $org['advisor'] }}</div>@endif
+                    @if($org['advisor'])<div style="font-size:10.5px; color:{{ $ink }}; margin-top:2px;">{{ $org['advisor'] }}</div>@endif
                     @if($org['address'])<div style="font-size:10px; color:{{ $inkSoft }}; margin-top:3px;">{{ $org['address'] }}</div>@endif
                 </td>
-                <td style="vertical-align:top; text-align:right; font-size:10.5px; color:{{ $ink }};">
+                <td style="vertical-align:top; text-align:right; font-size:10.5px; color:{{ $ink }}; width:45%;">
                     @if($org['email'])<div>{{ $org['email'] }}</div>@endif
                     @if($org['phone'])<div>{{ $org['phone'] }}</div>@endif
                     @if($org['website'])<div style="color:{{ $goldDark }}; font-weight:bold;">{{ $org['website'] }}</div>@endif
                 </td>
-            </tr></table>
-        </td></tr>
-    </table>
+            </tr>
+        </table>
+    </div>
 </div>
 @endif
 
