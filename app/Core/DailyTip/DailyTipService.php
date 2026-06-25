@@ -5,6 +5,7 @@ namespace Praxis\Core\DailyTip;
 use App\Models\DailyTipEngagement;
 use App\Models\User;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 use Praxis\Core\Gamification\GamificationEngine;
 use Praxis\Core\Library\ExerciseLibrary;
@@ -51,24 +52,31 @@ class DailyTipService
             return null;
         }
 
-        $date    = $date ?? $this->today();
-        $order   = $this->rotationFor($user, $plugin, count($tips));
-        $epochDay = (int) floor($date->copy()->startOfDay()->timestamp / 86400);
-        $tip     = $tips[$order[$epochDay % count($tips)]];
+        $date  = $date ?? $this->today();
+        $today = $date->toDateString();
 
-        // Personnalisation : marque le tip comme « choisi pour toi » si ses tags
-        // recoupent les axes du profil de la personne.
-        $profileTags = $this->profileTags($user);
-        $matched     = array_values(array_intersect($tip['tags'] ?? [], $profileTags));
+        // Cache par user×plugin×jour (BDD-m2) : le tip est stable toute la journée.
+        $cacheKey = "daily_tip.{$user->id}.{$plugin}.{$today}";
 
-        return array_merge($tip, [
-            'plugin'        => $plugin,
-            'date'          => $date->toDateString(),
-            'day_number'    => ($epochDay % count($tips)) + 1,
-            'library_size'  => count($tips),
-            'personalized'  => $matched !== [],
-            'matched_tags'  => $matched,
-        ]);
+        return Cache::remember($cacheKey, 86400, function () use ($user, $plugin, $date, $tips, $today) {
+            $order    = $this->rotationFor($user, $plugin, count($tips));
+            $epochDay = (int) floor($date->copy()->startOfDay()->timestamp / 86400);
+            $tip      = $tips[$order[$epochDay % count($tips)]];
+
+            // Personnalisation : marque le tip comme « choisi pour toi » si ses tags
+            // recoupent les axes du profil de la personne.
+            $profileTags = $this->profileTags($user);
+            $matched     = array_values(array_intersect($tip['tags'] ?? [], $profileTags));
+
+            return array_merge($tip, [
+                'plugin'        => $plugin,
+                'date'          => $today,
+                'day_number'    => ($epochDay % count($tips)) + 1,
+                'library_size'  => count($tips),
+                'personalized'  => $matched !== [],
+                'matched_tags'  => $matched,
+            ]);
+        });
     }
 
     /**
@@ -187,7 +195,7 @@ class DailyTipService
             $state ^= ($state >> 17);
             $state ^= ($state << 5) & 0xFFFFFFFF;
             $state &= 0xFFFFFFFF;
-            return $max > 0 ? $state % $max : 0;
+            return $max > 0 ? ((int)$state % $max + $max) % $max : 0;
         };
 
         for ($i = $n - 1; $i > 0; $i--) {

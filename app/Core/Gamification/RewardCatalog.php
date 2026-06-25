@@ -5,6 +5,7 @@ namespace Praxis\Core\Gamification;
 use App\Models\Plugin as PluginModel;
 use App\Models\User;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Praxis\Core\Plugins\PluginRegistry;
@@ -45,36 +46,39 @@ class RewardCatalog
             return $this->cached = collect();
         }
 
-        $enabled = PluginModel::where('enabled', true)->get();
+        // Cache inter-requêtes 5 min (BDD-m1) : le catalogue est statique entre déploiements.
+        $this->cached = Cache::remember('reward_catalog_v1', 300, function () {
+            $enabled = PluginModel::where('enabled', true)->get();
 
-        $items = $enabled->map(function (PluginModel $plugin) {
-            // Manifest frais depuis le disque si dispo, sinon celui en base.
-            $manifest = $this->registry->findManifest($plugin->slug) ?? $plugin->manifest ?? [];
-            $reward   = $manifest['reward'] ?? null;
+            return $enabled->map(function (PluginModel $plugin) {
+                // Manifest frais depuis le disque si dispo, sinon celui en base.
+                $manifest = $this->registry->findManifest($plugin->slug) ?? $plugin->manifest ?? [];
+                $reward   = $manifest['reward'] ?? null;
 
-            if (! is_array($reward) || ! isset($reward['threshold_eclats'])) {
-                return null;
-            }
+                if (! is_array($reward) || ! isset($reward['threshold_eclats'])) {
+                    return null;
+                }
 
-            $test = $manifest['test'] ?? null;
+                $test = $manifest['test'] ?? null;
 
-            return [
-                'plugin_slug'       => $plugin->slug,
-                'name'              => $test['name'] ?? $manifest['name'] ?? $plugin->slug,
-                'purpose'           => $reward['purpose'] ?? null,
-                'description'       => $test['description'] ?? $manifest['description'] ?? '',
-                'teaser'            => $reward['teaser'] ?? ($manifest['description'] ?? ''),
-                'icon'              => $reward['icon'] ?? 'ti-gift',
-                'threshold'         => (int) $reward['threshold_eclats'],
-                'estimated_minutes' => $test['estimated_minutes'] ?? null,
-                'entry'             => $this->resolveEntry($test, $reward),
-            ];
-        })
-        ->filter()
-        ->sortBy('threshold')
-        ->values();
+                return [
+                    'plugin_slug'       => $plugin->slug,
+                    'name'              => $test['name'] ?? $manifest['name'] ?? $plugin->slug,
+                    'purpose'           => $reward['purpose'] ?? null,
+                    'description'       => $test['description'] ?? $manifest['description'] ?? '',
+                    'teaser'            => $reward['teaser'] ?? ($manifest['description'] ?? ''),
+                    'icon'              => $reward['icon'] ?? 'ti-gift',
+                    'threshold'         => (int) $reward['threshold_eclats'],
+                    'estimated_minutes' => $test['estimated_minutes'] ?? null,
+                    'entry'             => $this->resolveEntry($test, $reward),
+                ];
+            })
+            ->filter()
+            ->sortBy('threshold')
+            ->values();
+        });
 
-        return $this->cached = $items;
+        return $this->cached;
     }
 
     /**
