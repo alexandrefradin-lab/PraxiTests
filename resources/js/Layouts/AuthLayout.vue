@@ -26,14 +26,13 @@ const branding = computed(() => usePage().props.branding ?? { name: 'PraxiQuest'
 
             <!-- Logo -->
             <Link href="/" style="display: flex; align-items: center; gap: 14px; text-decoration: none; position: relative; z-index: 1">
-                <!-- Boussole: fond or + anneau + aiguille ivoire bien visible -->
-                <div style="width:44px;height:44px;border-radius:50%;background:rgba(166,117,32,0.25);border:2px solid #A67520;display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0">
-                    <!-- Aiguille nord ivoire -->
-                    <svg width="44" height="44" viewBox="0 0 44 44" style="position:absolute;top:0;left:0" fill="none">
-                        <polygon points="22,6 24.5,20 22,24 19.5,20" fill="#F0E8D4"/>
-                        <polygon points="22,38 24.5,24 22,20 19.5,24" fill="#A67520" opacity="0.6"/>
-                        <circle cx="22" cy="22" r="4" fill="#1C1408" stroke="#A67520" stroke-width="1.5"/>
-                        <circle cx="22" cy="22" r="1.5" fill="#A67520"/>
+                <!-- Médaillon or solide -->
+                <div style="width:44px;height:44px;border-radius:50%;background:#A67520;box-shadow:0 4px 18px rgba(166,117,32,0.45);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <polygon points="12,2 13.6,11 12,14 10.4,11" fill="#1C1408"/>
+                        <polygon points="12,22 13.6,13 12,10 10.4,13" fill="#1C1408" opacity="0.35"/>
+                        <circle cx="12" cy="12" r="2.8" fill="#F0E8D4"/>
+                        <circle cx="12" cy="12" r="1.2" fill="#A67520"/>
                     </svg>
                 </div>
                 <div>

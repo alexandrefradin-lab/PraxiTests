@@ -680,11 +680,12 @@
      Droite : logo PraxiQuest + date
      ═══════════════════════════════════════════════════════ --}}
 @if($sections['cover'])
-{{-- ══ COVER : table pleine largeur, height:680px pour remplir la page ══ --}}
-<table style="width:100%; height:680px; border-collapse:collapse; background:{{ $accent }};">
+{{-- ══ COVER : div height:680px (dompdf respecte height sur div, pas sur table) ══ --}}
+<div style="background:{{ $accent }}; height:680px;">
+<table style="width:100%; border-collapse:collapse;">
     <tr>
         {{-- Gauche : identité candidat --}}
-        <td style="vertical-align:middle; padding:64px 32px 64px 44px; width:62%;">
+        <td style="vertical-align:top; padding:90px 32px 60px 44px; width:62%;">
             <div style="font-size:8px; font-weight:bold; letter-spacing:2.5px; text-transform:uppercase;
                         color:{{ $primary }}; font-family:'DejaVu Sans Mono',monospace; margin-bottom:18px;">
                 RAPPORT D'&Eacute;VALUATION
@@ -744,7 +745,7 @@
             </div>
         </td>
         {{-- Droite : logo + score résumé --}}
-        <td style="vertical-align:middle; padding:64px 44px 64px 24px; width:38%; text-align:center;">
+        <td style="vertical-align:top; padding:90px 44px 60px 24px; width:38%; text-align:center;">
             @if(!empty($brand['logo']))
                 <img src="{{ $brand['logo'] }}" alt="{{ $brand['name'] }}"
                      style="max-height:52px; margin-bottom:16px;">
@@ -799,6 +800,7 @@
         </td>
     </tr>
 </table>
+</div>{{-- fin div height:680px --}}
 {{-- Barre accent or --}}
 <div style="height:4px; background:{{ $primary }};"></div>
 {{-- Tableau de bord : 3 stats clés sur fond velin --}}
@@ -1097,4 +1099,87 @@
         <tr><td>
             <div class="dtitle">&Agrave; lire — port&eacute;e de ce bilan</div>
             <div class="dbody">{{ $disclaimer }}</div>
-        </td><
+        </td></tr>
+    </table>
+</div>
+@endif
+
+{{-- ═══════════════════════════════════════════════════════
+     MÉTIERS À EXPLORER
+     Cards avec border-left or, pastille rang, fit-pill
+     ═══════════════════════════════════════════════════════ --}}
+@if($sections['jobs'] && count($jobs))
+<div style="page-break-before: always;"></div>
+<div class="px sec">
+    <div class="kicker">{{ $roman(++$chapN) }}. Orientation</div>
+    <table class="s-rule"><tr><td class="g"></td><td class="h"></td></tr></table>
+    <div style="font-family:'Lora','DejaVu Serif',serif; font-size:16px; font-weight:bold;
+                color:{{ $accent }}; margin-bottom:16px;">
+        {{ count($jobs) }} m&eacute;tiers &agrave; explorer
+    </div>
+
+    @foreach($jobs as $i => $job)
+        @php
+            $titre   = $job['titre'] ?? $job['title'] ?? '';
+            $secteur = $job['secteur'] ?? $job['sector'] ?? '';
+            $fit     = $job['fit_score'] ?? $job['fit'] ?? null;
+            $why     = $job['pourquoi'] ?? $job['why'] ?? '';
+            $next    = $job['prochaine_étape'] ?? $job['prochaine_etape'] ?? $job['next_step'] ?? null;
+            $fitPct  = $fit !== null ? min(100, max(0, (int) $fit)) : null;
+        @endphp
+        <div class="job-card avoid-break">
+            <table>
+                <tr>
+                    <td style="width:42px; vertical-align:top; padding:13px 6px 13px 14px;">
+                        <div class="job-rank">
+                            <table><tr><td>{{ $i + 1 }}</td></tr></table>
+                        </div>
+                    </td>
+                    <td style="vertical-align:top; padding:13px 14px;">
+                        <div class="job-sector">{{ $secteur }}</div>
+                        <div class="job-title">{{ $titre }}</div>
+                        @if($why)<div class="job-why">{{ $why }}</div>@endif
+                        @if($next)<div class="job-next">&rarr; {{ $next }}</div>@endif
+                    </td>
+                    @if($fitPct !== null)
+                    <td style="width:60px; text-align:right; vertical-align:top; padding:13px 14px 13px 6px;">
+                        <span class="fit-pill" style="background:{{ $fitColor($fitPct) }};">{{ $fitPct }}%</span>
+                    </td>
+                    @endif
+                </tr>
+            </table>
+        </div>
+    @endforeach
+</div>
+@endif
+
+{{-- ═══════════════════════════════════════════════════════
+     BLOC COORDONNÉES / CONTACT
+     ═══════════════════════════════════════════════════════ --}}
+@if($sections['footer'] && ($org['advisor'] || $org['email'] || $org['phone'] || $org['website'] || $org['address']))
+<div class="px avoid-break sec">
+    <div class="contact-block" style="border-left:3px solid {{ $primary }};">
+        <div style="font-size:8px; font-weight:bold; letter-spacing:2px; text-transform:uppercase;
+                    color:{{ $primary }}; font-family:'DejaVu Sans Mono',monospace; margin-bottom:10px;">
+            Pour aller plus loin
+        </div>
+        <table style="width:100%; border-collapse:collapse;">
+            <tr>
+                <td style="vertical-align:top; width:55%;">
+                    <div class="serif" style="font-size:13px; font-weight:bold; color:{{ $accent }};">{{ $org['name'] }}</div>
+                    @if($org['advisor'])<div style="font-size:10.5px; color:{{ $ink }}; margin-top:2px;">{{ $org['advisor'] }}</div>@endif
+                    @if($org['address'])<div style="font-size:10px; color:{{ $inkSoft }}; margin-top:3px;">{{ $org['address'] }}</div>@endif
+                </td>
+                <td style="vertical-align:top; text-align:right; font-size:10.5px; color:{{ $ink }}; width:45%;">
+                    @if($org['email'])<div>{{ $org['email'] }}</div>@endif
+                    @if($org['phone'])<div>{{ $org['phone'] }}</div>@endif
+                    @if($org['website'])<div style="color:{{ $goldDark }}; font-weight:bold;">{{ $org['website'] }}</div>@endif
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+@endif
+
+</body>
+</html>
