@@ -22,13 +22,16 @@ const pct = computed(() => {
     const m = props.max || 100
     return Math.min(100, Math.max(0, (props.score / m) * 100))
 })
+
+// Score affiché clampé (FE-m: évite l'affichage d'une valeur hors bornes)
+const clampedScore = computed(() => Math.min(props.max || 100, Math.max(0, props.score)))
 </script>
 
 <template>
     <svg
         :width="size" :height="size"
         viewBox="0 0 120 120"
-        :aria-label="`Score ${score} sur ${max}`"
+        :aria-label="`Score ${clampedScore} sur ${max}`"
         role="img"
     >
         <!-- Filet d'or discret -->
@@ -61,7 +64,7 @@ const pct = computed(() => {
             font-family="'Space Mono', monospace"
             font-size="30" font-weight="700"
             fill="var(--text-primary, #2A1E08)"
-        >{{ score }}</text>
+        >{{ clampedScore }}</text>
         <text
             v-if="showMax"
             x="60" y="78"

@@ -35,12 +35,18 @@ class PluginServiceProvider extends AbstractPlugin
     public function onActivate(): void
     {
         // Seeder questions
+        // TODO ARC-M1: Artisan::call() dans onActivate() bloque la requête HTTP.
+        // Déplacer vers une commande CLI onInstall() ou un job dispatchable en arrière-plan.
+        // Voir documentation PraxiQuest Architecture > Plugin Lifecycle.
         \Artisan::call('db:seed', [
             '--class' => 'Praxis\\Plugins\\Praxis360\\Database\\Seeders\\QuestionsSeeder',
             '--force' => true,
         ]);
 
         // Seeder normes de référence
+        // TODO ARC-M1: Artisan::call() dans onActivate() bloque la requête HTTP.
+        // Déplacer vers une commande CLI onInstall() ou un job dispatchable en arrière-plan.
+        // Voir documentation PraxiQuest Architecture > Plugin Lifecycle.
         \Artisan::call('db:seed', [
             '--class' => 'Praxis\\Plugins\\Praxis360\\Database\\Seeders\\NormsSeeder',
             '--force' => true,

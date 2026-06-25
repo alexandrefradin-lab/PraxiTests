@@ -90,9 +90,16 @@ class SendJourneyNudges extends Command
 
     private function processPlugin(string $plugin, array $cfg, string $today, bool $dryRun): int
     {
-        // Récupère tous les parcours actifs
+        // Récupère tous les parcours actifs en excluant les désabonnés marketing (RGPD, MET-m1).
+        // Le filtre est appliqué dès la requête pour éviter de charger des utilisateurs inutilement.
         $journeys = DB::table($cfg['journey_table'])
-            ->select('user_id', 'started_on')
+            ->select("{$cfg['journey_table']}.user_id", "{$cfg['journey_table']}.started_on")
+            ->whereNotExists(function ($q) use ($cfg) {
+                $q->select(DB::raw(1))
+                  ->from('profiles')
+                  ->whereColumn('profiles.user_id', "{$cfg['journey_table']}.user_id")
+                  ->whereNotNull('profiles.marketing_unsubscribed_at');
+            })
             ->get();
 
         $sent = 0;
@@ -128,7 +135,7 @@ class SendJourneyNudges extends Command
                 continue;
             }
 
-            // Ne pas envoyer aux utilisateurs désabonnés des emails marketing (TECH-03).
+            // Garde-fou secondaire (filtre primaire déjà appliqué en requête, MET-m1).
             if ($user->profile && $user->profile->marketing_unsubscribed_at !== null) {
                 continue;
             }
@@ -166,19 +173,4 @@ class SendJourneyNudges extends Command
     }
 
     /**
-     * Retrouve le titre de l'item au jour $day depuis la classe Data du plugin.
-     */
-    private function resolveTitle(array $cfg, int $day): string
-    {
-        try {
-            $class = $cfg['practices_class'];
-            $all   = $class::all();
-            $item  = collect($all)->firstWhere('day', $day)
-                  ?? collect($all)->get($day - 1);
-
-            return $item?->title ?? "Action du jour {$day}";
-        } catch (\Throwable) {
-            return "Action du jour {$day}";
-        }
-    }
-}
+     * Retrouve le titre de l'item au 

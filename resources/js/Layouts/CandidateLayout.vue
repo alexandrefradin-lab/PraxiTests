@@ -1,9 +1,10 @@
 <script setup>
 import { Link, usePage, router } from '@inertiajs/vue3'
-import { computed, ref, onMounted, onBeforeUnmount, watch } from 'vue'
+import { computed, ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
 import OracleChat from '@/Components/OracleChat.vue'
 
 const mobileOpen = ref(false)
+const mobileDrawer = ref(null)
 const navigating = ref(false)
 const navTarget = ref('')
 let navTimeout = null
@@ -38,6 +39,16 @@ function startAiPoll () {
     }, 5000)
 }
 
+// FE-C4 focus trap
+function trapFocus(e) {
+    if (!mobileDrawer.value) return
+    const f=mobileDrawer.value.querySelectorAll('a[href],button:not([disabled]),input,select,textarea,[tabindex]:not([tabindex="-1"])')
+    if(!f.length)return
+    const first=f[0],last=f[f.length-1]
+    if(e.key==='Tab'){if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}
+    if(e.key==='Escape'){mobileOpen.value=false}
+}
+watch(mobileOpen,(isOpen)=>{if(isOpen){nextTick(()=>{document.addEventListener('keydown',trapFocus);mobileDrawer.value?.querySelector('a,button')?.focus()})}else{document.removeEventListener('keydown',trapFocus)}})
 function onKeydown(e) {
     if (e.key === 'Escape') mobileOpen.value = false
 }
@@ -56,6 +67,7 @@ onMounted(() => {
     })
 })
 onBeforeUnmount(() => {
+    document.removeEventListener('keydown',trapFocus)
     stopAiPoll()
     window.removeEventListener('keydown', onKeydown)
     if (stopNavStart) stopNavStart()
@@ -313,7 +325,7 @@ watch(() => page.props.gamification?.level, (newLevel) => {
 
             <!-- Panneau latéral droit -->
             <Transition name="pt-drawer">
-                <nav v-if="user && mobileOpen" class="cand-drawer" aria-label="Menu navigation">
+                <nav ref="mobileDrawer" v-if="user && mobileOpen" class="cand-drawer" aria-label="Menu navigation">
 
                     <!-- En-tête : avatar + bouton fermer -->
                     <div class="cand-drawer-header">

@@ -5,6 +5,7 @@ namespace Praxis\Core\AI\Services;
 use App\Models\OracleMessage;
 use App\Models\User;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Praxis\Core\AI\AIManager;
 use Praxis\Core\AI\PromptBuilder;
 use Praxis\Core\Plugins\PluginHooks;
@@ -31,6 +32,19 @@ class OracleChatService
     public function ask(User $user, string $message): OracleMessage
     {
         $message = trim($message);
+
+        // MET-M4: Protection anti-double-envoi — un seul message Oracle en vol par utilisateur.
+        // Le lock expire après 15 secondes (délai max d'une réponse LLM).
+        $lockKey = 'oracle_inflight.' . $user->id;
+        if (Cache::has($lockKey)) {
+            return new OracleMessage([
+                'user_id' => $user->id,
+                'role'    => 'assistant',
+                'content' => "Votre message précédent est en cours de traitement. Merci de patienter quelques secondes.",
+                'tokens'  => 0,
+            ]);
+        }
+        Cache::put($lockKey, true, 15);
 
         try {
             // Contexte candidat : tentatives + Grimoire.
@@ -59,6 +73,7 @@ class OracleChatService
             $reply  = trim(PluginHooks::applyFilters('ai.oracle.output', $reply, $user));
             $usage  = $driver->lastUsage();
         } catch (\Throwable $e) {
+            Cache::forget($lockKey); // MET-M4: libérer le lock en cas d'erreur
             // Repli gracieux (cf. audit Fo-1) : jamais de HTTP 500 dans le widget.
             \Illuminate\Support\Facades\Log::error('Oracle AI error: ' . $e->getMessage());
 
@@ -85,6 +100,7 @@ class OracleChatService
             'tokens'  => ($usage['input_tokens'] ?? 0) + ($usage['output_tokens'] ?? 0),
         ]);
 
+        Cache::forget($lockKey); // MET-M4: libérer le lock dès la réponse persistée
         PluginHooks::doAction('ai.oracle.replied', $user, $assistant);
 
         return $assistant;

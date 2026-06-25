@@ -56,12 +56,18 @@ class PluginServiceProvider extends AbstractPlugin
     public function onActivate(): void
     {
         // Migrations
+        // TODO ARC-M1: Artisan::call() dans onActivate() bloque la requête HTTP.
+        // Déplacer vers une commande CLI onInstall() ou un job dispatchable en arrière-plan.
+        // Voir documentation PraxiQuest Architecture > Plugin Lifecycle.
         \Artisan::call('migrate', [
             '--path'  => 'plugins/praxiflow/database/migrations',
             '--force' => true,
         ]);
 
         // Seeders
+        // TODO ARC-M1: Artisan::call() dans onActivate() bloque la requête HTTP.
+        // Déplacer vers une commande CLI onInstall() ou un job dispatchable en arrière-plan.
+        // Voir documentation PraxiQuest Architecture > Plugin Lifecycle.
         \Artisan::call('db:seed', [
             '--class' => 'Praxis\\Plugins\\PraxiFlow\\Database\\Seeders\\ExercisesSeeder',
             '--force' => true,

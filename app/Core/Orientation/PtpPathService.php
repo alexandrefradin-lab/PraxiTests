@@ -28,31 +28,44 @@ class PtpPathService
         $dims           = $this->aggregateDimensions($profile);
         $formationCredit = $this->declaredFormationCredit($profile);
 
-        $matches = collect();
+        $records = [];
+        $now = now();
 
+        // Upsert bulk (MET-M6) : remplace N updateOrCreate par une seule requête BDD.
         foreach (CareerPath::where('active', true)->get() as $path) {
             $fit  = $this->computeFit($dims, $path->fit_dimensions ?? []);
             $gap  = max(0, (int) $path->formation_months - $formationCredit);
             $tier = self::tierForGap($gap);
             $opp  = self::opportunityIndex($fit, $gap, $path->market_demand, $path->market_trend);
 
-            $match = ProfilePathMatch::updateOrCreate(
-                ['profile_id' => $profile->id, 'career_path_id' => $path->id],
-                [
-                    'fit_score'            => $fit,
-                    'formation_gap_months' => $gap,
-                    'tier'                 => $tier,
-                    'opportunity_index'    => $opp,
-                    'computed_at'          => now(),
-                ]
-            );
+            $records[] = [
+                'profile_id'           => $profile->id,
+                'career_path_id'       => $path->id,
+                'fit_score'            => $fit,
+                'formation_gap_months' => $gap,
+                'tier'                 => $tier,
+                'opportunity_index'    => $opp,
+                'computed_at'          => $now,
+                'created_at'           => $now,
+                'updated_at'           => $now,
+            ];
+        }
 
-            $matches->push($match);
+        if (! empty($records)) {
+            ProfilePathMatch::upsert(
+                $records,
+                ['profile_id', 'career_path_id'],
+                ['fit_score', 'formation_gap_months', 'tier', 'opportunity_index', 'computed_at', 'updated_at']
+            );
         }
 
         $count = (int) config('praxiquest.results.career_paths_count', 30);
 
-        return $matches->sortByDesc('opportunity_index')->take($count)->values();
+        return ProfilePathMatch::where('profile_id', $profile->id)
+            ->orderByDesc('opportunity_index')
+            ->take($count)
+            ->get()
+            ->values();
     }
 
     /** Vrai si des pistes ont déjà été calculées pour ce profil. */

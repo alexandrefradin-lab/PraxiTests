@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { Link, Head, useForm } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
+import MarkdownText from '@/Components/MarkdownText.vue'
 
 const props = defineProps({
     practice: { type: Object, required: true },
@@ -17,34 +18,6 @@ const iconFor = (name) => ({
     seedling: '🌱', anchor: '⚓', map: '🗺️', lightbulb: '💡', sun: '☀️',
 }[name] ?? '⭐')
 
-// Mini-convertisseur Markdown → HTML (contenu de confiance, issu du seeder).
-const renderMarkdown = (md) => {
-    if (!md) return ''
-    const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    const inline = (s) => esc(s)
-        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.+?)\*/g, '<em>$1</em>')
-
-    const lines = md.split('\n')
-    let html = '', list = null
-    const closeList = () => { if (list) { html += `</${list}>`; list = null } }
-
-    for (const raw of lines) {
-        const line = raw.trimEnd()
-        if (/^### /.test(line)) { closeList(); html += `<h3>${inline(line.slice(4))}</h3>`; continue }
-        if (/^## /.test(line))  { closeList(); html += `<h2>${inline(line.slice(3))}</h2>`; continue }
-        const ol = line.match(/^\d+\.\s+(.*)/)
-        if (ol) { if (list !== 'ol') { closeList(); list = 'ol'; html += '<ol>' } html += `<li>${inline(ol[1])}</li>`; continue }
-        const ul = line.match(/^[-*]\s+(.*)/)
-        if (ul) { if (list !== 'ul') { closeList(); list = 'ul'; html += '<ul>' } html += `<li>${inline(ul[1])}</li>`; continue }
-        if (line === '') { closeList(); continue }
-        closeList(); html += `<p>${inline(line)}</p>`
-    }
-    closeList()
-    return html
-}
-
-const bodyHtml = computed(() => renderMarkdown(props.practice.body))
 
 const form = useForm({
     felt_score: props.state?.felt_score ?? null,
@@ -89,11 +62,7 @@ const submit = () => {
                 {{ practice.summary }}
             </p>
 
-            <div
-                class="praxilead-prose mt-6"
-                v-html="bodyHtml"
-                style="font-family: var(--font-body); color: var(--text-primary); line-height: 1.7;"
-            ></div>
+            <MarkdownText :source="props.practice.body" class="praxilead-prose mt-6" />
 
             <!-- Le micro-défi du jour -->
             <div class="mt-8" style="background: rgba(166,117,32,.07); border: 1px dashed var(--primary, #A67520); border-radius: var(--r-md, 12px); padding: 1.1rem 1.3rem;">

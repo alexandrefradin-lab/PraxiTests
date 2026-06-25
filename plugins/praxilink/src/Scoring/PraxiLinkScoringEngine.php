@@ -65,14 +65,31 @@ class PraxiLinkScoringEngine implements ScoringEngineContract
         // Normalisation 0-100 sur l'amplitude réelle 1-5 : (moy - 1) / 4 * 100.
         $normalizedScores = [];
         foreach (array_keys($dimensions) as $dim) {
-            $moy = $counts[$dim] > 0 ? $sums[$dim] / $counts[$dim] : 1.0;
+            // MET-m3: Si aucune réponse pour cette dimension (questions absentes ou sautées),
+            // on utilise null pour signaler l'absence de données plutôt qu'un score de 0
+            // (qui correspond à la réponse minimale "1" normalisée) ou 1.0 brut (qui biaisait
+            // le score global vers le haut). La dimension est exclue du calcul global si null.
+            if ($counts[$dim] === 0) {
+                $normalizedScores[$dim] = null;
+                continue;
+            }
+            $moy = $sums[$dim] / $counts[$dim];
             $normalizedScores[$dim] = round((($moy - 1) / 4) * 100, 1);
         }
 
         // Score global pondéré (les poids de dimensions() somment à 1.0).
-        $globalScore = 0.0;
+        // MET-m3: Exclure les dimensions sans réponses (null) et redistribuer les poids.
+        $globalScore    = 0.0;
+        $activeWeight   = 0.0;
         foreach ($dimensions as $dim => $weight) {
-            $globalScore += $normalizedScores[$dim] * $weight;
+            if ($normalizedScores[$dim] !== null) {
+                $globalScore  += $normalizedScores[$dim] * $weight;
+                $activeWeight += $weight;
+            }
+        }
+        // Renormaliser si des dimensions sont absentes (évite un score global artificellement bas).
+        if ($activeWeight > 0 && $activeWeight < 1.0) {
+            $globalScore = $globalScore / $activeWeight;
         }
         $globalScore = round($globalScore, 1);
 

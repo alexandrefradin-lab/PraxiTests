@@ -135,13 +135,16 @@ class Panel360Controller extends Controller
     {
         abort_unless($panel->user_id === auth()->id(), 403);
 
-        if ($panel->invitations()->count() < self::MIN_EVALUATORS) {
+        // Chargement unique des invitations (BDD-m3) : évite count() + get() séparés.
+        $invitations = $panel->invitations()->get();
+
+        if ($invitations->count() < self::MIN_EVALUATORS) {
             return back()->with('error', 'Indiquez au moins ' . self::MIN_EVALUATORS . ' évaluateurs avant de commencer.');
         }
 
         // Envoyer toutes les invitations encore « pending ».
         $candidate = auth()->user()->name ?? 'Un candidat';
-        foreach ($panel->invitations()->where('status', 'pending')->get() as $invitation) {
+        foreach ($invitations->where('status', 'pending') as $invitation) {
             Mail::to($invitation->email)->queue(new EvaluatorInvitationMail($invitation, $candidate));
             $invitation->update(['status' => 'sent', 'sent_at' => now()]);
         }

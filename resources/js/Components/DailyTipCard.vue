@@ -104,7 +104,7 @@ const apply = () => {
                 </span>
 
                 <span style="font-size: 0.72rem; color: var(--text-secondary);">
-                    Tip {{ tip.day_number }}/{{ tip.library_size }}
+                    Tip {{ tip?.day_number ?? '' }}/{{ tip?.library_size ?? '' }}
                 </span>
             </div>
         </div>

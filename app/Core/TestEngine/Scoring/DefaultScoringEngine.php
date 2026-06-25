@@ -60,7 +60,17 @@ class DefaultScoringEngine implements ScoringEngineContract
             $max  = $maxByDimension[$dim] ?? 1;
             $min  = $minByDimension[$dim] ?? 0;
             $span = $max - $min;
-            $pct  = $span > 0 ? round((($raw - $min) / $span) * 100, 1) : 0;
+            // MET-m2: span==0 (min==max) évite la division par zéro ; on logue pour détecter
+            // les configurations de test mal paramétrées (toutes les questions avec la même valeur).
+            if ($span == 0) {
+                \Illuminate\Support\Facades\Log::warning('DefaultScoringEngine: span=0 pour la dimension "' . $dim . '" (min==max=' . $min . '). Score neutralisé à 50.', [
+                    'attempt_id' => $attempt->id,
+                    'dimension'  => $dim,
+                    'min'        => $min,
+                    'max'        => $max,
+                ]);
+            }
+            $pct  = $span > 0 ? round((($raw - $min) / $span) * 100, 1) : 50.0; // 50 = valeur neutre si échelle plate
             $normalized[$dim] = max(0, min(100, $pct));
         }
 

@@ -144,5 +144,9 @@ require __DIR__ . '/profile_share.php';
 // Pas de middleware auth (Stripe ne s'authentifie pas via session).
 // CSRF exclu dans bootstrap/app.php (validateCsrfTokens except: ['stripe/webhook']).
 // Laravel Cashier vérifie la signature de l'événement via STRIPE_WEBHOOK_SECRET.
-Route::post('/stripe/webhook', \Laravel\Cashier\Http\Controllers\WebhookController::class)
-    ->name('cashier.webhook');
+// Guard : si cashier n'est pas encore installé (composer.lock ancien), la route
+// est simplement absente plutôt que de crasher package:discover.
+if (class_exists(\Laravel\Cashier\Http\Controllers\WebhookController::class)) {
+    Route::post('/stripe/webhook', \Laravel\Cashier\Http\Controllers\WebhookController::class)
+        ->name('cashier.webhook');
+}

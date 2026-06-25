@@ -12,6 +12,7 @@ class AwardXpOnAnswer
     {
         PluginHooks::action('attempt.answered', function (TestAttempt $attempt) use ($engine) {
             if (!$attempt->user) return;
+            $attempt->loadMissing(['test', 'user']); // Évite N+1 (ARC-M6)
             $engine->awardXp(
                 $attempt->user,
                 config('gamification.xp.answer_question', 10),
@@ -24,6 +25,7 @@ class AwardXpOnAnswer
 
         PluginHooks::action('attempt.completed', function (TestAttempt $attempt) use ($engine) {
             if (!$attempt->user) return;
+            $attempt->loadMissing(['test', 'user']); // Évite N+1 (ARC-M6)
 
             // Anti-doublon : vérifie qu'aucun XP de complétion n'a déjà été octroyé
             // pour cette tentative (ex. retry du listener ou double-fire d'event).

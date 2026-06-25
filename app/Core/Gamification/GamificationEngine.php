@@ -19,8 +19,17 @@ class GamificationEngine
      *   l'évaluation (Badge::all() + requêtes par badge) coûte cher à chaque clic. Les
      *   badges restent évalués à la fin de l'épreuve et aux déblocages d'insight.
      */
-    public function awardXp(User $user, int $amount, string $reason, ?Test $test = null, array $context = [], bool $evaluateBadges = true): GamificationProgress
+    public function awardXp(User $user, int $amount, string $reason, ?Test $test = null, array $context = [], bool $evaluateBadges = true, ?string $idempotencyKey = null): GamificationProgress
     {
+        // Idempotency guard (MET-M5) : si une clé est fournie et déjà présente, ne rien faire.
+        if ($idempotencyKey !== null) {
+            if (\DB::table('xp_events')->where('idempotency_key', $idempotencyKey)->exists()) {
+                return GamificationProgress::where('user_id', $user->id)
+                    ->where('test_id', $test?->id)
+                    ->firstOrFail();
+            }
+        }
+
         // S'assurer que la ligne existe — protégé contre les race conditions par transaction
         DB::transaction(function () use ($user, $test, $amount) {
             try {

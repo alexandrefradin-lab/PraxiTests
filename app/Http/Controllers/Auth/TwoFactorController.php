@@ -71,9 +71,14 @@ class TwoFactorController extends Controller
 
         $recoveryCodes = TotpService::generateRecoveryCodes();
 
+        // SEC-M3: Stocker les codes de récupération sous forme de hachés SHA-256.
+        // Les codes en clair sont affichés une seule fois à l'écran ($recoveryCodes)
+        // mais ne sont jamais persistés tels quels.
+        $hashedCodes = array_map(fn (string $c) => hash('sha256', $c), $recoveryCodes);
+
         $user->update([
             'two_factor_secret'         => $secret,
-            'two_factor_recovery_codes' => $recoveryCodes,
+            'two_factor_recovery_codes' => $hashedCodes,
         ]);
 
         // Marquer la session comme 2FA vérifié (l'utilisateur vient de prouver possession)
@@ -123,9 +128,14 @@ class TwoFactorController extends Controller
         }
 
         $codes = TotpService::generateRecoveryCodes();
-        $user->update(['two_factor_recovery_codes' => $codes]);
+
+        // SEC-M3: Stocker les codes hashés ; retourner les codes en clair dans la session
+        // pour affichage unique — ils ne peuvent plus être relus depuis la base après ça.
+        $hashedCodes = array_map(fn (string $c) => hash('sha256', $c), $codes);
+        $user->update(['two_factor_recovery_codes' => $hashedCodes]);
 
         return redirect()->route('account.two-factor')
-            ->with('success', 'Codes de récupération régénérés. Sauvegardez-les dans un endroit sûr.');
+            ->with('success', 'Codes de récupération régénérés. Sauvegardez-les dans un endroit sûr.')
+            ->with('recovery_codes_plain', $codes); // affichage unique seulement
     }
 }

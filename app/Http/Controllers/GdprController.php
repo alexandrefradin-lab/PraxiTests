@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -40,6 +41,14 @@ class GdprController extends Controller
      */
     public function export(Request $request): JsonResponse
     {
+        // MIN-13: Limiter les exports RGPD à 3 par heure pour éviter l'extraction massive.
+        $rlKey = 'gdpr_export.' . auth()->id();
+        if (RateLimiter::tooManyAttempts($rlKey, 3)) {
+            $seconds = RateLimiter::availableIn($rlKey);
+            abort(429, "Trop de demandes d'export. Réessayez dans {$seconds} secondes.");
+        }
+        RateLimiter::hit($rlKey, 3600); // fenêtre de 1 heure
+
         $user = $request->user()->load([
             'profile',
             'attempts.test:id,name,slug',
@@ -164,31 +173,4 @@ class GdprController extends Controller
         return back()->with('success', 'Votre CV a été supprimé définitivement.');
     }
 
-    // ──────────────────────────────────────────────────────────────────────────
-    // Helpers privés
-    // ──────────────────────────────────────────────────────────────────────────
-
-    protected function cancelSubscription(User $user): void
-    {
-        try {
-            if (method_exists($user, 'subscribed') && $user->subscribed()) {
-                $user->subscription()->cancelNow();
-            }
-        } catch (\Throwable $e) {
-            logger()->warning("GDPR: Stripe subscription cancel failed for user #{$user->id}: {$e->getMessage()}");
-            // Ne pas bloquer la suppression si Stripe échoue
-        }
-    }
-
-    protected function deleteCvFile(User $user): void
-    {
-        $profile = $user->profile;
-        if ($profile && $profile->cv_path) {
-            try {
-                Storage::disk('local')->delete($profile->cv_path);
-            } catch (\Throwable $e) {
-                logger()->warning("GDPR: CV file deletion failed for user #{$user->id}: {$e->getMessage()}");
-            }
-        }
-    }
-}
+    // ─────────────────────────────────────────────

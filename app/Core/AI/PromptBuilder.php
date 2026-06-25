@@ -124,6 +124,8 @@ Tu réponds STRICTEMENT en JSON valide, sans texte hors-JSON, sans bloc ```.
 TXT;
 
         // Une entrée par test : labels qualitatifs (jamais de chiffres bruts) + synthèse du test
+        // Eager-load manquants pour éviter N+1 (ARC-M6).
+        $attempts->each(fn (TestAttempt $a) => $a->loadMissing(['test', 'result']));
         $tests = $attempts->map(function (TestAttempt $a) {
             return [
                 'nom'                          => $a->test?->name,
@@ -174,6 +176,9 @@ TXT;
     protected function grimoireContext(User $user, Collection $attempts): array
     {
         $profile = $user->profile;
+
+        // Eager-load manquants pour éviter N+1 (ARC-M6).
+        $attempts->each(fn (TestAttempt $a) => $a->loadMissing(['test', 'result']));
 
         $tests = $attempts->map(function (TestAttempt $a) {
             return [
@@ -280,6 +285,8 @@ TXT;
 
     public function profileSynthesis(TestAttempt $attempt): array
     {
+        // Eager-load manquants pour éviter N+1 (ARC-M6).
+        $attempt->loadMissing(['test', 'result', 'user']);
         $user    = $attempt->user;
         $profile = $user?->profile;
         $test    = $attempt->test;

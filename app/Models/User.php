@@ -46,19 +46,34 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Vérifie si un code de récupération est valide, et le consomme si oui.
-     * Les codes sont stockés en clair (format XXXXXX-XXXXXX) dans le champ JSON.
+     *
+     * SEC-M3: Les codes sont stockés sous forme de hachés SHA-256 en base.
+     * Le code en clair soumis par l'utilisateur est haché à la volée pour
+     * la comparaison via hash_equals() (protection contre les timing attacks).
+     * Les codes en clair ne sont affichés qu'une seule fois lors de la
+     * génération (TwoFactorController::enable / regenerateCodes).
      */
     public function useRecoveryCode(string $code): bool
     {
-        $code  = strtoupper(trim($code));
-        $codes = $this->two_factor_recovery_codes ?? [];
+        $code     = strtoupper(trim($code));
+        $codeHash = hash('sha256', $code);
+        $codes    = $this->two_factor_recovery_codes ?? [];
 
-        $key = array_search($code, $codes, strict: true);
-        if ($key === false) return false;
+        // Parcours complet avec hash_equals() pour résistance aux timing attacks.
+        $found     = false;
+        $remaining = [];
+        foreach ($codes as $storedHash) {
+            if (!$found && hash_equals($storedHash, $codeHash)) {
+                $found = true; // code consommé — ne pas le conserver
+            } else {
+                $remaining[] = $storedHash;
+            }
+        }
+
+        if (!$found) return false;
 
         // Consommer le code (usage unique)
-        array_splice($codes, $key, 1);
-        $this->updateQuietly(['two_factor_recovery_codes' => $codes]);
+        $this->updateQuietly(['two_factor_recovery_codes' => $remaining]);
 
         return true;
     }

@@ -58,13 +58,40 @@ class GlobalGrimoireService
         // max_tokens généreux : 30 voies détaillées en JSON dépassent facilement 3200
         // tokens (accents = plus de tokens) → réponse tronquée = JSON invalide. Sonnet
         // accepte largement ces plafonds ; ParsesAiJson répare en dernier recours.
-        $responses = $driver->chatMany([
-            'synthese' => ['messages' => $synthMessages, 'options' => ['temperature' => 0.6, 'max_tokens' => 2600]],
-            'voies'    => ['messages' => $voiesMessages, 'options' => ['temperature' => 0.6, 'max_tokens' => 12000]],
-        ]);
+        // Gestion partielle (MET-M3) : si l'un des deux appels échoue, on sauvegarde
+        // ce que l'autre a produit plutôt que de tout perdre.
+        $rawSynth = '';
+        $rawVoies = '';
 
-        $rawSynth = PluginHooks::applyFilters('ai.grimoire.output', (string) ($responses['synthese'] ?? ''), $user, $attempts);
-        $rawVoies = PluginHooks::applyFilters('ai.grimoire.voies_output', (string) ($responses['voies'] ?? ''), $user, $attempts);
+        try {
+            $responses = $driver->chatMany([
+                'synthese' => ['messages' => $synthMessages, 'options' => ['temperature' => 0.6, 'max_tokens' => 2600]],
+                'voies'    => ['messages' => $voiesMessages, 'options' => ['temperature' => 0.6, 'max_tokens' => 12000]],
+            ]);
+            $rawSynth = (string) ($responses['synthese'] ?? '');
+            $rawVoies = (string) ($responses['voies'] ?? '');
+        } catch (\Exception $e) {
+            // chatMany a échoué globalement — on tente chaque appel séparément.
+            \Log::warning('Grimoire chatMany failed, falling back to sequential calls', [
+                'user_id' => $user->id,
+                'error'   => $e->getMessage(),
+            ]);
+
+            try {
+                $rawSynth = (string) $driver->chat($synthMessages, ['temperature' => 0.6, 'max_tokens' => 2600]);
+            } catch (\Exception $eSynth) {
+                \Log::warning('Grimoire synthesis failed', ['user_id' => $user->id, 'error' => $eSynth->getMessage()]);
+            }
+
+            try {
+                $rawVoies = (string) $driver->chat($voiesMessages, ['temperature' => 0.6, 'max_tokens' => 12000]);
+            } catch (\Exception $eVoies) {
+                \Log::warning('Grimoire voies failed', ['user_id' => $user->id, 'error' => $eVoies->getMessage()]);
+            }
+        }
+
+        $rawSynth = PluginHooks::applyFilters('ai.grimoire.output', $rawSynth, $user, $attempts);
+        $rawVoies = PluginHooks::applyFilters('ai.grimoire.voies_output', $rawVoies, $user, $attempts);
 
         $jsonSynth = $this->parseJson($rawSynth);
         $jsonVoies = $this->parseJson($rawVoies);

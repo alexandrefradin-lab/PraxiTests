@@ -90,6 +90,7 @@ function sendSuggestion(text) {
 let currentAbortController = null
 
 const open = ref(false)
+const oraclePanel = ref(null)
 const loaded = ref(false)        // historique déjà chargé ?
 const sending = ref(false)
 const messages = ref([])         // { role, content }
@@ -182,10 +183,41 @@ function onKeydown(e) {
     }
 }
 
+// FE-C4: Focus trap panneau Oracle
+function trapFocusOracle(e) {
+    if (!oraclePanel.value) return
+    const f = oraclePanel.value.querySelectorAll(
+        'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    )
+    if (!f.length) return
+    const first = f[0], last = f[f.length - 1]
+    if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === first) {
+            e.preventDefault(); last.focus()
+        } else if (!e.shiftKey && document.activeElement === last) {
+            e.preventDefault(); first.focus()
+        }
+    }
+    if (e.key === 'Escape') { open.value = false }
+}
+
+watch(open, (isOpen) => {
+    if (isOpen) {
+        nextTick(() => {
+            document.addEventListener('keydown', trapFocusOracle)
+            // Focus initial sur le textarea de saisie
+            oraclePanel.value?.querySelector('textarea, button')?.focus()
+        })
+    } else {
+        document.removeEventListener('keydown', trapFocusOracle)
+    }
+})
+
 watch(messages, scrollToBottom, { deep: true })
 
 onBeforeUnmount(() => {
     if (currentAbortController) currentAbortController.abort()
+    document.removeEventListener('keydown', trapFocusOracle)
 })
 </script>
 
@@ -193,7 +225,7 @@ onBeforeUnmount(() => {
     <div class="oracle-root">
         <!-- Panneau -->
         <transition name="oracle-pop">
-            <section v-if="open" class="oracle-panel" role="dialog" aria-modal="true" aria-labelledby="oracle-panel-title">
+            <section ref="oraclePanel" v-if="open" class="oracle-panel" role="dialog" aria-modal="true" aria-labelledby="oracle-panel-title">
                 <header class="oracle-head">
                     <div class="oracle-head-id">
                         <span class="oracle-sigil">&#10022;</span>

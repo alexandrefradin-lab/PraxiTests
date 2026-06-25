@@ -283,7 +283,9 @@ const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
 
                         <!-- SCALE / LIKERT (alias) -->
                         <template v-else-if="currentQuestion.type === 'scale' || currentQuestion.type === 'likert'">
-                            <div class="ac-scale-wrap">
+                            <div class="ac-scale-wrap"
+                                 role="radiogroup"
+                                 :aria-label="currentQuestion.prompt">
                                 <span class="ac-scale-label">{{ currentQuestion.options?.min_label || 'Pas du tout' }}</span>
                                 <div class="ac-scale-buttons">
                                     <button
@@ -295,6 +297,9 @@ const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
                                             'ac-scale-btn--active':      value === n,
                                             'ac-scale-btn--processing':  isSubmitting && value === n,
                                         }"
+                                        role="radio"
+                                        :aria-checked="value === n"
+                                        :aria-label="String(n)"
                                         :disabled="isSubmitting"
                                         @click="selectAndAdvance(n)"
                                     >
@@ -336,11 +341,16 @@ const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
 
                         <!-- TEXT LIBRE -->
                         <template v-else-if="currentQuestion.type === 'text'">
+                            <label :for="'answer-' + currentQuestion.id" class="sr-only">
+                                {{ currentQuestion.label || currentQuestion.prompt || 'Votre réponse' }}
+                            </label>
                             <textarea
+                                :id="'answer-' + currentQuestion.id"
                                 v-model="value"
                                 rows="4"
                                 class="ac-textarea"
                                 placeholder="Développe ta pensée…"
+                                :aria-describedby="currentQuestion.helper ? 'help-' + currentQuestion.id : undefined"
                             ></textarea>
                         </template>
 
@@ -350,7 +360,11 @@ const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
                             <p class="ac-fallback-note">
                                 Cette question utilise un format non pris en charge. Réponds librement ci-dessous.
                             </p>
+                            <label :for="'answer-fallback-' + currentQuestion.id" class="sr-only">
+                                {{ currentQuestion.label || currentQuestion.prompt || 'Votre réponse' }}
+                            </label>
                             <textarea
+                                :id="'answer-fallback-' + currentQuestion.id"
                                 v-model="value"
                                 rows="4"
                                 class="ac-textarea"
@@ -445,6 +459,18 @@ const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
 </template>
 
 <style scoped>
+/* ── Accessibilité ───────────────────────────── */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
 /* ── TOKENS AC ────────────────────────────────── */
 .ac-shell {
     --bg-base:           #F0E8D4;
