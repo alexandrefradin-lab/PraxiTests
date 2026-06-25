@@ -225,7 +225,7 @@ onMounted(() => {
   </section>
 
   <!-- QUOTE -->
-  <div class="lp-quote" style="background:var(--color-accent,#1C1408);padding:4rem 3rem;text-align:center;border-top:1px solid rgba(166,117,32,0.15)">
+  <div class="lp-quote" style="background:#1C1408;padding:4rem 3rem;text-align:center;border-top:1px solid rgba(166,117,32,0.15)">
     <div style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:64px;font-weight:700;color:var(--color-primary,#A67520);opacity:.25;line-height:.7;margin-bottom:.8rem">"</div>
     <p style="font-family:var(--font-body,'Inter',sans-serif);font-size:19px;font-style:italic;font-weight:400;color:rgba(240,232,212,0.85);line-height:1.6;max-width:480px;margin:0 auto 1.2rem;letter-spacing:.01em">Je ne m'attendais pas a me retrouver autant dans ce parcours. Comme si quelqu'un avait enfin pose les bonnes questions.</p>
     <p style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;letter-spacing:.15em;color:rgba(166,117,32,0.6);text-transform:uppercase">Margaux, 34 ans &middot; Apres son voyage PraxiQuest</p>
