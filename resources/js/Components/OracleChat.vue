@@ -358,9 +358,11 @@ watch(messages, scrollToBottom, { deep: true })
     font-size: 13.5px;
     line-height: 1.55;
     margin: 0;
-    white-space: pre-wrap;
     word-wrap: break-word;
+    overflow-wrap: break-word;
 }
+/* pre-wrap uniquement pour les messages user (texte brut) */
+.oracle-msg--user .oracle-bubble { white-space: pre-wrap; }
 .oracle-msg--user .oracle-bubble {
     background: linear-gradient(180deg, var(--or-gold), var(--or-gold-dark));
     color: #FBF6EA;
@@ -526,6 +528,48 @@ watch(messages, scrollToBottom, { deep: true })
     transition: background 0.15s;
 }
 .oracle-confirm-delete:hover { background: #8B2316; }
+
+/* ── MarkdownText dans les bulles oracle ── */
+.oracle-msg--oracle .oracle-bubble :deep(.pt-md) {
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--or-ink);
+}
+.oracle-msg--oracle .oracle-bubble :deep(.pt-md p) { margin: 0 0 0.45rem; }
+.oracle-msg--oracle .oracle-bubble :deep(.pt-md p:last-child) { margin-bottom: 0; }
+.oracle-msg--oracle .oracle-bubble :deep(.pt-md h2),
+.oracle-msg--oracle .oracle-bubble :deep(.pt-md h3),
+.oracle-msg--oracle .oracle-bubble :deep(.pt-md h4) {
+    font-family: var(--font-body, 'Inter', sans-serif);
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--or-ink);
+    margin: 0.5rem 0 0.2rem;
+    text-transform: none;
+    letter-spacing: 0;
+}
+.oracle-msg--oracle .oracle-bubble :deep(.pt-md h2:first-child),
+.oracle-msg--oracle .oracle-bubble :deep(.pt-md h3:first-child),
+.oracle-msg--oracle .oracle-bubble :deep(.pt-md h4:first-child) { margin-top: 0; }
+.oracle-msg--oracle .oracle-bubble :deep(.pt-md strong) { font-weight: 700; color: var(--or-ink); }
+.oracle-msg--oracle .oracle-bubble :deep(.pt-md em) { font-style: italic; color: var(--or-gold-dark); }
+.oracle-msg--oracle .oracle-bubble :deep(.pt-md ul),
+.oracle-msg--oracle .oracle-bubble :deep(.pt-md ol) { margin: 0.25rem 0 0.45rem; padding-left: 1.2rem; }
+.oracle-msg--oracle .oracle-bubble :deep(.pt-md li) { margin: 0.2rem 0; }
+.oracle-msg--oracle .oracle-bubble :deep(.pt-md ul li)::marker { color: var(--or-gold); }
+.oracle-msg--oracle .oracle-bubble :deep(.pt-md ol li)::marker { color: var(--or-gold); }
+.oracle-msg--oracle .oracle-bubble :deep(.pt-md blockquote) {
+    border-left: 2px solid var(--or-gold);
+    padding: 0.1rem 0 0.1rem 0.8rem;
+    margin: 0.5rem 0;
+    color: var(--or-gold-dark);
+    font-style: italic;
+}
+.oracle-msg--oracle .oracle-bubble :deep(.pt-md hr) {
+    border: none;
+    border-top: 1px solid rgba(166, 117, 32, 0.3);
+    margin: 0.8rem 0;
+}
 
 /* ── Transition fade (modale) ── */
 .fade-enter-active, .fade-leave-active { transition: opacity 0.18s ease; }
