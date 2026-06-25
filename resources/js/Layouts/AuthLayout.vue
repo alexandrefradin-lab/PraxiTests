@@ -25,19 +25,18 @@ const branding = computed(() => usePage().props.branding ?? { name: 'PraxiQuest'
             </svg>
 
             <!-- Logo -->
-            <Link href="/" style="display: flex; align-items: center; gap: 14px; text-decoration: none; position: relative; z-index: 1">
-                <!-- SVG logo: rect or solide + aiguille ivoire (SVG fill != CSS, toujours rendu) -->
-                <svg width="44" height="44" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;filter:drop-shadow(0 4px 10px rgba(166,117,32,0.5))">
-                    <rect width="44" height="44" rx="10" fill="#A67520"/>
-                    <rect width="44" height="2" rx="1" fill="#F0E8D4" opacity="0.15" y="1"/>
-                    <polygon points="22,9 24.2,20.5 22,24 19.8,20.5" fill="#1C1408"/>
-                    <polygon points="22,35 24.2,23.5 22,20 19.8,23.5" fill="#1C1408" opacity="0.35"/>
-                    <circle cx="22" cy="22" r="3.5" fill="#F0E8D4"/>
-                    <circle cx="22" cy="22" r="1.5" fill="#A67520"/>
-                </svg>
+            <Link href="/" class="auth-logo-link">
+                <div class="auth-logo-box">
+                    <svg viewBox="0 0 24 24" class="auth-logo-svg">
+                        <polygon points="12,2 13.8,10.5 12,13.5 10.2,10.5" fill="#1C1408"/>
+                        <polygon points="12,22 13.8,13.5 12,10.5 10.2,13.5" fill="#1C1408" opacity="0.4"/>
+                        <circle cx="12" cy="12" r="3" fill="#F0E8D4"/>
+                        <circle cx="12" cy="12" r="1.3" fill="#A67520"/>
+                    </svg>
+                </div>
                 <div>
-                    <div style="font-family: var(--font-display); font-size: 17px; font-weight: 700; color: #F0E8D4; letter-spacing: -0.01em; line-height: 1">{{ branding.name }}</div>
-                    <div style="font-family: var(--font-data); font-size: 10px; color: #A67520; text-transform: uppercase; letter-spacing: 0.14em; margin-top: 5px">Voyage intérieur</div>
+                    <div class="auth-brand-name">{{ branding.name }}</div>
+                    <div class="auth-brand-tag">Voyage intérieur</div>
                 </div>
             </Link>
 
@@ -98,3 +97,50 @@ const branding = computed(() => usePage().props.branding ?? { name: 'PraxiQuest'
         </div>
     </div>
 </template>
+
+<style>
+.auth-logo-link {
+    display: flex !important;
+    align-items: center !important;
+    gap: 14px !important;
+    text-decoration: none !important;
+    position: relative;
+    z-index: 1;
+}
+.auth-logo-box {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    border-radius: 10px !important;
+    background: #A67520 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+    box-shadow: 0 4px 16px rgba(166,117,32,0.45) !important;
+}
+.auth-logo-svg {
+    width: 22px !important;
+    height: 22px !important;
+    display: block !important;
+    flex-shrink: 0 !important;
+}
+.auth-brand-name {
+    font-family: var(--font-display);
+    font-size: 17px !important;
+    font-weight: 700 !important;
+    color: #F0E8D4 !important;
+    letter-spacing: -0.01em;
+    line-height: 1;
+}
+.auth-brand-tag {
+    font-family: var(--font-data);
+    font-size: 10px !important;
+    color: #A67520 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    margin-top: 5px;
+    display: block !important;
+}
+</style>
