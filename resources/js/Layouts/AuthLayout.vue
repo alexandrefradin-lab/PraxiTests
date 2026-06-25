@@ -59,7 +59,7 @@ const branding = computed(() => usePage().props.branding ?? { name: 'PraxiQuest'
             <div style="display: flex; flex-direction: column; gap: 14px; position: relative; z-index: 1">
                 <div v-for="bullet in [
                     'Analyse IA multi-dimensions',
-                    '15 pistes métiers personnalisées',
+                    '30 pistes métiers personnalisées',
                     'Rapport PDF confidentiel',
                 ]" :key="bullet" style="display: flex; align-items: center; gap: 12px">
                     <div style="width: 7px; height: 7px; background: #A67520; transform: rotate(45deg); flex-shrink: 0"></div>

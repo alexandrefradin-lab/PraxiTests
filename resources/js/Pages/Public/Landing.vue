@@ -25,13 +25,13 @@ onMounted(() => {
 <template>
 <!-- SEO (cf. audit MK-6) : titre, description et cartes de partage Open Graph/Twitter. -->
 <Head title="PraxiQuest — Test d'orientation et de reconversion professionnelle">
-  <meta name="description" content="PraxiQuest : faites le point sur votre profil avec des tests d'orientation reconnus (Big Five, RIASEC, MBI…), une synthèse par IA et 15 pistes de métiers réalistes. Idéal pour la reconversion et l'évolution professionnelle." />
+  <meta name="description" content="PraxiQuest : faites le point sur votre profil avec des tests d'orientation reconnus (Big Five, RIASEC, MBI…), une synthèse par IA et 30 pistes de métiers réalistes. Idéal pour la reconversion et l'évolution professionnelle." />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="PraxiQuest — Découvrez votre potentiel professionnel" />
-  <meta property="og:description" content="Tests d'orientation augmentés par l'IA : synthèse de profil et 15 pistes de métiers réalistes pour votre reconversion ou votre évolution." />
+  <meta property="og:description" content="Tests d'orientation augmentés par l'IA : synthèse de profil et 30 pistes de métiers réalistes pour votre reconversion ou votre évolution." />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="PraxiQuest — Découvrez votre potentiel professionnel" />
-  <meta name="twitter:description" content="Tests d'orientation augmentés par l'IA : synthèse de profil et 15 pistes de métiers réalistes." />
+  <meta name="twitter:description" content="Tests d'orientation augmentés par l'IA : synthèse de profil et 30 pistes de métiers réalistes." />
 </Head>
 <div style="font-family:var(--font-body,Inter,sans-serif);background:var(--bg-base,#F0E8D4);min-height:100vh;color:var(--text-primary,#2A1E08);overflow-x:hidden">
 
@@ -179,7 +179,7 @@ onMounted(() => {
           {roman:'I', title:'L\'ancrage', text:'Tu poses le contexte. La ou tu en es. D\'ou tu viens. L\'IA t\'ecoute avant de te parler.'},
           {roman:'II', title:'L\'exploration', text:'Des questions qui font reflechir. Des revelations inattendues. Une quete interieure engageante.'},
           {roman:'III', title:'La revelation', text:'L\'IA cartographie ce que tu as traverse. Une synthese profonde, personnalisee, honnete.'},
-          {roman:'IV', title:'L\'horizon', text:'15 pistes concretes, ouvertes. Pas des reponses. Des chemins. A toi de choisir lequel explorer.'},
+          {roman:'IV', title:'L\'horizon', text:'30 pistes concretes, ouvertes. Pas des reponses. Des chemins. A toi de choisir lequel explorer.'},
         ]" :key="i" class="lp-journey-item" style="padding:0 1.2rem;text-align:center;position:relative">
           <div class="lp-journey-circle" style="width:56px;height:56px;margin:0 auto 1.2rem;background:var(--bg-surface,#E5DAC2);border:1px solid rgba(166,117,32,0.35);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:1">
             <span class="lp-journey-num" style="font-family:var(--font-data,'Space Mono',monospace);font-size:14px;font-weight:400;color:var(--color-primary,#A67520)">{{ step.roman }}</span>

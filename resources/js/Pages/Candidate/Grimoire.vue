@@ -15,7 +15,7 @@ const voies = computed(() => props.grimoire?.voies ?? [])
 const tabs = [
     { key: 'synthese', label: 'Relecture globale' },
     { key: 'tests',    label: 'Résultats des tests' },
-    { key: 'pistes',   label: '15 Pistes métiers' },
+    { key: 'pistes',   label: '30 Pistes métiers' },
 ]
 const activeTab = ref('synthese')
 
@@ -269,7 +269,7 @@ function fitClass(score) {
                     </section>
                 </div>
 
-                <!-- ── Onglet 3 : Les 15 pistes ──────────────────────── -->
+                <!-- ── Onglet 3 : Les 30 pistes ──────────────────────── -->
                 <div v-show="activeTab === 'pistes'" role="tabpanel">
                     <section v-if="voies.length" class="grim-voies">
                         <div class="grim-section-head">

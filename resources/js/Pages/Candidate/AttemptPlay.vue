@@ -33,6 +33,19 @@ const value = ref(null)
 const startedAt = ref(Date.now())
 const isSubmitting = ref(false)
 
+// Sens de l'animation du paquet de cartes : 'deck-fwd' en avançant, 'deck-back' en relecture.
+const transitionName = ref('deck-fwd')
+
+// Aperçu des 2 cartes suivantes → effet de pile derrière la carte active.
+const ghostQuestions = computed(() => {
+    const arr = []
+    for (let d = 1; d <= 2; d++) {
+        const q = allQuestions.value[currentIndex.value + d]
+        if (q) arr.push(q)
+    }
+    return arr
+})
+
 const hasValue = (v) => !(v === null || v === undefined || v === '' || (Array.isArray(v) && !v.length))
 
 // Charge dans `value` la réponse déjà enregistrée pour la question courante (ou null).
@@ -45,6 +58,7 @@ loadValue()
 
 const goTo = (index) => {
     if (index < 0 || index >= totalQuestions.value) return
+    transitionName.value = index >= currentIndex.value ? 'deck-fwd' : 'deck-back'
     currentIndex.value = index
     loadValue()
 }
@@ -173,29 +187,20 @@ const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
             <main class="ac-main">
                 <div class="ac-question-wrap">
 
-                    <!-- Navigation : retour pour corriger -->
-                    <div class="ac-nav">
-                        <button
-                            v-if="currentIndex > 0"
-                            type="button"
-                            class="ac-nav-btn"
-                            :disabled="isSubmitting"
-                            @click="goBack"
+                    <!-- PAQUET DE CARTES : pile en arrière-plan + carte active -->
+                    <div class="ac-deck">
+                        <div
+                            v-for="(gq, gi) in ghostQuestions.slice().reverse()"
+                            :key="'ghost-' + gq.id"
+                            class="ac-ghost"
+                            :class="'ac-ghost--' + (ghostQuestions.length - gi)"
+                            aria-hidden="true"
                         >
-                            ← Précédent
-                        </button>
-                        <span v-else></span>
+                            <span class="ac-ghost-badge">{{ gq.section_title }}</span>
+                        </div>
 
-                        <button
-                            v-if="canGoForward"
-                            type="button"
-                            class="ac-nav-btn"
-                            :disabled="isSubmitting"
-                            @click="goForward"
-                        >
-                            Suivant →
-                        </button>
-                    </div>
+                        <Transition :name="transitionName">
+                            <div class="ac-card" :key="currentIndex">
 
                     <!-- Badge section -->
                     <div class="ac-section-badge">{{ currentQuestion.section_title }}</div>
