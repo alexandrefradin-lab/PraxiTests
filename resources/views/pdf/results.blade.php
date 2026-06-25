@@ -210,9 +210,9 @@
     @font-face { font-family:'Lato'; font-style:italic; font-weight:bold;   src:url("{{ resource_path('fonts/Lato-BoldItalic.ttf') }}") format("truetype"); }
     @endif
 
-    /* @page margin : top=header (72px fond sombre + 4px accent bar + 16px espace = 92px)
-                      bottom=footer (64px + 16px espace = 80px) */
-    @page { margin: 96px 0 84px 0; }
+    /* @page margin : top=header (72px fond sombre + 4px accent bar = 76px, zéro gap)
+                      bottom=footer (64px + 20px espace = 84px) */
+    @page { margin: 76px 0 84px 0; }
     * { box-sizing: border-box; }
     html { background: #FFFFFF; }
     body {
@@ -233,7 +233,7 @@
        ══════════════════════════════════════════════════════ */
     .run-header {
         position: fixed;
-        top: -96px;
+        top: -76px;
         left: 0; right: 0;
         height: 72px;
         background: {{ $accent }};
@@ -268,10 +268,10 @@
         text-align: right;
     }
 
-    /* Barre accent or sous le header */
+    /* Barre accent or sous le header — colle exactement sous run-header */
     .run-accent {
         position: fixed;
-        top: -24px;
+        top: -4px;
         left: 0; right: 0;
         height: 4px;
         background: {{ $primary }};
@@ -680,184 +680,224 @@
      Droite : logo PraxiQuest + date
      ═══════════════════════════════════════════════════════ --}}
 @if($sections['cover'])
-{{-- ══ COVER : div height:680px (dompdf respecte height sur div, pas sur table) ══ --}}
-<div style="background:{{ $accent }}; height:680px;">
+{{-- ══════════════════════════════════════════════════════
+     COVER — hauteur naturelle (padding 54/50px), pas de height forcée
+     dompdf : height ignoré sur <table> mais respecté sur <div> —
+     ici on laisse le contenu définir la hauteur naturellement.
+     ══════════════════════════════════════════════════════ --}}
+<div style="background:{{ $accent }};">
 <table style="width:100%; border-collapse:collapse;">
     <tr>
-        {{-- Gauche : identité candidat --}}
-        <td style="vertical-align:top; padding:90px 32px 60px 44px; width:62%;">
-            <div style="font-size:8px; font-weight:bold; letter-spacing:2.5px; text-transform:uppercase;
-                        color:{{ $primary }}; font-family:'DejaVu Sans Mono',monospace; margin-bottom:18px;">
+        {{-- Gauche : kicker + nom + test + méta --}}
+        <td style="vertical-align:middle; padding:52px 32px 48px 44px; width:60%;">
+
+            {{-- Kicker : RAPPORT D'ÉVALUATION --}}
+            <div style="font-size:7.5px; font-weight:bold; letter-spacing:2.5px; text-transform:uppercase;
+                        color:{{ $primary }}; font-family:'DejaVu Sans Mono',monospace; margin-bottom:14px;">
                 RAPPORT D'&Eacute;VALUATION
             </div>
             {{-- Filet court or --}}
-            <div style="height:2px; width:48px; background:{{ $primary }}; margin-bottom:22px;"></div>
-            <div style="font-family:'Lora','DejaVu Serif',serif; font-size:36px; font-weight:bold;
+            <div style="height:2px; width:44px; background:{{ $primary }}; margin-bottom:20px;"></div>
+
+            {{-- Nom du candidat --}}
+            <div style="font-family:'Lora','DejaVu Serif',serif; font-size:34px; font-weight:bold;
                         color:#FFFFFF; line-height:1.1; margin-bottom:10px;">
                 {{ $candidate }}
             </div>
-            <div style="font-family:'Lora','DejaVu Serif',serif; font-size:15px; color:{{ $primary }};
-                        margin-bottom:32px; font-style:italic;">
+
+            {{-- Nom du test --}}
+            <div style="font-family:'Lora','DejaVu Serif',serif; font-size:14px; color:{{ $primary }};
+                        font-style:italic; line-height:1.4; margin-bottom:28px;">
                 {{ $test->name }}
             </div>
-            {{-- Méta-données --}}
-            <table style="border-collapse:collapse;">
+
+            {{-- Méta-données : statut | ancienneté | date | pistes --}}
+            <table style="border-collapse:collapse; margin-bottom:0;">
                 <tr>
                     @if($statusLabel)
-                    <td style="padding-right:28px; vertical-align:top;">
-                        <div style="font-size:7px; font-weight:bold; letter-spacing:1.5px;
+                    <td style="padding-right:24px; vertical-align:top; padding-bottom:0;">
+                        <div style="font-size:6.5px; font-weight:bold; letter-spacing:1.5px;
                                     text-transform:uppercase; color:{{ $primary }};
-                                    font-family:'DejaVu Sans Mono',monospace; margin-bottom:3px;">Statut</div>
-                        <div style="font-size:11px; font-weight:500; color:#E8D8B8;">{{ $statusLabel }}</div>
+                                    font-family:'DejaVu Sans Mono',monospace; margin-bottom:2px;">Statut</div>
+                        <div style="font-size:11px; font-weight:bold; color:#E8D8B8; font-family:'Lora','DejaVu Serif',serif;">{{ $statusLabel }}</div>
                     </td>
                     @endif
                     @if($seniority)
-                    <td style="padding-right:28px; vertical-align:top;">
-                        <div style="font-size:7px; font-weight:bold; letter-spacing:1.5px;
+                    <td style="padding-right:24px; vertical-align:top; padding-bottom:0;">
+                        <div style="font-size:6.5px; font-weight:bold; letter-spacing:1.5px;
                                     text-transform:uppercase; color:{{ $primary }};
-                                    font-family:'DejaVu Sans Mono',monospace; margin-bottom:3px;">Anciennet&eacute;</div>
-                        <div style="font-size:11px; font-weight:500; color:#E8D8B8;">{{ $seniority }}</div>
+                                    font-family:'DejaVu Sans Mono',monospace; margin-bottom:2px;">Anciennet&eacute;</div>
+                        <div style="font-size:11px; font-weight:bold; color:#E8D8B8; font-family:'Lora','DejaVu Serif',serif;">{{ $seniority }}</div>
                     </td>
                     @endif
-                    <td style="padding-right:28px; vertical-align:top;">
-                        <div style="font-size:7px; font-weight:bold; letter-spacing:1.5px;
+                    <td style="padding-right:24px; vertical-align:top; padding-bottom:0;">
+                        <div style="font-size:6.5px; font-weight:bold; letter-spacing:1.5px;
                                     text-transform:uppercase; color:{{ $primary }};
-                                    font-family:'DejaVu Sans Mono',monospace; margin-bottom:3px;">Date</div>
-                        <div style="font-size:11px; font-weight:500; color:#E8D8B8;">{{ $dateDone->format('d/m/Y') }}</div>
+                                    font-family:'DejaVu Sans Mono',monospace; margin-bottom:2px;">Date</div>
+                        <div style="font-size:11px; font-weight:bold; color:#E8D8B8; font-family:'Lora','DejaVu Serif',serif;">{{ $dateDone->format('d/m/Y') }}</div>
                     </td>
                     @if(count($jobs))
-                    <td style="vertical-align:top;">
-                        <div style="font-size:7px; font-weight:bold; letter-spacing:1.5px;
+                    <td style="vertical-align:top; padding-bottom:0;">
+                        <div style="font-size:6.5px; font-weight:bold; letter-spacing:1.5px;
                                     text-transform:uppercase; color:{{ $primary }};
-                                    font-family:'DejaVu Sans Mono',monospace; margin-bottom:3px;">Pistes m&eacute;tiers</div>
-                        <div style="font-size:11px; font-weight:500; color:#E8D8B8;">{{ count($jobs) }} voies explor&eacute;es</div>
+                                    font-family:'DejaVu Sans Mono',monospace; margin-bottom:2px;">Pistes m&eacute;tiers</div>
+                        <div style="font-size:11px; font-weight:bold; color:#E8D8B8; font-family:'Lora','DejaVu Serif',serif;">{{ count($jobs) }} voies explor&eacute;es</div>
                     </td>
                     @endif
                 </tr>
             </table>
-            {{-- Description du rapport --}}
-            <div style="margin-top:36px; padding-top:24px; border-top:1px solid #2E2318;">
-                <div style="font-size:9.5px; color:#9A8460; line-height:1.7;">
-                    Ce rapport pr&eacute;sente les r&eacute;sultats de votre &eacute;valuation psychom&eacute;trique,
-                    une analyse dimensionnelle de votre profil, une synth&egrave;se g&eacute;n&eacute;r&eacute;e par IA,
-                    ainsi que {{ count($jobs) }} pistes m&eacute;tiers personnalis&eacute;es.
-                </div>
-            </div>
         </td>
-        {{-- Droite : logo + score résumé --}}
-        <td style="vertical-align:top; padding:90px 44px 60px 24px; width:38%; text-align:center;">
+
+        {{-- Droite : médaillon + PraxiQuest + score/profil --}}
+        <td style="vertical-align:middle; padding:52px 44px 48px 28px; width:40%; text-align:center;
+                   border-left:1px solid #2A1E0E;">
+
+            {{-- Logo ou médaillon Q --}}
             @if(!empty($brand['logo']))
                 <img src="{{ $brand['logo'] }}" alt="{{ $brand['name'] }}"
-                     style="max-height:52px; margin-bottom:16px;">
+                     style="max-height:52px; margin-bottom:12px;">
             @else
-                {{-- Médaillon Q --}}
-                <table style="border-collapse:collapse; margin:0 auto 14px;">
+                <table style="border-collapse:collapse; margin:0 auto 10px;">
                     <tr>
-                        <td style="width:60px; height:60px; border-radius:30px;
+                        <td style="width:56px; height:56px; border-radius:28px;
                                    background:{{ $primary }}; text-align:center;
                                    vertical-align:middle; padding:0;">
-                            <span style="font-family:'Lora','DejaVu Serif',serif; font-size:28px;
+                            <span style="font-family:'Lora','DejaVu Serif',serif; font-size:26px;
                                          font-weight:bold; color:{{ $accent }};">Q</span>
                         </td>
                     </tr>
                 </table>
-                <div style="font-family:'Lora','DejaVu Serif',serif; font-size:18px; font-weight:bold;
+                <div style="font-family:'Lora','DejaVu Serif',serif; font-size:16px; font-weight:bold;
                              color:#FFFFFF; letter-spacing:.3px; margin-bottom:4px;">
                     Praxi<span style="color:{{ $primary }};">Quest</span>
                 </div>
             @endif
-            <div style="font-size:8.5px; color:#6A5838; letter-spacing:1.2px; margin-bottom:36px;">
-                &Eacute;mis le {{ $dateDone->format('d/m/Y') }}
+
+            <div style="font-size:8px; color:#6A5838; letter-spacing:1.2px;
+                        font-family:'DejaVu Sans Mono',monospace; margin-bottom:24px;">
+                &Eacute;MIS LE {{ strtoupper($dateDone->format('d/m/Y')) }}
             </div>
-            {{-- Score ou profil en évidence --}}
+
+            {{-- Score ou profil en grand --}}
             @if($headline)
-            <div style="border-top:1px solid #2E2318; padding-top:24px;">
+            <div style="background:#140E06; padding:16px 20px 14px; display:block;">
                 @if($headline['pct'] !== null)
-                <div style="font-family:'Lora','DejaVu Serif',serif; font-size:52px; font-weight:bold;
+                <div style="font-family:'Lora','DejaVu Serif',serif; font-size:48px; font-weight:bold;
                              color:{{ $primary }}; line-height:1;">
                     {{ $headline['pct'] }}
                 </div>
-                <div style="font-size:7.5px; color:#8A7050; letter-spacing:2px;
-                             text-transform:uppercase; font-family:'DejaVu Sans Mono',monospace; margin-top:6px;">
-                    Score / 100
+                <div style="font-size:7px; color:#7A6040; letter-spacing:2px;
+                             text-transform:uppercase; font-family:'DejaVu Sans Mono',monospace; margin-top:4px;">
+                    Score &mdash; /100
                 </div>
                 @else
-                <div style="font-family:'Lora','DejaVu Serif',serif; font-size:22px; font-weight:bold;
+                <div style="font-family:'Lora','DejaVu Serif',serif; font-size:24px; font-weight:bold;
                              color:#FFFFFF; line-height:1.2; margin-bottom:6px;">
                     {{ $headline['label'] ?? 'Profil &eacute;tabli' }}
                 </div>
                 @if($headline['code'])
-                <div style="display:inline-block; padding:4px 12px; background:{{ $secondary }};
-                             color:#F5DDB0; font-size:9px; font-weight:bold;
-                             letter-spacing:1px; text-transform:uppercase;
-                             font-family:'DejaVu Sans Mono',monospace;">
+                <div style="font-family:'DejaVu Sans Mono',monospace; font-size:8px; font-weight:bold;
+                             letter-spacing:2px; text-transform:uppercase; color:{{ $primary }};">
                     {{ $headline['code'] }}
                 </div>
                 @endif
                 @endif
             </div>
             @endif
+
         </td>
     </tr>
 </table>
-</div>{{-- fin div height:680px --}}
-{{-- Barre accent or --}}
+</div>{{-- fin div cover --}}
+
+{{-- Barre accent or pleine largeur --}}
 <div style="height:4px; background:{{ $primary }};"></div>
-{{-- Tableau de bord : 3 stats clés sur fond velin --}}
+
+{{-- Bandeau de synthèse : 3 KPIs sur fond velin --}}
 <table style="width:100%; border-collapse:collapse; background:{{ $velin }};">
     <tr>
-        @if(count($dimensions))
-        <td style="padding:20px 28px; vertical-align:middle;
+        {{-- KPI 1 : dimensions (si disponible), sinon : rapport complet --}}
+        <td style="padding:18px 28px; vertical-align:middle;
                    border-right:1px solid {{ $hair }}; width:33%;">
-            <div style="font-family:'Lora','DejaVu Serif',serif; font-size:30px; font-weight:bold;
-                         color:{{ $ink }}; line-height:1; margin-bottom:4px;">
+            @if(count($dimensions))
+            <div style="font-family:'Lora','DejaVu Serif',serif; font-size:28px; font-weight:bold;
+                         color:{{ $ink }}; line-height:1; margin-bottom:3px;">
                 {{ count($dimensions) }}
             </div>
-            <div style="font-size:7.5px; text-transform:uppercase; letter-spacing:1.5px;
-                         color:{{ $primary }}; font-family:'DejaVu Sans Mono',monospace;">
+            <div style="font-size:7px; text-transform:uppercase; letter-spacing:1.5px;
+                         color:{{ $goldDark }}; font-family:'DejaVu Sans Mono',monospace;">
                 Dimension{{ count($dimensions) > 1 ? 's' : '' }} analys&eacute;e{{ count($dimensions) > 1 ? 's' : '' }}
             </div>
-        </td>
-        @endif
-        @if($headline)
-        <td style="padding:20px 28px; vertical-align:middle;
-                   border-right:1px solid {{ $hair }};
-                   width:{{ count($dimensions) ? '33%' : '50%' }};">
-            @if($headline['pct'] !== null)
-            <div style="font-family:'Lora','DejaVu Serif',serif; font-size:30px; font-weight:bold;
-                         color:{{ $ink }}; line-height:1; margin-bottom:4px;">
-                {{ $headline['pct'] }}<span style="font-size:16px; color:{{ $inkSoft }};">/100</span>
+            @else
+            <div style="font-size:7px; text-transform:uppercase; letter-spacing:1.5px;
+                         color:{{ $goldDark }}; font-family:'DejaVu Sans Mono',monospace; margin-bottom:3px;">
+                Rapport
             </div>
-            <div style="font-size:7.5px; text-transform:uppercase; letter-spacing:1.5px;
-                         color:{{ $primary }}; font-family:'DejaVu Sans Mono',monospace;">
-                Score global
-            </div>
-            @elseif($headline['code'])
-            <div style="font-family:'Lora','DejaVu Serif',serif; font-size:20px; font-weight:bold;
-                         color:{{ $ink }}; line-height:1.2; margin-bottom:4px;">
-                {{ $headline['code'] }}
-            </div>
-            <div style="font-size:7.5px; text-transform:uppercase; letter-spacing:1.5px;
-                         color:{{ $primary }}; font-family:'DejaVu Sans Mono',monospace;">
-                Profil identifi&eacute;
+            <div style="font-family:'Lora','DejaVu Serif',serif; font-size:13px; font-weight:bold;
+                         color:{{ $ink }};">
+                Complet
             </div>
             @endif
         </td>
-        @endif
-        <td style="padding:20px 28px; vertical-align:middle;
-                   width:{{ (count($dimensions) && $headline) ? '34%' : '50%' }};">
-            <div style="font-family:'Lora','DejaVu Serif',serif; font-size:30px; font-weight:bold;
-                         color:{{ $ink }}; line-height:1; margin-bottom:4px;">
-                {{ count($jobs) }}
+
+        {{-- KPI 2 : score ou profil --}}
+        <td style="padding:18px 28px; vertical-align:middle;
+                   border-right:1px solid {{ $hair }}; width:33%;">
+            @if($headline)
+                @if($headline['pct'] !== null)
+                <div style="font-family:'Lora','DejaVu Serif',serif; font-size:28px; font-weight:bold;
+                             color:{{ $ink }}; line-height:1; margin-bottom:3px;">
+                    {{ $headline['pct'] }}<span style="font-size:14px; color:{{ $inkSoft }};">/100</span>
+                </div>
+                <div style="font-size:7px; text-transform:uppercase; letter-spacing:1.5px;
+                             color:{{ $goldDark }}; font-family:'DejaVu Sans Mono',monospace;">
+                    Score global
+                </div>
+                @elseif($headline['code'])
+                <div style="font-family:'Lora','DejaVu Serif',serif; font-size:18px; font-weight:bold;
+                             color:{{ $ink }}; line-height:1.2; margin-bottom:3px;">
+                    {{ $headline['code'] }}
+                </div>
+                <div style="font-size:7px; text-transform:uppercase; letter-spacing:1.5px;
+                             color:{{ $goldDark }}; font-family:'DejaVu Sans Mono',monospace;">
+                    Profil identifi&eacute;
+                </div>
+                @else
+                <div style="font-family:'Lora','DejaVu Serif',serif; font-size:18px; font-weight:bold;
+                             color:{{ $ink }}; line-height:1.2; margin-bottom:3px;">
+                    {{ $headline['label'] ?? '—' }}
+                </div>
+                <div style="font-size:7px; text-transform:uppercase; letter-spacing:1.5px;
+                             color:{{ $goldDark }}; font-family:'DejaVu Sans Mono',monospace;">
+                    R&eacute;sultat
+                </div>
+                @endif
+            @else
+            <div style="font-size:7px; text-transform:uppercase; letter-spacing:1.5px;
+                         color:{{ $goldDark }}; font-family:'DejaVu Sans Mono',monospace; margin-bottom:3px;">
+                &Eacute;valuation
             </div>
-            <div style="font-size:7.5px; text-transform:uppercase; letter-spacing:1.5px;
-                         color:{{ $primary }}; font-family:'DejaVu Sans Mono',monospace;">
+            <div style="font-family:'Lora','DejaVu Serif',serif; font-size:13px; font-weight:bold;
+                         color:{{ $ink }};">
+                Compl&egrave;te
+            </div>
+            @endif
+        </td>
+
+        {{-- KPI 3 : pistes métiers --}}
+        <td style="padding:18px 28px; vertical-align:middle; width:34%;">
+            <div style="font-family:'Lora','DejaVu Serif',serif; font-size:28px; font-weight:bold;
+                         color:{{ $ink }}; line-height:1; margin-bottom:3px;">
+                {{ count($jobs) ?: '—' }}
+            </div>
+            <div style="font-size:7px; text-transform:uppercase; letter-spacing:1.5px;
+                         color:{{ $goldDark }}; font-family:'DejaVu Sans Mono',monospace;">
                 Piste{{ count($jobs) > 1 ? 's' : '' }} m&eacute;tier{{ count($jobs) > 1 ? 's' : '' }} explor&eacute;e{{ count($jobs) > 1 ? 's' : '' }}
             </div>
         </td>
     </tr>
 </table>
-<div style="page-break-after: always;"></div>
+{{-- Pas de page-break : la cover coule sur la page 1, le contenu commence juste en dessous --}}
 @endif
 
 {{-- ═══════════════════════════════════════════════════════
