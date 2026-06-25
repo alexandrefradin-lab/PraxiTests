@@ -139,6 +139,32 @@ class GdprController extends Controller
     }
 
     // ──────────────────────────────────────────────────────────────────────────
+    // Suppression du CV seul — Art. 17 RGPD (granularité)
+    // ──────────────────────────────────────────────────────────────────────────
+
+    /**
+     * Supprime uniquement le fichier CV sans supprimer le compte.
+     * Le profil reste intact ; l'utilisateur peut re-uploader un CV.
+     */
+    public function destroyCv(Request $request): RedirectResponse
+    {
+        $user    = $request->user();
+        $profile = $user->profile;
+
+        abort_unless($profile && $profile->cv_path, 404, 'Aucun CV à supprimer.');
+
+        $this->deleteCvFile($user);
+
+        $profile->update([
+            'cv_path'           => null,
+            'cv_original_name'  => null,
+            'cv_extracted_text' => null,
+        ]);
+
+        return back()->with('success', 'Votre CV a été supprimé définitivement.');
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
     // Helpers privés
     // ──────────────────────────────────────────────────────────────────────────
 

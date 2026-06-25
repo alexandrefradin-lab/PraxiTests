@@ -79,6 +79,10 @@ class TestEngine
             return $attempt;
         }
 
+        // Audit risque #3 — vérifier que toutes les questions obligatoires
+        // ont reçu une réponse avant d'accepter la complétion.
+        $this->assertAllRequiredAnswered($attempt);
+
         $attempt->update([
             'status'       => 'completed',
             'completed_at' => now(),
@@ -97,6 +101,34 @@ class TestEngine
 
         PluginHooks::doAction('attempt.completed', $attempt);
         return $attempt->fresh('result');
+    }
+
+    /**
+     * Vérifie que toutes les questions marquées `required` ont une réponse
+     * dans cette tentative. Lance une InvalidArgumentException sinon.
+     */
+    protected function assertAllRequiredAnswered(TestAttempt $attempt): void
+    {
+        // IDs des questions obligatoires du test
+        $requiredIds = \App\Models\TestQuestion::query()
+            ->whereHas('section', fn ($q) => $q->where('test_id', $attempt->test_id))
+            ->where('required', true)
+            ->pluck('id');
+
+        if ($requiredIds->isEmpty()) {
+            return;
+        }
+
+        // IDs des questions déjà répondues dans cette tentative
+        $answeredIds = $attempt->answers()->pluck('question_id');
+
+        $missing = $requiredIds->diff($answeredIds);
+
+        if ($missing->isNotEmpty()) {
+            throw new \InvalidArgumentException(
+                "Impossible de terminer le test : {$missing->count()} question(s) obligatoire(s) sans réponse."
+            );
+        }
     }
 
     public function resolveScoringEngine(Test $test): ScoringEngineContract

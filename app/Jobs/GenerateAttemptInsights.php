@@ -74,19 +74,28 @@ class GenerateAttemptInsights implements ShouldQueue, ShouldBeUnique
             // Une panne IA (clé absente, HTTP 4xx/5xx, JSON invalide, timeout) ne doit
             // PAS laisser le candidat sur un écran de chargement infini (ai_pending).
             // On journalise et on écrit une synthèse de repli pour débloquer la page.
-            logger()->error("GenerateAttemptInsights: échec IA pour attempt #{$this->attemptId}: {$e->getMessage()}");
-            $this->writeFallback($attempt);
+            logger()->error("GenerateAttemptInsights: échec IA pour attempt #{$this->attemptId}: {$e->getMessage()}", [
+                'attempt_id' => $this->attemptId,
+                'exception'  => $e::class,
+                'file'       => $e->getFile() . ':' . $e->getLine(),
+            ]);
+            $this->writeFallback($attempt, $e->getMessage());
         }
     }
 
     /**
      * Écrit une synthèse de repli si l'IA a échoué, afin que `ai_pending` passe à false
      * (la page de résultats s'affiche au lieu de tourner indéfiniment).
-     * N'écrase jamais une synthèse déjà produite.
+     * Trace ai_failed=true et l'erreur pour permettre un retry admin.
+     * N'écrase jamais une synthèse déjà réussie (ai_failed=false).
      */
-    protected function writeFallback(TestAttempt $attempt): void
+    protected function writeFallback(TestAttempt $attempt, string $errorMessage = ''): void
     {
-        if (!$attempt->result || $attempt->result->ai_synthesis) {
+        if (!$attempt->result) {
+            return;
+        }
+        // Ne pas écraser une synthèse réelle déjà présente
+        if ($attempt->result->ai_synthesis && !$attempt->result->ai_failed) {
             return;
         }
 
@@ -94,6 +103,8 @@ class GenerateAttemptInsights implements ShouldQueue, ShouldBeUnique
             'ai_synthesis' => "La synthèse n'a pas pu être générée automatiquement pour le moment. "
                 . "Tes résultats détaillés restent disponibles ci-dessous. "
                 . "Tu peux réessayer plus tard ou en parler avec ton conseiller.",
+            'ai_failed'    => true,
+            'ai_error'     => mb_substr($errorMessage, 0, 1000),
             'generated_at' => now(),
         ]);
     }

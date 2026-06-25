@@ -85,8 +85,9 @@ Route::middleware(['auth'])->group(function () {
     // ─── RGPD — Droits des personnes (Art. 15, 17, 20) ────────────────────────
     Route::prefix('account/gdpr')->name('gdpr.')->group(function () {
         Route::get('/',          [GdprController::class, 'show'])->name('show');
-        Route::get('/export',    [GdprController::class, 'export'])->name('export');
-        Route::delete('/delete', [GdprController::class, 'destroy'])->name('destroy');
+        Route::get('/export',       [GdprController::class, 'export'])->name('export');
+        Route::delete('/delete',    [GdprController::class, 'destroy'])->name('destroy');
+        Route::delete('/delete-cv', [GdprController::class, 'destroyCv'])->name('destroy-cv');
     });
 
     // Édition du profil (mise à jour post-onboarding)

@@ -106,7 +106,10 @@ class ResultController extends Controller
         return Inertia::render($page, array_merge([
             'attempt'    => $attempt,
             'result'     => $attempt->result,
-            'ai_pending' => !$attempt->result?->ai_synthesis,
+            // ai_pending = true uniquement si la synthèse est absente ET que l'IA n'a pas échoué
+            // (si ai_failed = true, le fallback est déjà écrit, pas la peine de poller)
+            'ai_pending' => !$attempt->result?->ai_synthesis && !$attempt->result?->ai_failed,
+            'ai_failed'  => (bool) $attempt->result?->ai_failed,
             'panel360'   => $panel360,
         ], $journeyProps));
     }

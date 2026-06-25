@@ -25,6 +25,8 @@ class TestResult extends Model
         'ai_tokens_used',
         'generated_at',
         'ai_generated_at',
+        'ai_failed',
+        'ai_error',
     ];
 
     protected $casts = [
@@ -36,6 +38,7 @@ class TestResult extends Model
         'ai_metadata'       => 'array',
         'generated_at'      => 'datetime',
         'ai_generated_at'   => 'datetime',
+        'ai_failed'         => 'boolean',
     ];
 
     public function attempt(): BelongsTo

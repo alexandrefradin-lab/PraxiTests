@@ -26,12 +26,26 @@ class AuthController extends Controller
             'password' => ['required'],
         ]);
 
-        if (!Auth::attempt($data, $request->boolean('remember'))) {
+        // Valider les identifiants sans créer de session (pour intercepter si 2FA requis)
+        $user = User::where('email', $data['email'])->first();
+
+        if (!$user || !Auth::validate($data)) {
             return back()->withErrors(['email' => 'Identifiants invalides.']);
         }
 
+        // ── 2FA requis pour admin/pro avec 2FA activé ──────────────────────
+        if ($user->hasTwoFactorEnabled() && ($user->hasRole('admin') || $user->hasRole('professional'))) {
+            $request->session()->put('two_factor_user_id', $user->id);
+            $request->session()->put('two_factor_remember', $request->boolean('remember'));
+            $request->session()->regenerate();
+
+            return redirect()->route('two-factor.challenge');
+        }
+
+        // ── Connexion directe (2FA non activé) ────────────────────────────
+        Auth::login($user, $request->boolean('remember'));
         $request->session()->regenerate();
-        Auth::user()->update(['last_login_at' => now(), 'last_login_ip' => $request->ip()]);
+        $user->update(['last_login_at' => now(), 'last_login_ip' => $request->ip()]);
 
         return redirect()->intended(route('home'));
     }

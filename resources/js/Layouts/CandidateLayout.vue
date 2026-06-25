@@ -60,6 +60,9 @@ onBeforeUnmount(() => {
     window.removeEventListener('keydown', onKeydown)
     if (stopNavStart) stopNavStart()
     if (stopNavFinish) stopNavFinish()
+    // Toujours libérer le scroll du body si le layout est démonté
+    // (ex: logout depuis le drawer ouvert → sinon le body reste locké)
+    document.body.style.overflow = ''
     clearTimeout(navTimeout)
     clearTimeout(achievementTimeout)
     clearTimeout(levelUpTimeout)
@@ -523,6 +526,8 @@ watch(() => page.props.gamification?.level, (newLevel) => {
     border: 1px solid var(--border-mid);
     border-radius: var(--r-sm);
     cursor: pointer;
+    /* Supprime le délai de 300ms sur iOS Safari */
+    touch-action: manipulation;
 }
 
 .cand-burger span {
@@ -595,6 +600,7 @@ watch(() => page.props.gamification?.level, (newLevel) => {
     font-size: 18px;
     flex-shrink: 0;
     transition: background 0.15s, color 0.15s;
+    touch-action: manipulation;
 }
 .cand-drawer-close:hover {
     background: var(--bg-surface);
@@ -632,6 +638,7 @@ watch(() => page.props.gamification?.level, (newLevel) => {
     cursor: pointer;
     width: 100%;
     transition: color 0.15s, background 0.15s;
+    touch-action: manipulation;
 }
 .cand-drawer-link i {
     font-size: 19px;
@@ -697,9 +704,14 @@ watch(() => page.props.gamification?.level, (newLevel) => {
 }
 
 /* Backdrop fade */
-.pt-backdrop-enter-active,
+.pt-backdrop-enter-active {
+    transition: opacity 0.25s ease;
+}
 .pt-backdrop-leave-active {
     transition: opacity 0.25s ease;
+    /* Rendre le backdrop non-interactif dès qu'il commence à se fermer,
+       sinon l'overlay position:fixed;inset:0 bloque tous les touchs pendant 250ms */
+    pointer-events: none;
 }
 .pt-backdrop-enter-from,
 .pt-backdrop-leave-to {
@@ -769,6 +781,9 @@ watch(() => page.props.gamification?.level, (newLevel) => {
 }
 .pt-levelup-leave-active {
     transition: opacity 0.35s ease;
+    /* Même correctif : l'overlay inset:0 ne doit plus bloquer les touchs
+       dès que l'animation de fermeture démarre */
+    pointer-events: none;
 }
 .pt-levelup-enter-from,
 .pt-levelup-leave-to {

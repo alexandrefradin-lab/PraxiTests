@@ -138,6 +138,9 @@ class AttemptController extends Controller
     {
         $this->authorizeAttempt($attempt);
 
+        // Bloquer toute réponse sur une tentative déjà terminée (audit risque #2).
+        abort_if($attempt->isComplete(), 422, 'Cette tentative est déjà terminée.');
+
         $data = $request->validate([
             'question_id' => ['required', 'integer'],
             'value'       => ['required'],
@@ -179,7 +182,11 @@ class AttemptController extends Controller
     {
         $this->authorizeAttempt($attempt);
 
-        $this->engine->complete($attempt);
+        try {
+            $this->engine->complete($attempt);
+        } catch (\InvalidArgumentException $e) {
+            return back()->withErrors(['complete' => $e->getMessage()]);
+        }
 
         // Sur OVH (QUEUE_CONNECTION=sync) : le job s'exécute ici même, de façon
         // synchrone. L'utilisateur attend 20-40s pendant que Claude génère la
