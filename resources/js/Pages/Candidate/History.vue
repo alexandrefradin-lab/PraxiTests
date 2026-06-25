@@ -249,16 +249,17 @@ const formatDate = (iso) => {
                                 Voir la Révélation
                             </Link>
 
-                            <!-- Bouton PDF -->
-                            <Link
+                            <!-- Bouton PDF — <a> natif obligatoire (réponse binaire, pas Inertia) -->
+                            <a
                                 v-if="a.result_id"
                                 :href="route('results.pdf', a.result_id)"
                                 class="ac-btn-ghost"
                                 style="font-size: 12px; padding: 5px 12px;"
                                 target="_blank"
+                                rel="noopener"
                             >
                                 PDF
-                            </Link>
+                            </a>
                         </div>
                     </div>
                 </div>
