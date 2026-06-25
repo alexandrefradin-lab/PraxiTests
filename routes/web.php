@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Candidate\AttemptController;
+use App\Http\Controllers\Candidate\DailyTipController;
 use App\Http\Controllers\Candidate\GrimoireController;
 use App\Http\Controllers\Candidate\JourneyController;
 use App\Http\Controllers\Candidate\OnboardingController;
@@ -82,6 +83,14 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/journey/complete', [JourneyController::class, 'completeDay'])->name('journey.complete');
     Route::get('/journey/today',     [JourneyController::class, 'todayData'])->name('journey.today');
 
+    // ─── Tip du jour mini-apps (Salle du Trésor) ─────────────────────────────
+    // {plugin} = slug de la mini-app (praxizen, praxispeak, praxiflow…)
+    // L'app doit être débloquée (gating RewardCatalog dans DailyTipController).
+    Route::prefix('apps/{plugin}/tip')->name('daily.tip.')->middleware('throttle:30,1')->group(function () {
+        Route::post('/seen',  [DailyTipController::class, 'seen'])->name('seen');
+        Route::post('/apply', [DailyTipController::class, 'apply'])->name('apply');
+    });
+
     // ─── RGPD — Droits des personnes (Art. 15, 17, 20) ────────────────────────
     Route::prefix('account/gdpr')->name('gdpr.')->group(function () {
         Route::get('/',          [GdprController::class, 'show'])->name('show');
@@ -129,3 +138,10 @@ Route::middleware('throttle:40,1')->group(function () {
 require __DIR__ . '/auth.php';
 require __DIR__ . '/admin.php';
 require __DIR__ . '/profile_share.php';
+
+// ─── Stripe Webhook (Cashier) ────────────────────────────────────────────────
+// Pas de middleware auth (Stripe ne s'authentifie pas via session).
+// CSRF exclu dans bootstrap/app.php (validateCsrfTokens except: ['stripe/webhook']).
+// Laravel Cashier vérifie la signature de l'événement via STRIPE_WEBHOOK_SECRET.
+Route::post('/stripe/webhook', \Laravel\Cashier\Http\Controllers\WebhookController::class)
+    ->name('cashier.webhook');

@@ -16,11 +16,12 @@ use Inertia\Response;
  */
 class BlockingBeliefsController extends Controller
 {
-    private const ALLOWED_PLUGINS = ['praxilead', 'praxizenith'];
+    private const ALLOWED_PLUGINS = ['praxilead', 'praxizenith', 'praxivision'];
 
     private const PLUGIN_META = [
         'praxilead'  => ['label' => 'Le Cap', 'route' => 'praxilead.show'],
         'praxizenith'=> ['label' => 'Le Sanctuaire de l\'Attention', 'route' => 'praxizenith.show'],
+        'praxivision'=> ['label' => 'L\'Éveilleur', 'route' => 'praxivision.show'],
     ];
 
     /**

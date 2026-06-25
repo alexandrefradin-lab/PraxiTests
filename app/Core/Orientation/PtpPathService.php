@@ -112,7 +112,7 @@ class PtpPathService
      * — Dimensions issues de CE test uniquement (pas d'agrégat cross-tests).
      * — Filtre strict formation_months ≤ 12 (paliers accessible + ptp seulement).
      * — Boost contextuel profil : secteur / rôle / quête / extrait CV → affinité famille.
-     * — Limite 15 pistes, classées par indice d'opportunité décroissant.
+     * — Limite 30 pistes, classées par indice d'opportunité décroissant.
      * — Résultat éphémère : pas d'écriture en base (≠ ProfilePathMatch globaux).
      *
      * @return array<int, array<string, mixed>>
@@ -129,7 +129,7 @@ class PtpPathService
 
         $formationCredit = $profile ? $this->declaredFormationCredit($profile) : 0;
         $contextBoosts   = $profile ? $this->contextBoosts($profile) : [];
-        $count           = (int) config('praxiquest.results.career_paths_per_test', 15);
+        $count           = (int) config('praxiquest.results.career_paths_per_test', 30);
 
         $results = [];
 

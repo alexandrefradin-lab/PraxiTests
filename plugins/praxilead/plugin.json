@@ -15,6 +15,10 @@
     "php": ">=8.2"
   },
   "reward": {
-    "threshold_eclats": 700
+    "threshold_eclats": 2100,
+    "entry_route": "praxilead.index",
+    "icon": "ti-compass",
+    "purpose": "Management & leadership de proximité",
+    "teaser": "Le Cap : 60 pratiques concrètes de management, une par jour. Feedback, délégation, motivation, conflits — les fondamentaux du manager de terrain."
   }
 }

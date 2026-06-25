@@ -60,7 +60,7 @@ Schedule::call(function () {
 // ── Relances parcours journaliers ────────────────────────────────────────────
 // Chaque soir à 20h : envoie un email de questionnement sur les croyances
 // bloquantes aux utilisateurs n'ayant pas accompli leur action du jour
-// (praxilead, praxizenith).
+// (praxilead, praxizenith, praxivision).
 Schedule::command('journey:nudge')
     ->dailyAt('20:00')
     ->name('journey:nudge')

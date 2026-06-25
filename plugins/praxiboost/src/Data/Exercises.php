@@ -35,7 +35,7 @@ class Exercises
                 'summary'          => "Reprogramme ton attention vers ce qui fonctionne pour nourrir l'estime de soi.",
                 'duration_min'     => 5,
                 'icon'             => 'sparkles',
-                'threshold_eclats' => 100,
+                'threshold_eclats' => 300,
                 'sort_order'       => 1,
                 'body'             => <<<MD
 ## Pourquoi cet exercice
@@ -62,7 +62,7 @@ MD,
                 'summary'          => "La technique respiratoire la mieux étayée pour faire redescendre la tension avant un enjeu.",
                 'duration_min'     => 5,
                 'icon'             => 'heart-pulse',
-                'threshold_eclats' => 250,
+                'threshold_eclats' => 750,
                 'sort_order'       => 2,
                 'body'             => <<<MD
 ## Pourquoi cet exercice
@@ -91,7 +91,7 @@ MD,
                 'summary'          => "Prends du recul sur tes émotions difficiles en te parlant à la 3ᵉ personne, avec bienveillance.",
                 'duration_min'     => 6,
                 'icon'             => 'message-heart',
-                'threshold_eclats' => 450,
+                'threshold_eclats' => 1350,
                 'sort_order'       => 3,
                 'body'             => <<<MD
 ## Pourquoi cet exercice
@@ -119,7 +119,7 @@ MD,
                 'summary'          => "Identifie une pensée qui te freine et transforme-la en pensée alternative réaliste.",
                 'duration_min'     => 8,
                 'icon'             => 'brain',
-                'threshold_eclats' => 700,
+                'threshold_eclats' => 2100,
                 'sort_order'       => 4,
                 'body'             => <<<MD
 ## Pourquoi cet exercice
@@ -148,7 +148,7 @@ MD,
                 'summary'          => "Identifie les 3 valeurs qui comptent vraiment pour guider tes choix.",
                 'duration_min'     => 10,
                 'icon'             => 'compass',
-                'threshold_eclats' => 1100,
+                'threshold_eclats' => 3300,
                 'sort_order'       => 5,
                 'body'             => <<<MD
 ## Pourquoi cet exercice
@@ -176,7 +176,7 @@ MD,
                 'summary'          => "Transforme une envie vague en plan concret en anticipant les obstacles (méthode WOOP).",
                 'duration_min'     => 10,
                 'icon'             => 'target',
-                'threshold_eclats' => 1700,
+                'threshold_eclats' => 5100,
                 'sort_order'       => 6,
                 'body'             => <<<MD
 ## Pourquoi cet exercice
@@ -204,7 +204,7 @@ MD,
                 'summary'          => "Transforme tes résultats en un plan concret et réaliste sur 30 jours.",
                 'duration_min'     => 12,
                 'icon'             => 'rocket',
-                'threshold_eclats' => 3000,
+                'threshold_eclats' => 9000,
                 'sort_order'       => 7,
                 'body'             => <<<MD
 ## Pourquoi cet exercice

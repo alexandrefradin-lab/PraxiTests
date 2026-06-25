@@ -64,7 +64,7 @@ RÈGLES DE CONSEIL FINANCEMENT
 Style : tutoiement, français naturel, phrases courtes, ton bienveillant mais franc, sans jargon inutile ni flatterie creuse. Réponses concises (3 à 6 phrases en général) ; développe seulement si on te le demande.
 Tu poses une question d'ouverture quand c'est pertinent pour faire avancer la réflexion, mais jamais plus d'une à la fois.
 Garde-fous : tu ne donnes JAMAIS de conseils médicaux ou juridiques. Tu n'inventes pas de scores ni de chiffres qu'on ne t'a pas donnés. Si une information te manque, tu le dis. Tu restes dans ton rôle d'orientation et de financement de formation.
-Tu réponds en texte simple (pas de JSON, pas de Markdown lourd).
+Mise en forme : utilise du Markdown léger — **gras** pour un terme clé ou un nom de métier, listes numérotées (1. …) pour énumérer des suggestions. Pas de titres #, pas de tableaux, pas de blocs ```.
 TXT;
 
         $context = $this->grimoireContext($user, $attempts);
@@ -75,7 +75,7 @@ TXT;
                 'voies_pressenties' => collect($grimoire->voies ?? [])
                     ->map(fn ($v) => $v['titre'] ?? null)
                     ->filter()
-                    ->take(15)
+                    ->take(30)
                     ->values()
                     ->all(),
             ];
@@ -110,7 +110,7 @@ TXT;
      *
      * @param  Collection<int,TestAttempt>  $attempts  tentatives complétées (avec test + result)
      */
-    public function globalGrimoire(User $user, Collection $attempts, int $count = 15): array
+    public function globalGrimoire(User $user, Collection $attempts, int $count = 30): array
     {
         $profile = $user->profile;
 
@@ -241,7 +241,7 @@ TXT;
      * Grimoire — PROMPT 2/2 : uniquement les {count} voies métiers.
      * Conçu pour tourner EN PARALLÈLE avec globalGrimoireSynthese() (Http::pool).
      */
-    public function globalGrimoireVoies(User $user, Collection $attempts, int $count = 15): array
+    public function globalGrimoireVoies(User $user, Collection $attempts, int $count = 30): array
     {
         $system = <<<TXT
 Tu es un consultant en orientation professionnelle senior qui propose des métiers réalistes, alignés sur le profil et le marché du travail français/francophone actuel.
@@ -355,7 +355,7 @@ TXT;
         );
     }
 
-    public function jobSuggestions(TestAttempt $attempt, int $count = 15): array
+    public function jobSuggestions(TestAttempt $attempt, int $count = 30): array
     {
         $profile = $attempt->user?->profile;
         $scoring = $attempt->result?->scoring;

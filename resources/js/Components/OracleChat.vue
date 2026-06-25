@@ -1,14 +1,23 @@
 <script setup>
 import { ref, nextTick, watch } from 'vue'
 
-// Renderer Markdown léger pour les bulles oracle (pas de conflit CSS avec MarkdownText)
+// Renderer Markdown léger pour les bulles oracle.
+// Utilise exclusivement des inline styles — aucune dépendance aux classes CSS
+// ou aux règles scoped Vue (qui ne s'appliquent pas sur les éléments v-html).
 function renderOracle(text) {
     if (!text) return ''
+
     const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     const inline = s => esc(s)
-        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*([^*\n]+)\*/g, '<em>$1</em>')
-        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        .replace(/\*\*([^*]+)\*\*/g, '<strong style="font-weight:700;color:inherit">$1</strong>')
+        .replace(/\*([^*\n]+)\*/g, '<em style="font-style:italic;color:inherit">$1</em>')
+        .replace(/`([^`]+)`/g, '<code style="font-family:monospace;font-size:0.9em;background:rgba(166,117,32,0.15);padding:1px 5px;border-radius:3px">$1</code>')
+
+    // Styles inline constants
+    const PS  = 'style="margin:0 0 5px;padding:0;font-size:13.5px;line-height:1.5;color:inherit"'
+    const ULS = 'style="margin:4px 0 5px;padding-left:1.2em;list-style:disc"'
+    const OLS = 'style="margin:4px 0 5px;padding-left:1.5em;list-style:decimal"'
+    const LIS = 'style="margin:1px 0;font-size:13.5px;line-height:1.5;color:inherit"'
 
     const lines = text.replace(/\r\n/g, '\n').trim().split('\n')
     const out = []
@@ -16,22 +25,37 @@ function renderOracle(text) {
     let para = []
 
     const flushPara = () => {
-        if (para.length) { out.push(`<p>${inline(para.join(' '))}</p>`); para = [] }
+        if (para.length) { out.push(`<p ${PS}>${inline(para.join(' '))}</p>`); para = [] }
     }
     const closeList = () => { if (listType) { out.push(`</${listType}>`); listType = null } }
 
     for (const raw of lines) {
         const line = raw.trim()
         if (!line) { flushPara(); closeList(); continue }
+
         const ul = line.match(/^[-*+]\s+(.*)$/)
-        if (ul) { flushPara(); if (listType !== 'ul') { closeList(); out.push('<ul>'); listType = 'ul' }; out.push(`<li>${inline(ul[1])}</li>`); continue }
+        if (ul) {
+            flushPara()
+            if (listType !== 'ul') { closeList(); out.push(`<ul ${ULS}>`); listType = 'ul' }
+            out.push(`<li ${LIS}>${inline(ul[1])}</li>`)
+            continue
+        }
+
         const ol = line.match(/^\d+[.)]\s+(.*)$/)
-        if (ol) { flushPara(); if (listType !== 'ol') { closeList(); out.push('<ol>'); listType = 'ol' }; out.push(`<li>${inline(ol[1])}</li>`); continue }
+        if (ol) {
+            flushPara()
+            if (listType !== 'ol') { closeList(); out.push(`<ol ${OLS}>`); listType = 'ol' }
+            out.push(`<li ${LIS}>${inline(ol[1])}</li>`)
+            continue
+        }
+
         if (listType) closeList()
         para.push(line)
     }
     flushPara(); closeList()
-    return out.join('')
+
+    // Supprimer le margin-bottom du dernier élément de bloc
+    return out.join('').replace(/margin:0 0 5px([^"]*)"(?=[^<]*<\/(?:p|li)>[^<]*(?:<\/(?:ul|ol)>)?[^<]*$)/, 'margin:0$1"')
 }
 
 // ── Modale de confirmation suppression (UX-07) ──
@@ -205,7 +229,9 @@ watch(messages, scrollToBottom, { deep: true })
                         :class="m.role === 'user' ? 'oracle-msg--user' : 'oracle-msg--oracle'"
                     >
                         <div class="oracle-bubble">
-                            <div v-if="m.role === 'assistant'" class="oracle-content" v-html="renderOracle(m.content)"></div>
+                            <div v-if="m.role === 'assistant'"
+                                 style="font-size:13.5px;line-height:1.5;color:inherit;word-break:break-word"
+                                 v-html="renderOracle(m.content)"></div>
                             <template v-else>{{ m.content }}</template>
                         </div>
                     </div>
@@ -560,34 +586,12 @@ watch(messages, scrollToBottom, { deep: true })
 }
 .oracle-confirm-delete:hover { background: #8B2316; }
 
-/* ── Contenu oracle (v-html → utiliser :deep() pour cibler les éléments générés) ── */
-/* Vue scoped CSS place l'attribut sur le DERNIER sélecteur, donc sans :deep()
-   on obtient p[data-v-xxx] qui ne matche pas les éléments v-html.
-   :deep() génère .oracle-content[data-v-xxx] p — ça matche. */
-.oracle-content { font-size: 13.5px; line-height: 1.55; color: var(--or-ink); }
-.oracle-content :deep(p) { margin: 0 0 0.4rem; }
-.oracle-content :deep(p:last-child) { margin-bottom: 0; }
-.oracle-content :deep(ul), .oracle-content :deep(ol) { margin: 0.15rem 0 0.4rem; padding-left: 1.2rem; }
-.oracle-content :deep(li) { margin: 0.15rem 0; }
-.oracle-content :deep(ul li)::marker { color: var(--or-gold); }
-.oracle-content :deep(ol li)::marker { color: var(--or-gold); font-weight: 600; }
-.oracle-content :deep(strong) { font-weight: 700; color: var(--or-ink); }
-.oracle-content :deep(em) { font-style: italic; color: var(--or-gold-dark); }
-.oracle-content :deep(code) { font-family: monospace; font-size: 0.88em; background: rgba(166,117,32,0.1); padding: 1px 4px; border-radius: 3px; }
+/* ── Contenu oracle ─────────────────────────────────────────────────
+   Les styles de typographie sont en inline styles directement dans le
+   HTML généré par renderOracle() — pas de dépendance aux règles scoped. */
 
 /* ── Transition fade (modale) ── */
 .fade-enter-active, .fade-leave-active { transition: opacity 0.18s ease; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
 </style>
 
-<style>
-/* Styles non-scopés pour le contenu v-html de l'oracle.
-   Nécessaire car Vue scoped CSS ne cible pas fiablement les éléments v-html. */
-.oracle-content { font-size: 13.5px !important; line-height: 1.5 !important; color: var(--or-ink) !important; }
-.oracle-content p { margin: 0 0 5px !important; font-size: 13.5px !important; line-height: 1.5 !important; padding: 0 !important; }
-.oracle-content p:last-child { margin-bottom: 0 !important; }
-.oracle-content ul, .oracle-content ol { margin: 3px 0 5px !important; padding-left: 1.1rem !important; }
-.oracle-content li { margin: 2px 0 !important; font-size: 13.5px !important; line-height: 1.5 !important; }
-.oracle-content strong { font-weight: 700 !important; }
-.oracle-content em { font-style: italic !important; }
-</style>

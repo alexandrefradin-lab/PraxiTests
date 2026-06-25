@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Schema;
  * et leur envoie un email de relance pointant vers le questionnaire
  * sur les croyances bloquantes.
  *
- * Plugins supportés : praxilead, praxizenith
+ * Plugins supportés : praxilead, praxizenith, praxivision
  * (extensible : ajouter une entrée dans PLUGINS)
  *
  * Lancé automatiquement à 20h via le scheduler Laravel (routes/console.php).
@@ -55,6 +55,15 @@ class SendJourneyNudges extends Command
             'label'           => 'Le Sanctuaire de l\'Attention',
             'action_route'    => 'praxizenith.show',
             'practices_class' => \Praxis\Plugins\PraxiZenith\Data\Exercises::class,
+        ],
+        'praxivision' => [
+            'journey_table'   => 'vision_journeys',
+            'progress_table'  => 'vision_practice_progress',
+            'day_column'      => 'day_index',
+            'completed_col'   => 'completed_at',
+            'label'           => 'L\'Éveilleur — 60 jours de leadership intégral',
+            'action_route'    => 'praxivision.show',
+            'practices_class' => \Praxis\Plugins\PraxiVision\Data\Practices::class,
         ],
     ];
 

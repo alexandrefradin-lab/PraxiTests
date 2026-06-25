@@ -36,7 +36,7 @@ class GlobalGrimoireService
             return null;
         }
 
-        $count = (int) config('ai.tasks.global_grimoire.count', 15);
+        $count = (int) config('ai.tasks.global_grimoire.count', 30);
 
         // Deux prompts distincts (synthèse / voies) générés EN PARALLÈLE via chatMany().
         // C'est le levier d'accélération : ~2x plus rapide qu'un seul gros appel qui
@@ -51,12 +51,12 @@ class GlobalGrimoireService
 
         $driver = $this->ai->forTask('global_grimoire');
 
-        // max_tokens généreux : 15 voies détaillées en JSON dépassent facilement 3200
+        // max_tokens généreux : 30 voies détaillées en JSON dépassent facilement 3200
         // tokens (accents = plus de tokens) → réponse tronquée = JSON invalide. Sonnet
         // accepte largement ces plafonds ; ParsesAiJson répare en dernier recours.
         $responses = $driver->chatMany([
             'synthese' => ['messages' => $synthMessages, 'options' => ['temperature' => 0.6, 'max_tokens' => 2600]],
-            'voies'    => ['messages' => $voiesMessages, 'options' => ['temperature' => 0.6, 'max_tokens' => 8000]],
+            'voies'    => ['messages' => $voiesMessages, 'options' => ['temperature' => 0.6, 'max_tokens' => 12000]],
         ]);
 
         $rawSynth = PluginHooks::applyFilters('ai.grimoire.output', (string) ($responses['synthese'] ?? ''), $user, $attempts);

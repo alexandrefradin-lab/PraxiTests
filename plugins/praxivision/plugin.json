@@ -15,8 +15,10 @@
     "php": ">=8.2"
   },
   "reward": {
-    "threshold_eclats": 1500,
+    "threshold_eclats": 4500,
     "entry_route": "praxivision.index",
-    "icon": "ti-crown"
+    "icon": "ti-crown",
+    "purpose": "Leadership intégral",
+    "teaser": "L'Éveilleur : 60 jours pour développer un leadership intégral. Vision, influence, décision, transmission — un micro-défi ancré dans la recherche, chaque jour."
   }
 }

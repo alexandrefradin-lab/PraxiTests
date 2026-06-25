@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Candidate;
 use App\Http\Controllers\Concerns\BuildsBrandedPdf;
 use App\Http\Controllers\Controller;
 use App\Jobs\GenerateGlobalGrimoire;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\ProfilePathMatch;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\RateLimiter;
@@ -165,7 +165,6 @@ class GrimoireController extends Controller
         ]);
     }
 
-    /** Export PDF de la relecture globale. */
     /** Export PDF de la relecture globale. */
     public function pdf(GlobalGrimoireService $service)
     {
