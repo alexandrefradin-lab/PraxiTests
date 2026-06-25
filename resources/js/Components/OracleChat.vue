@@ -579,3 +579,15 @@ watch(messages, scrollToBottom, { deep: true })
 .fade-enter-active, .fade-leave-active { transition: opacity 0.18s ease; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
 </style>
+
+<style>
+/* Styles non-scopés pour le contenu v-html de l'oracle.
+   Nécessaire car Vue scoped CSS ne cible pas fiablement les éléments v-html. */
+.oracle-content { font-size: 13.5px !important; line-height: 1.5 !important; color: var(--or-ink) !important; }
+.oracle-content p { margin: 0 0 5px !important; font-size: 13.5px !important; line-height: 1.5 !important; padding: 0 !important; }
+.oracle-content p:last-child { margin-bottom: 0 !important; }
+.oracle-content ul, .oracle-content ol { margin: 3px 0 5px !important; padding-left: 1.1rem !important; }
+.oracle-content li { margin: 2px 0 !important; font-size: 13.5px !important; line-height: 1.5 !important; }
+.oracle-content strong { font-weight: 700 !important; }
+.oracle-content em { font-style: italic !important; }
+</style>
