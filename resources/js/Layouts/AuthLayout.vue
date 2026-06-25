@@ -25,33 +25,34 @@ const branding = computed(() => usePage().props.branding ?? { name: 'PraxiQuest'
             </svg>
 
             <!-- Logo -->
-            <Link href="/" style="display: flex; align-items: center; gap: 12px; text-decoration: none; position: relative; z-index: 1">
-                <svg width="38" height="38" viewBox="0 0 38 38" fill="none" style="flex-shrink:0">
-                    <circle cx="19" cy="19" r="18" fill="#A67520" opacity="0.15"/>
-                    <circle cx="19" cy="19" r="17.5" stroke="#A67520" stroke-width="1.5"/>
-                    <circle cx="19" cy="19" r="12.5" stroke="#A67520" stroke-width="0.8" opacity="0.5"/>
-                    <polygon points="19,5 21,17.5 19,21 17,17.5" fill="#F0E8D4"/>
-                    <polygon points="19,33 21,20.5 19,17 17,20.5" fill="#A67520" opacity="0.5"/>
-                    <circle cx="19" cy="19" r="2.5" fill="#A67520"/>
-                    <circle cx="19" cy="19" r="1.2" fill="#1C1408"/>
-                </svg>
+            <Link href="/" style="display: flex; align-items: center; gap: 14px; text-decoration: none; position: relative; z-index: 1">
+                <!-- Boussole: fond or + anneau + aiguille ivoire bien visible -->
+                <div style="width:44px;height:44px;border-radius:50%;background:rgba(166,117,32,0.25);border:2px solid #A67520;display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0">
+                    <!-- Aiguille nord ivoire -->
+                    <svg width="44" height="44" viewBox="0 0 44 44" style="position:absolute;top:0;left:0" fill="none">
+                        <polygon points="22,6 24.5,20 22,24 19.5,20" fill="#F0E8D4"/>
+                        <polygon points="22,38 24.5,24 22,20 19.5,24" fill="#A67520" opacity="0.6"/>
+                        <circle cx="22" cy="22" r="4" fill="#1C1408" stroke="#A67520" stroke-width="1.5"/>
+                        <circle cx="22" cy="22" r="1.5" fill="#A67520"/>
+                    </svg>
+                </div>
                 <div>
-                    <div style="font-family: var(--font-display); font-size: 16px; font-weight: 600; color: #F0E8D4; letter-spacing: -0.01em">{{ branding.name }}</div>
-                    <div style="font-family: var(--font-data); font-size: 9px; color: rgba(166,117,32,0.6); text-transform: uppercase; letter-spacing: 0.14em; margin-top: 2px">Voyage intérieur</div>
+                    <div style="font-family: var(--font-display); font-size: 17px; font-weight: 700; color: #F0E8D4; letter-spacing: -0.01em; line-height: 1">{{ branding.name }}</div>
+                    <div style="font-family: var(--font-data); font-size: 10px; color: #A67520; text-transform: uppercase; letter-spacing: 0.14em; margin-top: 4px">Voyage intérieur</div>
                 </div>
             </Link>
 
             <!-- Citation centrale -->
             <div style="position: relative; z-index: 1">
-                <div style="display:inline-flex;align-items:center;gap:7px;font-family:var(--font-data);font-size:9px;letter-spacing:0.16em;color:rgba(166,117,32,0.65);text-transform:uppercase;padding:4px 12px 4px 9px;border:1px solid rgba(166,117,32,0.22);border-radius:4px;background:rgba(166,117,32,0.06);margin-bottom:1.5rem">
-                    <div style="width:5px;height:5px;background:#A67520;transform:rotate(45deg);flex-shrink:0;opacity:0.8"></div>
+                <div style="display:inline-flex;align-items:center;gap:8px;font-family:var(--font-data);font-size:10px;letter-spacing:0.12em;color:#A67520;text-transform:uppercase;padding:5px 14px 5px 10px;border:1px solid rgba(166,117,32,0.45);border-radius:4px;background:rgba(166,117,32,0.12);margin-bottom:1.5rem">
+                    <div style="width:6px;height:6px;background:#A67520;transform:rotate(45deg);flex-shrink:0"></div>
                     Augmenté par IA
                 </div>
-                <blockquote style="font-family: var(--font-display); font-size: 22px; font-weight: 400; color: rgba(240,232,212,0.92); line-height: 1.5; letter-spacing: -0.015em; margin-bottom: 1.25rem">
+                <blockquote style="font-family: var(--font-display); font-size: 22px; font-weight: 400; color: #F0E8D4; line-height: 1.5; letter-spacing: -0.015em; margin-bottom: 1.25rem">
                     « Connaître ses forces, c'est choisir sa trajectoire. »
                 </blockquote>
-                <div style="width: 32px; height: 1px; background: rgba(166,117,32,0.4); margin-bottom: 1rem"></div>
-                <p style="font-family: var(--font-body); font-size: 12px; color: rgba(240,232,212,0.35); font-style: italic; line-height: 1.6">
+                <div style="width: 32px; height: 1px; background: #A67520; opacity: 0.5; margin-bottom: 1rem"></div>
+                <p style="font-family: var(--font-body); font-size: 12px; color: rgba(240,232,212,0.5); font-style: italic; line-height: 1.6">
                     Synthèse IA · Bilan de compétences · Orientation experte
                 </p>
             </div>
@@ -63,8 +64,8 @@ const branding = computed(() => usePage().props.branding ?? { name: 'PraxiQuest'
                     '15 pistes métiers personnalisées',
                     'Rapport PDF confidentiel',
                 ]" :key="bullet" style="display: flex; align-items: center; gap: 12px">
-                    <div style="width:7px;height:7px;background:var(--color-primary);transform:rotate(45deg);flex-shrink:0;opacity:0.75"></div>
-                    <span style="font-family: var(--font-body); font-size: 13px; color: rgba(240,232,212,0.6); letter-spacing: 0.01em">{{ bullet }}</span>
+                    <div style="width:7px;height:7px;background:#A67520;transform:rotate(45deg);flex-shrink:0"></div>
+                    <span style="font-family: var(--font-body); font-size: 13px; color: rgba(240,232,212,0.75); letter-spacing: 0.01em">{{ bullet }}</span>
                 </div>
             </div>
         </div>
@@ -74,18 +75,17 @@ const branding = computed(() => usePage().props.branding ?? { name: 'PraxiQuest'
 
             <!-- Logo mobile uniquement -->
             <Link href="/" class="lg:hidden mb-10 flex items-center gap-3" style="text-decoration: none">
-                <svg width="34" height="34" viewBox="0 0 38 38" fill="none" style="flex-shrink:0">
-                    <circle cx="19" cy="19" r="18" fill="rgba(166,117,32,0.1)"/>
-                    <circle cx="19" cy="19" r="17.5" stroke="#A67520" stroke-width="1.5"/>
-                    <circle cx="19" cy="19" r="12.5" stroke="#A67520" stroke-width="0.8" opacity="0.5"/>
-                    <polygon points="19,5 21,17.5 19,21 17,17.5" fill="#A67520"/>
-                    <polygon points="19,33 21,20.5 19,17 17,20.5" fill="#A67520" opacity="0.35"/>
-                    <circle cx="19" cy="19" r="2.5" fill="#A67520"/>
-                    <circle cx="19" cy="19" r="1.2" fill="#F0E8D4"/>
-                </svg>
+                <div style="width:38px;height:38px;border-radius:50%;background:rgba(166,117,32,0.12);border:2px solid var(--color-primary);display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0">
+                    <svg width="38" height="38" viewBox="0 0 38 38" style="position:absolute;top:0;left:0" fill="none">
+                        <polygon points="19,5 21.5,17.5 19,21 16.5,17.5" fill="#A67520"/>
+                        <polygon points="19,33 21.5,20.5 19,17 16.5,20.5" fill="#A67520" opacity="0.4"/>
+                        <circle cx="19" cy="19" r="3.5" fill="var(--bg-base)" stroke="var(--color-primary)" stroke-width="1.5"/>
+                        <circle cx="19" cy="19" r="1.5" fill="var(--color-primary)"/>
+                    </svg>
+                </div>
                 <div>
-                    <div style="font-family: var(--font-display); font-size: 15px; font-weight: 600; color: var(--text-primary); letter-spacing: -0.01em; line-height: 1">{{ branding.name }}</div>
-                    <div style="font-family: var(--font-data); font-size: 8px; color: var(--color-primary); text-transform: uppercase; letter-spacing: 0.14em; margin-top: 2px">Voyage intérieur</div>
+                    <div style="font-family: var(--font-display); font-size: 15px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.01em; line-height: 1">{{ branding.name }}</div>
+                    <div style="font-family: var(--font-data); font-size: 9px; color: var(--color-primary); text-transform: uppercase; letter-spacing: 0.14em; margin-top: 3px">Voyage intérieur</div>
                 </div>
             </Link>
 
