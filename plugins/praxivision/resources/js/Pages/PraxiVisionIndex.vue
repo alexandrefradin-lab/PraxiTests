@@ -48,15 +48,14 @@ const blocks = computed(() => {
 
 <template>
     <CandidateLayout>
-        <Head title="L'Éveilleur — 60 jours de leadership intégral" />
+        <Head title="L'Eveilleur - 60 jours de leadership integral" />
 
         <div class="pv-shell">
 
-            <!-- Topbar -->
             <div class="pv-topbar">
                 <div class="pv-topbar-left">
-                    <div class="pv-app-name">L'Éveilleur</div>
-                    <div class="pv-app-sub">Leadership intégral · 60 jours</div>
+                    <div class="pv-app-name">L'Eveilleur</div>
+                    <div class="pv-app-sub">Leadership integral - 60 jours</div>
                 </div>
                 <div class="pv-topbar-right">
                     <div v-if="streak > 0" class="pv-streak-pill">
@@ -67,16 +66,14 @@ const blocks = computed(() => {
                 </div>
             </div>
 
-            <!-- Barre de progression -->
             <div class="pv-prog-track">
                 <div class="pv-prog-fill" :style="{ width: donePercent + '%' }"></div>
             </div>
             <div class="pv-prog-meta">
-                <span>{{ completed }} pratique{{ completed > 1 ? 's' : '' }} intégrée{{ completed > 1 ? 's' : '' }}</span>
+                <span>{{ completed }} pratique{{ completed > 1 ? 's' : '' }} integree{{ completed > 1 ? 's' : '' }}</span>
                 <span>Jour {{ currentDay }} / {{ totalDays }}</span>
             </div>
 
-            <!-- Strip de jours -->
             <div class="pv-day-strip">
                 <div
                     v-for="p in dayStrip" :key="p.day"
@@ -92,16 +89,13 @@ const blocks = computed(() => {
                 </div>
             </div>
 
-            <!-- Bloc actif -->
             <div v-if="currentBlock" class="pv-bloc-badge">
                 <i class="ti" :class="iconFor(todayPractice?.icon)" aria-hidden="true"></i>
                 {{ currentBlock }}
             </div>
 
-            <!-- Carte pratique du jour -->
             <div v-if="todayPractice">
                 <div class="pv-section-label">Pratique du jour</div>
-
                 <Link
                     :href="todayPractice.unlocked ? route('praxivision.show', todayPractice.day) : '#'"
                     class="pv-today-card"
@@ -113,7 +107,7 @@ const blocks = computed(() => {
                             <i class="ti" :class="iconFor(todayPractice.icon)" aria-hidden="true"></i>
                         </div>
                         <div class="pv-today-body">
-                            <div class="pv-today-eyebrow">Jour {{ todayPractice.day }} · {{ todayPractice.duration_min }} min</div>
+                            <div class="pv-today-eyebrow">Jour {{ todayPractice.day }} - {{ todayPractice.duration_min }} min</div>
                             <div class="pv-today-title">{{ todayPractice.title }}</div>
                             <div class="pv-today-desc">{{ todayPractice.summary }}</div>
                         </div>
@@ -133,14 +127,10 @@ const blocks = computed(() => {
                 </Link>
             </div>
 
-            <!-- Jours a venir -->
             <div v-if="upcomingDays.length">
-                <div class="pv-section-label">Cette semaine — a venir</div>
+                <div class="pv-section-label">Cette semaine - a venir</div>
                 <div class="pv-upcoming">
-                    <div
-                        v-for="p in upcomingDays" :key="p.day"
-                        class="pv-upcoming-item"
-                    >
+                    <div v-for="p in upcomingDays" :key="p.day" class="pv-upcoming-item">
                         <div class="pv-upcoming-num">{{ p.day }}</div>
                         <div class="pv-upcoming-title">{{ p.title }}</div>
                         <i class="ti ti-lock pv-upcoming-lock" aria-hidden="true"></i>
@@ -148,7 +138,6 @@ const blocks = computed(() => {
                 </div>
             </div>
 
-            <!-- Vue complète par blocs -->
             <div class="pv-section-label pv-section-label--mt">Tous les jours</div>
             <div v-for="block in blocks" :key="block.theme" class="pv-block">
                 <div class="pv-block-header">
@@ -163,26 +152,26 @@ const blocks = computed(() => {
                     <span class="pv-block-count">{{ block.items.filter(i => i.completed).length }}/{{ block.items.length }}</span>
                 </div>
                 <div class="pv-block-days">
-                    <template v-for="p in block.items" :key="p.day">
-                        <Link
-                            v-if="p.unlocked"
-                            :href="route('praxivision.show', p.day)"
-                            class="pv-block-day"
-                            :class="{ 'is-done': p.completed, 'is-today': p.is_today }"
-                            style="text-decoration:none;"
-                            :title="p.title"
-                        >
-                            <i v-if="p.completed" class="ti ti-check" aria-hidden="true"></i>
-                            <span v-else>{{ p.day }}</span>
-                        </Link>
-                        <div
-                            v-else
-                            class="pv-block-day is-locked"
-                            :title="p.title"
-                        >
-                            <i class="ti ti-lock" aria-hidden="true"></i>
-                        </div>
-                    </template>
+                    <Link
+                        v-for="p in block.items.filter(i => i.unlocked)"
+                        :key="'u' + p.day"
+                        :href="route('praxivision.show', p.day)"
+                        class="pv-block-day"
+                        :class="{ 'is-done': p.completed, 'is-today': p.is_today }"
+                        style="text-decoration:none;"
+                        :title="p.title"
+                    >
+                        <i v-if="p.completed" class="ti ti-check" aria-hidden="true"></i>
+                        <span v-else>{{ p.day }}</span>
+                    </Link>
+                    <div
+                        v-for="p in block.items.filter(i => !i.unlocked)"
+                        :key="'l' + p.day"
+                        class="pv-block-day is-locked"
+                        :title="p.title"
+                    >
+                        <i class="ti ti-lock" aria-hidden="true"></i>
+                    </div>
                 </div>
             </div>
 
@@ -191,324 +180,58 @@ const blocks = computed(() => {
 </template>
 
 <style scoped>
-.pv-shell {
-    max-width: 680px;
-    margin: 0 auto;
-    padding: 0 0 3rem;
-}
-
-/* Topbar */
-.pv-topbar {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    padding: 1.5rem 0 1rem;
-}
-.pv-app-name {
-    font-size: 1.4rem;
-    font-weight: 500;
-    color: var(--text-primary);
-    font-family: var(--font-display);
-}
-.pv-app-sub {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    margin-top: 2px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-.pv-topbar-right {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: 4px;
-}
-.pv-streak-pill {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    background: rgba(184,122,26,0.12);
-    color: #7D5010;
-    border-radius: 999px;
-    padding: 4px 10px;
-    font-size: 0.78rem;
-    font-weight: 500;
-}
-.pv-progress-pill {
-    background: var(--bg-elevated, #eee);
-    color: var(--text-secondary);
-    border-radius: 999px;
-    padding: 4px 10px;
-    font-size: 0.78rem;
-    font-weight: 500;
-    font-family: var(--font-data);
-}
-
-/* Progress bar */
-.pv-prog-track {
-    height: 4px;
-    background: var(--bg-elevated, #eee);
-    border-radius: 999px;
-    overflow: hidden;
-    margin-bottom: 6px;
-}
-.pv-prog-fill {
-    height: 100%;
-    background: var(--color-primary, #B87A1A);
-    border-radius: 999px;
-    transition: width 0.4s;
-}
-.pv-prog-meta {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.72rem;
-    color: var(--text-muted, #888);
-    margin-bottom: 1.25rem;
-}
-
-/* Day strip */
-.pv-day-strip {
-    display: flex;
-    gap: 0;
-    border: 1px solid var(--glass-border, #e5e7eb);
-    border-radius: 10px;
-    overflow: hidden;
-    margin-bottom: 1.25rem;
-}
-.pv-strip-item {
-    flex: 1;
-    padding: 10px 0;
-    text-align: center;
-    border-right: 1px solid var(--glass-border, #e5e7eb);
-    position: relative;
-}
+.pv-shell { max-width: 680px; margin: 0 auto; padding: 0 0 3rem; }
+.pv-topbar { display: flex; align-items: flex-start; justify-content: space-between; padding: 1.5rem 0 1rem; }
+.pv-app-name { font-size: 1.4rem; font-weight: 500; color: var(--text-primary); font-family: var(--font-display); }
+.pv-app-sub { font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
+.pv-topbar-right { display: flex; align-items: center; gap: 0.5rem; margin-top: 4px; }
+.pv-streak-pill { display: flex; align-items: center; gap: 4px; background: rgba(184,122,26,0.12); color: #7D5010; border-radius: 999px; padding: 4px 10px; font-size: 0.78rem; font-weight: 500; }
+.pv-progress-pill { background: var(--bg-elevated, #eee); color: var(--text-secondary); border-radius: 999px; padding: 4px 10px; font-size: 0.78rem; font-weight: 500; font-family: var(--font-data); }
+.pv-prog-track { height: 4px; background: var(--bg-elevated, #eee); border-radius: 999px; overflow: hidden; margin-bottom: 6px; }
+.pv-prog-fill { height: 100%; background: var(--color-primary, #B87A1A); border-radius: 999px; transition: width 0.4s; }
+.pv-prog-meta { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-muted, #888); margin-bottom: 1.25rem; }
+.pv-day-strip { display: flex; border: 1px solid var(--glass-border, #e5e7eb); border-radius: 10px; overflow: hidden; margin-bottom: 1.25rem; }
+.pv-strip-item { flex: 1; padding: 10px 0; text-align: center; border-right: 1px solid var(--glass-border, #e5e7eb); position: relative; }
 .pv-strip-item:last-child { border-right: none; }
-.pv-strip-lbl {
-    font-size: 0.65rem;
-    color: var(--text-muted, #aaa);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    margin-bottom: 4px;
-}
-.pv-strip-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    margin: 0 auto;
-    background: var(--bg-elevated, #e5e7eb);
-}
+.pv-strip-lbl { font-size: 0.65rem; color: var(--text-muted, #aaa); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+.pv-strip-dot { width: 6px; height: 6px; border-radius: 50%; margin: 0 auto; background: var(--bg-elevated, #e5e7eb); }
 .pv-strip-item.is-done .pv-strip-dot { background: var(--color-primary, #B87A1A); opacity: 0.7; }
-.pv-strip-item.is-today {
- 
-    background: var(--bg-elevated, #f5f0e8);
-}
+.pv-strip-item.is-today { background: var(--bg-elevated, #f5f0e8); }
 .pv-strip-item.is-today .pv-strip-lbl { color: var(--color-primary, #B87A1A); font-weight: 600; }
 .pv-strip-item.is-today .pv-strip-dot { background: var(--color-primary, #B87A1A); }
-.pv-strip-item.is-today::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 20px;
-    height: 2px;
-    background: var(--color-primary, #B87A1A);
-    border-radius: 1px 1px 0 0;
-}
-/* Bloc badge */
-.pv-bloc-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 0.72rem;
-    color: var(--color-primary-dark, #7D5010);
-    background: rgba(184,122,26,0.1);
-    border-radius: 999px;
-    padding: 3px 10px;
-    margin-bottom: 0.75rem;
-    font-weight: 500;
-}
-
-/* Section labels */
-.pv-section-label {
-    font-size: 0.68rem;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    color: var(--text-muted, #aaa);
-    margin-bottom: 0.6rem;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.pv-section-label::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--glass-border, #e5e7eb);
-}
+.pv-bloc-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem; color: var(--color-primary-dark, #7D5010); background: rgba(184,122,26,0.1); border-radius: 999px; padding: 3px 10px; margin-bottom: 0.75rem; font-weight: 500; }
+.pv-section-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted, #aaa); margin-bottom: 0.6rem; }
 .pv-section-label--mt { margin-top: 1.5rem; }
-
-/* Today card */
-.pv-today-card {
-    display: block;
-    border: 1px solid var(--color-primary, #B87A1A);
-    border-radius: 12px;
-    padding: 1rem 1.1rem;
-    background: rgba(184,122,26,0.04);
-    margin-bottom: 1.25rem;
-    transition: background 0.15s;
-    cursor: pointer;
-}
+.pv-today-card { display: block; border: 1px solid var(--color-primary, #B87A1A); border-radius: 12px; padding: 1rem 1.1rem; background: rgba(184,122,26,0.04); margin-bottom: 1.25rem; cursor: pointer; }
 .pv-today-card:hover { background: rgba(184,122,26,0.08); }
 .pv-today-card.is-completed { border-color: var(--color-success, #10B981); background: rgba(16,185,129,0.04); }
 .pv-today-card.is-locked { border-color: var(--glass-border, #e5e7eb); background: transparent; opacity: 0.6; cursor: default; }
-.pv-today-card-top {
-    display: flex;
-    gap: 0.9rem;
-    align-items: flex-start;
-    margin-bottom: 0.9rem;
-}
-.pv-today-icon {
-    width: 42px;
-    height: 42px;
-    border-radius: 10px;
-    background: rgba(184,122,26,0.12);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    font-size: 1.2rem;
-    color: var(--color-primary, #B87A1A);
-}
+.pv-today-card-top { display: flex; gap: 0.9rem; align-items: flex-start; margin-bottom: 0.9rem; }
+.pv-today-icon { width: 42px; height: 42px; border-radius: 10px; background: rgba(184,122,26,0.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.2rem; color: var(--color-primary, #B87A1A); }
 .pv-today-body { flex: 1; }
-.pv-today-eyebrow {
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--color-primary, #B87A1A);
-    margin-bottom: 4px;
-}
-.pv-today-title {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    font-family: var(--font-display);
-    margin-bottom: 4px;
-    line-height: 1.3;
-}
-.pv-today-desc {
-    font-size: 0.82rem;
-    color: var(--text-secondary);
-    line-height: 1.5;
-}
+.pv-today-eyebrow { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-primary, #B87A1A); margin-bottom: 4px; }
+.pv-today-title { font-size: 1rem; font-weight: 600; color: var(--text-primary); font-family: var(--font-display); margin-bottom: 4px; line-height: 1.3; }
+.pv-today-desc { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.5; }
 .pv-today-footer { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.pv-tag {
-    font-size: 0.72rem;
-    padding: 3px 9px;
-    border-radius: 999px;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-weight: 500;
-}
+.pv-tag { font-size: 0.72rem; padding: 3px 9px; border-radius: 999px; display: inline-flex; align-items: center; gap: 4px; font-weight: 500; }
 .pv-tag-go { background: var(--color-primary, #B87A1A); color: #fff; }
 .pv-tag-done { background: rgba(16,185,129,0.12); color: #065F46; }
 .pv-tag-locked { background: var(--bg-elevated, #eee); color: var(--text-muted, #aaa); }
 .pv-tag-xp { background: rgba(184,122,26,0.1); color: var(--color-primary-dark, #7D5010); }
-
-/* Upcoming days */
-.pv-upcoming {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-bottom: 0;
-}
-.pv-upcoming-item {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.65rem 0.9rem;
-    border: 1px solid var(--glass-border, #e5e7eb);
-    border-radius: 10px;
-    background: var(--bg-elevated, #f9f9f9);
-}
-.pv-upcoming-num {
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
-    background: var(--bg-surface, #eee);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.72rem;
-    font-weight: 600;
-    color: var(--text-muted);
-    flex-shrink: 0;
-    font-family: var(--font-data);
-}
-.pv-upcoming-title {
-    flex: 1;
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+.pv-upcoming { display: flex; flex-direction: column; gap: 6px; }
+.pv-upcoming-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.65rem 0.9rem; border: 1px solid var(--glass-border, #e5e7eb); border-radius: 10px; background: var(--bg-elevated, #f9f9f9); }
+.pv-upcoming-num { width: 28px; height: 28px; border-radius: 6px; background: var(--bg-surface, #eee); display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 600; color: var(--text-muted); flex-shrink: 0; font-family: var(--font-data); }
+.pv-upcoming-title { flex: 1; font-size: 0.85rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pv-upcoming-lock { font-size: 0.75rem; color: var(--text-muted); }
-
-/* All days blocks */
 .pv-block { margin-bottom: 1rem; }
-.pv-block-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 8px;
-}
-.pv-block-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--bg-elevated, #ddd);
-    flex-shrink: 0;
-}
+.pv-block-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.pv-block-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg-elevated, #ddd); flex-shrink: 0; }
 .pv-block-dot.all-done { background: var(--color-primary, #B87A1A); }
 .pv-block-dot.has-today { background: var(--color-primary, #B87A1A); opacity: 0.6; }
-.pv-block-title {
-    font-size: 0.72rem;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--text-secondary);
-    font-weight: 600;
-    flex: 1;
-}
-.pv-block-count {
-    font-size: 0.68rem;
-    color: var(--text-muted);
-    font-family: var(--font-data);
-}
-.pv-block-days {
-    display: flex;
-    gap: 5px;
-    flex-wrap: wrap;
-    padding-left: 16px;
-}
-.pv-block-day {
-    width: 32px;
-    height: 32px;
-    border-radius: 7px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.72rem;
-    font-weight: 600;
-    font-family: var(--font-data);
-    border: 1px solid var(--glass-border, #e5e7eb);
-    background: var(--bg-elevated);
-    color: var(--text-secondary);
-    cursor: pointer;
-    transition: background 0.12s;
-}
-.pv-block-day:hover { background: var(--bg-surface); }
+.pv-block-title { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); font-weight: 600; flex: 1; }
+.pv-block-count { font-size: 0.68rem; color: var(--text-muted); font-family: var(--font-data); }
+.pv-block-days { display: flex; gap: 5px; flex-wrap: wrap; padding-left: 16px; }
+.pv-block-day { width: 32px; height: 32px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 600; font-family: var(--font-data); border: 1px solid var(--glass-border, #e5e7eb); background: var(--bg-elevated); color: var(--text-secondary); cursor: pointer; }
 .pv-block-day.is-done { background: rgba(184,122,26,0.15); border-color: rgba(184,122,26,0.3); color: var(--color-primary-dark, #7D5010); }
 .pv-block-day.is-today { background: var(--color-primary, #B87A1A); border-color: var(--color-primary, #B87A1A); color: #fff; }
 .pv-block-day.is-locked { opacity: 0.4; cursor: default; font-size: 0.65rem; }
