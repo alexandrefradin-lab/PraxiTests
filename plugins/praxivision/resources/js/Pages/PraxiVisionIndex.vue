@@ -315,8 +315,7 @@ const blocks = computed(() => {
     background: var(--color-primary, #B87A1A);
     border-radius: 1px 1px 0 0;
 }
-</style>
-* Bloc badge */
+/* Bloc badge */
 .pv-bloc-badge {
     display: inline-flex;
     align-items: center;
