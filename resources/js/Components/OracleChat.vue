@@ -370,10 +370,11 @@ watch(messages, scrollToBottom, { deep: true })
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 .oracle-msg--oracle .oracle-bubble {
-    background: #FFFDF6;
+    background: #FFFFFF;
     color: var(--or-ink);
-    border: 1px solid rgba(166, 117, 32, 0.28);
+    border: 1px solid rgba(166, 117, 32, 0.45);
     border-bottom-left-radius: 4px;
+    box-shadow: 0 1px 4px rgba(42, 30, 8, 0.1);
 }
 
 .oracle-typing { display: flex; gap: 5px; align-items: center; }
@@ -531,12 +532,15 @@ watch(messages, scrollToBottom, { deep: true })
 
 /* ── MarkdownText dans les bulles oracle ── */
 .oracle-msg--oracle .oracle-bubble :deep(.pt-md) {
-    font-size: 13.5px;
-    line-height: 1.55;
-    color: var(--or-ink);
+    font-size: 13.5px !important;
+    line-height: 1.55 !important;
+    color: var(--or-ink) !important;
 }
-.oracle-msg--oracle .oracle-bubble :deep(.pt-md p) { margin: 0 0 0.45rem; }
-.oracle-msg--oracle .oracle-bubble :deep(.pt-md p:last-child) { margin-bottom: 0; }
+.oracle-msg--oracle .oracle-bubble :deep(.pt-md p) { margin: 0 0 0.4rem !important; }
+.oracle-msg--oracle .oracle-bubble :deep(.pt-md p:last-child) { margin-bottom: 0 !important; }
+.oracle-msg--oracle .oracle-bubble :deep(.pt-md ul),
+.oracle-msg--oracle .oracle-bubble :deep(.pt-md ol) { margin: 0.15rem 0 0.4rem !important; padding-left: 1.1rem !important; }
+.oracle-msg--oracle .oracle-bubble :deep(.pt-md li) { margin: 0.15rem 0 !important; }
 .oracle-msg--oracle .oracle-bubble :deep(.pt-md h2),
 .oracle-msg--oracle .oracle-bubble :deep(.pt-md h3),
 .oracle-msg--oracle .oracle-bubble :deep(.pt-md h4) {
