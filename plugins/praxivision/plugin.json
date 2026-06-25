@@ -1,0 +1,22 @@
+{
+  "slug": "praxivision",
+  "name": "L'Éveilleur — 60 jours de leadership intégral",
+  "version": "1.0.0",
+  "author": "Praxis Accompagnement",
+  "type": "mini-app",
+  "description": "Un parcours de 60 jours pour développer un leadership intégral : se connaître, rayonner une vision, influencer sans contraindre, faire grandir son équipe, décider sous incertitude et transmettre un héritage. Une pratique par jour, ancrée dans la recherche, avec un micro-défi à appliquer immédiatement. Chaque pratique réalisée rapporte des Éclats.",
+  "namespace": "Praxis\\Plugins\\PraxiVision",
+  "service_provider": "Praxis\\Plugins\\PraxiVision\\PluginServiceProvider",
+  "permissions": [
+    "read:profiles"
+  ],
+  "requires": {
+    "praxiquest": ">=1.0.0",
+    "php": ">=8.2"
+  },
+  "reward": {
+    "threshold_eclats": 1500,
+    "entry_route": "praxivision.index",
+    "icon": "ti-crown"
+  }
+}
