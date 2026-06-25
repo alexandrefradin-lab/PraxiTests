@@ -48,10 +48,11 @@ class ChartRenderer
             $axes = array_slice($axes, 0, 12);
             $n = count($axes);
 
-            $W = (int) ($o['w'] ?? 360);
-            $H = (int) ($o['h'] ?? 330);
-            $max = (float) ($o['max'] ?? 100);
-            $rings = (int) ($o['rings'] ?? 4);
+            // Canvas plus large pour éviter la troncature des longs labels (ex. "Investigative")
+            $W = (int) ($o['w'] ?? 480);
+            $H = (int) ($o['h'] ?? 420);
+            $max   = (float) ($o['max']   ?? 100);
+            $rings = (int)   ($o['rings'] ?? 4);
             $accent = self::rgb($o['accent'] ?? '#A67520');
             $ss = self::SS;
             $cw = $W * $ss;
@@ -59,22 +60,28 @@ class ChartRenderer
 
             $im = self::canvas($cw, $ch);
             $cx = $cw / 2;
-            $cy = $ch / 2 + 4 * $ss;                 // léger décalage : place pour le titre du haut
-            $R  = min($cw, $ch) / 2 - 58 * $ss;      // marge pour les libellés
+            $cy = $ch / 2 + 4 * $ss;
+            // Marge plus généreuse (68 vs 58) pour les libellés longs
+            $R  = min($cw, $ch) / 2 - 70 * $ss;
 
             $font  = self::font();
             $fontB = self::font(true);
 
-            $ring  = imagecolorallocatealpha($im, 42, 30, 8, 112);
-            $spoke = imagecolorallocatealpha($im, 42, 30, 8, 116);
-            $fill  = imagecolorallocatealpha($im, $accent[0], $accent[1], $accent[2], 96);
-            $line  = imagecolorallocate($im, $accent[0], $accent[1], $accent[2]);
-            $dot   = imagecolorallocate($im, 125, 85, 16);
-            $dotE  = imagecolorallocate($im, 240, 232, 212);
-            $txt   = imagecolorallocate($im, 42, 30, 8);
-            $val   = imagecolorallocate($im, 125, 85, 16);
+            // Palette couleurs
+            $parchBg = imagecolorallocatealpha($im, 250, 248, 244, 20);  // fond parchemin léger
+            $ringOut = imagecolorallocatealpha($im, 42,  30,  8,  78);   // anneau extérieur (sombre)
+            $ringIn  = imagecolorallocatealpha($im, 42,  30,  8, 108);   // anneaux intérieurs
+            $spoke   = imagecolorallocatealpha($im, 42,  30,  8, 112);   // rayons
+            $fill    = imagecolorallocatealpha($im, $accent[0], $accent[1], $accent[2], 86);  // +opaque
+            $line    = imagecolorallocate($im, $accent[0], $accent[1], $accent[2]);
+            $haloC   = imagecolorallocatealpha($im, $accent[0], $accent[1], $accent[2], 105); // halo dot
+            $dot     = imagecolorallocate($im, 125, 85, 16);
+            $dotE    = imagecolorallocate($im, 250, 248, 244);
+            $txt     = imagecolorallocate($im, 28, 20, 8);
+            $val     = imagecolorallocate($im, 125, 85, 16);
+            $ringLbl = imagecolorallocatealpha($im, 42, 30, 8, 92);  // valeurs 25/50/75/100
 
-            // Pré-calcul des sommets.
+            // Pré-calcul des sommets
             $pts = [];
             foreach ($axes as $i => $a) {
                 $ang = -M_PI / 2 + $i * 2 * M_PI / $n;
@@ -87,45 +94,72 @@ class ChartRenderer
                 ];
             }
 
-            // Anneaux de graduation.
+            // Fond parchemin de la zone radar
+            $bgPoly = [];
+            foreach ($pts as $p) {
+                $bgPoly[] = $cx + $p['cos'] * $R;
+                $bgPoly[] = $cy + $p['sin'] * $R;
+            }
+            self::filledPoly($im, $bgPoly, $parchBg);
+
+            // Anneaux intérieurs
             imagesetthickness($im, max(1, (int) round($ss * 0.8)));
-            for ($r = 1; $r <= $rings; $r++) {
+            for ($r = 1; $r < $rings; $r++) {
                 $f = $r / $rings;
                 $poly = [];
                 foreach ($pts as $p) {
                     $poly[] = $cx + $p['cos'] * $R * $f;
                     $poly[] = $cy + $p['sin'] * $R * $f;
                 }
-                self::closedPoly($im, $poly, $ring);
+                self::closedPoly($im, $poly, $ringIn);
             }
-            // Rayons.
+            // Anneau extérieur plus épais et plus sombre
+            imagesetthickness($im, max(1, (int) round($ss * 1.3)));
+            self::closedPoly($im, $bgPoly, $ringOut);
+            imagesetthickness($im, max(1, (int) round($ss * 0.8)));
+
+            // Rayons
             foreach ($pts as $p) {
-                imageline($im, (int) $cx, (int) $cy, (int) ($cx + $p['cos'] * $R), (int) ($cy + $p['sin'] * $R), $spoke);
+                imageline($im, (int) $cx, (int) $cy,
+                    (int) ($cx + $p['cos'] * $R), (int) ($cy + $p['sin'] * $R), $spoke);
             }
 
-            // Polygone de données — remplissage translucide + contour.
+            // Labels des anneaux (axe vertical, côté droit du centre)
+            $fs = (float) ($o['label_size'] ?? 10) * $ss;
+            for ($r = 1; $r <= $rings; $r++) {
+                $f = $r / $rings;
+                $rly = $cy - $R * $f + 3 * $ss;
+                self::text($im, $font, $fs * 0.62, $cx + 5 * $ss, $rly,
+                    (string) (int) round($max * $f), $ringLbl, 'start');
+            }
+
+            // Polygone de données — remplissage + contour
             $poly = [];
             foreach ($pts as $p) {
                 $poly[] = $cx + $p['cos'] * $R * $p['ratio'];
                 $poly[] = $cy + $p['sin'] * $R * $p['ratio'];
             }
             self::filledPoly($im, $poly, $fill);
-            imagesetthickness($im, max(1, (int) round($ss * 1.7)));
+            imagesetthickness($im, max(2, (int) round($ss * 1.8)));
             self::closedPoly($im, $poly, $line);
 
-            // Sommets + libellés.
+            // Sommets : halo + disque
             imagesetthickness($im, 1);
-            $fs = (float) ($o['label_size'] ?? 10) * $ss;
             foreach ($pts as $p) {
                 $dx = $cx + $p['cos'] * $R * $p['ratio'];
                 $dy = $cy + $p['sin'] * $R * $p['ratio'];
-                self::disc($im, $dx, $dy, 4.3 * $ss, $dot, $dotE);
+                self::disc($im, $dx, $dy, 7.5 * $ss, $haloC, $haloC);  // halo translucide
+                self::disc($im, $dx, $dy, 5.2 * $ss, $dot,   $dotE);   // disque or (was 4.3)
+            }
 
-                $lx = $cx + $p['cos'] * ($R + 15 * $ss);
-                $ly = $cy + $p['sin'] * ($R + 15 * $ss);
+            // Labels d'axes — offset 20*$ss (was 15) pour éviter la troncature
+            foreach ($pts as $p) {
+                $lx = $cx + $p['cos'] * ($R + 20 * $ss);
+                $ly = $cy + $p['sin'] * ($R + 20 * $ss);
                 $anchor = $p['cos'] > 0.30 ? 'start' : ($p['cos'] < -0.30 ? 'end' : 'mid');
                 self::text($im, $fontB ?? $font, $fs * 0.92, $lx, $ly - 4 * $ss, $p['label'], $txt, $anchor);
-                self::text($im, $font, $fs * 0.80, $lx, $ly + 9 * $ss, (string) round($p['value']), $val, $anchor);
+                self::text($im, $font,           $fs * 0.80, $lx, $ly + 9 * $ss,
+                    (string) round($p['value']), $val, $anchor);
             }
 
             return self::down($im, $W, $H);
