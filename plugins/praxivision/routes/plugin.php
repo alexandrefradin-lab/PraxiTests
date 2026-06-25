@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Praxis\Plugins\PraxiVision\Http\PracticeController;
 
 Route::middleware(['web', 'auth'])
-    ->prefix('leadership')
+    ->prefix('coffre/praxivision')
     ->name('praxivision.')
     ->group(function () {
         Route::get('/', [PracticeController::class, 'index'])->name('index');

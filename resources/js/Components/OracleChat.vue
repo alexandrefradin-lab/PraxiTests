@@ -1,6 +1,38 @@
 <script setup>
 import { ref, nextTick, watch } from 'vue'
-import MarkdownText from '@/Components/MarkdownText.vue'
+
+// Renderer Markdown léger pour les bulles oracle (pas de conflit CSS avec MarkdownText)
+function renderOracle(text) {
+    if (!text) return ''
+    const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    const inline = s => esc(s)
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*([^*\n]+)\*/g, '<em>$1</em>')
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+
+    const lines = text.replace(/\r\n/g, '\n').trim().split('\n')
+    const out = []
+    let listType = null
+    let para = []
+
+    const flushPara = () => {
+        if (para.length) { out.push(`<p>${inline(para.join(' '))}</p>`); para = [] }
+    }
+    const closeList = () => { if (listType) { out.push(`</${listType}>`); listType = null } }
+
+    for (const raw of lines) {
+        const line = raw.trim()
+        if (!line) { flushPara(); closeList(); continue }
+        const ul = line.match(/^[-*+]\s+(.*)$/)
+        if (ul) { flushPara(); if (listType !== 'ul') { closeList(); out.push('<ul>'); listType = 'ul' }; out.push(`<li>${inline(ul[1])}</li>`); continue }
+        const ol = line.match(/^\d+[.)]\s+(.*)$/)
+        if (ol) { flushPara(); if (listType !== 'ol') { closeList(); out.push('<ol>'); listType = 'ol' }; out.push(`<li>${inline(ol[1])}</li>`); continue }
+        if (listType) closeList()
+        para.push(line)
+    }
+    flushPara(); closeList()
+    return out.join('')
+}
 
 // ── Modale de confirmation suppression (UX-07) ──
 const showDeleteConfirm = ref(false)
@@ -173,9 +205,7 @@ watch(messages, scrollToBottom, { deep: true })
                         :class="m.role === 'user' ? 'oracle-msg--user' : 'oracle-msg--oracle'"
                     >
                         <div class="oracle-bubble">
-                            <template v-if="m.role === 'assistant'">
-                                <MarkdownText :source="m.content" />
-                            </template>
+                            <div v-if="m.role === 'assistant'" class="oracle-content" v-html="renderOracle(m.content)"></div>
                             <template v-else>{{ m.content }}</template>
                         </div>
                     </div>
@@ -530,50 +560,17 @@ watch(messages, scrollToBottom, { deep: true })
 }
 .oracle-confirm-delete:hover { background: #8B2316; }
 
-/* ── MarkdownText dans les bulles oracle ── */
-.oracle-msg--oracle .oracle-bubble :deep(.pt-md) {
-    font-size: 13.5px !important;
-    line-height: 1.55 !important;
-    color: var(--or-ink) !important;
-}
-.oracle-msg--oracle .oracle-bubble :deep(.pt-md p) { margin: 0 0 0.4rem !important; }
-.oracle-msg--oracle .oracle-bubble :deep(.pt-md p:last-child) { margin-bottom: 0 !important; }
-.oracle-msg--oracle .oracle-bubble :deep(.pt-md ul),
-.oracle-msg--oracle .oracle-bubble :deep(.pt-md ol) { margin: 0.15rem 0 0.4rem !important; padding-left: 1.1rem !important; }
-.oracle-msg--oracle .oracle-bubble :deep(.pt-md li) { margin: 0.15rem 0 !important; }
-.oracle-msg--oracle .oracle-bubble :deep(.pt-md h2),
-.oracle-msg--oracle .oracle-bubble :deep(.pt-md h3),
-.oracle-msg--oracle .oracle-bubble :deep(.pt-md h4) {
-    font-family: var(--font-body, 'Inter', sans-serif);
-    font-size: 13.5px;
-    font-weight: 700;
-    color: var(--or-ink);
-    margin: 0.5rem 0 0.2rem;
-    text-transform: none;
-    letter-spacing: 0;
-}
-.oracle-msg--oracle .oracle-bubble :deep(.pt-md h2:first-child),
-.oracle-msg--oracle .oracle-bubble :deep(.pt-md h3:first-child),
-.oracle-msg--oracle .oracle-bubble :deep(.pt-md h4:first-child) { margin-top: 0; }
-.oracle-msg--oracle .oracle-bubble :deep(.pt-md strong) { font-weight: 700; color: var(--or-ink); }
-.oracle-msg--oracle .oracle-bubble :deep(.pt-md em) { font-style: italic; color: var(--or-gold-dark); }
-.oracle-msg--oracle .oracle-bubble :deep(.pt-md ul),
-.oracle-msg--oracle .oracle-bubble :deep(.pt-md ol) { margin: 0.25rem 0 0.45rem; padding-left: 1.2rem; }
-.oracle-msg--oracle .oracle-bubble :deep(.pt-md li) { margin: 0.2rem 0; }
-.oracle-msg--oracle .oracle-bubble :deep(.pt-md ul li)::marker { color: var(--or-gold); }
-.oracle-msg--oracle .oracle-bubble :deep(.pt-md ol li)::marker { color: var(--or-gold); }
-.oracle-msg--oracle .oracle-bubble :deep(.pt-md blockquote) {
-    border-left: 2px solid var(--or-gold);
-    padding: 0.1rem 0 0.1rem 0.8rem;
-    margin: 0.5rem 0;
-    color: var(--or-gold-dark);
-    font-style: italic;
-}
-.oracle-msg--oracle .oracle-bubble :deep(.pt-md hr) {
-    border: none;
-    border-top: 1px solid rgba(166, 117, 32, 0.3);
-    margin: 0.8rem 0;
-}
+/* ── Contenu oracle (renderer inline, pas de conflit MarkdownText) ── */
+.oracle-content { font-size: 13.5px; line-height: 1.55; color: var(--or-ink); }
+.oracle-content p { margin: 0 0 0.4rem; }
+.oracle-content p:last-child { margin-bottom: 0; }
+.oracle-content ul, .oracle-content ol { margin: 0.15rem 0 0.4rem; padding-left: 1.2rem; }
+.oracle-content li { margin: 0.15rem 0; }
+.oracle-content ul li::marker { color: var(--or-gold); }
+.oracle-content ol li::marker { color: var(--or-gold); font-weight: 600; }
+.oracle-content strong { font-weight: 700; color: var(--or-ink); }
+.oracle-content em { font-style: italic; color: var(--or-gold-dark); }
+.oracle-content code { font-family: monospace; font-size: 0.88em; background: rgba(166,117,32,0.1); padding: 1px 4px; border-radius: 3px; }
 
 /* ── Transition fade (modale) ── */
 .fade-enter-active, .fade-leave-active { transition: opacity 0.18s ease; }
