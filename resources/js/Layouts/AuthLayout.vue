@@ -24,16 +24,16 @@ const branding = computed(() => usePage().props.branding ?? { name: 'PraxiQuest'
                 <polygon points="110,12 114,28 110,24 106,28" fill="#A67520"/>
             </svg>
 
-            <!-- Logo -->
+            <!-- Logo — même SVG boussole que la landing page, couleurs adaptées fond sombre -->
             <Link href="/" class="auth-logo-link">
-                <div class="auth-logo-box">
-                    <svg viewBox="0 0 24 24" class="auth-logo-svg">
-                        <polygon points="12,2 13.8,10.5 12,13.5 10.2,10.5" fill="#1C1408"/>
-                        <polygon points="12,22 13.8,13.5 12,10.5 10.2,13.5" fill="#1C1408" opacity="0.4"/>
-                        <circle cx="12" cy="12" r="3" fill="#F0E8D4"/>
-                        <circle cx="12" cy="12" r="1.3" fill="#A67520"/>
-                    </svg>
-                </div>
+                <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg" class="auth-logo-svg">
+                    <circle cx="19" cy="19" r="17.5" stroke="#A67520" stroke-width="1.5"/>
+                    <circle cx="19" cy="19" r="13" stroke="#A67520" stroke-width="0.7" opacity="0.6"/>
+                    <polygon points="19,6 20.4,18 19,21 17.6,18" fill="#F0E8D4"/>
+                    <polygon points="19,32 20.4,20 19,17 17.6,20" fill="#A67520" opacity="0.5"/>
+                    <circle cx="19" cy="19" r="2.2" fill="#A67520"/>
+                    <circle cx="19" cy="19" r="1" fill="#F0E8D4"/>
+                </svg>
                 <div>
                     <div class="auth-brand-name">{{ branding.name }}</div>
                     <div class="auth-brand-tag">Voyage intérieur</div>
@@ -107,22 +107,9 @@ const branding = computed(() => usePage().props.branding ?? { name: 'PraxiQuest'
     position: relative;
     z-index: 1;
 }
-.auth-logo-box {
-    width: 44px !important;
-    height: 44px !important;
-    min-width: 44px !important;
-    min-height: 44px !important;
-    border-radius: 10px !important;
-    background: #A67520 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    flex-shrink: 0 !important;
-    box-shadow: 0 4px 16px rgba(166,117,32,0.45) !important;
-}
 .auth-logo-svg {
-    width: 22px !important;
-    height: 22px !important;
+    width: 38px !important;
+    height: 38px !important;
     display: block !important;
     flex-shrink: 0 !important;
 }
