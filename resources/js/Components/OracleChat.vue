@@ -560,17 +560,20 @@ watch(messages, scrollToBottom, { deep: true })
 }
 .oracle-confirm-delete:hover { background: #8B2316; }
 
-/* ── Contenu oracle (renderer inline, pas de conflit MarkdownText) ── */
+/* ── Contenu oracle (v-html → utiliser :deep() pour cibler les éléments générés) ── */
+/* Vue scoped CSS place l'attribut sur le DERNIER sélecteur, donc sans :deep()
+   on obtient p[data-v-xxx] qui ne matche pas les éléments v-html.
+   :deep() génère .oracle-content[data-v-xxx] p — ça matche. */
 .oracle-content { font-size: 13.5px; line-height: 1.55; color: var(--or-ink); }
-.oracle-content p { margin: 0 0 0.4rem; }
-.oracle-content p:last-child { margin-bottom: 0; }
-.oracle-content ul, .oracle-content ol { margin: 0.15rem 0 0.4rem; padding-left: 1.2rem; }
-.oracle-content li { margin: 0.15rem 0; }
-.oracle-content ul li::marker { color: var(--or-gold); }
-.oracle-content ol li::marker { color: var(--or-gold); font-weight: 600; }
-.oracle-content strong { font-weight: 700; color: var(--or-ink); }
-.oracle-content em { font-style: italic; color: var(--or-gold-dark); }
-.oracle-content code { font-family: monospace; font-size: 0.88em; background: rgba(166,117,32,0.1); padding: 1px 4px; border-radius: 3px; }
+.oracle-content :deep(p) { margin: 0 0 0.4rem; }
+.oracle-content :deep(p:last-child) { margin-bottom: 0; }
+.oracle-content :deep(ul), .oracle-content :deep(ol) { margin: 0.15rem 0 0.4rem; padding-left: 1.2rem; }
+.oracle-content :deep(li) { margin: 0.15rem 0; }
+.oracle-content :deep(ul li)::marker { color: var(--or-gold); }
+.oracle-content :deep(ol li)::marker { color: var(--or-gold); font-weight: 600; }
+.oracle-content :deep(strong) { font-weight: 700; color: var(--or-ink); }
+.oracle-content :deep(em) { font-style: italic; color: var(--or-gold-dark); }
+.oracle-content :deep(code) { font-family: monospace; font-size: 0.88em; background: rgba(166,117,32,0.1); padding: 1px 4px; border-radius: 3px; }
 
 /* ── Transition fade (modale) ── */
 .fade-enter-active, .fade-leave-active { transition: opacity 0.18s ease; }

@@ -252,12 +252,12 @@ defineProps({
     padding: 1.4rem 1.4rem 1.5rem;
     background: linear-gradient(180deg, #FBF6EA, #F1E7CF);
     box-shadow: var(--shadow-card, 0 2px 12px rgba(42,30,8,0.10));
-    transition: box-shadow .18s ease, transform .18s ease, border-color .18s ease;
+    transition: box-shadow .2s ease, transform .2s ease, border-color .2s ease;
 }
 .trs-card:hover {
-    box-shadow: var(--shadow-elevated, 0 8px 32px rgba(42,30,8,0.15));
+    border-color: var(--trs-gold) !important;
+    box-shadow: 0 8px 28px rgba(166,117,32,0.18);
     transform: translateY(-3px);
-    border-color: var(--trs-gold);
 }
 .trs-card--locked {
     opacity: .75;
@@ -276,10 +276,15 @@ defineProps({
     justify-content: center;
     width: 44px;
     height: 44px;
-    border-radius: var(--r, 8px);
+    border-radius: 50%;
     border: 1px solid var(--border-mid, rgba(166,117,32,0.25));
     background: radial-gradient(circle at 35% 30%, #FBF3DF, #E9D9B4);
     box-shadow: inset 0 1px 2px rgba(255,255,255,.6);
+    transition: border-color .2s ease, transform .2s ease;
+}
+.trs-card:hover .trs-card-icon {
+    border-color: var(--trs-gold);
+    transform: rotate(-4deg) scale(1.05);
 }
 
 /* Badges */
