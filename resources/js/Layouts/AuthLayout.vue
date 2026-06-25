@@ -26,14 +26,15 @@ const branding = computed(() => usePage().props.branding ?? { name: 'PraxiQuest'
 
             <!-- Logo -->
             <Link href="/" style="display: flex; align-items: center; gap: 14px; text-decoration: none; position: relative; z-index: 1">
-                <div style="width: 44px; height: 44px; border-radius: 10px; background: #A67520; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 18px rgba(166,117,32,0.5), inset 0 1px 0 rgba(255,255,255,0.15); flex-shrink: 0">
-                    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-                        <polygon points="11,2 12.8,10 11,13 9.2,10" fill="#1C1408"/>
-                        <polygon points="11,20 12.8,12 11,9 9.2,12" fill="#1C1408" opacity="0.4"/>
-                        <circle cx="11" cy="11" r="2.5" fill="#F0E8D4"/>
-                        <circle cx="11" cy="11" r="1.1" fill="#A67520"/>
-                    </svg>
-                </div>
+                <!-- SVG logo: rect or solide + aiguille ivoire (SVG fill != CSS, toujours rendu) -->
+                <svg width="44" height="44" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;filter:drop-shadow(0 4px 10px rgba(166,117,32,0.5))">
+                    <rect width="44" height="44" rx="10" fill="#A67520"/>
+                    <rect width="44" height="2" rx="1" fill="#F0E8D4" opacity="0.15" y="1"/>
+                    <polygon points="22,9 24.2,20.5 22,24 19.8,20.5" fill="#1C1408"/>
+                    <polygon points="22,35 24.2,23.5 22,20 19.8,23.5" fill="#1C1408" opacity="0.35"/>
+                    <circle cx="22" cy="22" r="3.5" fill="#F0E8D4"/>
+                    <circle cx="22" cy="22" r="1.5" fill="#A67520"/>
+                </svg>
                 <div>
                     <div style="font-family: var(--font-display); font-size: 17px; font-weight: 700; color: #F0E8D4; letter-spacing: -0.01em; line-height: 1">{{ branding.name }}</div>
                     <div style="font-family: var(--font-data); font-size: 10px; color: #A67520; text-transform: uppercase; letter-spacing: 0.14em; margin-top: 5px">Voyage intérieur</div>
