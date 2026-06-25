@@ -61,6 +61,9 @@ class GamificationEngine
             'updated_at' => now(),
         ]);
 
+        // Invalider le cache Éclats partagé avec HandleInertiaRequests (ARC-m2).
+        \Illuminate\Support\Facades\Cache::forget("eclats.{$user->id}");
+
         PluginHooks::doAction('gamification.xp_awarded', $user, $amount, $reason, $progress);
         if ($evaluateBadges) {
             $this->evaluator->evaluate($user, ['type' => 'xp_awarded', 'amount' => $amount, 'reason' => $reason]);

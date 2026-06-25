@@ -31,11 +31,11 @@ trait BuildsBrandedPdf
             $pdf  = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html)
                 ->setPaper('A4', 'portrait');
 
-            // Accès au dompdf sous-jacent : activer les scripts PHP (numérotation)
-            // et pointer le cache polices vers un dossier garanti inscriptible.
+            // Accès au dompdf sous-jacent : pointer le cache polices vers un dossier garanti inscriptible.
             $dompdf  = $pdf->getDomPDF();
             $options = $dompdf->getOptions();
-            $options->setIsPhpEnabled(true);
+            // PHP execution disabled for security - use CSS counters for page numbering
+            $options->setIsPhpEnabled(false);
             $options->setFontCache($fontCache);
             $dompdf->setOptions($options);
 

@@ -63,8 +63,15 @@ const inline = (s) => {
             tokens.push(`<code>${escapeHtml(match[6])}</code>`)
         } else if (isLink) {
             const label = escapeHtml(match[7] ?? '')
-            const href  = escapeHtml(match[8] ?? '')
-            tokens.push(`<a href="${href}" target="_blank" rel="noopener">${label}</a>`)
+            const rawHref = match[8] ?? ''
+            let safeHref = '#'
+            try {
+                const parsed = new URL(rawHref)
+                if (['http:', 'https:', 'mailto:'].includes(parsed.protocol)) {
+                    safeHref = rawHref.replace(/"/g, '%22')
+                }
+            } catch (e) { safeHref = '#' }
+            tokens.push(`<a href="${safeHref}" target="_blank" rel="noopener">${label}</a>`)
         }
         lastIndex = match.index + full.length
     }

@@ -29,12 +29,12 @@ return [
     ],
 
     'results' => [
-        'suggested_jobs_count' => 30,
+        'suggested_jobs_count' => 100,
         'min_jobs_count'       => 10,
         // Pistes métiers dynamiques (PTP) — nombre affiché dans le Grimoire global.
         'career_paths_count'        => 30,
         // Pistes affichées sous chaque page de résultats de test (≤ 1 an, éphémères).
-        'career_paths_per_test'     => 30,
+        'career_paths_per_test'     => 100,
     ],
 
     'install' => [

@@ -22,7 +22,7 @@ class PanelAggregator
 
     public function build(): array
     {
-        $threshold = max(1, (int) $this->panel->anonymity_threshold);
+        $threshold = max(3, (int) $this->panel->anonymity_threshold);
         $dims      = Questions::dimensions();
         $dimKeys   = array_keys($dims);
 

@@ -99,6 +99,12 @@ class TestEngine
             ]
         );
 
+        // Marquer l'invitation comme complétée
+        if ($attempt->invitation_id) {
+            \App\Models\TestInvitation::where('id', $attempt->invitation_id)
+                ->update(['status' => 'completed']);
+        }
+
         PluginHooks::doAction('attempt.completed', $attempt);
         return $attempt->fresh('result');
     }

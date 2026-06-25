@@ -13,7 +13,12 @@ class PluginController extends Controller
 {
     public function index(PluginRegistry $registry)
     {
-        $registry->syncToDatabase();
+        // Throttle le scan disque syncToDatabase() — coûteux à chaque page admin (ARC-m5).
+        // Le cache est TTL 60 s ; une activation/désactivation l'invalide via back().
+        \Illuminate\Support\Facades\Cache::remember('plugin_list_synced', 60, function () use ($registry) {
+            $registry->syncToDatabase();
+            return true;
+        });
         $plugins = Plugin::orderBy('type')->orderBy('name')->get();
 
         return Inertia::render('Admin/Plugins/Index', [

@@ -129,6 +129,7 @@ watch(() => page.props.gamification?.level, (newLevel) => {
 
 <template>
     <div class="min-h-screen flex flex-col" style="background: var(--bg-base)">
+        <a href="#main-content" class="skip-link">Aller au contenu principal</a>
 
         <!-- Header glassmorphism sticky -->
         <header class="ac-glass" style="position: sticky; top: 0; z-index: 50; box-shadow: var(--shadow-card)">
@@ -236,7 +237,7 @@ watch(() => page.props.gamification?.level, (newLevel) => {
         </div>
 
         <!-- Body -->
-        <main class="flex-1">
+        <main id="main-content" class="flex-1">
             <!-- Skeleton screens pendant la navigation Inertia -->
             <template v-if="navigating">
                 <!-- Grille de cartes : tests, grimoire, trésor -->
@@ -483,6 +484,23 @@ watch(() => page.props.gamification?.level, (newLevel) => {
 </template>
 
 <style scoped>
+/* ── Skip link (accessibilité) ── */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: #1E3A5F;
+    color: white;
+    padding: 8px;
+    z-index: 9999;
+    text-decoration: none;
+    font-family: var(--font-body, 'Inter', sans-serif);
+    font-size: 14px;
+}
+.skip-link:focus {
+    top: 0;
+}
+
 /* ── Nav desktop ── */
 .cand-nav-link:hover {
     color: var(--text-primary) !important;

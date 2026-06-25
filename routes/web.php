@@ -127,11 +127,12 @@ Route::get('/i/{token}', [\App\Http\Controllers\InvitationController::class, 'la
     ->name('invitation.land');
 
 // Feedback 360° — réponse anonyme d'un évaluateur (sans compte, via lien tokenisé).
-// Rate-limité : les écritures (answer/complete) sont plafonnées pour éviter le spam.
+// SEC-M11 : Rate-limité — 40 req/min sur l'ensemble du groupe (déjà < 60 demandé).
+// Les routes d'écriture (answer/complete) ont un throttle additionnel plus strict.
 Route::middleware('throttle:40,1')->group(function () {
     Route::get('/360/{token}',          [\App\Http\Controllers\Evaluation360Controller::class, 'land'])->name('eval360.land');
-    Route::post('/360/{token}/answer',  [\App\Http\Controllers\Evaluation360Controller::class, 'answer'])->name('eval360.answer');
-    Route::post('/360/{token}/complete',[\App\Http\Controllers\Evaluation360Controller::class, 'complete'])->name('eval360.complete');
+    Route::post('/360/{token}/answer',  [\App\Http\Controllers\Evaluation360Controller::class, 'answer'])->middleware('throttle:60,1')->name('eval360.answer');
+    Route::post('/360/{token}/complete',[\App\Http\Controllers\Evaluation360Controller::class, 'complete'])->middleware('throttle:60,1')->name('eval360.complete');
     Route::get('/360/{token}/merci',    [\App\Http\Controllers\Evaluation360Controller::class, 'thanks'])->name('eval360.thanks');
 });
 

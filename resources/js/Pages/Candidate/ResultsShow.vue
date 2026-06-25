@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, onMounted, watch } from 'vue'
+import { ref, reactive, onMounted, onBeforeUnmount, watch } from 'vue'
 import { Head } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import MarkdownText from '@/Components/MarkdownText.vue'
@@ -14,6 +14,7 @@ const animatedDims = reactive({})
 
 const revealed = ref(false)
 const ctaVisible = ref(false)
+let rafId = null
 
 // Respect de l'accessibilité : si l'utilisateur préfère moins d'animations,
 // on affiche tout immédiatement (WCAG 2.3.3).
@@ -103,10 +104,10 @@ watch(revealed, (val) => {
                 const p = Math.min((Date.now() - start) / duration, 1)
                 const ease = 1 - Math.pow(1 - p, 3)
                 animatedDims[key] = Math.round(ease * target)
-                if (p < 1) requestAnimationFrame(tick)
-                else animatedDims[key] = target
+                if (p < 1) rafId = requestAnimationFrame(tick)
+                else { animatedDims[key] = target; rafId = null }
             }
-            requestAnimationFrame(tick)
+            rafId = requestAnimationFrame(tick)
         }, 700 + i * 160)
     })
 }, { immediate: true })
@@ -119,6 +120,10 @@ watch(() => props.attempt?.ai_pending, (pending) => {
         setTimeout(() => { ctaVisible.value = true }, 300)
     }
 }, { immediate: true })
+
+onBeforeUnmount(() => {
+    if (rafId) cancelAnimationFrame(rafId)
+})
 
 onMounted(() => {
     if (props.ai_pending || !props.result?.ai_synthesis) return

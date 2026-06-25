@@ -100,6 +100,9 @@ class ConseillerDashboardController extends Controller
         })->values();
 
         // ---- Panneau synthèses IA & idées de métiers ----
+        // SEC-M12 / RGPD TODO: Add consent_share_professional check once migration is applied.
+        // Exemple : ->whereHas('attempt.invitation', fn($q) => $q->where('consent_share_professional', true))
+        // Cette ligne sera activée après la migration add_consent_share_professional_to_invitations.
         $aiInsights = $resultsQuery()
             ->whereNotNull('test_results.ai_synthesis')
             ->orderByDesc('test_results.id')

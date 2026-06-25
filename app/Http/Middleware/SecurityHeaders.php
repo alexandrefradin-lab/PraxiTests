@@ -27,6 +27,9 @@ class SecurityHeaders
             'Referrer-Policy'         => 'strict-origin-when-cross-origin',
             'X-XSS-Protection'        => '0',
             'Permissions-Policy'      => 'geolocation=(), microphone=(), camera=()',
+            // SEC-M8: CSP en mode Report-Only — à durcir progressivement.
+            // unsafe-inline requis pour Vite/Inertia (scripts inline de payload de page).
+            'Content-Security-Policy-Report-Only' => "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self'; font-src 'self' data:; frame-ancestors 'none'",
         ];
 
         // HSTS uniquement en HTTPS (évite de casser le local en http).

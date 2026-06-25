@@ -75,7 +75,7 @@ TXT;
                 'voies_pressenties' => collect($grimoire->voies ?? [])
                     ->map(fn ($v) => $v['titre'] ?? null)
                     ->filter()
-                    ->take(30)
+                    ->take(100)
                     ->values()
                     ->all(),
             ];
@@ -110,7 +110,7 @@ TXT;
      *
      * @param  Collection<int,TestAttempt>  $attempts  tentatives complétées (avec test + result)
      */
-    public function globalGrimoire(User $user, Collection $attempts, int $count = 30): array
+    public function globalGrimoire(User $user, Collection $attempts, int $count = 100): array
     {
         $profile = $user->profile;
 
@@ -241,7 +241,7 @@ TXT;
      * Grimoire — PROMPT 2/2 : uniquement les {count} voies métiers.
      * Conçu pour tourner EN PARALLÈLE avec globalGrimoireSynthese() (Http::pool).
      */
-    public function globalGrimoireVoies(User $user, Collection $attempts, int $count = 30): array
+    public function globalGrimoireVoies(User $user, Collection $attempts, int $count = 100): array
     {
         $system = <<<TXT
 Tu es un consultant en orientation professionnelle senior qui propose des métiers réalistes, alignés sur le profil et le marché du travail français/francophone actuel.
@@ -355,7 +355,7 @@ TXT;
         );
     }
 
-    public function jobSuggestions(TestAttempt $attempt, int $count = 30): array
+    public function jobSuggestions(TestAttempt $attempt, int $count = 100): array
     {
         $profile = $attempt->user?->profile;
         $scoring = $attempt->result?->scoring;

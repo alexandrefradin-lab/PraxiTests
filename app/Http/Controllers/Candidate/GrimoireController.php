@@ -100,7 +100,8 @@ class GrimoireController extends Controller
                 'tests_included' => $grimoire->tests_included ?? [],
                 'status'         => $grimoire->status,
                 'generated_at'   => $grimoire->generated_at?->toIso8601String(),
-                'disclaimer'     => $grimoire->aiDisclaimer(),
+                'disclaimer'          => $grimoire->aiDisclaimer(),
+                'requested_voies_count' => (int) ($grimoire->ai_metadata['requested_voies_count'] ?? 30),
             ],
             'tests' => $attempts->map(fn ($a) => [
                 'attempt_id'   => $a->id,
@@ -186,7 +187,7 @@ class GrimoireController extends Controller
     }
 
     /** Bouton "Régénérer" — force une nouvelle relecture. */
-    public function refresh(): RedirectResponse
+    public function refresh(\Illuminate\Http\Request $request): RedirectResponse
     {
         $user = auth()->user();
 
@@ -226,7 +227,17 @@ class GrimoireController extends Controller
             // Solution : show() dispatch déjà le job dans son propre afterResponse quand il
             // voit needsGeneration=true. La valeur $pending est calculée AVANT afterResponse,
             // donc ai_pending=true est retourné immédiatement au client → pending screen OK.
-            $grimoire->update(['status' => 'pending', 'tests_signature' => '']);
+            $requestedCount = (int) $request->input('count', 30);
+            $requestedCount = max(1, min(100, $requestedCount));
+
+            $meta = $grimoire->ai_metadata ?? [];
+            $meta['requested_voies_count'] = $requestedCount;
+
+            $grimoire->update([
+                'status'         => 'pending',
+                'tests_signature' => '',
+                'ai_metadata'    => $meta,
+            ]);
         } finally {
             $lock->release();
         }

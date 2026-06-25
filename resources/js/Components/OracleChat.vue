@@ -1,5 +1,5 @@
 <script setup>
-import { ref, nextTick, watch } from 'vue'
+import { ref, nextTick, watch, onBeforeUnmount } from 'vue'
 
 // Renderer Markdown léger pour les bulles oracle.
 // Utilise exclusivement des inline styles — aucune dépendance aux classes CSS
@@ -87,6 +87,8 @@ function sendSuggestion(text) {
     send()
 }
 
+let currentAbortController = null
+
 const open = ref(false)
 const loaded = ref(false)        // historique déjà chargé ?
 const sending = ref(false)
@@ -141,6 +143,8 @@ async function send() {
     scrollToBottom()
 
     try {
+        if (currentAbortController) currentAbortController.abort()
+        currentAbortController = new AbortController()
         const r = await fetch(route('oracle.message'), {
             method: 'POST',
             headers: {
@@ -150,6 +154,7 @@ async function send() {
             },
             credentials: 'same-origin',
             body: JSON.stringify({ message: text }),
+            signal: currentAbortController.signal,
         })
         if (!r.ok) {
             const body = await r.text().catch(() => '')
@@ -178,18 +183,22 @@ function onKeydown(e) {
 }
 
 watch(messages, scrollToBottom, { deep: true })
+
+onBeforeUnmount(() => {
+    if (currentAbortController) currentAbortController.abort()
+})
 </script>
 
 <template>
     <div class="oracle-root">
         <!-- Panneau -->
         <transition name="oracle-pop">
-            <section v-if="open" class="oracle-panel" role="dialog" aria-label="L'Oracle">
+            <section v-if="open" class="oracle-panel" role="dialog" aria-modal="true" aria-labelledby="oracle-panel-title">
                 <header class="oracle-head">
                     <div class="oracle-head-id">
                         <span class="oracle-sigil">&#10022;</span>
                         <div>
-                            <p class="oracle-name">L'Oracle</p>
+                            <p class="oracle-name" id="oracle-panel-title">L'Oracle</p>
                             <p class="oracle-role">Conseil d'orientation</p>
                         </div>
                     </div>

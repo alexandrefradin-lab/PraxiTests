@@ -38,12 +38,12 @@ return [
         'job_suggestions' => [
             'driver' => null,
             'system_prompt_view' => 'ai.prompts.jobs-system',
-            'count' => 30,
+            'count' => 100,
         ],
         'global_grimoire' => [
             'driver' => null,            // = défaut (anthropic)
             'prompt_version' => '1.0',
-            'count' => 30,               // nombre de "Voies Possibles" consolidées
+            'count' => 100,               // nombre de "Voies Possibles" consolidées
         ],
         'cv_extract' => [
             'driver' => null,

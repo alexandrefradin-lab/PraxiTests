@@ -21,13 +21,16 @@ class ResultController extends Controller
 
         // Laisser chaque plugin overrider la page de résultats via un filtre.
         // Ex: PraxiCare enregistre 'results.inertia_page' → 'PraxiCareResult'
-        $allowed = [
+        // La whitelist est extensible : les plugins s'enregistrent via 'results.allowed_pages' (ARC-m3).
+        $defaultAllowed = [
             'Candidate/ResultsShow',
             'PraximetResult', 'PraxiCareResult', 'PraxiEmoResult', 'PraxiMumResult', 'PraxiValeursResult',
             'Praxis360Result', 'PraxiFocusResult', 'PraxiSensResult',
             // Mini-apps
             'PraxiZenResult', 'PraxiSelfResult', 'PraxiSpeakResult', 'PraxiFlowResult', 'PraxiLinkResult',
         ];
+        $pluginPages = PluginHooks::applyFilters('results.allowed_pages', []);
+        $allowed = array_merge($defaultAllowed, is_array($pluginPages) ? $pluginPages : []);
         $page = PluginHooks::applyFilters('results.inertia_page', 'Candidate/ResultsShow', $attempt);
         if (!in_array($page, $allowed, true)) {
             $page = 'Candidate/ResultsShow';

@@ -13,7 +13,7 @@
  * - `value` exprimée sur l'échelle 0..max (défaut 100).
  * - `color` par axe : optionnelle (teinte le sommet et la valeur).
  */
-import { computed } from 'vue'
+import { computed, getCurrentInstance } from 'vue'
 
 const props = defineProps({
     axes:       { type: Array,  default: () => [] },
@@ -73,6 +73,8 @@ const ringPolys = computed(() => {
     return out
 })
 
+const uid = getCurrentInstance().uid
+
 // hex → rgba pour le remplissage
 const tint = (hex, a) => {
     const h = (hex || '#A67520').replace('#', '')
@@ -95,7 +97,7 @@ const fill = computed(() => tint(props.accent, 0.22))
 
         <defs>
             <!-- Filtre ombre portée légère sur le polygone data -->
-            <filter id="rc-shadow" x="-20%" y="-20%" width="140%" height="140%">
+            <filter :id="`rc-shadow-${uid}`" x="-20%" y="-20%" width="140%" height="140%">
                 <feGaussianBlur in="SourceAlpha" stdDeviation="5" result="blur"/>
                 <feOffset dx="0" dy="3" result="offset"/>
                 <feComponentTransfer result="shadow">
@@ -133,7 +135,7 @@ const fill = computed(() => tint(props.accent, 0.22))
                  :stroke="accent"
                  stroke-width="2.5"
                  stroke-linejoin="round"
-                 filter="url(#rc-shadow)"
+                 :filter="`url(#rc-shadow-${uid})`"
                  style="transition:all .6s ease" />
 
         <!-- Halo + point sur chaque sommet -->

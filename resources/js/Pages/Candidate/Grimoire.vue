@@ -12,11 +12,12 @@ const props = defineProps({
 const voies = computed(() => props.grimoire?.voies ?? [])
 
 // ── Onglets ───────────────────────────────────────────────────────────────
-const tabs = [
+const pistesCount = ref(props.grimoire?.requested_voies_count ?? 30)
+const tabs = computed(() => [
     { key: 'synthese', label: 'Relecture globale' },
     { key: 'tests',    label: 'Résultats des tests' },
-    { key: 'pistes',   label: '30 Pistes métiers' },
-]
+    { key: 'pistes',   label: `${voies.value.length || pistesCount.value} Pistes métiers` },
+])
 const activeTab = ref('synthese')
 
 // ── Ajustement des voies par préférences (curseurs) ──────────────────────
@@ -152,10 +153,26 @@ const refreshing = ref(false)
 function regenerate() {
     refreshing.value = true
     window.scrollTo({ top: 0, behavior: 'smooth' })
-    router.post(route('grimoire.refresh'), {}, {
+    router.post(route('grimoire.refresh'), { count: pistesCount.value }, {
         preserveScroll: false,
         onFinish: () => { refreshing.value = false },
     })
+}
+
+// Keyboard navigation for tabs (ArrowLeft/ArrowRight)
+function onTabKeydown(e) {
+    if (!['ArrowLeft', 'ArrowRight'].includes(e.key)) return
+    e.preventDefault()
+    const keys = tabs.map(t => t.key)
+    const current = keys.indexOf(activeTab.value)
+    if (current === -1) return
+    const next = e.key === 'ArrowRight'
+        ? (current + 1) % keys.length
+        : (current - 1 + keys.length) % keys.length
+    activeTab.value = keys[next]
+    // Move focus to the newly active tab button
+    const btn = document.getElementById('tab-' + keys[next])
+    if (btn) btn.focus()
 }
 
 function fitClass(score) {
@@ -213,12 +230,15 @@ function fitClass(score) {
                 </header>
 
                 <!-- ── Barre d'onglets ──────────────────────────────────── -->
-                <nav class="grim-tabs" role="tablist">
+                <nav class="grim-tabs" role="tablist" @keydown="onTabKeydown">
                     <button
                         v-for="tab in tabs"
                         :key="tab.key"
+                        :id="'tab-' + tab.key"
                         role="tab"
                         :aria-selected="activeTab === tab.key"
+                        :aria-controls="'panel-' + tab.key"
+                        :tabindex="activeTab === tab.key ? 0 : -1"
                         class="grim-tab"
                         :class="{ 'grim-tab--active': activeTab === tab.key }"
                         @click="activeTab = tab.key"
@@ -228,7 +248,7 @@ function fitClass(score) {
                 </nav>
 
                 <!-- ── Onglet 1 : Relecture globale ───────────────────── -->
-                <div v-show="activeTab === 'synthese'" role="tabpanel">
+                <div v-show="activeTab === 'synthese'" role="tabpanel" id="panel-synthese" aria-labelledby="tab-synthese">
                     <div v-if="grimoire?.status === 'failed'" class="grim-alert">
                         {{ grimoire.synthesis }}
                     </div>
@@ -241,7 +261,7 @@ function fitClass(score) {
                 </div>
 
                 <!-- ── Onglet 2 : Résultats des tests ────────────────── -->
-                <div v-show="activeTab === 'tests'" role="tabpanel">
+                <div v-show="activeTab === 'tests'" role="tabpanel" id="panel-tests" aria-labelledby="tab-tests">
                     <section v-if="tests.length" class="grim-tests">
                         <div class="grim-section-head">
                             <h2 class="grim-section-title">Tes épreuves relues</h2>
@@ -270,7 +290,7 @@ function fitClass(score) {
                 </div>
 
                 <!-- ── Onglet 3 : Les 30 pistes ──────────────────────── -->
-                <div v-show="activeTab === 'pistes'" role="tabpanel">
+                <div v-show="activeTab === 'pistes'" role="tabpanel" id="panel-pistes" aria-labelledby="tab-pistes">
                     <section v-if="voies.length" class="grim-voies">
                         <div class="grim-section-head">
                             <h2 class="grim-section-title">Tes Voies Possibles</h2>
@@ -343,6 +363,20 @@ function fitClass(score) {
 
                 <footer class="grim-footer">
                     <div class="grim-rule"><span>&#10022;</span></div>
+                    <div class="grim-pistes-picker">
+                        <label for="pistes-count-slider" class="grim-picker-label">
+                            Nombre de pistes métiers à générer :
+                            <strong>{{ pistesCount }}</strong>
+                        </label>
+                        <input
+                            id="pistes-count-slider"
+                            type="range"
+                            min="5" max="100" step="5"
+                            v-model.number="pistesCount"
+                            class="grim-picker-range"
+                        />
+                        <div class="grim-picker-bounds"><span>5</span><span>100</span></div>
+                    </div>
                     <div class="grim-actions">
                         <a v-if="grimoire?.status === 'ready'" :href="route('grimoire.pdf')" class="ac-btn-primary">
                             Télécharger en PDF
@@ -780,7 +814,6 @@ function fitClass(score) {
 }
 .grim-test-card:hover { box-shadow: var(--shadow-card, 0 2px 12px rgba(42,30,8,0.10)); }
 .grim-test-main { flex: 1 1 320px; min-width: 0; }
-.grim-test-name { font-family: var(--font-display, 'Space Grotesk', sans-serif); font-size: 1.08rem; font-weight: 600; color: var(--grim-ink); margin-bottom: .45rem; }
 .grim-test-summary { font-family: var(--font-body, 'Inter', sans-serif); font-size: .98rem; line-height: 1.6; color: var(--text-secondary, #6B5A3E); }
 .grim-test-pending { font-style: italic; color: var(--text-muted, #8C7A5E); }
 .grim-test-actions { display: flex; flex-direction: column; gap: .5rem; flex: 0 0 auto; align-items: stretch; }
@@ -814,6 +847,13 @@ function fitClass(score) {
 .grim-footer { text-align: center; margin-top: 3rem; }
 .grim-actions { display: flex; gap: .85rem; justify-content: center; flex-wrap: wrap; margin-top: 1.5rem; }
 .grim-disclaimer { font-family: var(--font-body, 'Inter', sans-serif); font-size: 13px; font-style: italic; color: var(--text-muted, #8C7A5E); max-width: 580px; margin: 1.5rem auto 0; line-height: 1.55; }
+
+/* ── Picker nombre de pistes ─────────────────────────────────────────── */
+.grim-pistes-picker { margin: 2rem auto 0; max-width: 440px; text-align: center; }
+.grim-picker-label { display: block; font-family: var(--font-body, 'Inter', sans-serif); font-size: .93rem; color: var(--text-secondary, #6B5A3E); margin-bottom: .75rem; }
+.grim-picker-label strong { color: var(--grim-ink); font-size: 1.1rem; }
+.grim-picker-range { width: 100%; accent-color: var(--grim-gold); cursor: pointer; }
+.grim-picker-bounds { display: flex; justify-content: space-between; font-family: var(--font-data, monospace); font-size: 11px; color: var(--text-muted, #8C7A5E); margin-top: .3rem; }
 
 @media (max-width: 640px) {
     .grim-scroll { padding: 1.8rem 1.4rem; }

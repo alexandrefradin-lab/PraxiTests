@@ -47,7 +47,7 @@ class BadgeEvaluator
         $type = $criteria['type'] ?? null;
 
         $result = match ($type) {
-            'xp_total'         => $user->totalXp() >= ($criteria['min'] ?? 0),
+            'xp_total'         => app(GamificationEngine::class)->totalEclats($user) >= ($criteria['min'] ?? 0),
             'tests_completed'  => $user->attempts()->where('status', 'completed')->count() >= ($criteria['min'] ?? 1),
             'first_test'       => $user->attempts()->where('status', 'completed')->count() === 1,
             'cv_uploaded'      => (bool) ($user->profile?->cv_path),

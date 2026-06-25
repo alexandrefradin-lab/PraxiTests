@@ -19,11 +19,12 @@ class User extends Authenticatable implements MustVerifyEmail
 
     protected $fillable = [
         'name', 'email', 'password', 'locale', 'avatar_path',
-        'terms_accepted_at', 'terms_version', 'last_login_at', 'last_login_ip',
-        'two_factor_secret', 'two_factor_recovery_codes',
+        'terms_accepted_at', 'terms_version',
+        // SEC-C1/C2: two_factor_secret, two_factor_recovery_codes, last_login_at, last_login_ip
+        // are intentionally excluded from $fillable to prevent mass-assignment attacks.
     ];
 
-    protected $hidden = ['password', 'remember_token', 'two_factor_secret', 'two_factor_recovery_codes'];
+    protected $hidden = ['password', 'remember_token', 'two_factor_secret', 'two_factor_recovery_codes', 'last_login_ip', 'terms_accepted_at'];
 
     protected $casts = [
         'email_verified_at'          => 'datetime',

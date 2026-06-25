@@ -87,8 +87,10 @@ class AuthController extends Controller
             report($e);
         }
 
-        // Vérification auto en développement / si aucun driver mail réel configuré
-        if (app()->environment('local', 'testing') || config('mail.mailer') === 'log' || config('mail.mailer') === 'array') {
+        // Vérification auto uniquement en local/testing (SEC-M6).
+        // En production avec mailer=log (ex. OVH sans SMTP), les emails ne sont
+        // PAS auto-vérifiés pour forcer la mise en place d'un vrai flux de vérification.
+        if (app()->environment(['local', 'testing'])) {
             $user->markEmailAsVerified();
         }
 

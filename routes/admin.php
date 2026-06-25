@@ -11,11 +11,12 @@ use App\Http\Controllers\Admin\SubscriptionController;
 use App\Http\Controllers\Admin\TestEditorController;
 use Illuminate\Support\Facades\Route;
 
-// Dashboard + Leads + Campagnes : accessibles aux professionnels et aux admins
-// NOTE : 'verified' retiré — aucun flux de vérification d'email n'est implémenté
-// (route verification.notice inexistante → 500). À réintroduire avec le flux complet.
+// Dashboard + Leads + Campagnes : accessibles aux professionnels et aux admins.
+// SEC-M7 : 'verified' ajouté — les admins/pros s'inscrivent par flux standard
+// (pas par token d'invitation), donc la vérification d'email s'applique.
+// NB : ne PAS ajouter 'verified' aux routes candidats (token d'invitation).
 // '2fa' : si l'admin/pro a activé le 2FA, la session doit être confirmée (audit A-2).
-Route::middleware(['auth', 'role:admin|professional', '2fa'])
+Route::middleware(['auth', 'verified', 'role:admin|professional', '2fa'])
     ->prefix('admin')->name('admin.')
     ->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
@@ -26,7 +27,7 @@ Route::middleware(['auth', 'role:admin|professional', '2fa'])
     });
 
 // Configuration sensible (tests, plugins, réglages) : réservée aux admins (SEC-13)
-Route::middleware(['auth', 'role:admin', '2fa'])
+Route::middleware(['auth', 'verified', 'role:admin', '2fa'])
     ->prefix('admin')->name('admin.')
     ->group(function () {
         Route::resource('tests', TestEditorController::class);

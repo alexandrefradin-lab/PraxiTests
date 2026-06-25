@@ -85,6 +85,7 @@ const needsConfirmButton = computed(() => {
 })
 
 const recordAndAdvance = () => {
+    if (!currentQuestion.value) return
     if (isSubmitting.value || !hasValue(value.value)) return
     isSubmitting.value = true
     const time = Math.round((Date.now() - startedAt.value) / 1000)
@@ -376,6 +377,35 @@ const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
                         </button>
                     </div>
 
+                            </div>
+                        </Transition>
+                    </div>
+                    <!-- /PAQUET DE CARTES -->
+
+                    <!-- Navigation : retour pour corriger / avancer en relecture -->
+                    <div class="ac-nav">
+                        <button
+                            v-if="currentIndex > 0"
+                            type="button"
+                            class="ac-nav-btn"
+                            :disabled="isSubmitting"
+                            @click="goBack"
+                        >
+                            ← Précédent
+                        </button>
+                        <span v-else></span>
+
+                        <button
+                            v-if="canGoForward"
+                            type="button"
+                            class="ac-nav-btn"
+                            :disabled="isSubmitting"
+                            @click="goForward"
+                        >
+                            Suivant →
+                        </button>
+                    </div>
+
                     <!-- CARTE APERÇU DÉBLOQUÉ (mini-insight provisoire) -->
                     <div v-if="progress?.insight" class="ac-insight">
                         <div class="ac-insight-head">
@@ -553,6 +583,75 @@ const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
 .ac-question-wrap {
     width: 100%;
     max-width: 660px;
+}
+
+/* ── PAQUET DE CARTES ────────────────────────── */
+.ac-deck {
+    position: relative;
+    min-height: 380px;
+    margin-bottom: 2.25rem;
+}
+
+.ac-card {
+    position: relative;
+    z-index: 3;
+    background: var(--bg-surface);
+    border: 1px solid var(--glass-border-solid);
+    border-radius: 16px;
+    box-shadow: var(--shadow-card);
+    padding: 1.75rem 1.75rem 2rem;
+}
+
+/* Cartes fantômes : la pile qui dépasse derrière la carte active */
+.ac-ghost {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 100%;
+    background: var(--bg-surface);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    box-shadow: var(--shadow-card);
+    padding: 1.25rem 1.5rem;
+    overflow: hidden;
+}
+
+.ac-ghost--1 { transform: translateY(14px) scale(0.965); opacity: 0.85; z-index: 2; }
+.ac-ghost--2 { transform: translateY(28px) scale(0.93);  opacity: 0.6;  z-index: 1; }
+
+.ac-ghost-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-secondary);
+    opacity: 0.7;
+}
+
+/* Animation : la carte s'envole, la suivante remonte de la pile */
+.deck-fwd-enter-active, .deck-fwd-leave-active,
+.deck-back-enter-active, .deck-back-leave-active {
+    transition: transform 0.42s cubic-bezier(0.34, 1.1, 0.64, 1), opacity 0.42s ease;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 3;
+}
+
+.deck-fwd-leave-to   { transform: translateX(-118%) rotate(-7deg); opacity: 0; }
+.deck-fwd-enter-from { transform: translateY(26px) scale(0.93);    opacity: 0; }
+.deck-back-leave-to  { transform: translateX(118%)  rotate(7deg);  opacity: 0; }
+.deck-back-enter-from{ transform: translateY(26px) scale(0.93);    opacity: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+    .deck-fwd-enter-active, .deck-fwd-leave-active,
+    .deck-back-enter-active, .deck-back-leave-active {
+        transition: opacity 0.2s ease;
+    }
+    .deck-fwd-leave-to, .deck-back-leave-to,
+    .deck-fwd-enter-from, .deck-back-enter-from { transform: none; }
 }
 
 /* ── NAVIGATION (retour / avance) ────────────── */

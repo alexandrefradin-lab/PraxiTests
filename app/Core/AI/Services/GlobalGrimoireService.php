@@ -36,7 +36,11 @@ class GlobalGrimoireService
             return null;
         }
 
-        $count = (int) config('ai.tasks.global_grimoire.count', 30);
+        $grimoire = $user->getOrCreateGrimoire();
+        $requested = (int) ($grimoire->ai_metadata['requested_voies_count'] ?? 0);
+        $count = ($requested >= 1 && $requested <= 100)
+            ? $requested
+            : (int) config('ai.tasks.global_grimoire.count', 30);
 
         // Deux prompts distincts (synthèse / voies) générés EN PARALLÈLE via chatMany().
         // C'est le levier d'accélération : ~2x plus rapide qu'un seul gros appel qui

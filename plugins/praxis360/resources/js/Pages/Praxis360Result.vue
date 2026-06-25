@@ -10,7 +10,7 @@
  * plugin WordPress n'est pas portée — voir README.
  */
 import { computed } from 'vue'
-import { Link }     from '@inertiajs/vue3'
+import { Link, Head } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import RadarChart      from '@/Components/RadarChart.vue'
 import SynthesisCard from '@/Components/SynthesisCard.vue'
@@ -55,8 +55,8 @@ const dotColor = (color) => ({
 
 const barWidth = (dimKey) => {
     const norm = normScores.value[dimKey]
-    if (norm?.percentile) return Math.round((norm.percentile / 99) * 100)
-    return dims.value[dimKey] ?? 0
+    if (norm?.percentile) return Math.min(100, Math.max(0, Math.round((norm.percentile / 99) * 100)))
+    return Math.min(100, Math.max(0, Math.round(dims.value[dimKey] ?? 0)))
 }
 </script>
 

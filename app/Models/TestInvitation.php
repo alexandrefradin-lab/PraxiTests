@@ -35,6 +35,19 @@ class TestInvitation extends Model
             $inv->token ??= Str::random(48);
             $inv->expires_at ??= now()->addDays(30);
         });
+
+        static::created(function (self $inv) {
+            // MET-C2 — Envoyer l'email d'invitation au candidat dès la création.
+            // On vérifie que l'email est présent et que la relation test est chargeable.
+            if ($inv->email) {
+                try {
+                    \Illuminate\Support\Facades\Mail::to($inv->email)
+                        ->queue(new \App\Mail\CandidateInvitationMail($inv));
+                } catch (\Throwable $e) {
+                    report($e);
+                }
+            }
+        });
     }
 
     public function test(): BelongsTo

@@ -22,8 +22,15 @@ class HandleInertiaRequests extends Middleware
             ],
             // Total d'Éclats global (lazy) — alimente la barre du layout candidat
             // sur toutes les pages, pas seulement pendant une tentative.
+            // Mis en cache 60 s pour éviter une requête SQL à chaque page (ARC-m2).
+            // Le cache est invalidé dans GamificationEngine::awardXp() après chaque gain d'Éclats.
             'gamification' => fn () => $request->user()
-                ? app(\Praxis\Core\Gamification\GamificationEngine::class)->globalProgressOf($request->user())
+                ? \Illuminate\Support\Facades\Cache::remember(
+                    "eclats.{$request->user()->id}",
+                    60,
+                    fn () => app(\Praxis\Core\Gamification\GamificationEngine::class)
+                        ->globalProgressOf($request->user())
+                )
                 : null,
             'branding' => [
                 'name'    => config('praxiquest.branding.name'),

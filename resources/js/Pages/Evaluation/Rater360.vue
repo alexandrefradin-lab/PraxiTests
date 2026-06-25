@@ -11,7 +11,10 @@ const props = defineProps({
   token: String,
   subjectName: String,
   relationLabel: String,
-  scale: Object,            // { min, max, min_label, max_label }
+  scale: {
+    type: Object,
+    default: () => ({ min: 1, max: 5, min_label: 'Jamais', max_label: 'Toujours' })
+  },                        // { min, max, min_label, max_label }
   questions: Array,         // [{ id, section, prompt }]
   verbatims: Object,        // { strength: 'label', growth: '...', advice: '...' }
   answered: Object,         // { question_id: value }

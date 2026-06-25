@@ -66,7 +66,7 @@ class DashboardController extends Controller
         });
 
         $recent_attempts = $isAdmin
-            ? TestAttempt::with('user', 'test')->latest('completed_at')->limit(10)->get()
+            ? TestAttempt::with('user:id,name,email', 'test:id,name,slug')->latest('completed_at')->limit(10)->get()
             : collect();
 
         $recent_leads = Lead::with(['user', 'professionalAccount'])
