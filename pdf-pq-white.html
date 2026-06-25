@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PraxiQuest — Rapport d'évaluation</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', Arial, Helvetica, sans-serif;
+    background: #e8e0d0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 20px;
+    min-height: 100vh;
+  }
+
+  .page {
+    width: 794px;
+    min-height: 1123px;
+    background: #ffffff;
+    box-shadow: 0 8px 40px rgba(28,20,8,0.22);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ─── HEADER ─── */
+  .header {
+    background: linear-gradient(135deg, #1C1408 0%, #3A2A10 45%, #A67520 100%);
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 220px; height: 220px;
+    background: rgba(166,117,32,0.12);
+    border-radius: 50%;
+  }
+
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: 30%;
+    width: 140px; height: 140px;
+    background: rgba(166,117,32,0.07);
+    border-radius: 50%;
+  }
+
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px 16px;
+    border-bottom: 1px solid rgba(166,117,32,0.25);
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .brand-icon {
+    width: 34px; height: 34px;
+    background: rgba(166,117,32,0.3);
+    border: 1px solid rgba(166,117,32,0.5);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    color: #F5DFA0;
+    font-weight: 800;
+    letter-spacing: -1px;
+  }
+
+  .brand-name {
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  .brand-sub {
+    color: rgba(245,223,160,0.7);
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-top: 1px;
+  }
+
+  .header-meta {
+    text-align: right;
+  }
+
+  .header-meta .doc-type {
+    color: rgba(245,223,160,0.8);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .header-meta .doc-ref {
+    color: rgba(245,223,160,0.5);
+    font-size: 10px;
+    margin-top: 3px;
+  }
+
+  .header-body {
+    padding: 28px 40px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    position: relative;
+    z-index: 1;
+  }
+
+  .candidate-info .candidate-label {
+    color: rgba(245,223,160,0.65);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+
+  .candidate-info .candidate-name {
+    color: #ffffff;
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    line-height: 1;
+  }
+
+  .candidate-info .test-name {
+    color: rgba(245,223,160,0.8);
+    font-size: 14px;
+    font-weight: 400;
+    margin-top: 8px;
+  }
+
+  .profile-badge {
+    text-align: right;
+  }
+
+  .profile-type-label {
+    color: rgba(245,223,160,0.6);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+  }
+
+  .profile-type-code {
+    background: rgba(166,117,32,0.2);
+    border: 1px solid rgba(166,117,32,0.45);
+    border-radius: 10px;
+    padding: 10px 20px;
+    display: inline-block;
+  }
+
+  .profile-type-code .mbti-code {
+    color: #F5DFA0;
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: 4px;
+    display: block;
+  }
+
+  .profile-type-code .mbti-name {
+    color: rgba(245,223,160,0.75);
+    font-size: 11px;
+    font-weight: 400;
+    display: block;
+    margin-top: 2px;
+    letter-spacing: 0.5px;
+  }
+
+  .header-strip {
+    background: rgba(0,0,0,0.3);
+    padding: 10px 40px;
+    display: flex;
+    gap: 32px;
+    align-items: center;
+  }
+
+  .strip-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .strip-dot {
+    width: 6px; height: 6px;
+    background: rgba(166,117,32,0.7);
+    border-radius: 50%;
+  }
+
+  .strip-text {
+    color: rgba(245,223,160,0.65);
+    font-size: 11px;
+    letter-spacing: 0.3px;
+  }
+
+  .strip-text strong {
+    color: rgba(245,223,160,0.9);
+    font-weight: 600;
+  }
+
+  /* ─── MATCH SCORE HERO ─── */
+  .score-hero {
+    padding: 32px 40px 24px;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    border-bottom: 1px solid #F0EAE0;
+  }
+
+  .score-circle {
+    width: 110px;
+    height: 110px;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .score-circle svg {
+    width: 110px;
+    height: 110px;
+    transform: rotate(-90deg);
+  }
+
+  .score-circle svg circle {
+    fill: none;
+    stroke-width: 8;
+  }
+
+  .score-circle svg .bg-circle {
+    stroke: #F0E8D4;
+  }
+
+  .score-circle svg .fg-circle {
+    stroke: #A67520;
+    stroke-linecap: round;
+    stroke-dasharray: 295;
+    stroke-dashoffset: 18;
+  }
+
+  .score-center {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+
+  .score-number {
+    font-size: 26px;
+    font-weight: 800;
+    color: #7D5510;
+    line-height: 1;
+  }
+
+  .score-unit {
+    font-size: 11px;
+    color: #9CA3AF;
+    font-weight: 500;
+    margin-top: 1px;
+  }
+
+  .score-hero-text .score-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #9CA3AF;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .score-hero-text .score-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1C1408;
+    letter-spacing: -0.3px;
+  }
+
+  .score-hero-text .score-desc {
+    font-size: 13px;
+    color: #6B5A3E;
+    margin-top: 8px;
+    line-height: 1.6;
+    max-width: 460px;
+  }
+
+  .score-pills {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+
+  .score-pill {
+    background: #F5EDD8;
+    color: #7D5510;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid #D4AA60;
+    letter-spacing: 0.3px;
+  }
+
+  /* ─── SECTION TITLE ─── */
+  .section {
+    padding: 24px 40px;
+    border-bottom: 1px solid #F3F0EA;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .section-accent {
+    width: 3px;
+    height: 20px;
+    background: linear-gradient(180deg, #A67520, #D4AA60);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .section-title {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 700;
+    color: #1C1408;
+  }
+
+  .section-number {
+    margin-left: auto;
+    width: 22px; height: 22px;
+    background: #F5EDD8;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: #A67520;
+  }
+
+  /* ─── DIMENSIONS ─── */
+  .dimensions-grid {
+    display: grid;
+    gap: 16px;
+  }
+
+  .dimension-row {
+    background: #FDFAF5;
+    border: 1px solid #EDE5D5;
+    border-radius: 10px;
+    padding: 16px 20px;
+  }
+
+  .dim-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .dim-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1C1408;
+  }
+
+  .dim-score-tag {
+    background: #A67520;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+
+  .dim-bar-wrap {
+    position: relative;
+  }
+
+  .dim-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+
+  .dim-label-left, .dim-label-right {
+    font-size: 11px;
+    color: #9CA3AF;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .dim-bar-bg {
+    background: #EDE5D5;
+    border-radius: 999px;
+    height: 10px;
+    position: relative;
+    overflow: visible;
+  }
+
+  .dim-bar-fill {
+    height: 10px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #7D5510, #A67520, #D4AA60);
+    position: relative;
+  }
+
+  .dim-bar-fill::after {
+    content: '';
+    position: absolute;
+    right: -1px; top: -3px;
+    width: 16px; height: 16px;
+    background: #A67520;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    box-shadow: 0 0 0 1px #D4AA60;
+  }
+
+  .dim-insight {
+    font-size: 11px;
+    color: #6B5A3E;
+    margin-top: 10px;
+    line-height: 1.5;
+  }
+
+  /* ─── AI SYNTHESIS ─── */
+  .ai-box {
+    background: #F0E8D4;
+    border: 1px solid #D4AA60;
+    border-left: 4px solid #A67520;
+    border-radius: 8px;
+    padding: 20px 24px;
+  }
+
+  .ai-box-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .ai-icon {
+    width: 28px; height: 28px;
+    background: #A67520;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 13px;
+  }
+
+  .ai-box-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 700;
+    color: #7D5510;
+  }
+
+  .ai-tag {
+    margin-left: auto;
+    background: #EDD9A8;
+    color: #7D5510;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border: 1px solid #D4AA60;
+  }
+
+  .ai-text {
+    font-size: 13px;
+    color: #1C1408;
+    line-height: 1.75;
+    font-weight: 400;
+  }
+
+  /* ─── FORCES & DÉFIS ─── */
+  .forces-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .force-card {
+    background: #fff;
+    border: 1px solid #E8E0D0;
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .force-card.defi {
+    border-color: #E8C8C8;
+    background: #FDF5F5;
+  }
+
+  .force-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: #F5EDD8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+
+  .force-card.defi .force-icon {
+    background: #FDE8D8;
+  }
+
+  .force-content .force-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #1C1408;
+    margin-bottom: 3px;
+  }
+
+  .force-content .force-desc {
+    font-size: 11px;
+    color: #6B5A3E;
+    line-height: 1.5;
+  }
+
+  .forces-section-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+    color: #9CA3AF;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .forces-section-label .label-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+
+  .label-dot.green { background: #3A6B48; }
+  .label-dot.amber { background: #7B1515; }
+
+  /* ─── STATS ROW ─── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: #EDE5D5;
+    border: 1px solid #EDE5D5;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 20px;
+  }
+
+  .stat-cell {
+    background: #fff;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .stat-number {
+    font-size: 24px;
+    font-weight: 800;
+    color: #7D5510;
+    letter-spacing: -0.5px;
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 10px;
+    color: #9CA3AF;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-top: 4px;
+    font-weight: 500;
+  }
+
+  /* ─── FOOTER ─── */
+  .footer {
+    padding: 16px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #EDE5D5;
+    margin-top: auto;
+  }
+
+  .footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .footer-logo {
+    width: 20px; height: 20px;
+    background: linear-gradient(135deg, #1C1408, #A67520);
+    border-radius: 5px;
+  }
+
+  .footer-brand-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: #9CA3AF;
+    letter-spacing: 0.5px;
+  }
+
+  .footer-center {
+    font-size: 10px;
+    color: #C5B89A;
+    text-align: center;
+  }
+
+  .footer-right {
+    font-size: 10px;
+    color: #C5B89A;
+    text-align: right;
+  }
+
+  .footer-page {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px; height: 24px;
+    background: #F5EDD8;
+    border-radius: 50%;
+    color: #A67520;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  /* ─── DIVIDER ─── */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #EDE5D5 20%, #EDE5D5 80%, transparent);
+    margin: 0 40px;
+  }
+
+  /* ─── FORCE CARD POSITIVE ACCENT ─── */
+  .force-card .force-icon.green-icon {
+    background: #E0EDE5;
+  }
+
+  /* ─── PROFILE BADGE ACCENT (cramoisi) ─── */
+  .profile-role-badge {
+    display: inline-block;
+    background: #7B1515;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-top">
+      <div class="brand">
+        <div class="brand-icon">PQ</div>
+        <div>
+          <div class="brand-name">PraxiQuest</div>
+          <div class="brand-sub">Évaluation Psychométrique</div>
+        </div>
+      </div>
+      <div class="header-meta">
+        <div class="doc-type">Rapport de résultats</div>
+        <div class="doc-ref">Réf. PQ-2026-0147 · Confidentiel</div>
+      </div>
+    </div>
+
+    <div class="header-body">
+      <div class="candidate-info">
+        <div class="candidate-label">Candidat évalué</div>
+        <div class="candidate-name">Marc Dubois</div>
+        <div class="test-name">Profil de Personnalité — PraxiPerso</div>
+        <div class="profile-role-badge">Dirigeant · Équipe</div>
+      </div>
+      <div class="profile-badge">
+        <div class="profile-type-label">Profil identifié</div>
+        <div class="profile-type-code">
+          <span class="mbti-code">ENFJ</span>
+          <span class="mbti-name">Le Protagoniste</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-strip">
+      <div class="strip-item">
+        <div class="strip-dot"></div>
+        <div class="strip-text">Passation le <strong>24 juin 2026</strong></div>
+      </div>
+      <div class="strip-item">
+        <div class="strip-dot"></div>
+        <div class="strip-text">Durée <strong>18 min</strong></div>
+      </div>
+      <div class="strip-item">
+        <div class="strip-dot"></div>
+        <div class="strip-text">93 items complétés</div>
+      </div>
+      <div class="strip-item">
+        <div class="strip-dot"></div>
+        <div class="strip-text">Rapport généré le <strong>25 juin 2026</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCORE HERO -->
+  <div class="score-hero">
+    <div class="score-circle">
+      <svg viewBox="0 0 110 110">
+        <circle class="bg-circle" cx="55" cy="55" r="47"/>
+        <circle class="fg-circle" cx="55" cy="55" r="47"/>
+      </svg>
+      <div class="score-center">
+        <div class="score-number">94%</div>
+        <div class="score-unit">match</div>
+      </div>
+    </div>
+    <div class="score-hero-text">
+      <div class="score-label">Score de correspondance</div>
+      <div class="score-title">ENFJ — Le Protagoniste</div>
+      <div class="score-desc">Marc présente un profil fortement orienté vers l'extraversion et le jugement, avec une cohérence interne exceptionnelle sur l'ensemble des dimensions évaluées.</div>
+      <div class="score-pills">
+        <span class="score-pill">Orienté personnes</span>
+        <span class="score-pill">Leadership naturel</span>
+        <span class="score-pill">Visionnaire</span>
+        <span class="score-pill">Empathie élevée</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIMENSIONS -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-accent"></div>
+      <div class="section-title">Analyse des 4 dimensions</div>
+      <div class="section-number">01</div>
+    </div>
+
+    <div class="dimensions-grid">
+
+      <div class="dimension-row">
+        <div class="dim-header">
+          <div class="dim-title">Énergie</div>
+          <div class="dim-score-tag">E · 82%</div>
+        </div>
+        <div class="dim-bar-wrap">
+          <div class="dim-labels">
+            <span class="dim-label-left">Introversion</span>
+            <span class="dim-label-right">Extraversion</span>
+          </div>
+          <div class="dim-bar-bg">
+            <div class="dim-bar-fill" style="width: 82%; margin-left: auto;"></div>
+          </div>
+        </div>
+        <div class="dim-insight">Marc puise son énergie dans les interactions sociales et les environnements stimulants. Il est à l'aise en public et recherche activement le contact humain.</div>
+      </div>
+
+      <div class="dimension-row">
+        <div class="dim-header">
+          <div class="dim-title">Perception</div>
+          <div class="dim-score-tag">N · 74%</div>
+        </div>
+        <div class="dim-bar-wrap">
+          <div class="dim-labels">
+            <span class="dim-label-left">Sensation</span>
+            <span class="dim-label-right">Intuition</span>
+          </div>
+          <div class="dim-bar-bg">
+            <div class="dim-bar-fill" style="width: 74%; margin-left: auto;"></div>
+          </div>
+        </div>
+        <div class="dim-insight">Préférence marquée pour les concepts abstraits et les possibilités futures. Marc traite l'information via des schémas globaux plutôt que des détails concrets.</div>
+      </div>
+
+      <div class="dimension-row">
+        <div class="dim-header">
+          <div class="dim-title">Décision</div>
+          <div class="dim-score-tag">F · 78%</div>
+        </div>
+        <div class="dim-bar-wrap">
+          <div class="dim-labels">
+            <span class="dim-label-left">Pensée</span>
+            <span class="dim-label-right">Sentiment</span>
+          </div>
+          <div class="dim-bar-bg">
+            <div class="dim-bar-fill" style="width: 78%; margin-left: auto;"></div>
+          </div>
+        </div>
+        <div class="dim-insight">Les décisions de Marc sont guidées par les valeurs humaines et l'harmonie du groupe. Forte capacité d'empathie et de prise en compte des émotions d'autrui.</div>
+      </div>
+
+      <div class="dimension-row">
+        <div class="dim-header">
+          <div class="dim-title">Organisation</div>
+          <div class="dim-score-tag">J · 69%</div>
+        </div>
+        <div class="dim-bar-wrap">
+          <div class="dim-labels">
+            <span class="dim-label-left">Perception</span>
+            <span class="dim-label-right">Jugement</span>
+          </div>
+          <div class="dim-bar-bg">
+            <div class="dim-bar-fill" style="width: 69%; margin-left: auto;"></div>
+          </div>
+        </div>
+        <div class="dim-insight">Tendance à structurer et planifier son environnement. Marc préfère la clarté et la résolution plutôt que de maintenir les options ouvertes indéfiniment.</div>
+      </div>
+
+    </div>
+
+    <!-- STATS ROW -->
+    <div class="stats-row">
+      <div class="stat-cell">
+        <div class="stat-number">93</div>
+        <div class="stat-label">Items répondus</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-number">4/4</div>
+        <div class="stat-label">Dimensions cohérentes</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-number">99e</div>
+        <div class="stat-label">Percentile empathie</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI SYNTHESIS -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-accent"></div>
+      <div class="section-title">Synthèse interprétative</div>
+      <div class="section-number">02</div>
+    </div>
+
+    <div class="ai-box">
+      <div class="ai-box-header">
+        <div class="ai-icon">✦</div>
+        <div class="ai-box-title">Analyse IA PraxiQuest</div>
+        <div class="ai-tag">Généré par IA</div>
+      </div>
+      <div class="ai-text">
+        Marc Dubois présente un profil ENFJ d'une cohérence remarquable, caractérisé par un leadership chaleureux et une capacité naturelle à fédérer les équipes autour d'une vision commune. Son score d'extraversion élevé (82%) combiné à une forte orientation vers les valeurs humaines (F · 78%) dessine le portrait d'un leader empathique, capable d'inspirer et de mobiliser sans recourir à l'autorité formelle. La dimension Intuition (N · 74%) témoigne d'une pensée stratégique orientée vers les possibilités à long terme, tandis que le Jugement (J · 69%) apporte la rigueur nécessaire à la concrétisation des projets. Ce profil s'épanouit particulièrement dans les rôles de coordination, de coaching d'équipe ou de conduite du changement.
+      </div>
+    </div>
+  </div>
+
+  <!-- FORCES & DÉFIS -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-accent"></div>
+      <div class="section-title">Forces &amp; axes de développement</div>
+      <div class="section-number">03</div>
+    </div>
+
+    <div class="forces-section-label">
+      <div class="label-dot green"></div>
+      Forces distinctives
+    </div>
+    <div class="forces-grid" style="margin-bottom: 16px;">
+      <div class="force-card">
+        <div class="force-icon">🎯</div>
+        <div class="force-content">
+          <div class="force-title">Leadership inspirant</div>
+          <div class="force-desc">Capacité naturelle à entraîner les autres vers un objectif commun grâce à une vision claire et une communication authentique.</div>
+        </div>
+      </div>
+      <div class="force-card">
+        <div class="force-icon">🤝</div>
+        <div class="force-content">
+          <div class="force-title">Intelligence relationnelle</div>
+          <div class="force-desc">Empathie exceptionnelle permettant de comprendre et d'anticiper les besoins de chaque interlocuteur, favorisant la cohésion d'équipe.</div>
+        </div>
+      </div>
+      <div class="force-card" style="grid-column: 1 / -1;">
+        <div class="force-icon">🌐</div>
+        <div class="force-content">
+          <div class="force-title">Vision systémique</div>
+          <div class="force-desc">Aptitude à percevoir les interconnexions complexes et à élaborer des stratégies intégrées qui tiennent compte des dimensions humaines et organisationnelles.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="forces-section-label">
+      <div class="label-dot amber"></div>
+      Axes de développement
+    </div>
+    <div class="forces-grid">
+      <div class="force-card defi">
+        <div class="force-icon">⚡</div>
+        <div class="force-content">
+          <div class="force-title">Gestion du perfectionnisme</div>
+          <div class="force-desc">Tendance à s'investir excessivement pour répondre aux attentes perçues, au risque d'un épuisement progressif des ressources personnelles.</div>
+        </div>
+      </div>
+      <div class="force-card defi">
+        <div class="force-icon">🔍</div>
+        <div class="force-content">
+          <div class="force-title">Assertivité dans le conflit</div>
+          <div class="force-desc">Difficulté à maintenir ses positions face à des désaccords interpersonnels, par souci de préserver l'harmonie du groupe.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-brand">
+      <div class="footer-logo"></div>
+      <div class="footer-brand-name">PraxiQuest</div>
+    </div>
+    <div class="footer-center">
+      Ce rapport est confidentiel et destiné exclusivement à Marc Dubois.<br>
+      Les résultats sont valables 18 mois à compter de la date de passation.
+    </div>
+    <div class="footer-right">
+      <div style="margin-bottom: 4px; color: #C5B89A;">Page</div>
+      <div class="footer-page">1</div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

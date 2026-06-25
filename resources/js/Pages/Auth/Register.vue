@@ -41,23 +41,27 @@ const questOptions = [
         <Head title="Créer mon Identité de Héros — PraxiQuest" />
 
         <!-- En-tête -->
-        <div style="margin-bottom:1.75rem">
-            <h1 style="
+        <div class="lp-anim-badge" style="margin-bottom:1.75rem">
+            <div class="lp-badge" style="display:inline-flex;align-items:center;gap:7px;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.16em;color:var(--color-primary);text-transform:uppercase;font-weight:400;margin-bottom:1rem;padding:4px 12px 4px 9px;border:1px solid rgba(166,117,32,0.3);border-radius:4px;background:rgba(166,117,32,0.05)">
+                <div style="width:5px;height:5px;background:var(--color-primary);transform:rotate(45deg);flex-shrink:0"></div>
+                Gratuit · 2 minutes · RGPD
+            </div>
+            <h1 class="lp-h1-gradient lp-anim-h1a" style="
                 font-family:'Space Grotesk',sans-serif;
                 font-size:1.625rem;font-weight:700;
                 letter-spacing:-0.02em;line-height:1.15;
-                color:var(--color-accent);margin:0 0 0.5rem;
+                margin:0 0 0.5rem;
             ">Créer mon Identité de Héros</h1>
-            <p style="
+            <p class="lp-anim-sub" style="
                 font-family:'Inter',sans-serif;
                 font-size:14px;color:var(--text-secondary);margin:0;line-height:1.5;
-            ">2 minutes. La première Épreuve est offerte.</p>
+            ">La première Épreuve est offerte. Rejoins la Quête.</p>
         </div>
 
         <form @submit.prevent="submit" style="display:flex;flex-direction:column;gap:1.125rem">
 
             <!-- BLOC NEUROMARKETING : Ancrage identitaire précoce -->
-            <div>
+            <div class="lp-anim-ctas">
                 <p style="
                     font-family:'Space Grotesk',sans-serif;
                     font-size:13px;font-weight:600;
@@ -69,6 +73,7 @@ const questOptions = [
                     <label
                         v-for="opt in questOptions"
                         :key="opt.value"
+                        class="auth-quest-label"
                         style="cursor:pointer;display:block"
                     >
                         <input
@@ -77,27 +82,29 @@ const questOptions = [
                             v-model="form.quest_title"
                             style="position:absolute;opacity:0;pointer-events:none;width:0;height:0"
                         >
-                        <div style="
+                        <div class="auth-quest-card" :class="{ 'auth-quest-card--selected': form.quest_title === opt.value }" style="
                             padding:0.875rem 1rem;
                             border-radius:8px;
                             border:1.5px solid var(--glass-border);
                             background:var(--bg-surface);
-                            transition:border-color .15s, background .15s;
-                            display:flex;flex-direction:column;gap:0.2rem;
-                        " :style="form.quest_title === opt.value ? {
-                            borderColor: 'var(--color-primary)',
-                            background: 'var(--bg-elevated)',
-                            borderWidth: '2px',
-                        } : {}">
-                            <span style="
-                                font-family:'Space Grotesk',sans-serif;
-                                font-size:14px;font-weight:700;
-                                color:var(--text-primary);
-                            ">{{ opt.label }}</span>
-                            <span style="
-                                font-family:'Inter',sans-serif;
-                                font-size:12px;color:var(--text-secondary);line-height:1.4;
-                            ">{{ opt.description }}</span>
+                            display:flex;align-items:center;justify-content:space-between;gap:0.75rem;
+                        ">
+                            <div style="display:flex;flex-direction:column;gap:0.2rem;min-width:0">
+                                <span style="
+                                    font-family:'Space Grotesk',sans-serif;
+                                    font-size:14px;font-weight:700;
+                                    color:var(--text-primary);
+                                ">{{ opt.label }}</span>
+                                <span style="
+                                    font-family:'Inter',sans-serif;
+                                    font-size:12px;color:var(--text-secondary);line-height:1.4;
+                                ">{{ opt.description }}</span>
+                            </div>
+                            <div class="auth-quest-check" style="flex-shrink:0;width:20px;height:20px;border-radius:50%;border:1.5px solid rgba(166,117,32,0.3);display:flex;align-items:center;justify-content:center">
+                                <svg v-if="form.quest_title === opt.value" width="10" height="10" viewBox="0 0 10 10" fill="none">
+                                    <polyline points="1.5,5 4,7.5 8.5,2.5" stroke="#A67520" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
                         </div>
                     </label>
                 </div>
@@ -234,7 +241,7 @@ const questOptions = [
             <button
                 type="submit"
                 :disabled="form.processing || !form.terms"
-                class="pt-btn-primary"
+                class="pt-btn-primary lp-btn-primary"
                 style="width:100%;padding:0.7rem 1.5rem;justify-content:center;margin-top:0.25rem"
             >
                 <span v-if="form.processing">Création en cours…</span>
@@ -243,7 +250,7 @@ const questOptions = [
         </form>
 
         <!-- Lien connexion -->
-        <p style="
+        <p class="lp-anim-trust" style="
             text-align:center;margin-top:1.5rem;
             font-family:'Inter',sans-serif;font-size:13px;color:var(--text-secondary);
         ">
@@ -254,3 +261,28 @@ const questOptions = [
         </p>
     </AuthLayout>
 </template>
+
+<style>
+/* ── Quest cards — sélection hero ── */
+.auth-quest-card {
+    transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+}
+.auth-quest-label:hover .auth-quest-card {
+    border-color: rgba(166,117,32,0.45) !important;
+    background: var(--bg-elevated) !important;
+    transform: translateX(3px);
+}
+.auth-quest-card--selected {
+    border-color: var(--color-primary) !important;
+    border-width: 2px !important;
+    background: var(--bg-elevated) !important;
+    box-shadow: 0 2px 12px rgba(166,117,32,0.12);
+}
+.auth-quest-check {
+    transition: border-color 0.18s ease, background 0.18s ease;
+}
+.auth-quest-card--selected .auth-quest-check {
+    border-color: var(--color-primary) !important;
+    background: rgba(166,117,32,0.08);
+}
+</style>

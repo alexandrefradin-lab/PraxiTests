@@ -33,9 +33,10 @@
 
     $ink       = '#2A1E08';
     $inkSoft   = '#6B5A3E';
-    $parchment = '#F0E8D4';
-    $velin     = '#E5DAC2';
-    $hair      = '#CBBE9E';
+    $parchment = '#F0E8D4';   // conservé pour textes sur fond sombre (cover)
+    $velin     = '#F8F7F4';   // surface cards — neutre professionnel
+    $stone     = '#EEECE7';   // fond tracks / élevé
+    $hair      = '#E0DBD0';   // filets discrets neutres
     $primary   = $brand['primary'];
     $secondary = $brand['secondary'];
 @endphp
@@ -59,19 +60,27 @@
 
     @page { margin: 28px 34px; }
     * { font-family: 'Lato', DejaVu Sans, sans-serif; }
-    body { color: {{ $ink }}; font-size: 11px; line-height: 1.55; }
+    body { color: {{ $ink }}; font-size: 11px; line-height: 1.55; background: #FFFFFF; }
     h1, h2, h3 { font-family: 'Lora', DejaVu Serif, serif; color: {{ $primary }}; margin: 0; }
-    .cover { text-align: center; padding: 40px 0 26px; border-bottom: 2px solid {{ $primary }}; }
+    /* Cover — carte sombre style consulting (cohérent avec results.blade.php) */
+    .cover { text-align: center; padding: 42px 36px 36px;
+        background: {{ $brand['accent'] }}; border: 1.5px solid {{ $primary }}; border-radius: 14px;
+        margin-bottom: 24px; }
+    .cover h1 { font-size: 30px; margin: 8px 0 4px; color: #FFFFFF; }
+    .cover .kicker { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: {{ $primary }}; }
+    .cover .tagline { font-style: italic; color: #C8B48A; font-size: 11px; }
+    .cover .meta { margin-top: 14px; font-size: 10px; color: #B9A87E; }
+    .cover .chips { margin-top: 10px; }
+    .cover .chip { display: inline-block; border: 1px solid rgba(166,117,32,0.4); border-radius: 10px;
+        padding: 2px 8px; margin: 2px; font-size: 9px; color: #C8B48A; background: rgba(255,255,255,0.06); }
     .kicker { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: {{ $secondary }}; }
-    .cover h1 { font-size: 30px; margin: 8px 0 4px; }
-    .cover .tagline { font-style: italic; color: {{ $inkSoft }}; font-size: 11px; }
     .meta { margin-top: 14px; font-size: 10px; color: {{ $inkSoft }}; }
     .chips { margin-top: 10px; }
     .chip { display: inline-block; border: 1px solid {{ $hair }}; border-radius: 10px; padding: 2px 8px; margin: 2px; font-size: 9px; color: {{ $inkSoft }}; }
     .section { margin-top: 22px; }
     .section h2 { font-size: 15px; border-bottom: 1px solid {{ $hair }}; padding-bottom: 4px; margin-bottom: 8px; }
     .para { margin-bottom: 8px; text-align: justify; }
-    .voie { border: 1px solid {{ $hair }}; border-left: 3px solid {{ $primary }}; background: {{ $velin }}; padding: 8px 10px; margin-bottom: 8px; }
+    .voie { border: 1px solid {{ $hair }}; border-left: 3px solid {{ $primary }}; background: {{ $velin }}; padding: 10px 12px; margin-bottom: 8px; border-radius: 0 6px 6px 0; }
     .voie-head { font-family: 'Lora', DejaVu Serif, serif; font-size: 12px; color: {{ $ink }}; font-weight: bold; }
     .voie-fit { float: right; font-size: 10px; color: {{ $secondary }}; font-weight: bold; }
     .voie-sector { font-size: 9px; color: {{ $inkSoft }}; text-transform: uppercase; letter-spacing: 1px; }

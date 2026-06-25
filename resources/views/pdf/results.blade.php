@@ -1,11 +1,10 @@
 {{--
   ════════════════════════════════════════════════════════════════════════════
-  PraxiQuest — Rapport de synthèse PDF « Codex »
-  Direction artistique : palette Assassin's Creed du site (parchemin / or de la
-  Fraternité / cramoisi / encre ancienne). Titres en Lora (serif manuscrit),
-  corps en Lato (sans humaniste), données en DejaVu Sans Mono. Lora + Lato sont
-  embarquées (resources/fonts, licence OFL) ; repli DejaVu si l'hôte ne charge
-  pas les TTF (accents OK, aucun chargement de police distant).
+  PraxiQuest — Rapport de synthèse PDF « Conseil »
+  Direction artistique : fond blanc professionnel + palette PraxiQuest (or de la
+  Fraternité #A67520, encre ancienne #1C1408, cramoisi #7B1515, vert Eagle #3A6B48).
+  Titres en Lora (serif), corps en Lato (sans-serif), données en DejaVu Sans Mono.
+  Lora + Lato embarquées (resources/fonts, licence OFL) ; repli DejaVu conservé.
   Moteur : barryvdh/laravel-dompdf (CSS 2.1 → mise en page par <table>).
 
   Variables (toutes optionnelles, valeurs par défaut gérées ici) :
@@ -55,12 +54,12 @@
     /* Tokens issus du design brief */
     $ink        = '#2A1E08';   // texte principal
     $inkSoft    = '#6B5A3E';   // texte secondaire / labels
-    $parchment  = '#F0E8D4';   // fond base
-    $velin      = '#E5DAC2';   // surface cards
-    $stone      = '#D8CEB5';   // fond élevé / tracks
+    $parchment  = '#F0E8D4';   // conservé pour textes sur fond sombre (cover, hero, job-rank)
+    $velin      = '#F8F7F4';   // surface cards — neutre professionnel
+    $stone      = '#EEECE7';   // fond élevé / tracks
     $goldDark   = '#7D5510';   // or brûlé
     $eagle      = '#3A6B48';   // vert Eagle Vision (succès / matching)
-    $hair       = '#CBBE9E';   // filet discret sur parchemin
+    $hair       = '#E0DBD0';   // filet discret neutre
 
     $synthesis  = $result?->ai_synthesis;
     /* Normalisation universelle : quel que soit le moteur du test, on obtient
@@ -215,10 +214,10 @@
 
     @page { margin: 132px 0 96px 0; }
     * { box-sizing: border-box; }
-    html { background: {{ $parchment }}; }
+    html { background: #FFFFFF; }
     body {
         font-family: "Lato", "DejaVu Sans", sans-serif;
-        background: {{ $parchment }};
+        background: #FFFFFF;
         color: {{ $ink }};
         font-size: 11px;
         line-height: 1.6;

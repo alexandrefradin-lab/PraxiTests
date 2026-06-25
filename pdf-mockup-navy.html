@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rapport PraxiQuest — Sophie Marchal</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', 'Calibri', 'Helvetica Neue', Arial, sans-serif;
+    background: #E8EBF0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 32px;
+    min-height: 100vh;
+  }
+
+  .page {
+    width: 794px;
+    min-height: 1123px;
+    background: #FFFFFF;
+    box-shadow: 0 4px 32px rgba(13, 34, 64, 0.18);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: #0D2240;
+    padding: 28px 36px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .header-left .report-label {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    color: #7B9EC8;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .header-left .candidate-name {
+    font-size: 22px;
+    font-weight: 700;
+    color: #FFFFFF;
+    line-height: 1.1;
+    margin-bottom: 4px;
+  }
+
+  .header-left .test-name {
+    font-size: 13px;
+    font-weight: 400;
+    color: #A8C0DC;
+    margin-bottom: 14px;
+  }
+
+  .header-left .meta-row {
+    display: flex;
+    gap: 20px;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .meta-item .meta-label {
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #7B9EC8;
+    margin-bottom: 2px;
+  }
+
+  .meta-item .meta-value {
+    font-size: 11px;
+    font-weight: 500;
+    color: #D4E3F2;
+  }
+
+  .header-right {
+    text-align: right;
+  }
+
+  .logo-mark {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #C9A227 0%, #E8C55A 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logo-icon svg {
+    width: 20px;
+    height: 20px;
+    fill: #0D2240;
+  }
+
+  .logo-text {
+    font-size: 18px;
+    font-weight: 700;
+    color: #FFFFFF;
+    letter-spacing: -0.3px;
+  }
+
+  .logo-text span {
+    color: #C9A227;
+  }
+
+  .header-date {
+    font-size: 10px;
+    color: #7B9EC8;
+    font-weight: 400;
+  }
+
+  .header-ref {
+    font-size: 9px;
+    color: #4A6A8A;
+    margin-top: 3px;
+    font-family: 'Courier New', monospace;
+  }
+
+  /* ── Accent bar ── */
+  .accent-bar {
+    height: 4px;
+    background: linear-gradient(90deg, #C9A227 0%, #E8C55A 40%, #0D5599 100%);
+  }
+
+  /* ── Body ── */
+  .body {
+    flex: 1;
+    padding: 28px 36px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* ── Score hero ── */
+  .score-hero {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 20px 24px;
+    background: #F4F7FB;
+    border: 1px solid #DDE4EE;
+    border-left: 4px solid #0D2240;
+    margin-bottom: 22px;
+  }
+
+  .score-circle {
+    width: 80px;
+    height: 80px;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .score-circle svg {
+    width: 80px;
+    height: 80px;
+    transform: rotate(-90deg);
+  }
+
+  .score-circle .track {
+    fill: none;
+    stroke: #DDE4EE;
+    stroke-width: 6;
+  }
+
+  .score-circle .fill {
+    fill: none;
+    stroke: #0D2240;
+    stroke-width: 6;
+    stroke-linecap: round;
+    stroke-dasharray: 207;
+    stroke-dashoffset: 37;
+  }
+
+  .score-circle .score-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    line-height: 1;
+  }
+
+  .score-circle .score-number {
+    font-size: 22px;
+    font-weight: 700;
+    color: #0D2240;
+    display: block;
+  }
+
+  .score-circle .score-denom {
+    font-size: 9px;
+    color: #7B9EC8;
+    font-weight: 500;
+    display: block;
+    margin-top: 1px;
+  }
+
+  .score-info h2 {
+    font-size: 17px;
+    font-weight: 700;
+    color: #0D2240;
+    margin-bottom: 4px;
+  }
+
+  .score-info .profile-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #0D2240;
+    color: #C9A227;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 2px;
+    margin-bottom: 8px;
+  }
+
+  .score-info .score-percentile {
+    font-size: 11px;
+    color: #5A7A9A;
+    font-weight: 400;
+  }
+
+  .score-info .score-percentile strong {
+    color: #0D2240;
+    font-weight: 600;
+  }
+
+  /* ── Section title ── */
+  .section-title {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #0D2240;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #DDE4EE;
+  }
+
+  /* ── Dimensions ── */
+  .dimensions {
+    margin-bottom: 22px;
+  }
+
+  .dimension-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 11px;
+    gap: 0;
+  }
+
+  .dim-label {
+    width: 170px;
+    font-size: 11px;
+    font-weight: 500;
+    color: #1A2A3A;
+    flex-shrink: 0;
+  }
+
+  .dim-bar-wrap {
+    flex: 1;
+    height: 8px;
+    background: #EEF1F6;
+    border-radius: 2px;
+    overflow: hidden;
+    margin: 0 14px;
+  }
+
+  .dim-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: linear-gradient(90deg, #0D2240 0%, #1A4A8A 100%);
+  }
+
+  .dim-bar-fill.high {
+    background: linear-gradient(90deg, #0D2240 0%, #0D5599 100%);
+  }
+
+  .dim-bar-fill.very-high {
+    background: linear-gradient(90deg, #0D2240 0%, #0870C8 60%, #C9A227 100%);
+  }
+
+  .dim-score {
+    width: 36px;
+    text-align: right;
+    font-size: 12px;
+    font-weight: 700;
+    color: #0D2240;
+    flex-shrink: 0;
+  }
+
+  .dim-score-label {
+    width: 28px;
+    text-align: right;
+    font-size: 9px;
+    color: #9AAABB;
+    flex-shrink: 0;
+    margin-left: 3px;
+  }
+
+  /* ── Two columns ── */
+  .two-col {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 22px;
+  }
+
+  .col-left { flex: 1; }
+  .col-right { flex: 1; }
+
+  /* ── Insight box ── */
+  .insight-box {
+    background: #F4F7FB;
+    border: 1px solid #DDE4EE;
+    padding: 16px 18px;
+    border-radius: 3px;
+  }
+
+  .insight-box p {
+    font-size: 11px;
+    line-height: 1.75;
+    color: #2A3A4A;
+    font-style: italic;
+  }
+
+  .insight-box .ai-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #7B9EC8;
+    margin-top: 10px;
+  }
+
+  .ai-badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: #C9A227;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  /* ── Strengths / Dev axes ── */
+  .points-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .points-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 9px;
+    font-size: 11px;
+    line-height: 1.5;
+    color: #1A2A3A;
+  }
+
+  .point-bullet {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 700;
+    margin-top: 0px;
+  }
+
+  .bullet-strength {
+    background: #0D2240;
+    color: #C9A227;
+  }
+
+  .bullet-dev {
+    background: #F0F4F8;
+    color: #0D2240;
+    border: 1px solid #C0CDD8;
+  }
+
+  /* ── Separator ── */
+  .separator {
+    height: 1px;
+    background: #DDE4EE;
+    margin: 4px 0 18px;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    border-top: 2px solid #0D2240;
+    padding: 14px 36px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #F8FAFC;
+  }
+
+  .footer-legal {
+    font-size: 8px;
+    color: #9AAABB;
+    line-height: 1.5;
+    max-width: 480px;
+  }
+
+  .footer-right {
+    text-align: right;
+  }
+
+  .footer-page {
+    font-size: 9px;
+    color: #0D2240;
+    font-weight: 600;
+  }
+
+  .footer-brand {
+    font-size: 8px;
+    color: #C9A227;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .dompdf-note {
+    text-align: center;
+    font-size: 8px;
+    color: #BBBBBB;
+    padding: 6px;
+    background: #F0F0F0;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <div class="report-label">Rapport d'Évaluation Psychométrique</div>
+      <div class="candidate-name">Sophie Marchal</div>
+      <div class="test-name">Intelligence Émotionnelle — EQ-i 2.0</div>
+      <div class="meta-row">
+        <div class="meta-item">
+          <span class="meta-label">Date</span>
+          <span class="meta-value">25 juin 2026</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Référence</span>
+          <span class="meta-value">PQ-2026-4471</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Évaluateur</span>
+          <span class="meta-value">Cabinet Nexus RH</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Confidentialité</span>
+          <span class="meta-value">Strictement confidentiel</span>
+        </div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="logo-mark">
+        <div class="logo-icon">
+          <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="10,2 13,8 19,8 14,12 16,18 10,14 4,18 6,12 1,8 7,8" />
+          </svg>
+        </div>
+        <div class="logo-text">Praxi<span>Quest</span></div>
+      </div>
+      <div class="header-date">Émis le 25/06/2026 à 09:14</div>
+      <div class="header-ref">REF: EQ-SM-2026-06-4471</div>
+    </div>
+  </div>
+
+  <!-- ACCENT BAR -->
+  <div class="accent-bar"></div>
+
+  <!-- BODY -->
+  <div class="body">
+
+    <!-- SCORE HERO -->
+    <div class="score-hero">
+      <div class="score-circle">
+        <svg viewBox="0 0 80 80">
+          <circle class="track" cx="40" cy="40" r="33" />
+          <circle class="fill" cx="40" cy="40" r="33" />
+        </svg>
+        <div class="score-text">
+          <span class="score-number">82</span>
+          <span class="score-denom">/100</span>
+        </div>
+      </div>
+      <div class="score-info">
+        <div class="profile-badge">&#9670; Profil identifié : Catalyseur Social</div>
+        <h2>Score global d'Intelligence Émotionnelle</h2>
+        <div class="score-percentile">
+          Résultat situé au <strong>82e percentile</strong> parmi les professionnels du management (N=4 820).
+          Écart-type : +1,2 σ au-dessus de la moyenne normative.
+        </div>
+      </div>
+    </div>
+
+    <!-- DIMENSIONS -->
+    <div class="dimensions">
+      <div class="section-title">Profil dimensionnel</div>
+
+      <div class="dimension-row">
+        <div class="dim-label">Conscience de soi</div>
+        <div class="dim-bar-wrap">
+          <div class="dim-bar-fill high" style="width: 85%"></div>
+        </div>
+        <div class="dim-score">85</div>
+        <div class="dim-score-label">/ 100</div>
+      </div>
+
+      <div class="dimension-row">
+        <div class="dim-label">Gestion émotionnelle</div>
+        <div class="dim-bar-wrap">
+          <div class="dim-bar-fill" style="width: 78%"></div>
+        </div>
+        <div class="dim-score">78</div>
+        <div class="dim-score-label">/ 100</div>
+      </div>
+
+      <div class="dimension-row">
+        <div class="dim-label">Empathie</div>
+        <div class="dim-bar-wrap">
+          <div class="dim-bar-fill very-high" style="width: 91%"></div>
+        </div>
+        <div class="dim-score">91</div>
+        <div class="dim-score-label">/ 100</div>
+      </div>
+
+      <div class="dimension-row">
+        <div class="dim-label">Relations sociales</div>
+        <div class="dim-bar-wrap">
+          <div class="dim-bar-fill high" style="width: 88%"></div>
+        </div>
+        <div class="dim-score">88</div>
+        <div class="dim-score-label">/ 100</div>
+      </div>
+
+      <div class="dimension-row">
+        <div class="dim-label">Adaptabilité</div>
+        <div class="dim-bar-wrap">
+          <div class="dim-bar-fill" style="width: 74%"></div>
+        </div>
+        <div class="dim-score">74</div>
+        <div class="dim-score-label">/ 100</div>
+      </div>
+    </div>
+
+    <!-- TWO COLUMNS: Synthèse IA + Points forts/Axes -->
+    <div class="two-col">
+
+      <div class="col-left">
+        <div class="section-title">Synthèse analytique IA</div>
+        <div class="insight-box">
+          <p>
+            Sophie Marchal présente un profil d'intelligence émotionnelle remarquablement cohérent, 
+            caractérisé par une empathie de haut niveau (91/100) couplée à d'excellentes compétences 
+            relationnelles. Sa capacité à percevoir et intégrer les états émotionnels d'autrui fait d'elle 
+            une facilitatrice naturelle dans les contextes de collaboration et de gestion du changement.
+            Le léger écart observé sur l'axe Adaptabilité (74/100) suggère un potentiel de développement 
+            dans la tolérance à l'ambiguïté structurelle, particulièrement en environnement VUCA.
+          </p>
+          <div class="ai-badge">Analyse générée par PraxiQuest IA — modèle EQ-Insight v3.1</div>
+        </div>
+      </div>
+
+      <div class="col-right">
+        <div class="section-title">Points forts identifiés</div>
+        <ul class="points-list">
+          <li>
+            <div class="point-bullet bullet-strength">1</div>
+            <span><strong>Empathie structurelle</strong> — Lecture précise des dynamiques interpersonnelles, facilitant la cohésion d'équipe et la résolution de conflits latents.</span>
+          </li>
+          <li>
+            <div class="point-bullet bullet-strength">2</div>
+            <span><strong>Influence relationnelle</strong> — Capacité à mobiliser sans autorité hiérarchique, levier clé en management transversal.</span>
+          </li>
+          <li>
+            <div class="point-bullet bullet-strength">3</div>
+            <span><strong>Conscience de soi élevée</strong> — Identification précise de ses propres émotions, base solide pour l'authenticité managériale.</span>
+          </li>
+        </ul>
+
+        <div class="separator"></div>
+
+        <div class="section-title">Axes de développement</div>
+        <ul class="points-list">
+          <li>
+            <div class="point-bullet bullet-dev">A</div>
+            <span><strong>Régulation sous incertitude</strong> — Renforcer la flexibilité cognitive face aux contextes non structurés ou à forte ambiguïté décisionnelle.</span>
+          </li>
+          <li>
+            <div class="point-bullet bullet-dev">B</div>
+            <span><strong>Distanciation émotionnelle</strong> — Développer des stratégies de mise à distance protectrice pour prévenir la surcharge empathique en situation de crise.</span>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-legal">
+      Ce rapport est établi à titre strictement confidentiel à l'attention du destinataire mentionné en en-tête. 
+      Les résultats sont fondés sur les réponses du candidat à la date d'évaluation et ne constituent pas un diagnostic clinique. 
+      Toute reproduction ou diffusion partielle est interdite sans accord écrit de PraxiQuest SAS. 
+      Données traitées conformément au RGPD — DPO : dpo@praxiquest.fr
+    </div>
+    <div class="footer-right">
+      <div class="footer-page">Page 1 / 1</div>
+      <div class="footer-brand">PraxiQuest</div>
+    </div>
+  </div>
+
+  <div class="dompdf-note">
+    Maquette HTML/CSS moderne (flexbox) — Adaptation dompdf (CSS 2.1, layout table) par l'équipe technique PraxiQuest
+  </div>
+
+</div>
+
+</body>
+</html>

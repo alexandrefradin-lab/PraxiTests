@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PraxiQuest — Rapport Premium</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #E5E7EB;
+    font-family: 'Inter', sans-serif;
+    padding: 40px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .page {
+    width: 794px;
+    height: 1123px;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .cover {
+    background: #0F172A;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .cover-topbar {
+    height: 4px;
+    background: linear-gradient(90deg, #F59E0B 0%, #FBBF24 60%, #F59E0B 100%);
+    flex-shrink: 0;
+  }
+
+  .cover-header {
+    padding: 36px 52px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-shrink: 0;
+  }
+
+  .logo-mark { display: flex; align-items: center; gap: 10px; }
+
+  .logo-icon {
+    width: 36px; height: 36px;
+    border: 2px solid #F59E0B;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .logo-text {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 18px; font-weight: 700;
+    color: #FFFFFF; letter-spacing: 0.05em;
+  }
+
+  .logo-text span { color: #F59E0B; }
+
+  .cover-doc-type {
+    font-size: 10px; font-weight: 500;
+    color: #64748B; letter-spacing: 0.15em;
+    text-transform: uppercase; padding-top: 4px;
+  }
+
+  .cover-geo {
+    position: absolute; top: -80px; right: -140px;
+    width: 560px; height: 560px;
+    border-radius: 50%;
+    border: 1px solid rgba(245,158,11,0.12);
+    pointer-events: none;
+  }
+
+  .cover-geo-fill {
+    position: absolute; top: 60px; right: -200px;
+    width: 480px; height: 480px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at center, rgba(245,158,11,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .cover-geo-arc {
+    position: absolute; bottom: 40px; left: -100px;
+    width: 380px; height: 380px;
+    border-radius: 50%;
+    border: 1px solid rgba(245,158,11,0.07);
+    pointer-events: none;
+  }
+
+  .cover-main {
+    flex: 1; display: flex; flex-direction: column;
+    justify-content: center; padding: 0 52px;
+    position: relative; z-index: 2;
+  }
+
+  .cover-eyebrow {
+    font-size: 10px; font-weight: 600; color: #F59E0B;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    margin-bottom: 24px;
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .cover-eyebrow::before {
+    content: ''; display: block;
+    width: 28px; height: 2px; background: #F59E0B;
+  }
+
+  .cover-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 52px; font-weight: 700; color: #FFFFFF;
+    line-height: 1.1; letter-spacing: -0.02em;
+    margin-bottom: 16px;
+  }
+
+  .cover-title em { font-style: normal; color: #F59E0B; }
+
+  .cover-subtitle {
+    font-size: 16px; font-weight: 400; color: #94A3B8;
+    line-height: 1.6; max-width: 460px; margin-bottom: 56px;
+  }
+
+  .cover-candidate-block {
+    border-left: 3px solid #F59E0B;
+    padding: 22px 28px;
+    background: rgba(245,158,11,0.05);
+    display: flex; justify-content: space-between;
+    align-items: center; max-width: 580px;
+  }
+
+  .cover-candidate-label {
+    font-size: 9px; font-weight: 600; color: #F59E0B;
+    letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 6px;
+  }
+
+  .cover-candidate-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 26px; font-weight: 700; color: #FFFFFF; letter-spacing: -0.01em;
+  }
+
+  .cover-candidate-meta { font-size: 12px; color: #64748B; margin-top: 4px; }
+
+  .cover-candidate-right { text-align: right; }
+
+  .cover-date-label {
+    font-size: 9px; font-weight: 600; color: #64748B;
+    letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 4px;
+  }
+
+  .cover-date { font-size: 14px; font-weight: 600; color: #CBD5E1; }
+  .cover-ref { font-size: 10px; color: #475569; margin-top: 4px; }
+
+  .cover-footer {
+    padding: 0 52px 36px;
+    display: flex; justify-content: space-between; align-items: flex-end;
+    position: relative; z-index: 2;
+  }
+
+  .cover-footer-left { display: flex; flex-direction: column; gap: 6px; }
+
+  .cover-confidential {
+    font-size: 9px; font-weight: 600; color: #475569;
+    letter-spacing: 0.2em; text-transform: uppercase;
+  }
+
+  .cover-footer-line { width: 120px; height: 1px; background: linear-gradient(90deg, #334155, transparent); }
+
+  .cover-footer-right { font-size: 10px; color: #334155; text-align: right; line-height: 1.8; }
+
+  .cover-bottombar {
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #F59E0B 40%, #FBBF24 60%, transparent);
+    flex-shrink: 0;
+  }
+
+  /* PAGE 2 RESULTS */
+
+  .results-page { background: #FFFFFF; display: flex; flex-direction: row; }
+
+  .sidebar {
+    width: 196px; background: #1E293B;
+    display: flex; flex-direction: column;
+    flex-shrink: 0; position: relative; overflow: hidden;
+  }
+
+  .sidebar-accent {
+    position: absolute; bottom: -60px; left: -60px;
+    width: 220px; height: 220px; border-radius: 50%;
+    background: radial-gradient(ellipse at center, rgba(245,158,11,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .sidebar-topbar { height: 4px; background: linear-gradient(90deg, #F59E0B, #FBBF24); flex-shrink: 0; }
+
+  .sidebar-logo {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+
+  .sidebar-logo-text {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px; font-weight: 700; color: #FFFFFF; letter-spacing: 0.05em;
+  }
+
+  .sidebar-logo-text span { color: #F59E0B; }
+
+  .sidebar-logo-sub {
+    font-size: 8.5px; color: #475569;
+    letter-spacing: 0.1em; text-transform: uppercase; margin-top: 2px;
+  }
+
+  .sidebar-section { padding: 20px 20px 0; }
+
+  .sidebar-section-title {
+    font-size: 8px; font-weight: 700; color: #F59E0B;
+    letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 12px;
+  }
+
+  .sidebar-item { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 14px; }
+
+  .sidebar-item-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: #334155; margin-top: 5px; flex-shrink: 0;
+  }
+
+  .sidebar-item-dot.active { background: #F59E0B; }
+
+  .sidebar-item-text { font-size: 11px; color: #94A3B8; line-height: 1.4; }
+  .sidebar-item-text.active { color: #FFFFFF; font-weight: 500; }
+
+  .sidebar-meta {
+    margin-top: 28px; padding: 16px 20px;
+    border-top: 1px solid rgba(255,255,255,0.07);
+  }
+
+  .sidebar-meta-item { margin-bottom: 14px; }
+
+  .sidebar-meta-label {
+    font-size: 8px; font-weight: 600; color: #475569;
+    letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 3px;
+  }
+
+  .sidebar-meta-value { font-size: 11px; font-weight: 500; color: #CBD5E1; }
+
+  .sidebar-page-num { position: absolute; bottom: 24px; left: 20px; font-size: 9px; color: #334155; letter-spacing: 0.1em; }
+
+  .results-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  .results-topbar { height: 4px; background: #F1F5F9; flex-shrink: 0; }
+
+  .results-header {
+    padding: 32px 40px 24px;
+    border-bottom: 1px solid #F1F5F9; flex-shrink: 0;
+  }
+
+  .results-section-label {
+    font-size: 9px; font-weight: 700; color: #F59E0B;
+    letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 6px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .results-section-label::before {
+    content: ''; display: block; width: 16px; height: 2px; background: #F59E0B;
+  }
+
+  .results-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 26px; font-weight: 700; color: #0F172A; letter-spacing: -0.02em;
+  }
+
+  .results-candidate-line { font-size: 12px; color: #64748B; margin-top: 4px; }
+
+  .results-hero {
+    padding: 24px 40px;
+    display: flex; gap: 28px; align-items: flex-start;
+    flex-shrink: 0; border-bottom: 1px solid #F1F5F9;
+  }
+
+  .score-circle-wrap {
+    flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 8px;
+  }
+
+  .score-circle {
+    width: 108px; height: 108px; border-radius: 50%;
+    border: 4px solid #F59E0B;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: #FFFFFF;
+    box-shadow: 0 0 0 8px rgba(245,158,11,0.07), 0 4px 20px rgba(0,0,0,0.08);
+    position: relative;
+  }
+
+  .score-number {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 34px; font-weight: 800; color: #0F172A; line-height: 1;
+  }
+
+  .score-denom { font-size: 11px; color: #94A3B8; font-weight: 500; }
+
+  .score-label {
+    font-size: 9px; font-weight: 600; color: #64748B;
+    letter-spacing: 0.1em; text-transform: uppercase;
+  }
+
+  .profile-block { flex: 1; }
+
+  .profile-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #0F172A; color: #F59E0B;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; padding: 5px 12px; border-radius: 3px; margin-bottom: 10px;
+  }
+
+  .profile-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 20px; font-weight: 700; color: #0F172A; margin-bottom: 10px;
+  }
+
+  .synthesis-block {
+    background: #F8FAFC; border-left: 3px solid #F59E0B;
+    padding: 14px 18px; border-radius: 0 6px 6px 0;
+  }
+
+  .synthesis-label {
+    font-size: 8.5px; font-weight: 700; color: #F59E0B;
+    letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 7px;
+  }
+
+  .synthesis-text { font-size: 12px; color: #334155; line-height: 1.7; }
+
+  .dimensions-section {
+    padding: 20px 40px; flex-shrink: 0; border-bottom: 1px solid #F1F5F9;
+  }
+
+  .section-heading {
+    font-size: 9px; font-weight: 700; color: #94A3B8;
+    letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 14px;
+  }
+
+  .dimension-row {
+    display: flex; align-items: center; gap: 16px; margin-bottom: 11px;
+  }
+
+  .dimension-label { font-size: 11px; font-weight: 500; color: #334155; width: 160px; flex-shrink: 0; }
+
+  .dimension-bar-wrap {
+    flex: 1; height: 8px; background: #F1F5F9; border-radius: 4px; overflow: hidden;
+  }
+
+  .dimension-bar {
+    height: 100%; border-radius: 4px;
+    background: linear-gradient(90deg, #D97706, #F59E0B);
+  }
+
+  .dimension-score {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 13px; font-weight: 700; color: #0F172A;
+    width: 36px; text-align: right; flex-shrink: 0;
+  }
+
+  .dimension-max { font-size: 10px; color: #CBD5E1; font-weight: 400; }
+
+  .strengths-section { padding: 20px 40px; flex: 1; }
+
+  .strengths-grid { display: flex; gap: 14px; }
+
+  .strength-card {
+    flex: 1; background: #F8FAFC;
+    border: 1px solid #E2E8F0; border-radius: 8px;
+    padding: 16px; position: relative; overflow: hidden;
+  }
+
+  .strength-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, #F59E0B, #FBBF24);
+  }
+
+  .strength-icon {
+    width: 32px; height: 32px;
+    background: rgba(245,158,11,0.1);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center; margin-bottom: 10px;
+  }
+
+  .strength-title { font-size: 11.5px; font-weight: 700; color: #0F172A; margin-bottom: 5px; }
+  .strength-desc { font-size: 10.5px; color: #64748B; line-height: 1.55; }
+
+  .results-footer {
+    padding: 12px 40px;
+    border-top: 1px solid #F1F5F9;
+    display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+  }
+
+  .results-footer-left { font-size: 9px; color: #CBD5E1; letter-spacing: 0.05em; }
+
+  .results-footer-center { display: flex; gap: 4px; align-items: center; }
+
+  .footer-dot { width: 5px; height: 5px; border-radius: 50%; background: #E2E8F0; }
+  .footer-dot.active { background: #F59E0B; }
+
+  .results-footer-right { font-size: 9px; color: #CBD5E1; }
+</style>
+</head>
+<body>
+
+<!-- PAGE 1 — COUVERTURE -->
+<div class="page cover">
+  <div class="cover-topbar"></div>
+  <div class="cover-geo"></div>
+  <div class="cover-geo-fill"></div>
+  <div class="cover-geo-arc"></div>
+
+  <div class="cover-header">
+    <div class="logo-mark">
+      <div class="logo-icon">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <circle cx="10" cy="10" r="7" stroke="#F59E0B" stroke-width="1.5"/>
+          <path d="M7 10l2 2 4-4" stroke="#F59E0B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="logo-text">Praxi<span>Quest</span></div>
+    </div>
+    <div class="cover-doc-type">Rapport confidentiel &nbsp;&middot;&nbsp; Psychometrie Executive</div>
+  </div>
+
+  <div class="cover-main">
+    <div class="cover-eyebrow">Rapport d'evaluation individuelle</div>
+    <h1 class="cover-title">Analyse du<br><em>Leadership</em></h1>
+    <p class="cover-subtitle">
+      Evaluation approfondie des competences et comportements managerial bases sur le modele PraxiLead &mdash; 24 dimensions, analyse IA personnalisee.
+    </p>
+
+    <div class="cover-candidate-block">
+      <div class="cover-candidate-left">
+        <div class="cover-candidate-label">Candidat evalue</div>
+        <div class="cover-candidate-name">Emilie Renard</div>
+        <div class="cover-candidate-meta">Directrice de Programme &nbsp;&middot;&nbsp; Reference #PQ-2026-4471</div>
+      </div>
+      <div class="cover-candidate-right">
+        <div class="cover-date-label">Date d'evaluation</div>
+        <div class="cover-date">Juin 2026</div>
+        <div class="cover-ref">Module PraxiLead v2.4</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cover-footer">
+    <div class="cover-footer-left">
+      <div class="cover-confidential">Confidentiel &mdash; Usage interne exclusif</div>
+      <div class="cover-footer-line"></div>
+    </div>
+    <div class="cover-footer-right">
+      PraxiQuest SaaS Platform<br>
+      praxiquest.fr &nbsp;&middot;&nbsp; IA Psychometrique
+    </div>
+  </div>
+  <div class="cover-bottombar"></div>
+</div>
+
+<!-- PAGE 2 — RESULTATS -->
+<div class="page results-page">
+
+  <div class="sidebar">
+    <div class="sidebar-topbar"></div>
+    <div class="sidebar-accent"></div>
+
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-text">Praxi<span>Quest</span></div>
+      <div class="sidebar-logo-sub">Psychometrie IA</div>
+    </div>
+
+    <div class="sidebar-section" style="padding-top:22px;">
+      <div class="sidebar-section-title">Contenu</div>
+      <div class="sidebar-item">
+        <div class="sidebar-item-dot"></div>
+        <div class="sidebar-item-text">Couverture</div>
+      </div>
+      <div class="sidebar-item">
+        <div class="sidebar-item-dot active"></div>
+        <div class="sidebar-item-text active">Profil &amp; Score global</div>
+      </div>
+      <div class="sidebar-item">
+        <div class="sidebar-item-dot"></div>
+        <div class="sidebar-item-text">Dimensions detaillees</div>
+      </div>
+      <div class="sidebar-item">
+        <div class="sidebar-item-dot"></div>
+        <div class="sidebar-item-text">Axes de developpement</div>
+      </div>
+      <div class="sidebar-item">
+        <div class="sidebar-item-dot"></div>
+        <div class="sidebar-item-text">Plan d'action 60 jours</div>
+      </div>
+      <div class="sidebar-item">
+        <div class="sidebar-item-dot"></div>
+        <div class="sidebar-item-text">Ressources</div>
+      </div>
+    </div>
+
+    <div class="sidebar-meta">
+      <div class="sidebar-meta-item">
+        <div class="sidebar-meta-label">Candidat</div>
+        <div class="sidebar-meta-value">Emilie Renard</div>
+      </div>
+      <div class="sidebar-meta-item">
+        <div class="sidebar-meta-label">Test</div>
+        <div class="sidebar-meta-value">PraxiLead</div>
+      </div>
+      <div class="sidebar-meta-item">
+        <div class="sidebar-meta-label">Date</div>
+        <div class="sidebar-meta-value">Juin 2026</div>
+      </div>
+      <div class="sidebar-meta-item">
+        <div class="sidebar-meta-label">Reference</div>
+        <div class="sidebar-meta-value" style="font-size:10px;">#PQ-2026-4471</div>
+      </div>
+    </div>
+
+    <div class="sidebar-page-num">Page 02 / 06</div>
+  </div>
+
+  <div class="results-content">
+    <div class="results-topbar"></div>
+
+    <div class="results-header">
+      <div class="results-section-label">Resultats</div>
+      <div class="results-title">Profil de Leadership</div>
+      <div class="results-candidate-line">Emilie Renard &nbsp;&middot;&nbsp; Analyse du Leadership (PraxiLead) &nbsp;&middot;&nbsp; Juin 2026</div>
+    </div>
+
+    <div class="results-hero">
+      <div class="score-circle-wrap">
+        <div class="score-circle">
+          <span class="score-number">88</span>
+          <span class="score-denom">/100</span>
+        </div>
+        <div class="score-label">Score global</div>
+      </div>
+      <div class="profile-block">
+        <div class="profile-badge">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+            <polygon points="5,1 6.2,3.8 9,4.1 7,6 7.6,9 5,7.5 2.4,9 3,6 1,4.1 3.8,3.8" fill="#F59E0B"/>
+          </svg>
+          Profil identifie
+        </div>
+        <div class="profile-name">Leader Transformationnel</div>
+        <div class="synthesis-block">
+          <div class="synthesis-label">Synthese IA &mdash; PraxiQuest</div>
+          <div class="synthesis-text">
+            Emilie demontre un leadership oriente impact collectif, combinant une vision strategique affirmee avec une forte capacite a mobiliser les equipes dans des contextes de transformation. Son profil revele un equilibre rare entre assertivite decisionnelle et intelligence relationnelle, deux leviers complementaires dans les environnements a forte ambiguite. Des marges de progression identifiees sur la delegation structuree et la gestion des resistances au changement.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dimensions-section">
+      <div class="section-heading">4 dimensions evaluees</div>
+
+      <div class="dimension-row">
+        <div class="dimension-label">Vision Strategique</div>
+        <div class="dimension-bar-wrap"><div class="dimension-bar" style="width:92%;"></div></div>
+        <div class="dimension-score">92<span class="dimension-max">/100</span></div>
+      </div>
+
+      <div class="dimension-row">
+        <div class="dimension-label">Intelligence Relationnelle</div>
+        <div class="dimension-bar-wrap"><div class="dimension-bar" style="width:87%;"></div></div>
+        <div class="dimension-score">87<span class="dimension-max">/100</span></div>
+      </div>
+
+      <div class="dimension-row">
+        <div class="dimension-label">Gestion du Changement</div>
+        <div class="dimension-bar-wrap"><div class="dimension-bar" style="width:81%;"></div></div>
+        <div class="dimension-score">81<span class="dimension-max">/100</span></div>
+      </div>
+
+      <div class="dimension-row">
+        <div class="dimension-label">Delegation &amp; Autonomisation</div>
+        <div class="dimension-bar-wrap">
+          <div class="dimension-bar" style="width:74%;background:linear-gradient(90deg,#B45309,#D97706);"></div>
+        </div>
+        <div class="dimension-score" style="color:#B45309;">74<span class="dimension-max">/100</span></div>
+      </div>
+    </div>
+
+    <div class="strengths-section">
+      <div class="section-heading">3 forces distinctives</div>
+      <div class="strengths-grid">
+
+        <div class="strength-card">
+          <div class="strength-icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M8 2l1.5 3.5L13 6l-2.5 2.5.6 3.5L8 10.5 4.9 12l.6-3.5L3 6l3.5-.5z" stroke="#F59E0B" stroke-width="1.2" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="strength-title">Pensee systemique</div>
+          <div class="strength-desc">Capacite a relier les enjeux micro et macro pour produire des decisions coherentes avec la trajectoire organisationnelle.</div>
+        </div>
+
+        <div class="strength-card">
+          <div class="strength-icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <circle cx="8" cy="6" r="2.5" stroke="#F59E0B" stroke-width="1.2"/>
+              <path d="M3 13c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke="#F59E0B" stroke-width="1.2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="strength-title">Engagement des equipes</div>
+          <div class="strength-desc">Talent naturel pour creer un sentiment d'appartenance et maintenir la motivation dans les phases de transition complexes.</div>
+        </div>
+
+        <div class="strength-card">
+          <div class="strength-icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M4 8h8M8 4v8" stroke="#F59E0B" stroke-width="1.5" stroke-linecap="round"/>
+              <rect x="2" y="2" width="12" height="12" rx="2" stroke="#F59E0B" stroke-width="1.2"/>
+            </svg>
+          </div>
+          <div class="strength-title">Clarte de la vision</div>
+          <div class="strength-desc">Aptitude a formuler des orientations strategiques claires, comprehensibles a tous les niveaux de l'organisation.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="results-footer">
+      <div class="results-footer-left">PraxiQuest &nbsp;&middot;&nbsp; Confidentiel</div>
+      <div class="results-footer-center">
+        <div class="footer-dot"></div>
+        <div class="footer-dot active"></div>
+        <div class="footer-dot"></div>
+        <div class="footer-dot"></div>
+        <div class="footer-dot"></div>
+        <div class="footer-dot"></div>
+      </div>
+      <div class="results-footer-right">Page 2 sur 6</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

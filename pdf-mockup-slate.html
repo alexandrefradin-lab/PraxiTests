@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PraxiQuest — Rapport d'Évaluation</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  :root {
+    --accent: #D9480F;
+    --accent-light: #FFF0EB;
+    --accent-mid: #F4622A;
+    --white: #FFFFFF;
+    --gray-50: #F8F9FA;
+    --gray-100: #F1F3F5;
+    --gray-200: #E9ECEF;
+    --gray-400: #ADB5BD;
+    --gray-500: #868E96;
+    --gray-700: #495057;
+    --gray-900: #212529;
+    --page-w: 794px;
+    --page-h: 1123px;
+  }
+
+  html, body {
+    background: #E8E8E8;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    width: var(--page-w);
+    min-height: var(--page-h);
+    background: var(--white);
+    margin: 32px auto;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.08);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ─── TOP ACCENT BAND ─── */
+  .top-band {
+    height: 5px;
+    background: var(--accent);
+    width: 100%;
+    flex-shrink: 0;
+  }
+
+  /* ─── HEADER ─── */
+  .header {
+    padding: 28px 48px 24px;
+    border-bottom: 1px solid var(--gray-200);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .header-brand {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .brand-logo {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--gray-900);
+    letter-spacing: -0.4px;
+  }
+
+  .brand-logo span {
+    color: var(--accent);
+  }
+
+  .brand-tagline {
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--gray-400);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+  }
+
+  .header-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+  }
+
+  .report-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+  }
+
+  .report-date {
+    font-size: 11px;
+    color: var(--gray-500);
+    font-weight: 400;
+  }
+
+  .report-ref {
+    font-size: 10px;
+    color: var(--gray-400);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+
+  /* ─── CANDIDATE STRIP ─── */
+  .candidate-strip {
+    background: var(--gray-50);
+    border-bottom: 1px solid var(--gray-200);
+    padding: 16px 48px;
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    flex-shrink: 0;
+  }
+
+  .candidate-field {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .field-label {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--gray-400);
+  }
+
+  .field-value {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--gray-900);
+  }
+
+  .field-value.accent {
+    color: var(--accent);
+  }
+
+  .candidate-sep {
+    width: 1px;
+    height: 32px;
+    background: var(--gray-200);
+  }
+
+  /* ─── BODY ─── */
+  .body {
+    flex: 1;
+    padding: 36px 48px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  /* ─── SCORE BLOCK ─── */
+  .score-section {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+  }
+
+  .score-badge {
+    flex-shrink: 0;
+    width: 104px;
+    height: 104px;
+    border-radius: 8px;
+    border: 2px solid var(--accent);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--white);
+    position: relative;
+  }
+
+  .score-badge::before {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border-radius: 5px;
+    background: var(--accent-light);
+    z-index: 0;
+  }
+
+  .score-number {
+    position: relative;
+    z-index: 1;
+    font-size: 38px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+    letter-spacing: -1px;
+  }
+
+  .score-max {
+    position: relative;
+    z-index: 1;
+    font-size: 11px;
+    color: var(--gray-500);
+    font-weight: 400;
+    margin-top: 2px;
+  }
+
+  .score-details {
+    flex: 1;
+  }
+
+  .profile-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--gray-900);
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+
+  .profile-desc {
+    font-size: 12px;
+    color: var(--gray-500);
+    line-height: 1.6;
+    max-width: 420px;
+  }
+
+  .coherence-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .coherence-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--gray-500);
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .coherence-bar-track {
+    flex: 1;
+    height: 4px;
+    background: var(--gray-200);
+    border-radius: 2px;
+    overflow: hidden;
+    max-width: 200px;
+  }
+
+  .coherence-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    width: 76%;
+  }
+
+  .coherence-value {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--gray-700);
+    white-space: nowrap;
+  }
+
+  /* ─── SECTION TITLE ─── */
+  .section-title {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--gray-500);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--gray-200);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-title::before {
+    content: '';
+    display: inline-block;
+    width: 3px;
+    height: 14px;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  /* ─── DIMENSIONS TABLE ─── */
+  .dimensions-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .dimensions-table thead tr {
+    background: var(--gray-50);
+    border-bottom: 1px solid var(--gray-200);
+  }
+
+  .dimensions-table th {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--gray-400);
+    padding: 8px 12px;
+    text-align: left;
+  }
+
+  .dimensions-table th:last-child {
+    text-align: right;
+  }
+
+  .dimensions-table td {
+    padding: 10px 12px;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--gray-100);
+  }
+
+  .dimensions-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .dimensions-table tbody tr:hover {
+    background: var(--gray-50);
+  }
+
+  .dim-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--gray-900);
+    width: 200px;
+  }
+
+  .dim-bar-cell {
+    width: 100%;
+  }
+
+  .dim-bar-track {
+    height: 6px;
+    background: var(--gray-100);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .dim-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: var(--accent);
+    transition: width 0.3s ease;
+  }
+
+  .dim-bar-fill.high {
+    background: var(--accent);
+  }
+
+  .dim-bar-fill.mid {
+    background: #F4A261;
+  }
+
+  .dim-bar-fill.low {
+    background: var(--gray-400);
+  }
+
+  .dim-score {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gray-700);
+    text-align: right;
+    white-space: nowrap;
+    width: 60px;
+  }
+
+  /* ─── AI SYNTHESIS ─── */
+  .synthesis-block {
+    background: var(--gray-50);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    padding: 16px 20px;
+  }
+
+  .synthesis-text {
+    font-size: 12px;
+    line-height: 1.75;
+    color: var(--gray-700);
+  }
+
+  /* ─── STRENGTHS & CAREERS ROW ─── */
+  .bottom-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .strengths-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .strengths-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--gray-700);
+    line-height: 1.5;
+  }
+
+  .strengths-list li::before {
+    content: '';
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+
+  .careers-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .career-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: 4px;
+  }
+
+  .career-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--gray-900);
+  }
+
+  .career-score {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .career-pct {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  .career-dot-track {
+    display: flex;
+    gap: 2px;
+  }
+
+  .career-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 1px;
+    background: var(--gray-200);
+  }
+
+  .career-dot.active {
+    background: var(--accent);
+  }
+
+  /* ─── FOOTER ─── */
+  .footer {
+    flex-shrink: 0;
+    border-top: 1px solid var(--gray-200);
+    padding: 12px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--white);
+  }
+
+  .footer-brand {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--gray-400);
+    letter-spacing: 0.4px;
+  }
+
+  .footer-brand span {
+    color: var(--accent);
+  }
+
+  .footer-rgpd {
+    font-size: 9px;
+    color: var(--gray-400);
+    text-align: center;
+    line-height: 1.4;
+    max-width: 300px;
+  }
+
+  .footer-page {
+    font-size: 10px;
+    color: var(--gray-400);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+
+  /* ─── BOTTOM ACCENT BAND ─── */
+  .bottom-band {
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent) 0%, #F4622A 100%);
+    width: 100%;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- TOP ACCENT BAND -->
+  <div class="top-band"></div>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-brand">
+      <div class="brand-logo">Praxi<span>Quest</span></div>
+      <div class="brand-tagline">Plateforme d'évaluation psychométrique</div>
+    </div>
+    <div class="header-meta">
+      <div class="report-label">Rapport d'Évaluation</div>
+      <div class="report-date">Émis le 25 juin 2026</div>
+      <div class="report-ref">REF-2026-TP-4417</div>
+    </div>
+  </header>
+
+  <!-- CANDIDATE STRIP -->
+  <div class="candidate-strip">
+    <div class="candidate-field">
+      <span class="field-label">Candidat</span>
+      <span class="field-value">Thomas Petit</span>
+    </div>
+    <div class="candidate-sep"></div>
+    <div class="candidate-field">
+      <span class="field-label">Évaluation</span>
+      <span class="field-value">Bilan de Compétences</span>
+    </div>
+    <div class="candidate-sep"></div>
+    <div class="candidate-field">
+      <span class="field-label">Module</span>
+      <span class="field-value accent">PraxiLink</span>
+    </div>
+    <div class="candidate-sep"></div>
+    <div class="candidate-field">
+      <span class="field-label">Date de passation</span>
+      <span class="field-value">24 juin 2026, 14 h 32</span>
+    </div>
+    <div class="candidate-sep"></div>
+    <div class="candidate-field">
+      <span class="field-label">Durée</span>
+      <span class="field-value">22 min</span>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <main class="body">
+
+    <!-- SCORE SECTION -->
+    <section>
+      <div class="score-section">
+        <div class="score-badge">
+          <div class="score-number">76</div>
+          <div class="score-max">sur 100</div>
+        </div>
+        <div class="score-details">
+          <div class="profile-name">Professionnel en Transition</div>
+          <div class="profile-desc">
+            Ce profil caractérise une personne aux compétences établies cherchant à réorienter son parcours
+            vers un domaine plus aligné avec ses valeurs profondes et ses aspirations à long terme.
+          </div>
+          <div class="coherence-row">
+            <span class="coherence-label">Indice de cohérence</span>
+            <div class="coherence-bar-track">
+              <div class="coherence-bar-fill"></div>
+            </div>
+            <span class="coherence-value">76 / 100</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DIMENSIONS -->
+    <section>
+      <div class="section-title">Dimensions évaluées</div>
+      <table class="dimensions-table">
+        <thead>
+          <tr>
+            <th>Dimension</th>
+            <th>Résultat</th>
+            <th>Score</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="dim-name">Compétences techniques</td>
+            <td class="dim-bar-cell">
+              <div class="dim-bar-track"><div class="dim-bar-fill high" style="width:82%"></div></div>
+            </td>
+            <td class="dim-score">82 / 100</td>
+          </tr>
+          <tr>
+            <td class="dim-name">Soft skills</td>
+            <td class="dim-bar-cell">
+              <div class="dim-bar-track"><div class="dim-bar-fill high" style="width:78%"></div></div>
+            </td>
+            <td class="dim-score">78 / 100</td>
+          </tr>
+          <tr>
+            <td class="dim-name">Ambition professionnelle</td>
+            <td class="dim-bar-cell">
+              <div class="dim-bar-track"><div class="dim-bar-fill mid" style="width:65%"></div></div>
+            </td>
+            <td class="dim-score">65 / 100</td>
+          </tr>
+          <tr>
+            <td class="dim-name">Équilibre vie pro / perso</td>
+            <td class="dim-bar-cell">
+              <div class="dim-bar-track"><div class="dim-bar-fill high" style="width:71%"></div></div>
+            </td>
+            <td class="dim-score">71 / 100</td>
+          </tr>
+          <tr>
+            <td class="dim-name">Capital réseau</td>
+            <td class="dim-bar-cell">
+              <div class="dim-bar-track"><div class="dim-bar-fill low" style="width:48%"></div></div>
+            </td>
+            <td class="dim-score">48 / 100</td>
+          </tr>
+          <tr>
+            <td class="dim-name">Potentiel d'évolution</td>
+            <td class="dim-bar-cell">
+              <div class="dim-bar-track"><div class="dim-bar-fill high" style="width:84%"></div></div>
+            </td>
+            <td class="dim-score">84 / 100</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- AI SYNTHESIS -->
+    <section>
+      <div class="section-title">Synthèse analytique</div>
+      <div class="synthesis-block">
+        <p class="synthesis-text">
+          Thomas présente un profil solide, marqué par un excellent potentiel d'évolution (84/100) et de fortes
+          compétences techniques. Sa capacité à intégrer de nouvelles méthodes rapidement constitue un atout
+          différenciant sur un marché du travail en mutation. Le principal axe de développement identifié porte
+          sur l'activation du réseau professionnel (48/100), domaine dans lequel un effort ciblé pourrait
+          significativement accélérer sa transition. L'indice de cohérence élevé (76) indique une bonne
+          adéquation entre les motivations déclarées et les réponses comportementales observées tout au long
+          du parcours d'évaluation.
+        </p>
+      </div>
+    </section>
+
+    <!-- STRENGTHS + CAREERS -->
+    <section class="bottom-grid">
+
+      <!-- STRENGTHS -->
+      <div>
+        <div class="section-title">Points forts identifiés</div>
+        <ul class="strengths-list">
+          <li>
+            <span><strong>Adaptabilité technique :</strong> maîtrise transférable d'outils et de méthodologies à fort potentiel de reconversion sectorielle.</span>
+          </li>
+          <li>
+            <span><strong>Intelligence relationnelle :</strong> score élevé en soft skills, favorisant l'intégration dans des environnements collaboratifs exigeants.</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- CAREERS -->
+      <div>
+        <div class="section-title">Métiers recommandés</div>
+        <ul class="careers-list">
+          <li class="career-item">
+            <span class="career-name">Chef de projet digital</span>
+            <span class="career-score">
+              <span class="career-pct">91 %</span>
+              <span class="career-dot-track">
+                <span class="career-dot active"></span>
+                <span class="career-dot active"></span>
+                <span class="career-dot active"></span>
+                <span class="career-dot active"></span>
+                <span class="career-dot active"></span>
+              </span>
+            </span>
+          </li>
+          <li class="career-item">
+            <span class="career-name">Consultant en transformation</span>
+            <span class="career-score">
+              <span class="career-pct">84 %</span>
+              <span class="career-dot-track">
+                <span class="career-dot active"></span>
+                <span class="career-dot active"></span>
+                <span class="career-dot active"></span>
+                <span class="career-dot active"></span>
+                <span class="career-dot"></span>
+              </span>
+            </span>
+          </li>
+          <li class="career-item">
+            <span class="career-name">Responsable formation &amp; RH</span>
+            <span class="career-score">
+              <span class="career-pct">77 %</span>
+              <span class="career-dot-track">
+                <span class="career-dot active"></span>
+                <span class="career-dot active"></span>
+                <span class="career-dot active"></span>
+                <span class="career-dot active"></span>
+                <span class="career-dot"></span>
+              </span>
+            </span>
+          </li>
+        </ul>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-brand"><span>Praxi</span>Quest · Rapport confidentiel</div>
+    <div class="footer-rgpd">
+      Ce document est établi à titre confidentiel et réservé au destinataire désigné.<br>
+      Données traitées conformément au RGPD (UE) 2016/679 · DPO : privacy@praxiquest.fr
+    </div>
+    <div class="footer-page">Page 1 / 1</div>
+  </footer>
+
+  <!-- BOTTOM ACCENT BAND -->
+  <div class="bottom-band"></div>
+
+</div>
+
+</body>
+</html>
