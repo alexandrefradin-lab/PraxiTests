@@ -1,8 +1,25 @@
 <script setup>
 import { Link, Head, usePage } from '@inertiajs/vue3'
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 
 const branding = computed(() => usePage().props.branding ?? { name: 'PraxiQuest' })
+
+onMounted(() => {
+  function countUp(el, target, suffix, duration) {
+    if (!el) return
+    let start = 0
+    const step = target / (duration / 16)
+    const t = setInterval(() => {
+      start = Math.min(start + step, target)
+      el.textContent = Math.round(start) + suffix
+      if (start >= target) clearInterval(t)
+    }, 16)
+  }
+  setTimeout(() => {
+    countUp(document.getElementById('lp-stat-horizons'), 15, '', 1100)
+    countUp(document.getElementById('lp-stat-perso'), 100, '%', 1300)
+  }, 500)
+})
 </script>
 
 <template>
@@ -65,18 +82,18 @@ const branding = computed(() => usePage().props.branding ?? { name: 'PraxiQuest'
       <text x="170" y="284" text-anchor="end" font-family="serif" font-size="10" fill="#A67520" opacity=".5">O</text>
     </svg>
     <div style="position:relative;z-index:2;padding:5.5rem 2rem 5rem;text-align:center;max-width:680px;margin:0 auto">
-      <div style="display:inline-flex;align-items:center;gap:8px;font-family:var(--font-data,'Space Mono',monospace);font-size:10px;letter-spacing:.18em;color:var(--color-primary,#A67520);text-transform:uppercase;font-weight:400;margin-bottom:2.5rem;padding:5px 14px 5px 10px;border:1px solid rgba(166,117,32,0.3);border-radius:4px;background:rgba(166,117,32,0.05)">
+      <div class="lp-badge lp-anim-badge" style="display:inline-flex;align-items:center;gap:8px;font-family:var(--font-data,'Space Mono',monospace);font-size:10px;letter-spacing:.18em;color:var(--color-primary,#A67520);text-transform:uppercase;font-weight:400;margin-bottom:2.5rem;padding:5px 14px 5px 10px;border:1px solid rgba(166,117,32,0.3);border-radius:4px;background:rgba(166,117,32,0.05)">
         <div style="width:6px;height:6px;background:var(--color-primary,#A67520);transform:rotate(45deg);flex-shrink:0"></div>
         Voyage interieur &middot; Augmente par IA
       </div>
-      <h1 style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:clamp(38px,6vw,62px);font-weight:700;color:var(--text-primary,#2A1E08);line-height:1.08;letter-spacing:-0.03em;margin-bottom:.3rem">La plus grande aventure</h1>
-      <h1 style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:clamp(38px,6vw,62px);font-weight:400;color:var(--color-primary,#A67520);line-height:1.08;letter-spacing:-0.03em;margin-bottom:2rem">commence en toi.</h1>
-      <p style="font-family:var(--font-body,'Inter',sans-serif);font-size:16px;color:var(--text-secondary,#6B5A3E);line-height:1.8;max-width:420px;margin:0 auto 2.8rem;font-weight:400">Une expedition au coeur de toi-meme. L'IA cartographie ton monde interieur et revele les horizons qui t'attendent.</p>
-      <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:2rem;flex-wrap:wrap">
-        <Link href="/register" style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:13px;letter-spacing:-0.01em;font-weight:600;color:var(--bg-base,#F0E8D4);background:var(--color-accent,#1C1408);border:none;border-radius:8px;padding:14px 32px;cursor:pointer;text-decoration:none;display:inline-block;box-shadow:0 4px 16px rgba(42,30,8,0.25)">Commencer l'expedition</Link>
-        <a href="#methode" style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:13px;letter-spacing:-0.01em;font-weight:500;color:var(--text-secondary,#6B5A3E);background:transparent;border:1px solid rgba(166,117,32,0.3);border-radius:8px;padding:14px 24px;cursor:pointer;text-decoration:none;display:inline-block">Decouvrir la methode</a>
+      <h1 class="lp-anim-h1a" style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:clamp(38px,6vw,62px);font-weight:700;color:var(--text-primary,#2A1E08);line-height:1.08;letter-spacing:-0.03em;margin-bottom:.3rem">La plus grande aventure</h1>
+      <h1 class="lp-h1-gradient lp-anim-h1b" style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:clamp(38px,6vw,62px);font-weight:400;line-height:1.08;letter-spacing:-0.03em;margin-bottom:2rem">commence en toi.</h1>
+      <p class="lp-anim-sub" style="font-family:var(--font-body,'Inter',sans-serif);font-size:16px;color:var(--text-secondary,#6B5A3E);line-height:1.8;max-width:420px;margin:0 auto 2.8rem;font-weight:400">Une expedition au coeur de toi-meme. L'IA cartographie ton monde interieur et revele les horizons qui t'attendent.</p>
+      <div class="lp-anim-ctas" style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:2rem;flex-wrap:wrap">
+        <Link href="/register" class="lp-btn-primary" style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:13px;letter-spacing:-0.01em;font-weight:600;color:var(--bg-base,#F0E8D4);background:var(--color-accent,#1C1408);border:none;border-radius:8px;padding:14px 32px;cursor:pointer;text-decoration:none;display:inline-block;box-shadow:0 4px 16px rgba(42,30,8,0.25)">Commencer l'expedition</Link>
+        <a href="#methode" class="lp-btn-ghost" style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:13px;letter-spacing:-0.01em;font-weight:500;color:var(--text-secondary,#6B5A3E);background:transparent;border:1px solid rgba(166,117,32,0.3);border-radius:8px;padding:14px 24px;cursor:pointer;text-decoration:none;display:inline-block">Decouvrir la methode</a>
       </div>
-      <div style="display:flex;align-items:center;justify-content:center;gap:10px;font-family:var(--font-data,'Space Mono',monospace);font-size:10px;letter-spacing:.12em;color:var(--text-muted,#8C7A5E);text-transform:uppercase">
+      <div class="lp-anim-trust" style="display:flex;align-items:center;justify-content:center;gap:10px;font-family:var(--font-data,'Space Mono',monospace);font-size:10px;letter-spacing:.12em;color:var(--text-muted,#8C7A5E);text-transform:uppercase">
         <div style="width:28px;height:1px;background:rgba(166,117,32,0.25)"></div>
         Gratuit &middot; Sans engagement &middot; RGPD
         <div style="width:28px;height:1px;background:rgba(166,117,32,0.25)"></div>
@@ -89,7 +106,7 @@ const branding = computed(() => usePage().props.branding ?? { name: 'PraxiQuest'
     <div style="display:flex;align-items:center;gap:12px">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><polygon points="12,2 14,9 12,7.5 10,9" fill="none" stroke="#A67520" stroke-width="1.2" stroke-linejoin="round"/><circle cx="12" cy="12" r="9" stroke="#A67520" stroke-width=".8" opacity=".4"/></svg>
       <div>
-        <div style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:22px;font-weight:700;color:var(--color-primary,#A67520);letter-spacing:-0.02em">15</div>
+        <div id="lp-stat-horizons" class="lp-stat-num" style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:22px;font-weight:700;color:var(--color-primary,#A67520);letter-spacing:-0.02em">15</div>
         <div style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;color:var(--text-secondary,#6B5A3E);letter-spacing:.06em;text-transform:uppercase">Horizons reveles</div>
       </div>
     </div>
@@ -97,7 +114,7 @@ const branding = computed(() => usePage().props.branding ?? { name: 'PraxiQuest'
     <div style="display:flex;align-items:center;gap:12px">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><polygon points="12,2 22,7 22,17 12,22 2,17 2,7" stroke="#A67520" stroke-width=".8" opacity=".4"/><text x="12" y="16" text-anchor="middle" font-family="monospace" font-size="7" fill="#A67520" font-weight="600">IA</text></svg>
       <div>
-        <div style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:22px;font-weight:700;color:var(--color-primary,#A67520);letter-spacing:-0.02em">100%</div>
+        <div id="lp-stat-perso" class="lp-stat-num" style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:22px;font-weight:700;color:var(--color-primary,#A67520);letter-spacing:-0.02em">100%</div>
         <div style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;color:var(--text-secondary,#6B5A3E);letter-spacing:.06em;text-transform:uppercase">Personnalise</div>
       </div>
     </div>
@@ -130,7 +147,10 @@ const branding = computed(() => usePage().props.branding ?? { name: 'PraxiQuest'
           <line x1="10" y1="110" x2="210" y2="110" stroke="rgba(166,117,32,0.12)" stroke-width=".8"/>
           <line x1="39.6" y1="39.6" x2="180.4" y2="180.4" stroke="rgba(166,117,32,0.08)" stroke-width=".8"/>
           <line x1="180.4" y1="39.6" x2="39.6" y2="180.4" stroke="rgba(166,117,32,0.08)" stroke-width=".8"/>
-          <polygon points="110,12 113,26 110,22 107,26" fill="#A67520"/>
+          <g class="lp-compass-needle">
+            <polygon points="110,12 113,26 110,22 107,26" fill="#A67520"/>
+            <polygon points="110,208 113,194 110,197 107,194" fill="#A67520" opacity=".3"/>
+          </g>
           <circle cx="110" cy="110" r="6" fill="#A67520" opacity=".8"/>
           <circle cx="110" cy="110" r="3" fill="#F0E5CC"/>
           <circle cx="110" cy="40" r="3" fill="none" stroke="#A67520" stroke-width="1"/>
@@ -161,8 +181,8 @@ const branding = computed(() => usePage().props.branding ?? { name: 'PraxiQuest'
           {roman:'III', title:'La revelation', text:'L\'IA cartographie ce que tu as traverse. Une synthese profonde, personnalisee, honnete.'},
           {roman:'IV', title:'L\'horizon', text:'15 pistes concretes, ouvertes. Pas des reponses. Des chemins. A toi de choisir lequel explorer.'},
         ]" :key="i" class="lp-journey-item" style="padding:0 1.2rem;text-align:center;position:relative">
-          <div style="width:56px;height:56px;margin:0 auto 1.2rem;background:var(--bg-surface,#E5DAC2);border:1px solid rgba(166,117,32,0.35);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:1">
-            <span style="font-family:var(--font-data,'Space Mono',monospace);font-size:14px;font-weight:400;color:var(--color-primary,#A67520)">{{ step.roman }}</span>
+          <div class="lp-journey-circle" style="width:56px;height:56px;margin:0 auto 1.2rem;background:var(--bg-surface,#E5DAC2);border:1px solid rgba(166,117,32,0.35);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:1">
+            <span class="lp-journey-num" style="font-family:var(--font-data,'Space Mono',monospace);font-size:14px;font-weight:400;color:var(--color-primary,#A67520)">{{ step.roman }}</span>
           </div>
           <div style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:14px;font-weight:600;color:var(--text-primary,#2A1E08);margin-bottom:.5rem;letter-spacing:-0.01em">{{ step.title }}</div>
           <p style="font-family:var(--font-body,'Inter',sans-serif);font-size:12px;color:var(--text-secondary,#6B5A3E);line-height:1.7">{{ step.text }}</p>
@@ -179,22 +199,22 @@ const branding = computed(() => usePage().props.branding ?? { name: 'PraxiQuest'
         <h2 style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:30px;font-weight:600;color:var(--text-primary,#2A1E08);line-height:1.2;letter-spacing:-0.02em">Trois forces pour <span style="font-weight:400;color:var(--color-primary,#A67520)">aller en profondeur</span></h2>
       </div>
       <div class="lp-pillars-grid grid grid-cols-1 md:grid-cols-3" style="gap:1px;background:rgba(166,117,32,0.15);border:1px solid rgba(166,117,32,0.2);border-radius:12px;overflow:hidden">
-        <div style="background:var(--bg-surface,#E5DAC2);padding:2.2rem 1.8rem">
-          <div style="width:40px;height:40px;margin-bottom:1.2rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(166,117,32,0.3);border-radius:50%;background:rgba(166,117,32,0.06)">
+        <div class="lp-pillar-card" style="background:var(--bg-surface,#E5DAC2);padding:2.2rem 1.8rem">
+          <div class="lp-pillar-icon" style="width:40px;height:40px;margin-bottom:1.2rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(166,117,32,0.3);border-radius:50%;background:rgba(166,117,32,0.06)">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><polygon points="10,1 19,6 19,14 10,19 1,14 1,6" stroke="#A67520" stroke-width="1"/><circle cx="10" cy="10" r="2.5" fill="#A67520" opacity=".7"/></svg>
           </div>
           <div style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:15px;font-weight:600;color:var(--text-primary,#2A1E08);margin-bottom:.6rem;letter-spacing:-0.01em">Intelligence augmentee</div>
           <p style="font-family:var(--font-body,'Inter',sans-serif);font-size:13px;color:var(--text-secondary,#6B5A3E);line-height:1.7">L'IA lit entre les lignes. Elle croise tes reponses, ton histoire, ton contexte.</p>
         </div>
-        <div style="background:var(--bg-surface,#E5DAC2);padding:2.2rem 1.8rem">
-          <div style="width:40px;height:40px;margin-bottom:1.2rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(166,117,32,0.3);border-radius:50%;background:rgba(166,117,32,0.06)">
+        <div class="lp-pillar-card" style="background:var(--bg-surface,#E5DAC2);padding:2.2rem 1.8rem">
+          <div class="lp-pillar-icon" style="width:40px;height:40px;margin-bottom:1.2rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(166,117,32,0.3);border-radius:50%;background:rgba(166,117,32,0.06)">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="#A67520" stroke-width="1"/><line x1="10" y1="1" x2="10" y2="19" stroke="#A67520" stroke-width=".6" opacity=".4"/><line x1="1" y1="10" x2="19" y2="10" stroke="#A67520" stroke-width=".6" opacity=".4"/><polygon points="10,2 11,7 10,6 9,7" fill="#A67520"/></svg>
           </div>
           <div style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:15px;font-weight:600;color:var(--text-primary,#2A1E08);margin-bottom:.6rem;letter-spacing:-0.01em">Narration immersive</div>
           <p style="font-family:var(--font-body,'Inter',sans-serif);font-size:13px;color:var(--text-secondary,#6B5A3E);line-height:1.7">PraxiQuest n'est pas un questionnaire. C'est un recit dont tu es le heros.</p>
         </div>
-        <div style="background:var(--bg-surface,#E5DAC2);padding:2.2rem 1.8rem">
-          <div style="width:40px;height:40px;margin-bottom:1.2rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(166,117,32,0.3);border-radius:50%;background:rgba(166,117,32,0.06)">
+        <div class="lp-pillar-card" style="background:var(--bg-surface,#E5DAC2);padding:2.2rem 1.8rem">
+          <div class="lp-pillar-icon" style="width:40px;height:40px;margin-bottom:1.2rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(166,117,32,0.3);border-radius:50%;background:rgba(166,117,32,0.06)">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2 L18 6 L18 14 L10 18 L2 14 L2 6 Z" stroke="#A67520" stroke-width="1"/><path d="M10 6 L14 8 L14 12 L10 14 L6 12 L6 8 Z" fill="#A67520" opacity=".2"/></svg>
           </div>
           <div style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:15px;font-weight:600;color:var(--text-primary,#2A1E08);margin-bottom:.6rem;letter-spacing:-0.01em">Psychologie de la decision</div>
@@ -229,7 +249,7 @@ const branding = computed(() => usePage().props.branding ?? { name: 'PraxiQuest'
       <h2 style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:clamp(28px,4vw,44px);font-weight:700;color:var(--text-primary,#2A1E08);line-height:1.15;letter-spacing:-0.03em;margin-bottom:.4rem">Ta terra incognita</h2>
       <h2 style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:clamp(28px,4vw,44px);font-weight:400;color:var(--color-primary,#A67520);line-height:1.15;letter-spacing:-0.03em;margin-bottom:1.2rem">t'attend.</h2>
       <p style="font-family:var(--font-body,'Inter',sans-serif);font-size:14px;color:var(--text-secondary,#6B5A3E);margin:0 auto 2.4rem;max-width:340px;line-height:1.75">Une expedition interieure. Et 15 horizons que tu n'avais pas encore ose regarder en face.</p>
-      <Link href="/register" style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:13px;font-weight:600;letter-spacing:-0.01em;color:var(--bg-base,#F0E8D4);background:var(--color-accent,#1C1408);border:none;padding:16px 44px;cursor:pointer;border-radius:8px;text-decoration:none;display:inline-block;margin-bottom:1.4rem;box-shadow:0 4px 16px rgba(42,30,8,0.2)">Commencer l'expedition</Link>
+      <Link href="/register" class="lp-btn-primary" style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:13px;font-weight:600;letter-spacing:-0.01em;color:var(--bg-base,#F0E8D4);background:var(--color-accent,#1C1408);border:none;padding:16px 44px;cursor:pointer;border-radius:8px;text-decoration:none;display:inline-block;margin-bottom:1.4rem;box-shadow:0 4px 16px rgba(42,30,8,0.2)">Commencer l'expedition</Link>
       <p style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;color:var(--text-muted,#8C7A5E);letter-spacing:.1em;text-transform:uppercase">Gratuit &middot; Sans engagement &middot; Donnees chiffrees</p>
     </div>
   </section>
@@ -304,5 +324,152 @@ const branding = computed(() => usePage().props.branding ?? { name: 'PraxiQuest'
   .lp-intro-compass    { display: none !important; }
   .lp-quote            { padding: 2.5rem 1rem !important; }
   .lp-footer           { padding: 0.75rem 1rem !important; }
+}
+
+/* ══════════════════════════════════════════════════
+   AMÉLIORATIONS GRAPHIQUES — Phase Polish
+   ══════════════════════════════════════════════════ */
+
+/* ── 1. GRADIENT TEXT — titre h1 doré ── */
+.lp-h1-gradient {
+  background: linear-gradient(135deg, #7D5510 0%, #C99030 45%, #A67520 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── 2. BADGE SHIMMER ── */
+.lp-badge {
+  position: relative;
+  overflow: hidden;
+}
+.lp-badge::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(166,117,32,0.22) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: lp-shimmer 3.2s ease infinite 1.8s;
+}
+@keyframes lp-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+/* ── 3. HERO CASCADE ANIMATION ── */
+@keyframes lp-fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes lp-fade-down {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.lp-anim-badge { animation: lp-fade-down 0.55s ease-out both; }
+.lp-anim-h1a   { animation: lp-fade-up  0.5s ease-out 0.18s both; }
+.lp-anim-h1b   { animation: lp-fade-up  0.5s ease-out 0.32s both; }
+.lp-anim-sub   { animation: lp-fade-up  0.5s ease-out 0.46s both; }
+.lp-anim-ctas  { animation: lp-fade-up  0.5s ease-out 0.6s  both; }
+.lp-anim-trust { animation: lp-fade-up  0.5s ease-out 0.74s both; }
+
+/* ── 4. CTA BOUTONS — hover avec lift ── */
+.lp-btn-primary {
+  transition: transform 0.18s ease, box-shadow 0.18s ease !important;
+}
+.lp-btn-primary:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 10px 28px rgba(42,30,8,0.42) !important;
+}
+.lp-btn-primary:active {
+  transform: translateY(-1px) !important;
+}
+.lp-btn-ghost {
+  transition: background 0.15s ease, border-color 0.15s ease !important;
+}
+.lp-btn-ghost:hover {
+  background: rgba(166,117,32,0.10) !important;
+  border-color: rgba(166,117,32,0.55) !important;
+}
+
+/* NAV CTA — même lift */
+.lp-nav-cta {
+  transition: transform 0.18s ease, box-shadow 0.18s ease !important;
+}
+.lp-nav-cta:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 18px rgba(42,30,8,0.38) !important;
+}
+
+/* ── 5. PILLAR CARDS — hover elevation ── */
+.lp-pillar-card {
+  transition: background 0.22s ease,
+              transform 0.22s cubic-bezier(0.34, 1.2, 0.64, 1),
+              box-shadow 0.22s ease;
+}
+.lp-pillar-card:hover {
+  background: var(--bg-elevated, #D8CEB5) !important;
+  transform: translateY(-5px) scale(1.01);
+  box-shadow: 0 12px 32px rgba(42,30,8,0.14);
+  position: relative;
+  z-index: 2;
+  border-radius: 4px;
+}
+.lp-pillar-icon {
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.lp-pillar-card:hover .lp-pillar-icon {
+  border-color: rgba(166,117,32,0.6) !important;
+  background: rgba(166,117,32,0.12) !important;
+}
+
+/* ── 6. JOURNEY CIRCLES — hover doré ── */
+.lp-journey-circle {
+  transition: background 0.2s ease,
+              border-color 0.2s ease,
+              transform 0.2s cubic-bezier(0.34, 1.2, 0.64, 1),
+              box-shadow 0.2s ease;
+}
+.lp-journey-item:hover .lp-journey-circle {
+  background: var(--color-primary, #A67520) !important;
+  border-color: var(--color-primary-dark, #7D5510) !important;
+  transform: scale(1.14);
+  box-shadow: 0 6px 18px rgba(166,117,32,0.38);
+}
+.lp-journey-num {
+  transition: color 0.18s ease;
+}
+.lp-journey-item:hover .lp-journey-num {
+  color: var(--bg-base, #F0E8D4) !important;
+}
+
+/* ── 7. BOUSSOLE — aiguille oscillante ── */
+@keyframes lp-needle-sway {
+  0%, 100% { transform: rotate(-9deg); }
+  50%       { transform: rotate(9deg); }
+}
+.lp-compass-needle {
+  transform-origin: 110px 110px;
+  animation: lp-needle-sway 3.8s ease-in-out infinite;
+}
+
+/* ── 8. STATS COUNT-UP — tabular nums ── */
+.lp-stat-num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Respect prefers-reduced-motion pour les nouvelles animations ── */
+@media (prefers-reduced-motion: reduce) {
+  .lp-badge::after,
+  .lp-compass-needle,
+  .lp-anim-badge,
+  .lp-anim-h1a, .lp-anim-h1b,
+  .lp-anim-sub, .lp-anim-ctas, .lp-anim-trust {
+    animation: none !important;
+  }
+  .lp-h1-gradient {
+    background: none;
+    -webkit-text-fill-color: var(--color-primary, #A67520);
+    color: var(--color-primary, #A67520);
+  }
 }
 </style>

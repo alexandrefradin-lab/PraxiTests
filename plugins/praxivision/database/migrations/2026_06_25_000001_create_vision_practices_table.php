@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('title');
             $table->string('summary');                             // visible même verrouillé
             $table->longText('body');                              // contenu markdown
-            $table->string('micro_challenge');                     // le micro-défi du jour
+            $table->text('micro_challenge');                       // le micro-défi du jour
             $table->unsignedSmallInteger('duration_min')->default(10);
             $table->string('icon')->nullable();
             $table->boolean('is_active')->default(true);
