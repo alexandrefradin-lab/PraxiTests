@@ -95,7 +95,6 @@ watch(mobileOpen, (open) => {
 const user = computed(() => page.props.auth?.user)
 const branding = computed(() => page.props.branding ?? { name: 'PraxiQuest', tagline: 'Évaluer. Orienter. Transformer.' })
 const xpProgress = computed(() => page.props.gamification?.xp_progress ?? 0)
-const xpTotal = computed(() => page.props.gamification?.xp_total ?? 0)
 
 function isActive(path) {
     return page.url === path || page.url.startsWith(path + '/')
@@ -240,12 +239,9 @@ watch(() => page.props.gamification?.level, (newLevel) => {
             </div>
         </header>
 
-        <!-- Barre XP -->
-        <div v-if="user" class="xp-bar" style="position: relative">
+        <!-- Barre XP (fine, sans label) -->
+        <div v-if="user" class="xp-bar">
             <div class="xp-bar__fill" :style="{ width: xpProgress + '%' }"></div>
-            <span class="xp-bar__label" style="line-height: 4px; top: 2px; transform: none">
-                {{ xpTotal > 0 ? xpTotal + ' ✦' : '✦ Ta quête commence !' }}
-            </span>
         </div>
 
         <!-- Body -->
