@@ -7,7 +7,7 @@ import CandidateLayout from '@/Layouts/CandidateLayout.vue'
     <CandidateLayout>
         <div style="max-width: 480px; margin: 6rem auto; padding: 0 1.5rem; text-align: center">
             <div style="font-size: 3rem; margin-bottom: 1.5rem">🎉</div>
-            <h1 style="font-family: 'Playfair Display', serif; font-size: 1.75rem; font-weight: 700; color: var(--pt-navy); margin-bottom: 0.75rem">
+            <h1 style="font-family: var(--font-display); font-size: 1.75rem; font-weight: 700; letter-spacing: -0.02em; color: var(--text-primary); margin-bottom: 0.75rem">
                 Bienvenue dans l'aventure !
             </h1>
             <p style="font-size: 15px; color: var(--pt-text-muted); margin-bottom: 2rem; line-height: 1.6">
@@ -15,7 +15,7 @@ import CandidateLayout from '@/Layouts/CandidateLayout.vue'
             </p>
             <Link
                 :href="route('tests.index')"
-                style="display: inline-block; background: var(--pt-navy); color: #fff; border-radius: 10px; padding: 13px 28px; font-size: 14px; font-weight: 600; text-decoration: none"
+                style="display: inline-block; background: var(--pt-navy); color: var(--bg-surface); border-radius: 10px; padding: 13px 28px; font-size: 14px; font-weight: 600; text-decoration: none"
             >
                 Découvrir les tests →
             </Link>

@@ -61,7 +61,7 @@ const submit = () => {
             <div
                 v-if="exercise.summary"
                 class="mb-6"
-                style="background: var(--surface, #fff); border: 1px solid var(--border, #e5e7eb); border-left: 3px solid var(--primary, #4F46E5); border-radius: var(--r-md, 12px); padding: 1rem 1.25rem; font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;"
+                style="background: var(--bg-surface); border: 1px solid var(--border-light); border-left: 3px solid var(--color-primary); border-radius: var(--r-md, 12px); padding: 1rem 1.25rem; font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;"
             >
                 {{ exercise.summary }}
             </div>
@@ -69,7 +69,7 @@ const submit = () => {
             <!-- Quiz interactif (optionnel) -->
             <div v-if="exercise.quiz" class="mb-6">
                 <div
-                    style="background: var(--surface, #fff); border: 1px solid var(--border, #e5e7eb); border-radius: var(--r-md, 12px); padding: 1.1rem 1.25rem;"
+                    style="background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--r-md, 12px); padding: 1.1rem 1.25rem;"
                 >
                     <p style="font-size: 0.95rem; color: var(--text-primary); line-height: 1.6;">{{ exercise.quiz.scenario }}</p>
                     <p class="mt-3" style="font-weight: 600; color: var(--text-primary);">{{ exercise.quiz.question }}</p>
@@ -84,7 +84,7 @@ const submit = () => {
                                 display: 'block', width: '100%', textAlign: 'left',
                                 padding: '0.7rem 0.9rem', borderRadius: '10px', cursor: 'pointer',
                                 fontSize: '0.9rem', lineHeight: '1.45',
-                                border: '1px solid ' + (revealed && isCorrect(key) ? '#10B981' : (revealed && picked === key ? '#EF4444' : 'var(--border, #e5e7eb)')),
+                                border: '1px solid ' + (revealed && isCorrect(key) ? 'var(--color-success)' : (revealed && picked === key ? 'var(--color-danger)' : 'var(--border-light)')),
                                 background: revealed && isCorrect(key) ? 'rgba(16,185,129,0.08)' : (revealed && picked === key ? 'rgba(239,68,68,0.06)' : 'transparent'),
                                 color: 'var(--text-primary)',
                             }"
@@ -116,10 +116,10 @@ const submit = () => {
                     v-for="(step, i) in exercise.steps"
                     :key="i"
                     style="display: flex; gap: 0.85rem; align-items: flex-start; padding: 0.7rem 0;"
-                    :style="{ borderTop: i === 0 ? 'none' : '1px solid var(--border, #f0f0f0)' }"
+                    :style="{ borderTop: i === 0 ? 'none' : '1px solid var(--border-light)' }"
                 >
                     <span
-                        style="flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; background: var(--primary, #4F46E5); color: #fff; font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; justify-content: center;"
+                        style="flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; background: var(--color-primary); color: #fff; font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; justify-content: center;"
                     >{{ i + 1 }}</span>
                     <span style="font-size: 0.95rem; color: var(--text-primary); line-height: 1.6; padding-top: 2px;">{{ step }}</span>
                 </li>
@@ -130,9 +130,9 @@ const submit = () => {
 
             <!-- Marquer comme fait -->
             <div
-                style="background: var(--surface, #fff); border: 1px solid var(--border, #e5e7eb); border-radius: var(--r-md, 12px); padding: 1.1rem 1.25rem;"
+                style="background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--r-md, 12px); padding: 1.1rem 1.25rem;"
             >
-                <p v-if="state.completed" style="font-size: 0.9rem; color: #10B981; font-weight: 600;">
+                <p v-if="state.completed" style="font-size: 0.9rem; color: var(--color-success); font-weight: 600;">
                     ✓ Tu as déjà réalisé cet exercice. Tu peux le refaire et mettre à jour ton ressenti.
                 </p>
                 <p v-else style="font-size: 0.9rem; color: var(--text-primary); font-weight: 600;">
@@ -147,8 +147,8 @@ const submit = () => {
                         @click="form.felt_score = n"
                         :style="{
                             width: '38px', height: '38px', borderRadius: '10px', cursor: 'pointer',
-                            border: '1px solid var(--border, #e5e7eb)',
-                            background: form.felt_score === n ? 'var(--primary, #4F46E5)' : 'transparent',
+                            border: '1px solid var(--border-light)',
+                            background: form.felt_score === n ? 'var(--color-primary)' : 'transparent',
                             color: form.felt_score === n ? '#fff' : 'var(--text-secondary)',
                             fontWeight: 600,
                         }"
@@ -161,14 +161,14 @@ const submit = () => {
                     rows="3"
                     placeholder="Une note pour toi (optionnel)…"
                     class="mt-3"
-                    style="width: 100%; border: 1px solid var(--border, #e5e7eb); border-radius: 10px; padding: 0.7rem 0.9rem; font-size: 0.9rem; font-family: var(--font-body); resize: vertical;"
+                    style="width: 100%; border: 1px solid var(--border-light); border-radius: 10px; padding: 0.7rem 0.9rem; font-size: 0.9rem; font-family: var(--font-body); resize: vertical;"
                 ></textarea>
 
                 <button
                     type="button"
                     @click="submit"
                     :disabled="form.processing"
-                    style="margin-top: 0.85rem; background: var(--primary, #4F46E5); color: #fff; border: none; border-radius: 10px; padding: 0.7rem 1.4rem; font-size: 0.92rem; font-weight: 600; cursor: pointer;"
+                    style="margin-top: 0.85rem; background: var(--color-primary); color: #fff; border: none; border-radius: 10px; padding: 0.7rem 1.4rem; font-size: 0.92rem; font-weight: 600; cursor: pointer;"
                 >
                     {{ state.completed ? 'Mettre à jour' : 'Marquer comme fait' }}
                 </button>

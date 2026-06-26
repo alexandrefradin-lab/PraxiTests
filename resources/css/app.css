@@ -11,26 +11,29 @@
    ═══════════════════════════════════════════════════════════════ */
 
 :root {
+    /* ═══ SOURCE UNIQUE DES TOKENS ═══
+       Tous les tokens du design system (modernes color/bg/text ET legacy pt-*)
+       sont définis ici. app.blade.php ne contient plus que le hack d'override
+       Tailwind pour le bundle legacy de la landing. */
+
     /* Fonds */
     --bg-base:              #F0E8D4;
     --bg-surface:           #E5DAC2;
     --bg-elevated:          #D8CEB5;
 
     /* Couleurs primaires */
-    /* Unification tokens (B1) : alias vers --pt-* quand la valeur est identique.
-       Réversible, zéro changement visuel. Cas non-identiques laissés tels quels :
-       --glass-border (α0.25) et --text-muted (#8C7A5E) n'ont pas d'équivalent --pt-*
-       exact → à traiter en B2/B3. Voir ROADMAP-REFACTOR-ARCHITECTURAL.md. */
-    --color-primary:        var(--pt-gold);   /* = #A67520 */
+    --color-primary:        #A67520;
     --color-primary-dark:   #7D5510;
+    --color-primary-light:  #C99030;
     --color-secondary:      #7B1515;
-    --color-accent:         #1C1408;
+    --color-accent:         #1C1408;   /* encre — NE PAS confondre avec --pt-navy (#2A1E08) */
     --color-success:        #3A6B48;
+    --color-success-rgb:    58,107,72;
     --color-danger:         #B03020;
     --color-signal:         #0A7FA0;
 
     /* Texte */
-    --text-primary:         var(--pt-text);   /* = #2A1E08 (alias unification, cf. B1) */
+    --text-primary:         #2A1E08;
     --text-secondary:       #5B4A30;
     --text-muted:           #8C7A5E;
     --text-ghost:           #B0A08A;
@@ -45,9 +48,10 @@
     --shadow-card:          0 2px 12px rgba(42,30,8,0.10);
     --shadow-elevated:      0 8px 32px rgba(42,30,8,0.15);
     --shadow-xs:            0 1px 3px rgba(42,30,8,0.06);
+    --shadow-gold:          0 4px 24px rgba(166,117,32,0.25);
 
     /* Glassmorphism */
-    --glass-bg:             rgba(240,232,212,0.85);
+    --glass-bg:             rgba(240,232,212,0.88);
     --glass-blur:           blur(14px);
     --glass-border:         rgba(166,117,32,0.25);
 
@@ -61,6 +65,32 @@
     --font-display: 'Space Grotesk', sans-serif;
     --font-body:    'Inter', sans-serif;
     --font-data:    'Space Mono', monospace;
+
+    /* ─── Alias legacy --pt-* (mappés sur les tokens modernes ci-dessus) ───
+       Conservés car référencés par d'anciennes pages (Billing, Admin, CGU…).
+       Une seule source de vérité : modifier la valeur moderne suffit. */
+    --pt-cream:           var(--bg-base);        /* #F0E8D4 */
+    --pt-cream-dark:      var(--bg-surface);     /* #E5DAC2 */
+    --pt-surface:         var(--bg-surface);     /* #E5DAC2 — cartes (JobCard/PathCard) */
+    --pt-white:           #FAF6ED;
+    --pt-navy:            var(--text-primary);   /* #2A1E08 — encre texte */
+    --pt-navy-mid:        #3D2E0F;
+    --pt-navy-light:      var(--text-secondary); /* #5B4A30 */
+    --pt-gold:            var(--color-primary);  /* #A67520 */
+    --pt-gold-hover:      var(--color-primary-dark);
+    --pt-gold-border:     rgba(166,117,32,0.4);
+    --pt-gold-pale:       rgba(166,117,32,0.12);
+    --pt-text:            var(--text-primary);
+    --pt-text-light:      var(--text-secondary);
+    --pt-text-muted:      var(--text-muted);
+    --pt-text-ghost:      var(--text-ghost);
+    --pt-border:          var(--border-light);
+    --pt-border-mid:      var(--border-mid);
+    --pt-border-strong:   var(--border-strong);
+    --pt-shadow-xs:       var(--shadow-xs);
+    --pt-shadow-sm:       var(--shadow-card);
+    --pt-shadow-md:       0 4px 16px rgba(42,30,8,0.15);
+    --pt-shadow-lg:       var(--shadow-elevated);
 }
 
 /* ─── Base ──────────────────────────────────────────────────────── */
@@ -291,6 +321,103 @@ h1, h2, h3, h4, .font-display {
         background: rgba(10,127,160,0.10);
         color: var(--color-signal);
         border: 1px solid rgba(10,127,160,0.25);
+    }
+    .ac-badge-warning {
+        @apply inline-flex items-center gap-1.5 text-xs font-medium;
+        font-family: var(--font-data);
+        padding: 3px 10px;
+        border-radius: var(--r-sm);
+        background: rgba(166,117,32,0.12);
+        color: var(--color-primary-dark);
+        border: 1px solid var(--border-mid);
+    }
+    .ac-badge-neutral {
+        @apply inline-flex items-center gap-1.5 text-xs font-medium;
+        font-family: var(--font-data);
+        padding: 3px 10px;
+        border-radius: var(--r-sm);
+        background: var(--bg-elevated);
+        color: var(--text-muted);
+        border: 1px solid var(--border-light);
+    }
+
+    /* ── Liens texte ── */
+    .ac-link-primary {
+        font-family: var(--font-body);
+        color: var(--color-primary);
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: color 0.15s;
+    }
+    .ac-link-primary:hover { color: var(--color-primary-dark); text-decoration: underline; text-underline-offset: 2px; }
+    .ac-link-success {
+        font-family: var(--font-body);
+        color: var(--color-success);
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: color 0.15s;
+    }
+    .ac-link-success:hover { text-decoration: underline; text-underline-offset: 2px; }
+
+    /* ── Tableaux ── */
+    .ac-th {
+        @apply text-left text-xs uppercase;
+        font-family: var(--font-data);
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        background: var(--bg-elevated);
+        padding: 10px 14px;
+    }
+    .ac-td {
+        font-family: var(--font-body);
+        color: var(--text-secondary);
+        padding: 11px 14px;
+        border-top: 1px solid var(--border-light);
+    }
+    .ac-row-hover { transition: background 0.15s; }
+    .ac-row-hover:hover { background: var(--bg-elevated); }
+
+    /* ── Cases à cocher / radios (accent or) ── */
+    .ac-checkbox, .ac-radio {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+        border: 1px solid var(--border-strong);
+        background: var(--bg-base);
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s;
+        position: relative;
+    }
+    .ac-checkbox { border-radius: 4px; }
+    .ac-radio    { border-radius: 50%; }
+    .ac-checkbox:checked, .ac-radio:checked {
+        background: var(--color-primary);
+        border-color: var(--color-primary-dark);
+    }
+    .ac-checkbox:checked::after {
+        content: '';
+        position: absolute;
+        left: 5px; top: 1px;
+        width: 5px; height: 10px;
+        border: solid #F0E8D4;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+    }
+    .ac-radio:checked::after {
+        content: '';
+        position: absolute;
+        inset: 4px;
+        border-radius: 50%;
+        background: #F0E8D4;
+    }
+    .ac-checkbox:focus-visible, .ac-radio:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
     }
 
     /* Emblème RPG (badge décoratif hexagonal-style) */

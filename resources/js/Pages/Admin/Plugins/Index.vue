@@ -25,8 +25,8 @@ const typeLabel = {
 
         <div class="flex items-end justify-between mb-6">
             <div>
-                <h1 class="text-2xl font-semibold">Plugins</h1>
-                <p class="text-sm text-slate-500 mt-1">Étends ta plateforme. Active uniquement ce dont tu as besoin.</p>
+                <h1 class="text-2xl font-semibold" style="font-family:var(--font-display);color:var(--text-primary)">Plugins</h1>
+                <p class="text-sm mt-1" style="color:var(--text-muted)">Étends ta plateforme. Active uniquement ce dont tu as besoin.</p>
             </div>
         </div>
 
@@ -34,21 +34,21 @@ const typeLabel = {
             <article v-for="p in plugins" :key="p.id" class="pt-card p-5">
                 <div class="flex items-start justify-between mb-3">
                     <div>
-                        <h3 class="font-semibold">{{ p.name }}</h3>
-                        <p class="text-xs text-slate-500 mt-1">{{ p.author }} · v{{ p.version }}</p>
+                        <h3 class="font-semibold" style="font-family:var(--font-display);color:var(--text-primary)">{{ p.name }}</h3>
+                        <p class="text-xs mt-1" style="color:var(--text-muted)">{{ p.author }} · v{{ p.version }}</p>
                     </div>
-                    <span class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">{{ typeLabel[p.type] ?? p.type }}</span>
+                    <span class="ac-badge-neutral">{{ typeLabel[p.type] ?? p.type }}</span>
                 </div>
-                <p class="text-sm text-slate-600 line-clamp-2">{{ p.description ?? '—' }}</p>
-                <div class="flex items-center justify-between mt-4 pt-4 border-t border-slate-100">
-                    <button @click="toggle(p)" :disabled="p.core && p.enabled" :class="p.enabled ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'" class="text-xs px-3 py-1 rounded-full font-medium">
+                <p class="text-sm line-clamp-2" style="color:var(--text-secondary)">{{ p.description ?? '—' }}</p>
+                <div class="flex items-center justify-between mt-4 pt-4 border-t" style="border-color:var(--border-light)">
+                    <button @click="toggle(p)" :disabled="p.core && p.enabled" :class="p.enabled ? 'ac-badge-success' : 'ac-badge-neutral'" class="font-medium">
                         {{ p.enabled ? 'Activé' : 'Désactivé' }}
                     </button>
-                    <Link :href="route('admin.plugins.show', p.id)" class="text-xs text-indigo-600 hover:underline">Configurer →</Link>
+                    <Link :href="route('admin.plugins.show', p.id)" class="ac-link-primary text-xs">Configurer →</Link>
                 </div>
             </article>
 
-            <div v-if="!plugins.length" class="md:col-span-2 lg:col-span-3 pt-card p-12 text-center text-slate-500">
+            <div v-if="!plugins.length" class="md:col-span-2 lg:col-span-3 pt-card p-12 text-center" style="color:var(--text-muted)">
                 Aucun plugin trouvé. Dépose un plugin dans le dossier <code>plugins/</code> et lance la commande
                 <code>php artisan praxiquest:plugins:discover --sync</code>.
             </div>

@@ -80,19 +80,19 @@ function resume() {
                         <div>
                             <span
                                 v-if="onGracePeriod"
-                                style="background: #FEE2E2; color: #991B1B; border-radius: 20px; padding: 4px 12px; font-size: 12px; font-weight: 600"
+                                class="ac-badge-danger"
                             >
                                 Annulé — accès jusqu'au {{ endsAt }}
                             </span>
                             <span
                                 v-else-if="onTrial"
-                                style="background: #FEF3C7; color: #92400E; border-radius: 20px; padding: 4px 12px; font-size: 12px; font-weight: 600"
+                                class="ac-badge-warning"
                             >
                                 Essai gratuit jusqu'au {{ trialEndsAt }}
                             </span>
                             <span
                                 v-else
-                                style="background: #D1FAE5; color: #065F46; border-radius: 20px; padding: 4px 12px; font-size: 12px; font-weight: 600"
+                                class="ac-badge-success"
                             >
                                 ✓ Actif
                             </span>
@@ -174,8 +174,8 @@ function resume() {
                             <div>
                                 <span style="font-size: 13px; color: var(--pt-text)">{{ inv.date }}</span>
                                 <span
-                                    style="margin-left: 10px; font-size: 11px; border-radius: 10px; padding: 2px 8px; font-weight: 600"
-                                    :style="inv.status === 'paid' ? 'background:#D1FAE5;color:#065F46' : 'background:#FEE2E2;color:#991B1B'"
+                                    style="margin-left: 10px"
+                                    :class="inv.status === 'paid' ? 'ac-badge-success' : 'ac-badge-danger'"
                                 >
                                     {{ inv.status === 'paid' ? 'Payée' : inv.status }}
                                 </span>

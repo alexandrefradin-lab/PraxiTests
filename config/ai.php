@@ -34,6 +34,18 @@ return [
             'api_key' => env('MISTRAL_API_KEY'),
             'model'   => env('MISTRAL_MODEL', 'mistral-large-latest'),
         ],
+
+        // DeepSeek : API compatible OpenAI → on réutilise OpenAiDriver avec un base_url
+        // différent. Clé et modèle surchargeables en admin (Setting groupe 'ai').
+        'deepseek' => [
+            'driver'   => Praxis\Core\AI\Drivers\OpenAiDriver::class,
+            'key'      => 'deepseek',
+            'api_key'  => env('DEEPSEEK_API_KEY'),
+            'base_url' => env('DEEPSEEK_BASE_URL', 'https://api.deepseek.com'),
+            'model'    => env('DEEPSEEK_MODEL', 'deepseek-chat'),
+            'temperature' => 0.6,
+            'max_tokens'  => 4000,
+        ],
         'ollama' => [
             'driver'   => Praxis\Core\AI\Drivers\OllamaDriver::class,
             'base_url' => env('OLLAMA_BASE_URL', 'http://localhost:11434'),

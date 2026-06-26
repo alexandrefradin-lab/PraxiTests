@@ -85,7 +85,7 @@ const open = ref(!meta.collapsedByDefault)
     text-align: left;
 }
 .path-tier__title {
-    font-family: 'Playfair Display', serif;
+    font-family: var(--font-display);
     font-size: 19px;
     font-weight: 600;
     color: var(--pt-navy, #2A1E08);

@@ -24,12 +24,12 @@ const submit = () => form.post(route('password.update'))
         <div class="max-w-md mx-auto">
             <div class="mb-8 text-center">
                 <h1 class="text-2xl font-semibold tracking-tight">Nouveau mot de passe</h1>
-                <p class="text-slate-600 mt-2 text-sm">Choisis un mot de passe d'au moins 8 caractères.</p>
+                <p class="mt-2 text-sm" style="color:var(--text-secondary)">Choisis un mot de passe d'au moins 8 caractères.</p>
             </div>
 
             <form @submit.prevent="submit" class="pt-card p-8 space-y-5">
                 <div>
-                    <label for="reset-email" class="block text-sm font-medium text-slate-700">Adresse email</label>
+                    <label for="reset-email" class="block text-sm font-medium" style="color:var(--text-secondary)">Adresse email</label>
                     <input
                         id="reset-email"
                         v-model="form.email"
@@ -37,11 +37,11 @@ const submit = () => form.post(route('password.update'))
                         required
                         class="pt-input mt-2"
                     >
-                    <p v-if="form.errors.email" class="text-xs text-rose-600 mt-1">{{ form.errors.email }}</p>
+                    <p v-if="form.errors.email" class="pt-error text-xs mt-1">{{ form.errors.email }}</p>
                 </div>
 
                 <div>
-                    <label for="reset-password" class="block text-sm font-medium text-slate-700">Nouveau mot de passe</label>
+                    <label for="reset-password" class="block text-sm font-medium" style="color:var(--text-secondary)">Nouveau mot de passe</label>
                     <input
                         id="reset-password"
                         v-model="form.password"
@@ -51,11 +51,11 @@ const submit = () => form.post(route('password.update'))
                         class="pt-input mt-2"
                         placeholder="Minimum 8 caractères"
                     >
-                    <p v-if="form.errors.password" class="text-xs text-rose-600 mt-1">{{ form.errors.password }}</p>
+                    <p v-if="form.errors.password" class="pt-error text-xs mt-1">{{ form.errors.password }}</p>
                 </div>
 
                 <div>
-                    <label for="reset-password-confirm" class="block text-sm font-medium text-slate-700">Confirmer le mot de passe</label>
+                    <label for="reset-password-confirm" class="block text-sm font-medium" style="color:var(--text-secondary)">Confirmer le mot de passe</label>
                     <input
                         id="reset-password-confirm"
                         v-model="form.password_confirmation"
@@ -72,8 +72,8 @@ const submit = () => form.post(route('password.update'))
                 </button>
             </form>
 
-            <p class="text-center text-sm text-slate-500 mt-6">
-                <Link :href="route('login')" class="text-indigo-600 hover:underline">← Retour à la connexion</Link>
+            <p class="text-center text-sm mt-6" style="color:var(--text-muted)">
+                <Link :href="route('login')" class="ac-link-primary">← Retour à la connexion</Link>
             </p>
         </div>
     </AuthLayout>

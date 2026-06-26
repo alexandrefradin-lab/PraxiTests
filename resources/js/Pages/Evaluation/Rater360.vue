@@ -64,49 +64,50 @@ const freqLabel = (v) => {
 
 <template>
   <Head title="Feedback 360°" />
-  <div style="min-height:100vh;background:#F0E8D4;font-family:Segoe UI,Helvetica,Arial,sans-serif;color:#2A1E08;padding:32px 16px">
+  <div style="min-height:100vh;background:var(--bg-base);font-family:var(--font-body);color:var(--text-primary);padding:32px 16px">
     <div style="max-width:680px;margin:0 auto">
 
       <!-- En-tête -->
       <div style="text-align:center;margin-bottom:8px">
-        <div style="font-size:1.2rem;font-weight:bold;color:#1C1408">Praxi<span style="color:#A67520">Quest</span></div>
-        <div style="font-size:.7rem;letter-spacing:2px;text-transform:uppercase;color:#8A7A58">Feedback 360°</div>
+        <div style="font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--color-accent)">Praxi<span style="color:var(--color-primary)">Quest</span></div>
+        <div style="font-family:var(--font-data);font-size:.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted)">Feedback 360°</div>
       </div>
 
-      <div style="background:#1C1408;border:1px solid #A67520;border-radius:14px;padding:24px 26px;margin:18px 0 24px">
-        <p style="color:#F0E8D4;font-size:1.05rem;line-height:1.6;margin:0 0 8px">
-          Vous évaluez <strong style="color:#fff">{{ subjectName }}</strong> en tant que
-          <strong style="color:#A67520">{{ relationLabel }}</strong>.
+      <div style="background:var(--color-accent);border:1px solid var(--color-primary);border-radius:14px;padding:24px 26px;margin:18px 0 24px">
+        <p style="color:var(--bg-base);font-size:1.05rem;line-height:1.6;margin:0 0 8px">
+          Vous évaluez <strong style="color:var(--bg-base)">{{ subjectName }}</strong> en tant que
+          <strong style="color:var(--color-primary)">{{ relationLabel }}</strong>.
         </p>
-        <p style="color:#B9A87E;font-size:.85rem;line-height:1.6;margin:0">
+        <p style="color:rgba(240,232,212,0.6);font-size:.85rem;line-height:1.6;margin:0">
           Pour chaque affirmation, indiquez à quelle fréquence cette personne adopte ce comportement.
           Vos réponses sont <strong>anonymes</strong> : {{ subjectName }} ne verra que des résultats agrégés.
         </p>
       </div>
 
       <!-- Progression -->
-      <div style="position:sticky;top:0;background:#F0E8D4;padding:8px 0 12px;z-index:5">
-        <div style="height:8px;background:#D8CEB5;border-radius:5px;overflow:hidden">
-          <div :style="{width: (answeredCount/questions.length*100)+'%', height:'100%', background:'#A67520'}"></div>
+      <div style="position:sticky;top:0;background:var(--bg-base);padding:8px 0 12px;z-index:5">
+        <div style="height:8px;background:var(--bg-elevated);border-radius:5px;overflow:hidden">
+          <div :style="{width: (answeredCount/questions.length*100)+'%', height:'100%', background:'var(--color-primary)'}"></div>
         </div>
-        <div style="font-size:.75rem;color:#6B5A3E;margin-top:4px;text-align:right">{{ answeredCount }} / {{ questions.length }}</div>
+        <div style="font-family:var(--font-data);font-size:.75rem;color:var(--text-muted);margin-top:4px;text-align:right">{{ answeredCount }} / {{ questions.length }}</div>
       </div>
 
       <!-- Questions par section -->
       <div v-for="(qs, section) in sections" :key="section" style="margin-bottom:22px">
-        <h3 style="font-size:.8rem;letter-spacing:1.5px;text-transform:uppercase;color:#7D5510;font-weight:bold;margin:18px 0 10px">{{ section }}</h3>
+        <h3 style="font-family:var(--font-data);font-size:.8rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--color-primary-dark);font-weight:700;margin:18px 0 10px">{{ section }}</h3>
 
         <div v-for="q in qs" :key="q.id"
-             style="background:#FFFDF7;border:1px solid #CBBE9E;border-radius:10px;padding:14px 16px;margin-bottom:10px">
+             style="background:var(--bg-surface);border:1px solid var(--border-mid);border-radius:10px;padding:14px 16px;margin-bottom:10px">
           <div style="font-size:.95rem;line-height:1.5;margin-bottom:10px">{{ q.prompt }}</div>
           <div style="display:flex;gap:6px;flex-wrap:wrap">
             <button v-for="v in steps" :key="v" type="button" @click="choose(q.id, v)"
               :style="{
                 flex:'1', minWidth:'54px', padding:'8px 4px', borderRadius:'8px', cursor:'pointer',
-                border: '1px solid ' + (answers[q.id]===v ? '#A67520' : '#CBBE9E'),
-                background: answers[q.id]===v ? '#A67520' : '#F0E8D4',
-                color: answers[q.id]===v ? '#1C1408' : '#6B5A3E',
-                fontWeight: answers[q.id]===v ? 'bold' : 'normal'
+                fontFamily:'var(--font-data)',
+                border: '1px solid ' + (answers[q.id]===v ? 'var(--color-primary)' : 'var(--border-mid)'),
+                background: answers[q.id]===v ? 'var(--color-primary)' : 'var(--bg-base)',
+                color: answers[q.id]===v ? 'var(--color-accent)' : 'var(--text-muted)',
+                fontWeight: answers[q.id]===v ? '700' : '400'
               }">
               <div style="font-size:1rem">{{ v }}</div>
               <div style="font-size:.6rem;line-height:1.1;margin-top:2px">{{ freqLabel(v) }}</div>
@@ -116,24 +117,24 @@ const freqLabel = (v) => {
       </div>
 
       <!-- Verbatims -->
-      <div style="background:#FFFDF7;border:1px solid #CBBE9E;border-radius:12px;padding:20px;margin:24px 0">
-        <h3 style="font-size:.8rem;letter-spacing:1.5px;text-transform:uppercase;color:#7D5510;font-weight:bold;margin:0 0 12px">En quelques mots (facultatif)</h3>
+      <div style="background:var(--bg-surface);border:1px solid var(--border-mid);border-radius:12px;padding:20px;margin:24px 0">
+        <h3 style="font-family:var(--font-data);font-size:.8rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--color-primary-dark);font-weight:700;margin:0 0 12px">En quelques mots (facultatif)</h3>
         <div v-for="(label, key) in verbatims" :key="key" style="margin-bottom:14px">
-          <label :for="'verbatim-' + key" style="display:block;font-size:.9rem;margin-bottom:6px">{{ label }}</label>
+          <label :for="'verbatim-' + key" style="display:block;font-size:.9rem;margin-bottom:6px;color:var(--text-secondary)">{{ label }}</label>
           <textarea :id="'verbatim-' + key" v-model="verbatimValues[key]" rows="2"
-            style="width:100%;border:1px solid #CBBE9E;border-radius:8px;padding:9px;font-family:inherit;font-size:.9rem;background:#F0E8D4;resize:vertical"></textarea>
+            style="width:100%;border:1px solid var(--border-mid);border-radius:8px;padding:9px;font-family:var(--font-body);font-size:.9rem;background:var(--bg-base);color:var(--text-primary);resize:vertical"></textarea>
         </div>
       </div>
 
       <!-- Soumettre -->
       <div style="text-align:center;margin:8px 0 40px">
-        <p v-if="!allAnswered" style="font-size:.8rem;color:#8A7A58;margin-bottom:10px">
+        <p v-if="!allAnswered" style="font-size:.8rem;color:var(--text-muted);margin-bottom:10px">
           Il reste {{ questions.length - answeredCount }} affirmation(s) à renseigner.
         </p>
         <button @click="submit" :disabled="!allAnswered || submitting"
           :style="{
-            background: allAnswered ? '#A67520' : '#D8CEB5', color:'#1C1408', border:'none',
-            fontWeight:'bold', fontSize:'1rem', padding:'14px 34px', borderRadius:'10px',
+            background: allAnswered ? 'var(--color-primary)' : 'var(--bg-elevated)', color:'var(--color-accent)', border:'none',
+            fontFamily:'var(--font-display)', fontWeight:'700', fontSize:'1rem', padding:'14px 34px', borderRadius:'10px',
             cursor: allAnswered ? 'pointer' : 'not-allowed'
           }">
           Envoyer mon évaluation

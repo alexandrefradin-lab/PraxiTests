@@ -47,29 +47,29 @@ const formatMoney = (cents) => {
 }
 
 const statusLabel = {
-    active:    { text: 'Actif',         cls: 'bg-emerald-50 text-emerald-700' },
-    trialing:  { text: 'Essai',         cls: 'bg-sky-50    text-sky-700'     },
-    grace:     { text: 'Résiliation…',  cls: 'bg-amber-50  text-amber-700'   },
-    cancelled: { text: 'Résilié',       cls: 'bg-red-50    text-red-700'     },
-    inactive:  { text: 'Inactif',       cls: 'bg-slate-50  text-slate-500'   },
-    none:      { text: 'Aucun',         cls: 'bg-slate-100 text-slate-400'   },
+    active:    { text: 'Actif',         cls: 'ac-badge-success' },
+    trialing:  { text: 'Essai',         cls: 'ac-badge-signal'  },
+    grace:     { text: 'Résiliation…',  cls: 'ac-badge-warning' },
+    cancelled: { text: 'Résilié',       cls: 'ac-badge-danger'  },
+    inactive:  { text: 'Inactif',       cls: 'ac-badge-neutral' },
+    none:      { text: 'Aucun',         cls: 'ac-badge-neutral' },
 }
 
 const mrrFormatted = computed(() => formatMoney(props.kpis.mrr))
 
 const kpiCards = computed(() => [
     { label: 'MRR',             value: mrrFormatted.value,                color: 'text-[var(--pt-gold)]'  },
-    { label: 'Abonnés actifs',  value: props.kpis.active,                 color: 'text-emerald-600' },
-    { label: 'En période essai', value: props.kpis.trialing,              color: 'text-sky-600'     },
-    { label: 'Résiliés',        value: props.kpis.cancelled,              color: 'text-red-500'     },
-    { label: 'Total abonnés',   value: props.kpis.total_subscribers,      color: 'text-[var(--pt-navy)]'  },
+    { label: 'Abonnés actifs',  value: props.kpis.active,                 color: 'text-[var(--color-success)]' },
+    { label: 'En période essai', value: props.kpis.trialing,              color: 'text-[var(--color-signal)]'  },
+    { label: 'Résiliés',        value: props.kpis.cancelled,              color: 'text-[var(--color-danger)]'  },
+    { label: 'Total abonnés',   value: props.kpis.total_subscribers,      color: 'text-[var(--color-accent)]'  },
 ])
 </script>
 
 <template>
     <AdminLayout>
         <Head title="Abonnements" />
-        <h1 class="text-2xl font-semibold mb-8">Abonnements &amp; Facturation</h1>
+        <h1 class="text-2xl font-semibold mb-8" style="color:var(--text-primary);font-family:var(--font-display)">Abonnements &amp; Facturation</h1>
 
         <!-- KPIs -->
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
@@ -78,7 +78,7 @@ const kpiCards = computed(() => [
                 :key="card.label"
                 class="pt-card p-5"
             >
-                <p class="text-xs text-slate-500 mb-1">{{ card.label }}</p>
+                <p class="text-xs mb-1" style="color:var(--text-muted)">{{ card.label }}</p>
                 <p class="text-3xl font-semibold" :class="card.color">{{ card.value }}</p>
             </div>
         </div>
@@ -86,14 +86,14 @@ const kpiCards = computed(() => [
         <!-- Filtres -->
         <div class="pt-card p-4 mb-6 flex flex-wrap gap-3 items-end">
             <div>
-                <label class="block text-xs text-slate-500 mb-1">Plan</label>
+                <label class="pt-label mb-1">Plan</label>
                 <select v-model="filterPlan" class="pt-input text-sm py-1.5">
                     <option value="">Tous les plans</option>
                     <option v-for="p in plans" :key="p.key" :value="p.key">{{ p.name }}</option>
                 </select>
             </div>
             <div>
-                <label class="block text-xs text-slate-500 mb-1">Statut</label>
+                <label class="pt-label mb-1">Statut</label>
                 <select v-model="filterStatus" class="pt-input text-sm py-1.5">
                     <option value="">Tous</option>
                     <option value="active">Actif</option>
@@ -102,11 +102,12 @@ const kpiCards = computed(() => [
                     <option value="none">Sans abonnement</option>
                 </select>
             </div>
-            <button @click="applyFilters" class="pt-btn text-sm py-1.5 px-4">Filtrer</button>
+            <button @click="applyFilters" class="ac-btn-ghost text-sm py-1.5 px-4">Filtrer</button>
             <button
                 v-if="filterPlan || filterStatus"
                 @click="resetFilters"
-                class="text-sm text-slate-500 hover:text-slate-700 underline"
+                class="text-sm underline hover:no-underline"
+                style="color:var(--text-muted)"
             >Effacer</button>
         </div>
 
@@ -114,45 +115,43 @@ const kpiCards = computed(() => [
         <div class="pt-card overflow-hidden">
             <table class="w-full text-sm">
                 <thead>
-                    <tr class="border-b border-slate-100 text-left">
-                        <th class="px-4 py-3 text-xs text-slate-500 font-medium">Utilisateur</th>
-                        <th class="px-4 py-3 text-xs text-slate-500 font-medium">Plan</th>
-                        <th class="px-4 py-3 text-xs text-slate-500 font-medium">Période</th>
-                        <th class="px-4 py-3 text-xs text-slate-500 font-medium">Statut</th>
-                        <th class="px-4 py-3 text-xs text-slate-500 font-medium">MRR</th>
-                        <th class="px-4 py-3 text-xs text-slate-500 font-medium">Fin / Essai</th>
-                        <th class="px-4 py-3 text-xs text-slate-500 font-medium">Inscrit le</th>
+                    <tr class="text-left">
+                        <th class="ac-th px-4 py-3">Utilisateur</th>
+                        <th class="ac-th px-4 py-3">Plan</th>
+                        <th class="ac-th px-4 py-3">Période</th>
+                        <th class="ac-th px-4 py-3">Statut</th>
+                        <th class="ac-th px-4 py-3">MRR</th>
+                        <th class="ac-th px-4 py-3">Fin / Essai</th>
+                        <th class="ac-th px-4 py-3">Inscrit le</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr
                         v-for="u in users.data"
                         :key="u.id"
-                        class="border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors"
+                        class="ac-row-hover border-b last:border-0"
+                        style="border-color:var(--border-light)"
                     >
                         <td class="px-4 py-3">
-                            <p class="font-medium text-slate-800">{{ u.name }}</p>
-                            <p class="text-xs text-slate-400">{{ u.email }}</p>
+                            <p class="font-medium" style="color:var(--text-primary)">{{ u.name }}</p>
+                            <p class="text-xs" style="color:var(--text-muted)">{{ u.email }}</p>
                         </td>
                         <td class="px-4 py-3">
                             <span v-if="u.plan_name" class="font-medium">{{ u.plan_name }}</span>
-                            <span v-else class="text-slate-400">—</span>
+                            <span v-else style="color:var(--text-muted)">—</span>
                         </td>
-                        <td class="px-4 py-3 text-slate-500 capitalize">
+                        <td class="px-4 py-3 capitalize" style="color:var(--text-muted)">
                             {{ u.period === 'monthly' ? 'Mensuel' : u.period === 'yearly' ? 'Annuel' : '—' }}
                         </td>
                         <td class="px-4 py-3">
-                            <span
-                                class="px-2 py-0.5 rounded-full text-xs font-medium"
-                                :class="statusLabel[u.status]?.cls ?? 'bg-slate-100 text-slate-500'"
-                            >
+                            <span :class="statusLabel[u.status]?.cls ?? 'ac-badge-neutral'">
                                 {{ statusLabel[u.status]?.text ?? u.status }}
                             </span>
                         </td>
-                        <td class="px-4 py-3 font-mono text-slate-700">
+                        <td class="px-4 py-3 font-mono" style="color:var(--text-secondary)">
                             {{ formatMoney(u.mrr) }}
                         </td>
-                        <td class="px-4 py-3 text-slate-500 text-xs">
+                        <td class="px-4 py-3 text-xs" style="color:var(--text-muted)">
                             <span v-if="u.trial_ends && u.status === 'trialing'">
                                 Essai → {{ u.trial_ends }}
                             </span>
@@ -161,12 +160,12 @@ const kpiCards = computed(() => [
                             </span>
                             <span v-else>—</span>
                         </td>
-                        <td class="px-4 py-3 text-slate-400 text-xs">{{ u.created_at }}</td>
+                        <td class="px-4 py-3 text-xs" style="color:var(--text-muted)">{{ u.created_at }}</td>
                     </tr>
 
                     <!-- État vide -->
                     <tr v-if="!users.data.length">
-                        <td colspan="7" class="px-4 py-12 text-center text-slate-400 text-sm">
+                        <td colspan="7" class="px-4 py-12 text-center text-sm" style="color:var(--text-muted)">
                             Aucun utilisateur trouvé.
                         </td>
                     </tr>
@@ -174,7 +173,7 @@ const kpiCards = computed(() => [
             </table>
 
             <!-- Pagination -->
-            <div v-if="users.last_page > 1" class="px-4 py-3 border-t border-slate-100 flex items-center justify-between text-sm text-slate-500">
+            <div v-if="users.last_page > 1" class="px-4 py-3 border-t flex items-center justify-between text-sm" style="border-color:var(--border-light);color:var(--text-muted)">
                 <span>{{ users.total }} résultat{{ users.total > 1 ? 's' : '' }}</span>
                 <div class="flex gap-1">
                     <Link
@@ -182,11 +181,12 @@ const kpiCards = computed(() => [
                         :key="link.label"
                         :href="link.url ?? '#'"
                         v-text="paginationLabel(link.label)"
-                        class="px-3 py-1 rounded text-xs border border-slate-200 transition-colors"
+                        class="px-3 py-1 rounded text-xs border transition-colors"
                         :class="[
-                            link.active ? 'bg-[var(--pt-navy)] text-white border-[var(--pt-navy)]' : 'hover:bg-slate-50',
+                            link.active ? 'bg-[var(--color-accent)] text-[#F0E8D4] border-[var(--color-accent)]' : 'hover:bg-[var(--bg-elevated)]',
                             !link.url   ? 'opacity-40 pointer-events-none' : '',
                         ]"
+                        :style="!link.active ? 'border-color:var(--border-light)' : ''"
                     />
                 </div>
             </div>

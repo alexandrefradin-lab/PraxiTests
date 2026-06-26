@@ -98,8 +98,8 @@ const copySecret = () => {
                 <div v-if="recovery_codes.length" style="
                     display:grid;grid-template-columns:1fr 1fr;gap:0.375rem;
                     font-family:monospace;font-size:13px;
-                    background:var(--bg-card);border-radius:8px;padding:1rem;
-                    border:1px solid var(--border-subtle);margin-bottom:0.75rem;
+                    background:var(--bg-elevated);border-radius:8px;padding:1rem;
+                    border:1px solid var(--border-light);margin-bottom:0.75rem;
                 ">
                     <span
                         v-for="c in recovery_codes" :key="c"
@@ -120,7 +120,7 @@ const copySecret = () => {
             <!-- Désactivation -->
             <div style="
                 padding:1rem 1.25rem;border-radius:10px;
-                border:1px solid var(--border-subtle);
+                border:1px solid var(--border-light);
             ">
                 <h2 style="
                     font-family:'Space Grotesk',sans-serif;font-size:1rem;
@@ -181,8 +181,8 @@ const copySecret = () => {
 
                     <div v-if="showSecret" style="
                         margin-top:0.75rem;padding:0.75rem 1rem;
-                        background:var(--bg-card);border-radius:8px;
-                        border:1px solid var(--border-subtle);
+                        background:var(--bg-elevated);border-radius:8px;
+                        border:1px solid var(--border-light);
                         display:flex;align-items:center;gap:0.5rem;justify-content:center;flex-wrap:wrap;
                     ">
                         <code style="
@@ -194,7 +194,7 @@ const copySecret = () => {
                             type="button"
                             @click="copySecret"
                             style="
-                                background:none;border:1px solid var(--border-subtle);
+                                background:none;border:1px solid var(--border-light);
                                 cursor:pointer;border-radius:4px;padding:2px 8px;
                                 font-size:11px;color:var(--text-secondary);
                             "

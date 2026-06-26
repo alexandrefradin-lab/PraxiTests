@@ -11,17 +11,27 @@ class AIManager
     /** @var array<string, AIDriverContract> */
     protected array $instances = [];
 
-    public function driver(?string $name = null): AIDriverContract
+    public function driver(?string $name = null, ?string $modelOverride = null): AIDriverContract
     {
         $name ??= config('ai.default');
 
-        if (isset($this->instances[$name])) {
-            return $this->instances[$name];
+        // La clé de cache inclut l'éventuel modèle surchargé : un même driver peut
+        // ainsi servir deux tâches avec deux modèles différents (ex. Sonnet vs Haiku).
+        $cacheKey = $modelOverride ? "{$name}@{$modelOverride}" : $name;
+
+        if (isset($this->instances[$cacheKey])) {
+            return $this->instances[$cacheKey];
         }
 
         $config = config("ai.drivers.{$name}");
         if (!$config) {
             throw new InvalidArgumentException("AI driver not configured: {$name}");
+        }
+
+        // Override de modèle par tâche (réglage admin) : on clone la config du driver
+        // en remplaçant juste le modèle, sans toucher aux autres usages du driver.
+        if ($modelOverride) {
+            $config['model'] = $modelOverride;
         }
 
         $driverClass = $config['driver'] ?? null;
@@ -33,18 +43,19 @@ class AIManager
             throw new InvalidArgumentException("Invalid AI driver class for: {$name}");
         }
 
-        $driverClass = $config['driver'];
         $instance = new $driverClass($config);
 
         // Permettre aux plugins de remplacer un driver
         $instance = PluginHooks::applyFilters("ai.driver.{$name}", $instance, $config);
 
-        return $this->instances[$name] = $instance;
+        return $this->instances[$cacheKey] = $instance;
     }
 
     public function forTask(string $task): AIDriverContract
     {
         $driver = config("ai.tasks.{$task}.driver");
-        return $this->driver($driver);
+        // Modèle spécifique à la tâche (réglage admin) : prime sur le modèle du driver.
+        $model  = config("ai.tasks.{$task}.model");
+        return $this->driver($driver, is_string($model) && $model !== '' ? $model : null);
     }
 }

@@ -232,36 +232,36 @@ const moveQuestionDown = (si, qi) => {
         <Head :title="test?.id ? 'Éditer test' : 'Nouveau test'" />
 
         <div class="flex items-center justify-between mb-6">
-            <h1 class="text-2xl font-semibold">{{ test?.id ? test.name : 'Nouveau test' }}</h1>
+            <h1 class="text-2xl font-semibold" style="font-family:var(--font-display);color:var(--text-primary)">{{ test?.id ? test.name : 'Nouveau test' }}</h1>
             <Link :href="route('admin.tests.index')" class="pt-btn-ghost text-sm">← Tous les tests</Link>
         </div>
 
         <!-- Flash success -->
-        <div v-if="$page.props.flash?.success" class="mb-4 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm">
+        <div v-if="$page.props.flash?.success" class="mb-4 p-3 rounded-lg text-sm" style="background:color-mix(in srgb, var(--color-success) 12%, transparent);border:1px solid color-mix(in srgb, var(--color-success) 30%, transparent);color:var(--color-success)">
             {{ $page.props.flash.success }}
         </div>
 
         <!-- ═══ Section 1 : Métadonnées ════════════════════════════════════════ -->
         <form @submit.prevent="saveMeta" class="grid lg:grid-cols-3 gap-6 mb-10">
             <section class="pt-card p-6 lg:col-span-2 space-y-5">
-                <h2 class="font-semibold text-base text-slate-700">Informations générales</h2>
+                <h2 class="font-semibold text-base" style="font-family:var(--font-display);color:var(--text-secondary)">Informations générales</h2>
 
                 <div>
-                    <label class="block text-sm font-medium text-slate-700">Nom du test</label>
+                    <label class="pt-label">Nom du test</label>
                     <input v-model="meta.name" required class="pt-input mt-2">
-                    <p v-if="meta.errors.name" class="text-xs text-rose-600 mt-1">{{ meta.errors.name }}</p>
+                    <p v-if="meta.errors.name" class="text-xs mt-1" style="color:var(--color-danger)">{{ meta.errors.name }}</p>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-slate-700">Slug (URL)</label>
+                    <label class="pt-label">Slug (URL)</label>
                     <input v-model="meta.slug" required pattern="[a-z0-9\-]+" placeholder="mon-test" class="pt-input mt-2">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-slate-700">Description</label>
+                    <label class="pt-label">Description</label>
                     <textarea v-model="meta.description" rows="3" class="pt-input mt-2" placeholder="Visible par le candidat avant de démarrer…"></textarea>
                 </div>
                 <div class="grid md:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-slate-700">Type</label>
+                        <label class="pt-label">Type</label>
                         <select v-model="meta.type" class="pt-input mt-2">
                             <option value="questionnaire">Questionnaire</option>
                             <option value="situational">Mises en situation</option>
@@ -269,34 +269,34 @@ const moveQuestionDown = (si, qi) => {
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700">Moteur de scoring</label>
+                        <label class="pt-label">Moteur de scoring</label>
                         <select v-if="scoring_engines?.length" v-model="meta.scoring_engine" class="pt-input mt-2">
                             <option v-for="key in scoring_engines" :key="key" :value="key">{{ key }}</option>
                         </select>
                         <input v-else v-model="meta.scoring_engine" class="pt-input mt-2" placeholder="default">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700">Durée estimée (min)</label>
+                        <label class="pt-label">Durée estimée (min)</label>
                         <input v-model.number="meta.estimated_minutes" type="number" min="1" class="pt-input mt-2">
                     </div>
                 </div>
             </section>
 
             <aside class="pt-card p-6 space-y-4 h-fit">
-                <h3 class="font-semibold text-sm">Publication</h3>
-                <label class="flex items-center gap-2 text-sm">
-                    <input type="checkbox" v-model="meta.published" class="rounded border-slate-300 text-indigo-600">
+                <h3 class="font-semibold text-sm" style="font-family:var(--font-display);color:var(--text-primary)">Publication</h3>
+                <label class="flex items-center gap-2 text-sm" style="color:var(--text-secondary)">
+                    <input type="checkbox" v-model="meta.published" class="ac-checkbox">
                     Publié (visible par les candidats)
                 </label>
-                <label class="flex items-center gap-2 text-sm">
-                    <input type="checkbox" v-model="meta.public" class="rounded border-slate-300 text-indigo-600">
+                <label class="flex items-center gap-2 text-sm" style="color:var(--text-secondary)">
+                    <input type="checkbox" v-model="meta.public" class="ac-checkbox">
                     Accessible sans invitation
                 </label>
-                <div class="border-t border-slate-100 pt-4">
+                <div class="border-t pt-4" style="border-color:var(--border-light)">
                     <button type="submit" :disabled="meta.processing" class="pt-btn-primary w-full">
                         {{ meta.processing ? 'Enregistrement…' : test?.id ? 'Mettre à jour' : 'Créer le test' }}
                     </button>
-                    <p v-if="meta.recentlySuccessful" class="text-emerald-600 text-xs text-center mt-2">Métadonnées enregistrées ✓</p>
+                    <p v-if="meta.recentlySuccessful" class="text-xs text-center mt-2" style="color:var(--color-success)">Métadonnées enregistrées ✓</p>
                 </div>
             </aside>
         </form>
@@ -305,8 +305,8 @@ const moveQuestionDown = (si, qi) => {
         <div v-if="test?.id">
             <div class="flex items-center justify-between mb-4">
                 <div>
-                    <h2 class="text-lg font-semibold">Structure du test</h2>
-                    <p class="text-sm text-slate-500 mt-0.5">{{ sections.length }} section(s) · {{ totalQuestions }} question(s)</p>
+                    <h2 class="text-lg font-semibold" style="font-family:var(--font-display);color:var(--text-primary)">Structure du test</h2>
+                    <p class="text-sm mt-0.5" style="color:var(--text-muted)">{{ sections.length }} section(s) · {{ totalQuestions }} question(s)</p>
                 </div>
                 <div class="flex gap-3">
                     <button type="button" @click="addSection" class="pt-btn-ghost text-sm">
@@ -326,7 +326,7 @@ const moveQuestionDown = (si, qi) => {
 
             <!-- Aucune section -->
             <div v-if="!sections.length" class="pt-card p-10 text-center border-dashed">
-                <p class="text-slate-400 mb-4">Aucune section. Clique sur "Ajouter une section" pour commencer.</p>
+                <p class="mb-4" style="color:var(--text-muted)">Aucune section. Clique sur "Ajouter une section" pour commencer.</p>
                 <button type="button" @click="addSection" class="pt-btn-primary">+ Créer la première section</button>
             </div>
 
@@ -339,19 +339,20 @@ const moveQuestionDown = (si, qi) => {
                 >
                     <!-- En-tête section -->
                     <div
-                        class="flex items-center gap-3 p-4 cursor-pointer bg-slate-50 border-b border-slate-100 select-none"
+                        class="flex items-center gap-3 p-4 cursor-pointer border-b select-none"
+                        style="background:var(--bg-elevated);border-color:var(--border-light)"
                         @click="section.open = !section.open"
                     >
-                        <span class="text-slate-400 text-xs font-mono">{{ si + 1 }}</span>
+                        <span class="text-xs font-mono" style="color:var(--text-muted)">{{ si + 1 }}</span>
                         <div class="flex-1 min-w-0">
-                            <p class="font-medium text-sm truncate">{{ section.title || '(sans titre)' }}</p>
-                            <p class="text-xs text-slate-500">{{ section.questions.length }} question(s)</p>
+                            <p class="font-medium text-sm truncate" style="color:var(--text-primary)">{{ section.title || '(sans titre)' }}</p>
+                            <p class="text-xs" style="color:var(--text-muted)">{{ section.questions.length }} question(s)</p>
                         </div>
                         <div class="flex items-center gap-1">
-                            <button type="button" @click.stop="moveSectionUp(si)" class="p-1 text-slate-400 hover:text-slate-700" title="Monter">↑</button>
-                            <button type="button" @click.stop="moveSectionDown(si)" class="p-1 text-slate-400 hover:text-slate-700" title="Descendre">↓</button>
-                            <button type="button" @click.stop="removeSection(si)" class="p-1 text-rose-400 hover:text-rose-600 ml-1" title="Supprimer">✕</button>
-                            <span class="ml-2 text-slate-400 text-xs">{{ section.open ? '▲' : '▼' }}</span>
+                            <button type="button" @click.stop="moveSectionUp(si)" class="p-1" style="color:var(--text-muted)" title="Monter">↑</button>
+                            <button type="button" @click.stop="moveSectionDown(si)" class="p-1" style="color:var(--text-muted)" title="Descendre">↓</button>
+                            <button type="button" @click.stop="removeSection(si)" class="p-1 ml-1" style="color:var(--color-danger)" title="Supprimer">✕</button>
+                            <span class="ml-2 text-xs" style="color:var(--text-muted)">{{ section.open ? '▲' : '▼' }}</span>
                         </div>
                     </div>
 
@@ -360,25 +361,26 @@ const moveQuestionDown = (si, qi) => {
                         <!-- Champs section -->
                         <div class="grid md:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-xs font-medium text-slate-600 mb-1">Titre de la section *</label>
+                                <label class="pt-label mb-1">Titre de la section *</label>
                                 <input v-model="section.title" required class="pt-input text-sm" placeholder="Ex : Tes terrains de jeu">
                             </div>
                             <div>
-                                <label class="block text-xs font-medium text-slate-600 mb-1">Intro narrative (optionnel)</label>
+                                <label class="pt-label mb-1">Intro narrative (optionnel)</label>
                                 <input v-model="section.narrative_intro" class="pt-input text-sm" placeholder="Message affiché avant les questions">
                             </div>
                         </div>
 
                         <!-- Questions -->
-                        <div class="border-t border-slate-100 pt-4 space-y-3">
+                        <div class="border-t pt-4 space-y-3" style="border-color:var(--border-light)">
                             <div
                                 v-for="(q, qi) in section.questions"
                                 :key="q._key"
-                                class="border border-slate-200 rounded-xl p-4 bg-white space-y-3"
+                                class="border rounded-xl p-4 space-y-3"
+                                style="border-color:var(--border-light);background:var(--bg-surface)"
                             >
                                 <!-- Header question -->
                                 <div class="flex items-start gap-3">
-                                    <span class="text-xs text-slate-400 font-mono mt-1 min-w-[28px]">Q{{ qi + 1 }}</span>
+                                    <span class="text-xs font-mono mt-1 min-w-[28px]" style="color:var(--text-muted)">Q{{ qi + 1 }}</span>
                                     <div class="flex-1 space-y-3">
                                         <!-- Prompt -->
                                         <div>
@@ -393,13 +395,13 @@ const moveQuestionDown = (si, qi) => {
                                         <!-- Type + helper -->
                                         <div class="grid grid-cols-2 gap-3">
                                             <div>
-                                                <label class="block text-xs text-slate-500 mb-1">Type</label>
+                                                <label class="block text-xs mb-1" style="color:var(--text-muted)">Type</label>
                                                 <select v-model="q.type" class="pt-input text-sm">
                                                     <option v-for="t in TYPES" :key="t.value" :value="t.value">{{ t.label }}</option>
                                                 </select>
                                             </div>
                                             <div>
-                                                <label class="block text-xs text-slate-500 mb-1">Texte d'aide (optionnel)</label>
+                                                <label class="block text-xs mb-1" style="color:var(--text-muted)">Texte d'aide (optionnel)</label>
                                                 <input v-model="q.helper" class="pt-input text-sm" placeholder="Sous-titre de la question">
                                             </div>
                                         </div>
@@ -409,26 +411,26 @@ const moveQuestionDown = (si, qi) => {
                                         <!-- Scale -->
                                         <div v-if="q.type === 'scale'" class="grid grid-cols-4 gap-2">
                                             <div>
-                                                <label class="block text-xs text-slate-500 mb-1">Min</label>
+                                                <label class="block text-xs mb-1" style="color:var(--text-muted)">Min</label>
                                                 <input v-model.number="q.scaleMin" type="number" min="0" max="10" class="pt-input text-sm">
                                             </div>
                                             <div>
-                                                <label class="block text-xs text-slate-500 mb-1">Max</label>
+                                                <label class="block text-xs mb-1" style="color:var(--text-muted)">Max</label>
                                                 <input v-model.number="q.scaleMax" type="number" min="2" max="10" class="pt-input text-sm">
                                             </div>
                                             <div>
-                                                <label class="block text-xs text-slate-500 mb-1">Label min</label>
+                                                <label class="block text-xs mb-1" style="color:var(--text-muted)">Label min</label>
                                                 <input v-model="q.scaleMinLabel" class="pt-input text-sm" placeholder="Pas du tout">
                                             </div>
                                             <div>
-                                                <label class="block text-xs text-slate-500 mb-1">Label max</label>
+                                                <label class="block text-xs mb-1" style="color:var(--text-muted)">Label max</label>
                                                 <input v-model="q.scaleMaxLabel" class="pt-input text-sm" placeholder="Tout à fait">
                                             </div>
                                         </div>
 
                                         <!-- Single / Multi -->
                                         <div v-if="q.type === 'single' || q.type === 'multi'">
-                                            <label class="block text-xs text-slate-500 mb-2">Options de réponse</label>
+                                            <label class="block text-xs mb-2" style="color:var(--text-muted)">Options de réponse</label>
                                             <div
                                                 v-for="(choice, ci) in q.choices"
                                                 :key="ci"
@@ -444,14 +446,14 @@ const moveQuestionDown = (si, qi) => {
                                                     class="pt-input text-sm w-24"
                                                     placeholder="Valeur"
                                                 >
-                                                <button type="button" @click="removeChoice(q, ci)" class="text-rose-400 hover:text-rose-600 text-sm px-1">✕</button>
+                                                <button type="button" @click="removeChoice(q, ci)" class="text-sm px-1" style="color:var(--color-danger)">✕</button>
                                             </div>
-                                            <button type="button" @click="addChoice(q)" class="text-xs text-indigo-600 hover:underline">+ Ajouter une option</button>
+                                            <button type="button" @click="addChoice(q)" class="ac-link-primary text-xs">+ Ajouter une option</button>
                                         </div>
 
                                         <!-- Scoring JSON -->
                                         <div>
-                                            <label class="block text-xs text-slate-500 mb-1">Scoring (JSON, optionnel)</label>
+                                            <label class="block text-xs mb-1" style="color:var(--text-muted)">Scoring (JSON, optionnel)</label>
                                             <textarea
                                                 v-model="q.scoringStr"
                                                 rows="2"
@@ -463,15 +465,15 @@ const moveQuestionDown = (si, qi) => {
 
                                     <!-- Actions question -->
                                     <div class="flex flex-col items-center gap-1 flex-shrink-0">
-                                        <button type="button" @click="moveQuestionUp(si, qi)" class="p-1 text-slate-300 hover:text-slate-600" title="Monter">↑</button>
-                                        <button type="button" @click="moveQuestionDown(si, qi)" class="p-1 text-slate-300 hover:text-slate-600" title="Descendre">↓</button>
-                                        <button type="button" @click="removeQuestion(si, qi)" class="p-1 text-rose-300 hover:text-rose-600 mt-1" title="Supprimer">✕</button>
+                                        <button type="button" @click="moveQuestionUp(si, qi)" class="p-1" style="color:var(--text-muted)" title="Monter">↑</button>
+                                        <button type="button" @click="moveQuestionDown(si, qi)" class="p-1" style="color:var(--text-muted)" title="Descendre">↓</button>
+                                        <button type="button" @click="removeQuestion(si, qi)" class="p-1 mt-1" style="color:var(--color-danger)" title="Supprimer">✕</button>
                                     </div>
                                 </div>
 
                                 <!-- Requis -->
-                                <label class="flex items-center gap-2 text-xs text-slate-500">
-                                    <input type="checkbox" v-model="q.required" class="rounded border-slate-300 text-indigo-600">
+                                <label class="flex items-center gap-2 text-xs" style="color:var(--text-muted)">
+                                    <input type="checkbox" v-model="q.required" class="ac-checkbox">
                                     Question obligatoire
                                 </label>
                             </div>
@@ -480,7 +482,7 @@ const moveQuestionDown = (si, qi) => {
                             <button
                                 type="button"
                                 @click="addQuestion(si)"
-                                class="w-full border border-dashed border-slate-300 rounded-xl py-3 text-sm text-slate-500 hover:border-indigo-400 hover:text-indigo-600 transition"
+                                class="pt-add-question w-full border border-dashed rounded-xl py-3 text-sm transition"
                             >
                                 + Ajouter une question
                             </button>
@@ -503,3 +505,14 @@ const moveQuestionDown = (si, qi) => {
         </div>
     </AdminLayout>
 </template>
+
+<style scoped>
+.pt-add-question {
+    border-color: var(--border-mid);
+    color: var(--text-muted);
+}
+.pt-add-question:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+</style>

@@ -54,6 +54,7 @@ class AppServiceProvider extends ServiceProvider
                 'anthropic' => ['api_key', 'model'],
                 'openai'    => ['api_key', 'model'],
                 'mistral'   => ['api_key', 'model'],
+                'deepseek'  => ['api_key', 'model', 'base_url'],
             ];
 
             foreach ($drivers as $driver => $fields) {
@@ -64,11 +65,32 @@ class AppServiceProvider extends ServiceProvider
                 }
             }
 
+            // Driver Haiku (économique) : partage la clé Anthropic, mais a son propre
+            // modèle réglable en admin (anthropic_haiku_model).
+            if ($anthropicKey = $get('anthropic_api_key')) {
+                config(['ai.drivers.anthropic_haiku.api_key' => $anthropicKey]);
+            }
+            if ($haikuModel = $get('anthropic_haiku_model')) {
+                config(['ai.drivers.anthropic_haiku.model' => $haikuModel]);
+            }
+
             if ($url = $get('ollama_base_url')) {
                 config(['ai.drivers.ollama.base_url' => $url]);
             }
             if ($model = $get('ollama_model')) {
                 config(['ai.drivers.ollama.model' => $model]);
+            }
+
+            // ── Modèle PAR TÂCHE (réglage admin) ────────────────────────────────
+            // Pour chaque tâche IA, l'admin peut choisir un fournisseur (driver) et,
+            // optionnellement, un modèle précis. task_<tache>_driver / task_<tache>_model.
+            foreach (array_keys((array) config('ai.tasks', [])) as $task) {
+                if ($d = $get("task_{$task}_driver")) {
+                    config(["ai.tasks.{$task}.driver" => $d]);
+                }
+                if ($m = $get("task_{$task}_model")) {
+                    config(["ai.tasks.{$task}.model" => $m]);
+                }
             }
 
         } catch (\Throwable) {

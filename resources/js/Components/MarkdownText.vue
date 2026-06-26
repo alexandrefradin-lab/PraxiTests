@@ -166,7 +166,7 @@ const html = computed(() => {
     color: var(--pt-text);
 }
 .pt-md :deep(h2) {
-    font-family: 'Playfair Display', serif;
+    font-family: var(--font-display);
     font-size: 20px;
     font-weight: 600;
     color: var(--pt-navy);

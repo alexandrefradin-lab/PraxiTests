@@ -21,8 +21,8 @@ defineProps({
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #faf8f5;
-    font-family: 'Inter', sans-serif;
+    background: var(--bg-base);
+    font-family: var(--font-body);
 }
 .error-box {
     text-align: center;
@@ -31,17 +31,17 @@ defineProps({
 .error-code {
     font-size: 5rem;
     font-weight: 700;
-    color: #A67520;
+    color: var(--color-primary);
     margin: 0 0 0.5rem;
     line-height: 1;
 }
 .error-msg {
     font-size: 1.1rem;
-    color: #6B5A3E;
+    color: var(--text-secondary);
     margin: 0 0 2rem;
 }
 .error-back {
-    color: #A67520;
+    color: var(--color-primary);
     text-decoration: none;
     font-weight: 500;
     border-bottom: 1px solid currentColor;

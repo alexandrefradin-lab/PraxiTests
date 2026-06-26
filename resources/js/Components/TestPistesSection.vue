@@ -96,7 +96,7 @@ const ptp        = computed(() => props.pistes.filter(p => p.tier === 'ptp'))
 }
 
 .tps-title {
-    font-family: 'Playfair Display', 'Georgia', serif;
+    font-family: var(--font-display);
     font-size: 1.5rem;
     font-weight: 700;
     color: var(--color-primary, #2C3E2D);

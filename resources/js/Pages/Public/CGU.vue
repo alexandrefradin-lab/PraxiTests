@@ -11,26 +11,26 @@ const date = '18 juin 2026'
 <template>
     <Head title="Conditions Générales d'Utilisation" />
 
-    <div style="min-height:100vh; background:var(--pt-cream, #f8f5f0); font-family:'Inter',sans-serif; color:#1a1a2e">
+    <div style="min-height:100vh; background:var(--bg-base); font-family:var(--font-body); color:var(--text-primary)">
 
         <!-- Header -->
-        <header style="background:var(--pt-navy, #0d1b3e); padding:1.25rem 2rem; display:flex; align-items:center; gap:12px">
+        <header style="background:var(--color-accent); padding:1.25rem 2rem; display:flex; align-items:center; gap:12px">
             <Link href="/" style="display:flex; align-items:center; gap:10px; text-decoration:none">
-                <div style="width:36px; height:36px; border-radius:8px; background:var(--pt-gold, #b8913a); display:flex; align-items:center; justify-content:center">
-                    <span style="font-family:'Playfair Display',serif; font-size:17px; font-weight:700; color:white">P</span>
+                <div style="width:36px; height:36px; border-radius:8px; background:var(--color-primary); display:flex; align-items:center; justify-content:center">
+                    <span style="font-family:var(--font-display); font-size:17px; font-weight:700; color:var(--bg-base)">P</span>
                 </div>
-                <span style="font-size:16px; font-weight:600; color:white">{{ branding?.name ?? 'PraxiQuest' }}</span>
+                <span style="font-family:var(--font-display); font-size:16px; font-weight:600; color:var(--bg-base)">{{ branding?.name ?? 'PraxiQuest' }}</span>
             </Link>
-            <span style="color:rgba(255,255,255,.35); margin-left:auto; font-size:13px">v{{ version }} — {{ date }}</span>
+            <span style="color:rgba(240,232,212,.4); margin-left:auto; font-family:var(--font-data); font-size:12px">v{{ version }} — {{ date }}</span>
         </header>
 
         <!-- Contenu -->
         <main style="max-width:860px; margin:0 auto; padding:3rem 2rem 5rem">
 
-            <h1 style="font-family:'Playfair Display',serif; font-size:2rem; font-weight:700; color:var(--pt-navy, #0d1b3e); margin-bottom:0.5rem">
+            <h1 style="font-family:var(--font-display); font-size:2rem; font-weight:700; letter-spacing:-0.02em; color:var(--text-primary); margin-bottom:0.5rem">
                 Conditions Générales d'Utilisation
             </h1>
-            <p style="font-size:14px; color:#666; margin-bottom:3rem">
+            <p style="font-family:var(--font-data); font-size:13px; color:var(--text-muted); margin-bottom:3rem">
                 Version {{ version }} — Entrée en vigueur le {{ date }}
             </p>
 
@@ -217,7 +217,7 @@ const date = '18 juin 2026'
             </section>
 
             <!-- Contact -->
-            <section class="cgu-section" style="border-left:3px solid var(--pt-gold, #b8913a); padding-left:1.25rem; border-bottom:none">
+            <section class="cgu-section" style="border-left:3px solid var(--color-primary); padding-left:1.25rem; border-bottom:none">
                 <h2 style="margin-top:0">Contact</h2>
                 <p>
                     Pour toute question relative aux présentes CGU ou à vos données personnelles :<br>
@@ -234,20 +234,20 @@ const date = '18 juin 2026'
 .cgu-section {
     margin-bottom: 2.5rem;
     padding-bottom: 2rem;
-    border-bottom: 1px solid rgba(0,0,0,.07);
+    border-bottom: 1px solid var(--border-light);
 }
 .cgu-section h2 {
-    font-family: 'Playfair Display', serif;
+    font-family: var(--font-display);
     font-size: 1.2rem;
     font-weight: 700;
-    color: var(--pt-navy, #0d1b3e);
+    color: var(--text-primary);
     margin-bottom: 1rem;
     margin-top: 0;
 }
 .cgu-section p {
     font-size: 0.9375rem;
     line-height: 1.75;
-    color: #333;
+    color: var(--text-secondary);
     margin-bottom: 0.85rem;
 }
 .cgu-section p:last-child { margin-bottom: 0; }
@@ -258,11 +258,11 @@ const date = '18 juin 2026'
 .cgu-section li {
     font-size: 0.9375rem;
     line-height: 1.75;
-    color: #333;
+    color: var(--text-secondary);
     margin-bottom: 0.35rem;
 }
 .cgu-section a {
-    color: var(--pt-gold, #b8913a);
+    color: var(--color-primary);
     text-decoration: none;
 }
 .cgu-section a:hover { text-decoration: underline; }

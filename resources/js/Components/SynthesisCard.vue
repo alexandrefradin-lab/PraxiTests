@@ -31,7 +31,7 @@ defineProps({
     margin-bottom: 1rem;
 }
 .synthesis-card__title {
-    font-family: 'Playfair Display', serif;
+    font-family: var(--font-display);
     font-size: 18px;
     font-weight: 600;
     color: var(--pt-navy);

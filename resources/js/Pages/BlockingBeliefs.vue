@@ -142,12 +142,12 @@ const progress = computed(() => Math.round(((currentStep.value) / steps.length) 
             </p>
 
             <!-- Barre de progression étapes -->
-            <div style="height: 6px; background: var(--border, #e5e7eb); border-radius: 999px; overflow: hidden; margin-bottom: 2rem;">
-                <div :style="{ width: progress + '%', height: '100%', background: 'var(--primary, #A67520)', transition: 'width .4s' }"></div>
+            <div style="height: 6px; background: var(--border-light); border-radius: 999px; overflow: hidden; margin-bottom: 2rem;">
+                <div :style="{ width: progress + '%', height: '100%', background: 'var(--color-primary)', transition: 'width .4s' }"></div>
             </div>
 
             <!-- Carte de l'étape courante -->
-            <div style="background: var(--surface, #fff); border: 1px solid var(--border, #e5e7eb); border-radius: var(--r-md, 14px); padding: 2rem 1.8rem; min-height: 320px; display: flex; flex-direction: column;">
+            <div style="background: var(--bg-surface); border: 1px solid var(--border-light); border-radius: var(--r-md, 14px); padding: 2rem 1.8rem; min-height: 320px; display: flex; flex-direction: column;">
 
                 <!-- En-tête étape -->
                 <div style="margin-bottom: 1.4rem;">
@@ -169,7 +169,7 @@ const progress = computed(() => Math.round(((currentStep.value) / steps.length) 
                             v-model="form[step.field]"
                             :placeholder="step.placeholder"
                             rows="5"
-                            style="width: 100%; box-sizing: border-box; border: 1px solid var(--border, #e5e7eb); border-radius: 8px; padding: 0.75rem 1rem; font-size: 0.95rem; font-family: var(--font-body); color: var(--text-primary); background: var(--bg, #FFFDF7); resize: vertical; outline: none; line-height: 1.6;"
+                            style="width: 100%; box-sizing: border-box; border: 1px solid var(--border-light); border-radius: 8px; padding: 0.75rem 1rem; font-size: 0.95rem; font-family: var(--font-body); color: var(--text-primary); background: var(--bg-base); resize: vertical; outline: none; line-height: 1.6;"
                         ></textarea>
                     </template>
 
@@ -186,11 +186,11 @@ const progress = computed(() => Math.round(((currentStep.value) / steps.length) 
                                     textAlign: 'left', width: '100%', cursor: 'pointer',
                                     padding: '0.75rem 1rem', borderRadius: '10px',
                                     border: form[step.field] === c.value
-                                        ? '2px solid var(--primary, #A67520)'
-                                        : '1px solid var(--border, #e5e7eb)',
+                                        ? '2px solid var(--color-primary)'
+                                        : '1px solid var(--border-light)',
                                     background: form[step.field] === c.value
                                         ? 'rgba(166,117,32,.06)'
-                                        : 'var(--surface, #fff)',
+                                        : 'var(--bg-surface)',
                                     transition: 'border .15s, background .15s',
                                 }"
                             >
@@ -210,14 +210,14 @@ const progress = computed(() => Math.round(((currentStep.value) / steps.length) 
                             <input
                                 type="range" min="0" max="10"
                                 v-model.number="form[step.field]"
-                                style="width: 100%; accent-color: var(--primary, #A67520); height: 6px;"
+                                style="width: 100%; accent-color: var(--color-primary); height: 6px;"
                             />
                             <div style="display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.4rem;">
                                 <span>0 — Surmontable</span>
                                 <span>10 — Insurmontable</span>
                             </div>
                             <div style="text-align: center; margin-top: 1rem;">
-                                <span style="font-family: var(--font-display); font-size: 2.2rem; font-weight: 800; color: var(--primary, #A67520);">{{ form[step.field] }}</span>
+                                <span style="font-family: var(--font-display); font-size: 2.2rem; font-weight: 800; color: var(--color-primary);">{{ form[step.field] }}</span>
                                 <span style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.2rem;">{{ scoreLabel }}</span>
                             </div>
                         </div>
@@ -230,7 +230,7 @@ const progress = computed(() => Math.round(((currentStep.value) / steps.length) 
                         v-if="currentStep > 0"
                         type="button"
                         @click="prev"
-                        style="background: none; border: 1px solid var(--border, #e5e7eb); border-radius: 8px; padding: 0.55rem 1rem; font-size: 0.88rem; color: var(--text-secondary); cursor: pointer;"
+                        style="background: none; border: 1px solid var(--border-light); border-radius: 8px; padding: 0.55rem 1rem; font-size: 0.88rem; color: var(--text-secondary); cursor: pointer;"
                     >
                         ← Retour
                     </button>
@@ -244,10 +244,10 @@ const progress = computed(() => Math.round(((currentStep.value) / steps.length) 
                             :style="{
                                 width: '8px', height: '8px', borderRadius: '50%',
                                 background: i === currentStep
-                                    ? 'var(--primary, #A67520)'
+                                    ? 'var(--color-primary)'
                                     : i < currentStep
-                                        ? '#10B981'
-                                        : 'var(--border, #e5e7eb)',
+                                        ? 'var(--color-success)'
+                                        : 'var(--border-light)',
                                 transition: 'background .2s',
                             }"
                         ></span>
@@ -260,8 +260,8 @@ const progress = computed(() => Math.round(((currentStep.value) / steps.length) 
                         @click="next"
                         :disabled="!canNext"
                         :style="{
-                            background: canNext ? 'var(--primary, #A67520)' : 'var(--border, #e5e7eb)',
-                            color: canNext ? '#1C1408' : 'var(--text-secondary)',
+                            background: canNext ? 'var(--color-primary)' : 'var(--border-light)',
+                            color: canNext ? 'var(--color-accent)' : 'var(--text-secondary)',
                             border: 'none', borderRadius: '8px',
                             padding: '0.55rem 1.2rem', fontWeight: 700,
                             fontSize: '0.9rem', cursor: canNext ? 'pointer' : 'default',
@@ -276,7 +276,7 @@ const progress = computed(() => Math.round(((currentStep.value) / steps.length) 
                         type="button"
                         @click="submit"
                         :disabled="form.processing"
-                        style="background: #10B981; color: #fff; border: none; border-radius: 8px; padding: 0.6rem 1.4rem; font-weight: 700; font-size: 0.95rem; cursor: pointer;"
+                        style="background: var(--color-success); color: #fff; border: none; border-radius: 8px; padding: 0.6rem 1.4rem; font-weight: 700; font-size: 0.95rem; cursor: pointer;"
                     >
                         {{ form.processing ? 'Enregistrement…' : 'Aller à l\'action du jour 🌱' }}
                     </button>

@@ -45,7 +45,7 @@ const planList = computed(() =>
                 </p>
 
                 <!-- Trial badge -->
-                <div v-if="onTrial" style="display: inline-flex; align-items: center; gap: 6px; margin-top: 1rem; background: #FEF3C7; border: 1px solid #FCD34D; border-radius: 20px; padding: 4px 14px; font-size: 12px; font-weight: 600; color: #92400E">
+                <div v-if="onTrial" class="ac-badge-warning" style="margin-top: 1rem">
                     ⏱ Essai gratuit en cours
                 </div>
             </div>

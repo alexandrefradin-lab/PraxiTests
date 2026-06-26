@@ -122,7 +122,7 @@ const statusLabel = (s) => ({
 
         <div class="flex gap-3 mt-2" style="align-items:center">
           <button type="button" @click="addRow" class="pt-btn-ghost text-sm">+ Ajouter une ligne</button>
-          <button type="button" @click="submitInvites" :disabled="form.processing" class="pt-btn text-sm">
+          <button type="button" @click="submitInvites" :disabled="form.processing" class="ac-btn-primary text-sm">
             Enregistrer
           </button>
         </div>
@@ -132,7 +132,7 @@ const statusLabel = (s) => ({
       <div class="pt-card" style="padding:22px" v-if="invitations.length">
         <div class="flex items-center justify-between mb-4">
           <h2 style="font-size:1.1rem;font-weight:700;color:var(--text-primary);margin:0">Évaluateurs invités</h2>
-          <button @click="sendAll" :disabled="sending || pendingCount === 0" class="pt-btn text-sm">
+          <button @click="sendAll" :disabled="sending || pendingCount === 0" class="ac-btn-primary text-sm">
             Envoyer {{ pendingCount ? `(${pendingCount})` : '' }}
           </button>
         </div>
@@ -159,7 +159,7 @@ const statusLabel = (s) => ({
           <span v-if="!canProceed"> — encore <strong style="color:var(--text-primary)">{{ remaining }}</strong> pour pouvoir démarrer.</span>
           <span v-else style="color:var(--pt-gold)"> — vous pouvez commencer.</span>
         </div>
-        <button @click="proceed" :disabled="!canProceed || proceeding" class="pt-btn"
+        <button @click="proceed" :disabled="!canProceed || proceeding" class="ac-btn-primary"
                 :title="canProceed ? '' : `Ajoutez au moins ${minEvaluators} évaluateurs`">
           Commencer mon auto-évaluation →
         </button>

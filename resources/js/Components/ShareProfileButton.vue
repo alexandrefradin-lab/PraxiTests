@@ -2,7 +2,7 @@
   <!-- Bouton déclencheur -->
   <button
     @click="openModal"
-    class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 transition"
+    class="ac-btn-primary"
   >
     <ShareIcon class="h-4 w-4" />
     Partager mon profil
@@ -23,51 +23,52 @@
         <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="close" />
 
         <!-- Panneau -->
-        <div class="relative z-10 w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+        <div class="relative z-10 w-full max-w-md rounded-2xl p-6" style="background:var(--bg-surface); box-shadow:var(--shadow-elevated); border:1px solid var(--border-light)">
           <!-- En-tête -->
           <div class="flex items-start justify-between mb-4">
             <div>
-              <h2 class="text-lg font-semibold text-gray-900">Partager mon profil</h2>
-              <p class="mt-1 text-sm text-gray-500">
+              <h2 class="text-lg font-semibold" style="font-family:var(--font-display); color:var(--text-primary)">Partager mon profil</h2>
+              <p class="mt-1 text-sm" style="color:var(--text-muted)">
                 Vos proches pourront voir votre synthèse et vos pistes de métiers.
               </p>
             </div>
-            <button @click="close" class="text-gray-400 hover:text-gray-600 ml-4">
+            <button @click="close" class="ml-4" style="color:var(--text-muted)">
               <XMarkIcon class="h-5 w-5" />
             </button>
           </div>
 
           <!-- Génération du lien -->
           <div v-if="!shareUrl" class="space-y-3">
-            <p class="text-sm text-gray-600">
+            <p class="text-sm" style="color:var(--text-secondary)">
               Un lien sécurisé valable <strong>30 jours</strong> sera généré.
               Seules les personnes qui le reçoivent pourront y accéder.
             </p>
             <button
               @click="generateLink"
               :disabled="loading"
-              class="w-full rounded-xl bg-indigo-600 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-50 transition"
+              class="ac-btn-primary w-full"
             >
               <span v-if="loading">Génération en cours…</span>
               <span v-else>Générer le lien</span>
             </button>
-            <p v-if="error" class="text-sm text-red-500">{{ error }}</p>
+            <p v-if="error" class="pt-error">{{ error }}</p>
           </div>
 
           <!-- Lien généré -->
           <div v-else class="space-y-4">
             <!-- Champ URL + copie -->
-            <div class="flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2">
-              <span class="flex-1 truncate text-sm text-gray-700 font-mono">{{ shareUrl }}</span>
+            <div class="flex items-center gap-2 rounded-xl px-3 py-2" style="border:1px solid var(--border-light); background:var(--bg-elevated)">
+              <span class="flex-1 truncate text-sm" style="color:var(--text-secondary); font-family:var(--font-data)">{{ shareUrl }}</span>
               <button
                 @click="copyLink"
-                class="shrink-0 rounded-lg bg-indigo-100 px-3 py-1.5 text-xs font-semibold text-indigo-700 hover:bg-indigo-200 transition"
+                class="shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold transition"
+                style="background:var(--pt-gold-pale); color:var(--color-primary-dark)"
               >
                 {{ copied ? '✓ Copié !' : 'Copier' }}
               </button>
             </div>
 
-            <p class="text-xs text-gray-400 text-center">
+            <p class="text-xs text-center" style="color:var(--text-muted)">
               Lien valable jusqu'au {{ expiresAt }}
             </p>
 
@@ -77,13 +78,13 @@
               <button
                 v-if="canShare"
                 @click="nativeShare"
-                class="flex-1 rounded-xl border border-gray-200 py-2 text-sm text-gray-700 hover:bg-gray-50 transition"
+                class="ac-btn-ghost flex-1"
               >
                 Envoyer via…
               </button>
               <button
                 @click="revokeLink"
-                class="flex-1 rounded-xl border border-red-100 py-2 text-sm text-red-500 hover:bg-red-50 transition"
+                class="ac-btn-danger flex-1"
               >
                 Révoquer le lien
               </button>

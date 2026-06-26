@@ -11,44 +11,49 @@ defineProps({ tests: Array })
 
         <div class="flex items-end justify-between mb-6">
             <div>
-                <h1 class="text-2xl font-semibold">Tests</h1>
-                <p class="text-sm text-slate-500 mt-1">Tous les tests de ta plateforme — natifs et issus de plugins.</p>
+                <h1 class="text-2xl font-semibold" style="font-family:var(--font-display);color:var(--text-primary)">Tests</h1>
+                <p class="text-sm mt-1" style="color:var(--text-muted)">Tous les tests de ta plateforme — natifs et issus de plugins.</p>
             </div>
             <Link :href="route('admin.tests.create')" class="pt-btn-primary">+ Nouveau test</Link>
         </div>
 
         <div class="pt-card overflow-hidden">
             <table class="w-full text-sm">
-                <thead class="bg-slate-50 text-xs uppercase text-slate-500">
+                <thead>
                     <tr>
-                        <th class="text-left px-5 py-3">Nom</th>
-                        <th class="text-left px-5 py-3">Type</th>
-                        <th class="text-left px-5 py-3">Plugin</th>
-                        <th class="text-left px-5 py-3">Durée</th>
-                        <th class="text-left px-5 py-3">Statut</th>
-                        <th class="px-5 py-3"></th>
+                        <th class="ac-th text-left px-5 py-3">Nom</th>
+                        <th class="ac-th text-left px-5 py-3">Type</th>
+                        <th class="ac-th text-left px-5 py-3">Plugin</th>
+                        <th class="ac-th text-left px-5 py-3">Durée</th>
+                        <th class="ac-th text-left px-5 py-3">Statut</th>
+                        <th class="ac-th px-5 py-3"></th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
-                    <tr v-for="t in tests" :key="t.id" class="hover:bg-slate-50">
-                        <td class="px-5 py-3 font-medium">{{ t.name }}</td>
-                        <td class="px-5 py-3 text-slate-600">{{ t.type }}</td>
-                        <td class="px-5 py-3 text-slate-600">{{ t.plugin?.name ?? '— natif —' }}</td>
-                        <td class="px-5 py-3 text-slate-600">{{ t.estimated_minutes }} min</td>
+                <tbody class="divide-y" style="border-color:var(--border-light)">
+                    <tr v-for="t in tests" :key="t.id" class="pt-row-hover">
+                        <td class="px-5 py-3 font-medium" style="color:var(--text-primary)">{{ t.name }}</td>
+                        <td class="px-5 py-3" style="color:var(--text-secondary)">{{ t.type }}</td>
+                        <td class="px-5 py-3" style="color:var(--text-secondary)">{{ t.plugin?.name ?? '— natif —' }}</td>
+                        <td class="px-5 py-3" style="color:var(--text-secondary)">{{ t.estimated_minutes }} min</td>
                         <td class="px-5 py-3">
-                            <span :class="t.published ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'" class="text-xs px-2 py-1 rounded-full">
+                            <span :class="t.published ? 'ac-badge-success' : 'ac-badge-neutral'">
                                 {{ t.published ? 'Publié' : 'Brouillon' }}
                             </span>
                         </td>
                         <td class="px-5 py-3 text-right">
-                            <Link :href="route('admin.tests.edit', t.id)" class="text-indigo-600 hover:underline text-xs">Éditer</Link>
+                            <Link :href="route('admin.tests.edit', t.id)" class="ac-link-primary text-xs">Éditer</Link>
                         </td>
                     </tr>
                     <tr v-if="!tests.length">
-                        <td colspan="6" class="text-center text-slate-500 py-12">Aucun test pour le moment.</td>
+                        <td colspan="6" class="text-center py-12" style="color:var(--text-muted)">Aucun test pour le moment.</td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </AdminLayout>
 </template>
+
+<style scoped>
+.pt-row-hover { transition: background-color .15s ease; }
+.pt-row-hover:hover { background-color: var(--bg-elevated); }
+</style>
