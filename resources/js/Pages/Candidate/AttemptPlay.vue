@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue'
-import { router, Head } from '@inertiajs/vue3'
+import { router, Head, Link } from '@inertiajs/vue3'
 
 const props = defineProps({
     attempt: Object,
@@ -158,8 +158,15 @@ const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
         <!-- HEADER MINIMAL -->
         <header class="ac-header">
             <div class="ac-header-inner">
-                <!-- Logo + nom test -->
+                <!-- Retour armurerie + logo + nom test -->
                 <div class="ac-header-left">
+                    <Link :href="route('tests.index')" class="ac-back-link" title="Retour à l'Armurerie">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M19 12H5M5 12l7-7M5 12l7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span class="ac-back-label">Armurerie</span>
+                    </Link>
+                    <span class="ac-header-sep" aria-hidden="true"></span>
                     <span class="ac-logo">P</span>
                     <span class="ac-test-name">{{ attempt.test.name }}</span>
                 </div>
