@@ -451,11 +451,16 @@ TXT;
 
         return [
             'valeur' => $text,
-            'note_usage_ia' => 'Ces loisirs sont pratiqués à titre amateur. '
-                . 'Utilise-les uniquement pour enrichir la compréhension de la personnalité '
-                . '(curiosités, énergie, soft skills) et pour nuancer le "pourquoi" d\'une piste. '
-                . 'Ne propose PAS de reconversion directe vers un loisir sauf si la problématique '
-                . 'ou le CV indique explicitement un niveau semi-professionnel ou une aspiration claire.',
+            'note_usage_ia' => 'Ces loisirs sont pratiqués a priori à titre amateur. '
+                . 'Règle de base : utilise-les pour enrichir la personnalité (soft skills, énergie, curiosités) '
+                . 'et pour nuancer le "pourquoi" d\'une piste. '
+                . 'Tu peux proposer une reconversion en lien direct avec un loisir SI : '
+                . '(1) la problématique mentionne une envie de créer, travailler ou entreprendre autour de ce domaine, '
+                . 'OU (2) le CV/secteur indique déjà une proximité professionnelle avec ce domaine. '
+                . 'Dans ce cas, privilégie des pistes périphériques et accessibles (ex : pour le crossfit → '
+                . 'nutrition sportive, commerce B2B vers les salles, coaching wellness) plutôt que la pratique '
+                . 'pure (coach CrossFit nécessite une reconversion longue et un niveau certifié). '
+                . 'Sans signal explicite, reste sur les soft skills uniquement.',
         ];
     }
 
