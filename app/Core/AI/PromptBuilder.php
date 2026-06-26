@@ -442,11 +442,9 @@ TXT;
     protected function workSectorLabel(?string $key): ?string
     {
         return match ($key) {
-            'public'      => 'Fonction publique',
-            'private'     => 'Secteur privé',
-            'independent' => 'Indépendant / Freelance',
-            'association' => 'Association / ONG',
-            default       => null,
+            'public'  => 'Public',
+            'private' => 'Privé',
+            default   => null,
         };
     }
 

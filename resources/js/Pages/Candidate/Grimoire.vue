@@ -181,11 +181,19 @@ watch(() => props.voies_pending, maybePoll)
 onUnmounted(stopPolling)
 
 const refreshing = ref(false)
+const regenError = ref('')
 function regenerate() {
     refreshing.value = true
+    regenError.value = ''
     window.scrollTo({ top: 0, behavior: 'smooth' })
     router.post(route('grimoire.refresh'), { count: pistesCount.value }, {
         preserveScroll: false,
+        // Affiche le message du serveur (ex. garde-fou anti-spam « 1 régénération
+        // / 10 min ») au lieu d'un échec silencieux où l'utilisateur croit que rien
+        // ne marche.
+        onError: (errors) => {
+            regenError.value = errors?.regen || 'La régénération n\'a pas pu démarrer. Réessaie dans un instant.'
+        },
         onFinish: () => { refreshing.value = false },
     })
 }
@@ -466,6 +474,7 @@ function fitClass(score) {
                             {{ refreshing ? 'Relecture en cours…' : 'Régénérer le Grimoire' }}
                         </button>
                     </div>
+                    <p v-if="regenError" class="grim-regen-error" role="alert">{{ regenError }}</p>
                     <p v-if="grimoire?.disclaimer" class="grim-disclaimer">
                         {{ grimoire.disclaimer.disclaimer_text }}
                     </p>
@@ -963,6 +972,18 @@ function fitClass(score) {
 .grim-footer { text-align: center; margin-top: 3rem; }
 .grim-actions { display: flex; gap: .85rem; justify-content: center; flex-wrap: wrap; margin-top: 1.5rem; }
 .grim-disclaimer { font-family: var(--font-body, 'Inter', sans-serif); font-size: 13px; font-style: italic; color: var(--text-muted, #8C7A5E); max-width: 580px; margin: 1.5rem auto 0; line-height: 1.55; }
+.grim-regen-error {
+    font-family: var(--font-body, 'Inter', sans-serif);
+    font-size: .9rem;
+    color: var(--grim-red);
+    background: rgba(123,21,21,0.07);
+    border: 1px solid rgba(123,21,21,0.30);
+    border-radius: var(--r, 8px);
+    max-width: 520px;
+    margin: 1.1rem auto 0;
+    padding: .7rem 1rem;
+    line-height: 1.5;
+}
 
 /* ── Voies vides ─────────────────────────────────────────────────────── */
 .grim-voies-empty { text-align: center; padding: 2.5rem 1rem; font-family: var(--font-body, 'Inter', sans-serif); font-size: .97rem; color: var(--text-muted, #8C7A5E); font-style: italic; }

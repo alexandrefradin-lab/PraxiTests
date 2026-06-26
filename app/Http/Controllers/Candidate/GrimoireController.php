@@ -241,13 +241,16 @@ class GrimoireController extends Controller
     {
         $user = auth()->user();
 
-        // Garde-fou anti-spam : 1 régénération manuelle / 10 minutes (TECH-11).
+        // Garde-fou anti-spam : 1 régénération manuelle / 3 minutes (TECH-11).
+        // 3 min (au lieu de 10) car l'ajustement du nombre de pistes est un usage
+        // légitime fréquent, et chaque régénération est désormais peu coûteuse (Haiku).
         $key = 'grimoire-regen:' . $user->id;
         if (RateLimiter::tooManyAttempts($key, 1)) {
             $seconds = RateLimiter::availableIn($key);
-            return back()->withErrors(['regen' => "Vous pouvez régénérer dans {$seconds} secondes. (Limite : 1 fois par 10 minutes)"]);
+            $minutes = (int) ceil($seconds / 60);
+            return back()->withErrors(['regen' => "Tu pourras régénérer dans {$minutes} min ({$seconds} s). Limite : 1 fois par 3 minutes."]);
         }
-        RateLimiter::hit($key, 600);
+        RateLimiter::hit($key, 180);
 
         $grimoire = $user->getOrCreateGrimoire();
 

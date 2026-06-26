@@ -17,10 +17,8 @@ const p = props.profile || {}
 const manualCv = (p.cv_structured && p.cv_structured.source === 'manual') ? p.cv_structured : null
 
 const workSectorOptions = [
-    { value: 'private',     label: 'Secteur privé' },
-    { value: 'public',      label: 'Fonction publique' },
-    { value: 'independent', label: 'Indépendant / Freelance' },
-    { value: 'association', label: 'Association / ONG' },
+    { value: 'private', label: 'Privé' },
+    { value: 'public',  label: 'Public' },
 ]
 
 const form = useForm({
