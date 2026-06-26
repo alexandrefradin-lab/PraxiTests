@@ -69,6 +69,36 @@ class GenerateGlobalGrimoire implements ShouldQueue, ShouldBeUnique
             return;
         }
 
+        // Filet de sécurité : si OVH coupe le process PHP avant la fin du job
+        // (set_time_limit ignoré sur certaines configs), le Grimoire resterait
+        // bloqué sur "pending" indéfiniment. Ce shutdown handler s'exécute même
+        // si le process est tué par max_execution_time et garantit qu'on sort
+        // toujours de l'état pending (ready avec ancienne synthèse, ou failed).
+        $userId = $this->userId;
+        register_shutdown_function(function () use ($userId) {
+            try {
+                $g = \App\Models\ProfileGrimoire::where('user_id', $userId)->first();
+                if (!$g || $g->status !== 'pending') {
+                    return;
+                }
+                $meta = $g->ai_metadata ?? [];
+                $meta['last_failed_at'] = now()->toIso8601String();
+                if ($g->synthesis) {
+                    // Ancienne synthèse disponible → on revient à ready pour ne pas bloquer.
+                    $g->update(['status' => 'ready', 'ai_metadata' => $meta]);
+                } else {
+                    $g->update([
+                        'status'       => 'failed',
+                        'synthesis'    => "La relecture globale n'a pas pu être générée. Réessaie dans quelques minutes.",
+                        'generated_at' => now(),
+                        'ai_metadata'  => $meta,
+                    ]);
+                }
+            } catch (\Throwable $e) {
+                // Silence — on ne peut rien faire de plus dans un shutdown handler.
+            }
+        });
+
         $attempts = $service->completedAttempts($user);
         if ($attempts->isEmpty()) {
             return; // rien à relire

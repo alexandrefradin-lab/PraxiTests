@@ -36,11 +36,11 @@ class EnsureTwoFactorAuthenticated
         // SEC-M5 : Admin sans 2FA configuré → forcer l'activation
         if ($user->hasRole('admin') && !$user->hasTwoFactorEnabled()) {
             // Ne pas boucler si on est déjà sur la page d'activation
-            if (!$request->routeIs('two-factor.setup', 'two-factor.enable', 'logout')) {
+            if (!$request->routeIs('two-factor', 'two-factor.enable', 'logout')) {
                 if ($request->expectsJson()) {
                     return response()->json(['message' => 'Two factor authentication setup required for administrators.'], 403);
                 }
-                return redirect()->route('two-factor.setup')
+                return redirect()->route('two-factor')
                     ->with('warning', 'L\'authentification à deux facteurs est obligatoire pour les administrateurs.');
             }
             return $next($request);

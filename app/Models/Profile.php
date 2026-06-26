@@ -18,6 +18,8 @@ class Profile extends Model
         'status_months',
         'current_role',
         'industry',
+        'work_sector',
+        'hobbies',
         'problematique',
         'cv_path',
         'cv_original_name',

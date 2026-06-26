@@ -18,15 +18,15 @@ import { computed, getCurrentInstance } from 'vue'
 const props = defineProps({
     axes:       { type: Array,  default: () => [] },
     max:        { type: Number, default: 100 },
-    size:       { type: Number, default: 400 },
+    size:       { type: Number, default: 460 },
     accent:     { type: String, default: '#A67520' },
     rings:      { type: Number, default: 4 },
     showValues: { type: Boolean, default: true },
 })
 
-// ViewBox 540×540 — espace généreux pour les labels
-const VW = 540, VH = 540
-const CX = 270, CY = 270, R = 130
+// ViewBox 600×600 — espace généreux pour les labels
+const VW = 600, VH = 600
+const CX = 300, CY = 300, R = 155
 
 const pts = computed(() => {
     const n = props.axes.length || 1
@@ -34,8 +34,8 @@ const pts = computed(() => {
         const angle = (-Math.PI / 2) + (i * 2 * Math.PI / n)
         const ratio  = Math.max(0, Math.min(1, (a.value ?? 0) / (props.max || 100)))
         const cos = Math.cos(angle), sin = Math.sin(angle)
-        // offset label = R + 40px depuis le centre
-        const LP = 42
+        // offset label depuis le bord extérieur
+        const LP = 54
         return {
             ...a, angle, cos, sin, ratio,
             gx: CX + cos * R,
@@ -65,6 +65,7 @@ const ringPolys = computed(() => {
         const f = r / props.rings
         out.push({
             f,
+            label: Math.round(f * props.max),
             poly: pts.value
                 .map(p => `${(CX + p.cos * R * f).toFixed(1)},${(CY + p.sin * R * f).toFixed(1)}`)
                 .join(' '),
@@ -84,7 +85,15 @@ const tint = (hex, a) => {
     return `rgba(${r},${g},${b},${a})`
 }
 
-const fill = computed(() => tint(props.accent, 0.22))
+// Graduation du bord extérieur du spoke 0 (12h) pour les ring labels
+const ringLabelSpoke = computed(() => {
+    if (!pts.value.length) return null
+    // on utilise le spoke à 3h (cos positif) pour éviter collision avec labels
+    // en réalité on prend le spoke indexé à env 1/4 du cercle
+    const n = pts.value.length
+    const idx = Math.round(n / 4) % n
+    return pts.value[idx]
+})
 </script>
 
 <template>
@@ -96,15 +105,30 @@ const fill = computed(() => tint(props.accent, 0.22))
          :aria-label="`Graphique radar à ${axes.length} dimensions`">
 
         <defs>
+            <!-- Gradient radial pour le remplissage de la zone données -->
+            <radialGradient :id="`rc-grad-${uid}`" cx="50%" cy="50%" r="50%">
+                <stop offset="0%"   :stop-color="accent" stop-opacity="0.06"/>
+                <stop offset="100%" :stop-color="accent" stop-opacity="0.32"/>
+            </radialGradient>
+
             <!-- Filtre ombre portée légère sur le polygone data -->
             <filter :id="`rc-shadow-${uid}`" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur in="SourceAlpha" stdDeviation="5" result="blur"/>
+                <feGaussianBlur in="SourceAlpha" stdDeviation="6" result="blur"/>
                 <feOffset dx="0" dy="3" result="offset"/>
                 <feComponentTransfer result="shadow">
-                    <feFuncA type="linear" slope="0.15"/>
+                    <feFuncA type="linear" slope="0.18"/>
                 </feComponentTransfer>
                 <feMerge>
                     <feMergeNode in="shadow"/>
+                    <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+            </filter>
+
+            <!-- Filtre glow pour les points hauts scores -->
+            <filter :id="`rc-glow-${uid}`" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur"/>
+                <feMerge>
+                    <feMergeNode in="blur"/>
                     <feMergeNode in="SourceGraphic"/>
                 </feMerge>
             </filter>
@@ -112,7 +136,7 @@ const fill = computed(() => tint(props.accent, 0.22))
 
         <!-- Zone radar : fond parchemin clair -->
         <polygon :points="bgPoly"
-                 fill="rgba(250,248,244,0.85)"
+                 fill="rgba(250,248,244,0.90)"
                  stroke="none" />
 
         <!-- Anneaux de graduation -->
@@ -120,18 +144,19 @@ const fill = computed(() => tint(props.accent, 0.22))
                  :points="ring.poly"
                  fill="none"
                  :stroke="i === ringPolys.length - 1
-                    ? 'rgba(42,30,8,0.28)'
+                    ? 'rgba(42,30,8,0.30)'
                     : 'rgba(42,30,8,0.10)'"
-                 :stroke-width="i === ringPolys.length - 1 ? 1.5 : 1" />
+                 :stroke-width="i === ringPolys.length - 1 ? 1.5 : 1"
+                 :stroke-dasharray="i < ringPolys.length - 1 ? '4 3' : 'none'" />
 
         <!-- Rayons (spokes) -->
         <line v-for="(p, i) in pts" :key="'spoke'+i"
               :x1="CX" :y1="CY" :x2="p.gx" :y2="p.gy"
-              stroke="rgba(42,30,8,0.16)" stroke-width="1" />
+              stroke="rgba(42,30,8,0.14)" stroke-width="1" />
 
-        <!-- Polygone de données — avec ombre -->
+        <!-- Polygone de données — gradient + ombre -->
         <polygon :points="polygon"
-                 :fill="fill"
+                 :fill="`url(#rc-grad-${uid})`"
                  :stroke="accent"
                  stroke-width="2.5"
                  stroke-linejoin="round"
@@ -140,54 +165,74 @@ const fill = computed(() => tint(props.accent, 0.22))
 
         <!-- Halo + point sur chaque sommet -->
         <g v-for="(p, i) in pts" :key="'dot'+i">
-            <circle :cx="p.dx" :cy="p.dy" r="9"
-                    :fill="tint(p.color || accent, 0.18)" />
-            <circle :cx="p.dx" :cy="p.dy" r="4.5"
+            <!-- glow sur les scores élevés (>= 70) -->
+            <circle v-if="p.ratio >= 0.7"
+                    :cx="p.dx" :cy="p.dy" r="12"
+                    :fill="tint(p.color || accent, 0.22)"
+                    :filter="`url(#rc-glow-${uid})`" />
+            <!-- halo standard -->
+            <circle :cx="p.dx" :cy="p.dy" r="10"
+                    :fill="tint(p.color || accent, 0.15)" />
+            <!-- point central -->
+            <circle :cx="p.dx" :cy="p.dy" r="5.5"
                     :fill="p.color || accent"
-                    stroke="#FAF8F4" stroke-width="2" />
+                    stroke="#FAF8F4" stroke-width="2.5" />
         </g>
 
         <!-- Labels des axes -->
         <g v-for="(p, i) in pts" :key="'lbl'+i">
-            <!-- Fond blanc léger derrière le label pour lisibilité -->
-            <text :x="p.lx" :y="p.ly - (showValues ? 7 : 0)"
+            <!-- Halo de lisibilité (stroke blanc) -->
+            <text :x="p.lx" :y="p.ly - (showValues ? 8 : 0)"
                   :text-anchor="p.anchor"
                   dominant-baseline="middle"
                   font-family="'Space Grotesk','Inter','Segoe UI',system-ui,sans-serif"
-                  font-size="13.5"
+                  font-size="13"
                   font-weight="600"
-                  fill="#1C1408"
+                  :fill="p.color || '#1C1408'"
                   paint-order="stroke"
                   stroke="#FAF8F4"
-                  stroke-width="4"
+                  stroke-width="5"
                   stroke-linejoin="round">{{ p.label }}</text>
-            <text :x="p.lx" :y="p.ly - (showValues ? 7 : 0)"
+            <!-- Texte coloré avec la couleur de l'axe -->
+            <text :x="p.lx" :y="p.ly - (showValues ? 8 : 0)"
                   :text-anchor="p.anchor"
                   dominant-baseline="middle"
                   font-family="'Space Grotesk','Inter','Segoe UI',system-ui,sans-serif"
-                  font-size="13.5"
+                  font-size="13"
                   font-weight="600"
-                  fill="#1C1408">{{ p.label }}</text>
+                  :fill="p.color || '#1C1408'">{{ p.label }}</text>
 
+            <!-- Valeur numérique -->
             <text v-if="showValues"
                   :x="p.lx" :y="p.ly + 10"
                   :text-anchor="p.anchor"
                   dominant-baseline="middle"
                   font-family="'Space Mono','Roboto Mono','Courier New',monospace"
                   font-size="12"
-                  :fill="p.color || '#A67520'"
-                  font-weight="normal">{{ Math.round(p.value ?? 0) }}</text>
+                  :fill="p.color || accent"
+                  paint-order="stroke"
+                  stroke="#FAF8F4"
+                  stroke-width="3"
+                  font-weight="700">{{ Math.round(p.value ?? 0) }}</text>
+            <text v-if="showValues"
+                  :x="p.lx" :y="p.ly + 10"
+                  :text-anchor="p.anchor"
+                  dominant-baseline="middle"
+                  font-family="'Space Mono','Roboto Mono','Courier New',monospace"
+                  font-size="12"
+                  :fill="p.color || accent"
+                  font-weight="700">{{ Math.round(p.value ?? 0) }}</text>
         </g>
 
-        <!-- Légende des anneaux (droite, sur l'axe 12h) -->
+        <!-- Graduations sur le spoke 0 (12h) -->
         <g v-if="pts.length > 0">
             <text v-for="(ring, i) in ringPolys" :key="'rlbl'+i"
-                  :x="CX + 6"
+                  :x="CX + 5"
                   :y="CY - R * ring.f + 4"
                   font-family="'Space Mono','Courier New',monospace"
-                  font-size="9"
-                  fill="rgba(42,30,8,0.38)"
-                  text-anchor="start">{{ Math.round(ring.f * max) }}</text>
+                  font-size="8.5"
+                  fill="rgba(42,30,8,0.40)"
+                  text-anchor="start">{{ ring.label }}</text>
         </g>
 
     </svg>

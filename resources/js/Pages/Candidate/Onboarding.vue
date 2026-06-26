@@ -16,11 +16,20 @@ const isEdit = computed(() => !!(props.profile && props.profile.status))
 const p = props.profile || {}
 const manualCv = (p.cv_structured && p.cv_structured.source === 'manual') ? p.cv_structured : null
 
+const workSectorOptions = [
+    { value: 'private',     label: 'Secteur privé' },
+    { value: 'public',      label: 'Fonction publique' },
+    { value: 'independent', label: 'Indépendant / Freelance' },
+    { value: 'association', label: 'Association / ONG' },
+]
+
 const form = useForm({
     status: p.status || '',
     status_since: p.status_since ? String(p.status_since).slice(0, 10) : '',
     current_role: p.current_role || '',
     industry: p.industry || '',
+    work_sector: p.work_sector || '',
+    hobbies: p.hobbies || '',
     problematique: p.problematique || '',
     cv: null,
     // En édition, le consentement a déjà été donné lors de l'onboarding.
@@ -182,10 +191,39 @@ const onFileChange = (e) => {
                         </div>
                         <div>
                             <label for="ob-industry" class="block text-sm font-medium mb-1.5" style="color:var(--text-primary); font-family:'Inter',sans-serif;">
-                                Secteur
+                                Secteur d'activité
                                 <span class="font-normal text-xs" style="color:var(--text-secondary);">(optionnel)</span>
                             </label>
                             <input id="ob-industry" type="text" v-model="form.industry" class="pt-input" placeholder="Ex : Industrie">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="ob-work-sector" class="block text-sm font-medium mb-1.5" style="color:var(--text-primary); font-family:'Inter',sans-serif;">
+                                Public ou privé ?
+                                <span class="font-normal text-xs" style="color:var(--text-secondary);">(optionnel)</span>
+                            </label>
+                            <select id="ob-work-sector" v-model="form.work_sector" class="pt-input">
+                                <option value="">— Choisir —</option>
+                                <option v-for="opt in workSectorOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
+                            </select>
+                            <p v-if="form.errors.work_sector" class="text-xs mt-1" style="color:var(--color-secondary);">{{ form.errors.work_sector }}</p>
+                        </div>
+                        <div>
+                            <label for="ob-hobbies" class="block text-sm font-medium mb-1.5" style="color:var(--text-primary); font-family:'Inter',sans-serif;">
+                                Hobbies / loisirs
+                                <span class="font-normal text-xs" style="color:var(--text-secondary);">(optionnel)</span>
+                            </label>
+                            <input
+                                id="ob-hobbies"
+                                type="text"
+                                v-model="form.hobbies"
+                                class="pt-input"
+                                maxlength="500"
+                                placeholder="Ex : Photographie, randonnée, théâtre…"
+                            >
+                            <p v-if="form.errors.hobbies" class="text-xs mt-1" style="color:var(--color-secondary);">{{ form.errors.hobbies }}</p>
                         </div>
                     </div>
                 </div>
