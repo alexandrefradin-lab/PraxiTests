@@ -72,6 +72,9 @@ class GrimoireController extends Controller
             \Illuminate\Support\Facades\Cache::forget(
                 'laravel_unique_job:' . GenerateGlobalGrimoire::class . ':grimoire_user_' . $user->id
             );
+            // Libère aussi le rate limiter "Régénérer" : si le job était bloqué,
+            // l'utilisateur doit pouvoir relancer manuellement sans attendre 10 min.
+            RateLimiter::clear('grimoire-regen:' . $user->id);
         }
 
         if ($needsGeneration && ($grimoire->status !== 'failed' || $stuckPending) && !$recentlyFailed) {

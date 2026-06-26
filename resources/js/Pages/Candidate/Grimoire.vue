@@ -12,7 +12,7 @@ const props = defineProps({
 const voies = computed(() => props.grimoire?.voies ?? [])
 
 // ── Onglets ───────────────────────────────────────────────────────────────
-const pistesCount = ref(Math.min(50, props.grimoire?.requested_voies_count ?? 30))
+const pistesCount = ref(Math.min(50, props.grimoire?.requested_voies_count ?? 20))
 const tabs = computed(() => [
     { key: 'synthese', label: 'Relecture globale' },
     { key: 'tests',    label: 'Résultats des tests' },
@@ -207,11 +207,24 @@ function fitClass(score) {
                     Croisement de tes {{ tests.length }} épreuve{{ tests.length > 1 ? 's' : '' }} · 1 à 2 minutes
                 </p>
                 <div class="grim-rule"><span>&#10022;</span></div>
+                <!-- Slider toujours visible en pending pour permettre de changer le nombre avant relance -->
+                <div class="grim-pistes-picker grim-pistes-picker--pending">
+                    <label for="pistes-count-slider-pending" class="grim-picker-label">
+                        Pistes à générer : <strong>{{ pistesCount }}</strong>
+                    </label>
+                    <input
+                        id="pistes-count-slider-pending"
+                        type="range" min="5" max="50" step="5"
+                        v-model.number="pistesCount"
+                        class="grim-picker-range"
+                    />
+                    <div class="grim-picker-bounds"><span>5</span><span>50</span></div>
+                </div>
                 <!-- Bouton de secours si le job IA a été interrompu côté serveur -->
                 <div v-if="pendingTooLong" class="grim-stuck-notice">
                     <p class="grim-stuck-text">La relecture prend plus de temps que prévu.</p>
-                    <button class="ac-btn-secondary" @click="retryFromPending">
-                        Vérifier et relancer
+                    <button class="ac-btn-secondary" :disabled="refreshing" @click="regenerate">
+                        {{ refreshing ? 'Relecture en cours…' : 'Relancer avec ' + pistesCount + ' pistes' }}
                     </button>
                 </div>
             </div>
