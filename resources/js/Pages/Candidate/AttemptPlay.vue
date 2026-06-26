@@ -535,6 +535,36 @@ const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
     align-items: center;
     gap: 0.5rem;
     flex: 1;
+    min-width: 0;
+}
+
+.ac-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-primary);
+    text-decoration: none;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(166,117,32,0.35);
+    background: rgba(166,117,32,0.06);
+    flex-shrink: 0;
+    transition: background 0.15s, border-color 0.15s;
+}
+.ac-back-link:hover {
+    background: rgba(166,117,32,0.14);
+    border-color: var(--color-primary);
+}
+
+.ac-header-sep {
+    display: block;
+    width: 1px;
+    height: 16px;
+    background: var(--glass-border);
+    flex-shrink: 0;
 }
 
 .ac-logo {
