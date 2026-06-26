@@ -63,10 +63,13 @@ class GlobalGrimoireService
         $rawSynth = '';
         $rawVoies = '';
 
+        // max_tokens dynamique : ~160 tokens/voie compacte (>40), ~300 tokens/voie détaillée.
+        $voiesMaxTokens = min(16000, max(4000, $count * ($count > 40 ? 160 : 300)));
+
         try {
             $responses = $driver->chatMany([
                 'synthese' => ['messages' => $synthMessages, 'options' => ['temperature' => 0.6, 'max_tokens' => 2600]],
-                'voies'    => ['messages' => $voiesMessages, 'options' => ['temperature' => 0.6, 'max_tokens' => 8000]],
+                'voies'    => ['messages' => $voiesMessages, 'options' => ['temperature' => 0.6, 'max_tokens' => $voiesMaxTokens]],
             ]);
             $rawSynth = (string) ($responses['synthese'] ?? '');
             $rawVoies = (string) ($responses['voies'] ?? '');
@@ -84,7 +87,7 @@ class GlobalGrimoireService
             }
 
             try {
-                $rawVoies = (string) $driver->chat($voiesMessages, ['temperature' => 0.6, 'max_tokens' => 8000]);
+                $rawVoies = (string) $driver->chat($voiesMessages, ['temperature' => 0.6, 'max_tokens' => $voiesMaxTokens]);
             } catch (\Exception $eVoies) {
                 \Log::warning('Grimoire voies failed', ['user_id' => $user->id, 'error' => $eVoies->getMessage()]);
             }

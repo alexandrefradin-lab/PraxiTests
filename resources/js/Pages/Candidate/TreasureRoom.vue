@@ -98,7 +98,7 @@ const unlockedPct = computed(() => {
         </div>
 
         <!-- ── Grille des trésors ── -->
-        <div v-if="treasure.items.length > 0" class="grid md:grid-cols-2 gap-4">
+        <div v-if="treasure.items.length > 0" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <article
                 v-for="item in treasure.items"
                 :key="item.plugin_slug"
@@ -266,7 +266,4 @@ const unlockedPct = computed(() => {
     transform: rotate(-4deg) scale(1.05);
 }
 
-@media (max-width: 640px) {
-    .grid.md\:grid-cols-2 { grid-template-columns: 1fr; }
-}
 </style>

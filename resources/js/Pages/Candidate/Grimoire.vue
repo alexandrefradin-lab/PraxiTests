@@ -163,7 +163,7 @@ function regenerate() {
 function onTabKeydown(e) {
     if (!['ArrowLeft', 'ArrowRight'].includes(e.key)) return
     e.preventDefault()
-    const keys = tabs.map(t => t.key)
+    const keys = tabs.value.map(t => t.key)
     const current = keys.indexOf(activeTab.value)
     if (current === -1) return
     const next = e.key === 'ArrowRight'
@@ -291,6 +291,9 @@ function fitClass(score) {
 
                 <!-- ── Onglet 3 : Les 30 pistes ──────────────────────── -->
                 <div v-show="activeTab === 'pistes'" role="tabpanel" id="panel-pistes" aria-labelledby="tab-pistes">
+                    <p v-if="!voies.length" class="grim-voies-empty">
+                        Aucune piste générée pour l'instant. Choisis un nombre de pistes et clique sur « Régénérer le Grimoire ».
+                    </p>
                     <section v-if="voies.length" class="grim-voies">
                         <div class="grim-section-head">
                             <h2 class="grim-section-title">Tes Voies Possibles</h2>
@@ -847,6 +850,9 @@ function fitClass(score) {
 .grim-footer { text-align: center; margin-top: 3rem; }
 .grim-actions { display: flex; gap: .85rem; justify-content: center; flex-wrap: wrap; margin-top: 1.5rem; }
 .grim-disclaimer { font-family: var(--font-body, 'Inter', sans-serif); font-size: 13px; font-style: italic; color: var(--text-muted, #8C7A5E); max-width: 580px; margin: 1.5rem auto 0; line-height: 1.55; }
+
+/* ── Voies vides ─────────────────────────────────────────────────────── */
+.grim-voies-empty { text-align: center; padding: 2.5rem 1rem; font-family: var(--font-body, 'Inter', sans-serif); font-size: .97rem; color: var(--text-muted, #8C7A5E); font-style: italic; }
 
 /* ── Picker nombre de pistes ─────────────────────────────────────────── */
 .grim-pistes-picker { margin: 2rem auto 0; max-width: 440px; text-align: center; }

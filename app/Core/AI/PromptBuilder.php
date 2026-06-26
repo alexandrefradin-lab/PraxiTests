@@ -262,24 +262,38 @@ TXT;
 
         $context = $this->grimoireContext($user, $attempts);
 
-        $user_msg = "Voici l'ensemble des tests passés par le candidat :\n\n"
-            . json_encode($context, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
-            . "\n\nProduis un JSON STRICT avec une SEULE clé \"voies\" : EXACTEMENT {$count} pistes de "
-            . "métiers réalistes et accessibles sur le marché francophone actuel, classées du plus pertinent "
-            . "au moins pertinent, en variant les secteurs et les modèles (salariat / entrepreneuriat / freelance). "
-            . "Pour chaque piste : { \"titre\", \"secteur\", \"fit_score\" (0-100), \"pourquoi\" (50 mots max), "
-            . "\"appui_tests\" (liste des noms de tests qui soutiennent cette piste), "
-            . "\"prochaine_etape\" (action concrète), "
-            . "\"axes\" : un objet décrivant À QUEL POINT CE MÉTIER satisfait 5 critères, chacun noté 0-100 "
-            . "(0 = pas du tout, 100 = pleinement), en te basant sur la réalité du métier sur le marché francophone : "
-            . "{ \"remuneration\" (potentiel de rémunération), "
-            . "\"accessibilite\" (facilité/rapidité d'accès, formation courte), "
-            . "\"stabilite\" (sécurité de l'emploi, demande durable), "
-            . "\"autonomie\" (indépendance, possibilité freelance/entrepreneuriat), "
-            . "\"sens\" (utilité, impact, sens du travail) } }.\n\n"
-            . "Les scores d'axes décrivent le MÉTIER lui-même (pas le profil du candidat) et doivent être nuancés "
-            . "et différenciés d'une piste à l'autre — évite de tout mettre à 50 ou à 80.\n\n"
-            . "Format attendu : { \"voies\": [ { ..., \"axes\": { \"remuneration\": 0-100, \"accessibilite\": 0-100, \"stabilite\": 0-100, \"autonomie\": 0-100, \"sens\": 0-100 } }, ... ] }";
+        if ($count > 40) {
+            // Format compact : on supprime les axes et on réduit pourquoi/prochaine_etape
+            // pour tenir dans le budget de tokens (160 tokens/voie environ).
+            $user_msg = "Voici l'ensemble des tests passés par le candidat :\n\n"
+                . json_encode($context, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
+                . "\n\nProduis un JSON STRICT avec une SEULE clé \"voies\" : EXACTEMENT {$count} pistes de "
+                . "métiers réalistes et accessibles sur le marché francophone actuel, classées du plus pertinent "
+                . "au moins pertinent, en variant secteurs et modèles (salariat / entrepreneuriat / freelance). "
+                . "Format COMPACT pour chaque piste (sois BREF) : "
+                . "{ \"titre\", \"secteur\", \"fit_score\" (0-100), \"pourquoi\" (20 mots max), "
+                . "\"prochaine_etape\" (15 mots max) }. "
+                . "Pas de champ \"axes\" ni \"appui_tests\". Réponse JSON pure, sans texte hors-JSON.";
+        } else {
+            $user_msg = "Voici l'ensemble des tests passés par le candidat :\n\n"
+                . json_encode($context, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
+                . "\n\nProduis un JSON STRICT avec une SEULE clé \"voies\" : EXACTEMENT {$count} pistes de "
+                . "métiers réalistes et accessibles sur le marché francophone actuel, classées du plus pertinent "
+                . "au moins pertinent, en variant les secteurs et les modèles (salariat / entrepreneuriat / freelance). "
+                . "Pour chaque piste : { \"titre\", \"secteur\", \"fit_score\" (0-100), \"pourquoi\" (50 mots max), "
+                . "\"appui_tests\" (liste des noms de tests qui soutiennent cette piste), "
+                . "\"prochaine_etape\" (action concrète), "
+                . "\"axes\" : un objet décrivant À QUEL POINT CE MÉTIER satisfait 5 critères, chacun noté 0-100 "
+                . "(0 = pas du tout, 100 = pleinement), en te basant sur la réalité du métier sur le marché francophone : "
+                . "{ \"remuneration\" (potentiel de rémunération), "
+                . "\"accessibilite\" (facilité/rapidité d'accès, formation courte), "
+                . "\"stabilite\" (sécurité de l'emploi, demande durable), "
+                . "\"autonomie\" (indépendance, possibilité freelance/entrepreneuriat), "
+                . "\"sens\" (utilité, impact, sens du travail) } }.\n\n"
+                . "Les scores d'axes décrivent le MÉTIER lui-même (pas le profil du candidat) et doivent être nuancés "
+                . "et différenciés d'une piste à l'autre — évite de tout mettre à 50 ou à 80.\n\n"
+                . "Format attendu : { \"voies\": [ { ..., \"axes\": { \"remuneration\": 0-100, \"accessibilite\": 0-100, \"stabilite\": 0-100, \"autonomie\": 0-100, \"sens\": 0-100 } }, ... ] }";
+        }
 
         return [
             ['role' => 'system', 'content' => $system],
