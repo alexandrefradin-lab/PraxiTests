@@ -42,7 +42,8 @@ class GlobalGrimoireService
             ? $requested
             : (int) config('ai.tasks.global_grimoire.count', 30);
 
-        $driver        = $this->ai->forTask('global_grimoire');
+        $driver        = $this->ai->forTask('global_grimoire');        // synthèse → Sonnet (rédactionnel)
+        $voiesDriver   = $this->ai->forTask('global_grimoire_voies');  // voies → Haiku (structuré, 3× moins cher)
         $signature     = $this->signature($attempts);
         $testsIncluded = $this->testsIncluded($attempts);
 
@@ -132,7 +133,7 @@ class GlobalGrimoireService
 
         $rawVoies = '';
         try {
-            $rawVoies = (string) $driver->chat($voiesMessages, ['temperature' => 0.6, 'max_tokens' => $voiesMaxTokens]);
+            $rawVoies = (string) $voiesDriver->chat($voiesMessages, ['temperature' => 0.6, 'max_tokens' => $voiesMaxTokens]);
         } catch (\Exception $eVoies) {
             \Log::warning('Grimoire voies failed', ['user_id' => $user->id, 'error' => $eVoies->getMessage()]);
         }
@@ -142,7 +143,7 @@ class GlobalGrimoireService
         $voies     = $this->extractVoies($jsonVoies);
         $voies     = PluginHooks::applyFilters('grimoire.voies', $voies, $user, $attempts);
 
-        $usageVoies = $driver->lastUsage();
+        $usageVoies = $voiesDriver->lastUsage();
 
         $grimoire = $user->getOrCreateGrimoire();
 

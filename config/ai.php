@@ -18,6 +18,17 @@ return [
             'temperature' => 0.7,
             'max_tokens'  => 4000,
         ],
+
+        // Même fournisseur (Anthropic), modèle ÉCONOMIQUE (Haiku ≈ 3× moins cher que
+        // Sonnet : 1$/5$ vs 3$/15$ par M tokens). Utilisé pour les tâches structurées
+        // ou peu rédactionnelles (extraction CV, emails, suggestions, voies du Grimoire).
+        'anthropic_haiku' => [
+            'driver' => Praxis\Core\AI\Drivers\AnthropicDriver::class,
+            'api_key' => env('ANTHROPIC_API_KEY'),
+            'model'   => env('ANTHROPIC_HAIKU_MODEL', 'claude-haiku-4-5-20251001'),
+            'temperature' => 0.6,
+            'max_tokens'  => 4000,
+        ],
         'mistral' => [
             'driver' => Praxis\Core\AI\Drivers\MistralDriver::class,
             'api_key' => env('MISTRAL_API_KEY'),
@@ -30,32 +41,47 @@ return [
         ],
     ],
 
+    // NB : 'driver' désigne une entrée de 'drivers' ci-dessus. null = défaut (anthropic/Sonnet).
+    // 'anthropic_haiku' = même fournisseur, modèle économique (Haiku). Choix par tâche
+    // pour ne payer Sonnet QUE sur le rédactionnel (synthèses, relecture, Oracle) et
+    // basculer les tâches structurées/extraction vers Haiku. Sera surchargeable en admin (Phase 2).
     'tasks' => [
+        // Rédactionnel, qualité importante → Sonnet.
         'profile_synthesis' => [
-            'driver' => null, // null = default
+            'driver' => null, // null = default (Sonnet)
             'system_prompt_view' => 'ai.prompts.synthesis-system',
         ],
+        // Liste structurée de métiers → Haiku suffit. count 30→15 (aligné sur le produit : "15 idées de métiers").
         'job_suggestions' => [
-            'driver' => null,
+            'driver' => 'anthropic_haiku',
             'system_prompt_view' => 'ai.prompts.jobs-system',
-            'count' => 30,
+            'count' => 15,
         ],
+        // Grimoire — SYNTHÈSE (relecture rédactionnelle) → Sonnet.
         'global_grimoire' => [
-            'driver' => null,            // = défaut (anthropic)
+            'driver' => null,            // = défaut (Sonnet)
             'prompt_version' => '1.1',   // 1.1 = pistes compactes + génération progressive
             'count' => 30,               // nombre de "Voies Possibles" par défaut (max 50). Format compact => 30 tient en <30s.
         ],
+        // Grimoire — VOIES (liste structurée compacte) → Haiku (3× moins cher).
+        'global_grimoire_voies' => [
+            'driver' => 'anthropic_haiku',
+        ],
+        // Extraction JSON pure → Haiku.
         'cv_extract' => [
-            'driver' => null,
+            'driver' => 'anthropic_haiku',
             'system_prompt_view' => 'ai.prompts.cv-extract-system',
         ],
+        // Personnalisation d'email → Haiku.
         'email_personalization' => [
-            'driver' => null,
+            'driver' => 'anthropic_haiku',
             'system_prompt_view' => 'ai.prompts.email-system',
         ],
+        // Oracle conversationnel → Sonnet (qualité), mais on réduit l'historique rejoué
+        // (20→10) pour diviser par ~2 les tokens d'entrée sur les conversations longues.
         'oracle_chat' => [
-            'driver' => null,            // = défaut (anthropic)
-            'history_limit' => 20,       // nombre de messages (user+assistant) rejoués dans le prompt
+            'driver' => null,            // = défaut (Sonnet)
+            'history_limit' => 10,       // nombre de messages (user+assistant) rejoués dans le prompt
         ],
     ],
 ];
