@@ -160,11 +160,11 @@ const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
             <div class="ac-header-inner">
                 <!-- Retour armurerie + logo + nom test -->
                 <div class="ac-header-left">
-                    <Link :href="route('tests.index')" class="ac-back-link" title="Retour à l'Armurerie">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <path d="M19 12H5M5 12l7-7M5 12l7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <Link :href="route('tests.index')" class="ac-back-link">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M19 12H5M5 12l7-7M5 12l7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
-                        <span class="ac-back-label">Armurerie</span>
+                        Armurerie
                     </Link>
                     <span class="ac-header-sep" aria-hidden="true"></span>
                     <span class="ac-logo">P</span>
