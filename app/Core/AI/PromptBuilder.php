@@ -138,12 +138,14 @@ TXT;
 
         $context = [
             'profil' => [
-                'statut'     => $profile?->status,
-                'depuis'     => $profile?->status_since?->format('Y-m'),
-                'rôle'       => $profile?->current_role,
-                'industrie'  => $profile?->industry,
-                'problématique' => $this->safeProfileText($profile?->problematique),
-                'cv_extrait' => $this->safeCvStructured($profile?->cv_structured),
+                'statut'          => $profile?->status,
+                'depuis'          => $profile?->status_since?->format('Y-m'),
+                'rôle'            => $profile?->current_role,
+                'industrie'       => $profile?->industry,
+                'secteur_emploi'  => $this->workSectorLabel($profile?->work_sector),
+                'hobbies_loisirs' => $this->hobbiesContext($profile?->hobbies),
+                'problématique'   => $this->safeProfileText($profile?->problematique),
+                'cv_extrait'      => $this->safeCvStructured($profile?->cv_structured),
             ],
             'tests'  => $tests,
         ];
@@ -192,12 +194,14 @@ TXT;
 
         return [
             'profil' => [
-                'statut'        => $profile?->status,
-                'depuis'        => $profile?->status_since?->format('Y-m'),
-                'rôle'          => $profile?->current_role,
-                'industrie'     => $profile?->industry,
-                'problématique' => $this->safeProfileText($profile?->problematique),
-                'cv_extrait'    => $this->safeCvStructured($profile?->cv_structured),
+                'statut'          => $profile?->status,
+                'depuis'          => $profile?->status_since?->format('Y-m'),
+                'rôle'            => $profile?->current_role,
+                'industrie'       => $profile?->industry,
+                'secteur_emploi'  => $this->workSectorLabel($profile?->work_sector),
+                'hobbies_loisirs' => $this->hobbiesContext($profile?->hobbies),
+                'problématique'   => $this->safeProfileText($profile?->problematique),
+                'cv_extrait'      => $this->safeCvStructured($profile?->cv_structured),
             ],
             'tests'  => $tests,
         ];
@@ -302,12 +306,14 @@ TXT;
 
         $context = [
             'profil' => [
-                'statut'     => $profile?->status,
-                'depuis'     => $profile?->status_since?->format('Y-m'),
-                'rôle'       => $profile?->current_role,
-                'industrie'  => $profile?->industry,
-                'problématique' => $this->safeProfileText($profile?->problematique),
-                'cv_extrait' => $this->safeCvStructured($profile?->cv_structured),
+                'statut'          => $profile?->status,
+                'depuis'          => $profile?->status_since?->format('Y-m'),
+                'rôle'            => $profile?->current_role,
+                'industrie'       => $profile?->industry,
+                'secteur_emploi'  => $this->workSectorLabel($profile?->work_sector),
+                'hobbies_loisirs' => $this->hobbiesContext($profile?->hobbies),
+                'problématique'   => $this->safeProfileText($profile?->problematique),
+                'cv_extrait'      => $this->safeCvStructured($profile?->cv_structured),
             ],
             'test' => [
                 'nom'  => $test->name,
@@ -377,10 +383,12 @@ TXT;
 
         $payload = json_encode([
             'profil'    => [
-                'statut'   => $profile?->status,
-                'rôle'     => $profile?->current_role,
-                'problématique' => $this->safeProfileText($profile?->problematique),
-                'cv'       => $this->safeCvStructured($profile?->cv_structured),
+                'statut'          => $profile?->status,
+                'rôle'            => $profile?->current_role,
+                'secteur_emploi'  => $this->workSectorLabel($profile?->work_sector),
+                'hobbies_loisirs' => $this->hobbiesContext($profile?->hobbies),
+                'problématique'   => $this->safeProfileText($profile?->problematique),
+                'cv'              => $this->safeCvStructured($profile?->cv_structured),
             ],
             'scoring'   => $scoring,
             'synthèse'  => $synth,
@@ -409,6 +417,45 @@ TXT;
         return [
             ['role' => 'system', 'content' => $system],
             ['role' => 'user',   'content' => $user_msg],
+        ];
+    }
+
+    /**
+     * Traduit la clé work_sector en label lisible pour les prompts IA.
+     */
+    protected function workSectorLabel(?string $key): ?string
+    {
+        return match ($key) {
+            'public'      => 'Fonction publique',
+            'private'     => 'Secteur privé',
+            'independent' => 'Indépendant / Freelance',
+            'association' => 'Association / ONG',
+            default       => null,
+        };
+    }
+
+    /**
+     * Prépare les hobbies pour le prompt IA.
+     *
+     * Les loisirs éclairent la personnalité et les soft skills, mais ne sont PAS
+     * une piste de reconversion en soi : l'IA ne doit pas suggérer "deviens coach
+     * de tennis" parce que la personne joue au tennis le week-end.
+     * On encapsule la donnée avec une note d'usage pour cadrer l'interprétation.
+     */
+    protected function hobbiesContext(?string $hobbies): ?array
+    {
+        $text = $this->safeProfileText($hobbies, 500);
+        if ($text === null) {
+            return null;
+        }
+
+        return [
+            'valeur' => $text,
+            'note_usage_ia' => 'Ces loisirs sont pratiqués à titre amateur. '
+                . 'Utilise-les uniquement pour enrichir la compréhension de la personnalité '
+                . '(curiosités, énergie, soft skills) et pour nuancer le "pourquoi" d\'une piste. '
+                . 'Ne propose PAS de reconversion directe vers un loisir sauf si la problématique '
+                . 'ou le CV indique explicitement un niveau semi-professionnel ou une aspiration claire.',
         ];
     }
 
