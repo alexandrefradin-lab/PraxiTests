@@ -124,12 +124,16 @@ class GlobalGrimoireService
         ]);
 
         // ── ÉTAPE 2 : voies métiers (format compact, nombreuses, fiables) ───
-        $voiesMessages = $this->prompts->globalGrimoireVoies($user, $attempts, $count);
+        // Sur-demande : Haiku (modèle économique) sous-livre parfois le compte exact
+        // (ex. 27 au lieu de 30). On demande ~20 % de plus, puis on tronque au nombre
+        // voulu → l'utilisateur obtient bien $count pistes (et jamais davantage).
+        $genCount = min(60, $count + max(3, (int) ceil($count * 0.2)));
+        $voiesMessages = $this->prompts->globalGrimoireVoies($user, $attempts, $genCount);
         $voiesMessages = PluginHooks::applyFilters('ai.grimoire.voies_messages', $voiesMessages, $user, $attempts);
 
         // ~120 tokens / voie compacte → on prévoit large (×160) pour ne JAMAIS
         // tronquer le JSON (la troncature = pistes perdues = "seulement 15").
-        $voiesMaxTokens = min(16000, max(3000, $count * 160));
+        $voiesMaxTokens = min(20000, max(3000, $genCount * 160));
 
         $rawVoies = '';
         try {
@@ -141,6 +145,8 @@ class GlobalGrimoireService
         $rawVoies  = PluginHooks::applyFilters('ai.grimoire.voies_output', $rawVoies, $user, $attempts);
         $jsonVoies = $this->parseJson($rawVoies);
         $voies     = $this->extractVoies($jsonVoies);
+        // On tronque au nombre RÉELLEMENT demandé (la sur-demande sert juste de marge).
+        $voies     = array_slice($voies, 0, $count);
         $voies     = PluginHooks::applyFilters('grimoire.voies', $voies, $user, $attempts);
 
         $usageVoies = $voiesDriver->lastUsage();
