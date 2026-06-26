@@ -12,7 +12,7 @@ const props = defineProps({
 const voies = computed(() => props.grimoire?.voies ?? [])
 
 // ── Onglets ───────────────────────────────────────────────────────────────
-const pistesCount = ref(props.grimoire?.requested_voies_count ?? 30)
+const pistesCount = ref(Math.min(50, props.grimoire?.requested_voies_count ?? 30))
 const tabs = computed(() => [
     { key: 'synthese', label: 'Relecture globale' },
     { key: 'tests',    label: 'Résultats des tests' },
@@ -374,11 +374,11 @@ function fitClass(score) {
                         <input
                             id="pistes-count-slider"
                             type="range"
-                            min="5" max="100" step="5"
+                            min="5" max="50" step="5"
                             v-model.number="pistesCount"
                             class="grim-picker-range"
                         />
-                        <div class="grim-picker-bounds"><span>5</span><span>100</span></div>
+                        <div class="grim-picker-bounds"><span>5</span><span>50</span></div>
                     </div>
                     <div class="grim-actions">
                         <a v-if="grimoire?.status === 'ready'" :href="route('grimoire.pdf')" class="ac-btn-primary">

@@ -228,7 +228,7 @@ class GrimoireController extends Controller
             // voit needsGeneration=true. La valeur $pending est calculée AVANT afterResponse,
             // donc ai_pending=true est retourné immédiatement au client → pending screen OK.
             $requestedCount = (int) $request->input('count', 30);
-            $requestedCount = max(1, min(100, $requestedCount));
+            $requestedCount = max(1, min(50, $requestedCount));
 
             $meta = $grimoire->ai_metadata ?? [];
             $meta['requested_voies_count'] = $requestedCount;

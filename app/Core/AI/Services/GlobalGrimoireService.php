@@ -38,7 +38,7 @@ class GlobalGrimoireService
 
         $grimoire = $user->getOrCreateGrimoire();
         $requested = (int) ($grimoire->ai_metadata['requested_voies_count'] ?? 0);
-        $count = ($requested >= 1 && $requested <= 100)
+        $count = ($requested >= 1 && $requested <= 50)
             ? $requested
             : (int) config('ai.tasks.global_grimoire.count', 30);
 
