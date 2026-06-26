@@ -138,15 +138,21 @@ it('re-dispatches generation when a new test makes the grimoire stale', function
     ProfileGrimoire::create([
         'user_id'         => $user->id,
         'synthesis'       => 'Ancienne relecture.',
-        'voies'           => [],
+        'voies'           => [['titre' => 'Ancienne piste']],
         'tests_signature' => 'signature-perimee',
         'status'          => 'ready',
         'generated_at'    => now()->subDay(),
     ]);
 
+    // Génération progressive : on garde l'ancienne synthèse à l'écran (donc pas
+    // d'écran d'attente pleine page : ai_pending=false), mais les pistes sont
+    // marquées "en cours" (voies_pending=true) et le job est (re)dispatché.
     $this->actingAs($user)
         ->get(route('grimoire.show'))
-        ->assertInertia(fn ($page) => $page->where('ai_pending', true));
+        ->assertInertia(fn ($page) => $page
+            ->where('ai_pending', false)
+            ->where('voies_pending', true)
+        );
 
     Queue::assertPushed(GenerateGlobalGrimoire::class);
 });

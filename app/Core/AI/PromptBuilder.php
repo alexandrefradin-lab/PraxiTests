@@ -248,52 +248,54 @@ TXT;
 
     /**
      * Grimoire — PROMPT 2/2 : uniquement les {count} voies métiers.
-     * Conçu pour tourner EN PARALLÈLE avec globalGrimoireSynthese() (Http::pool).
+     *
+     * Format COMPACT unique (v1.1) : chaque piste reste légère (~120 tokens) pour
+     * pouvoir en générer beaucoup, vite et de façon FIABLE (le format riche d'avant
+     * — 50 mots de "pourquoi" + appui_tests — faisait sous-livrer le modèle et
+     * tronquait le JSON, d'où les ~15 pistes au lieu du nombre demandé).
+     * On conserve "axes" (5 entiers) car ils alimentent les curseurs de préférences
+     * côté front ; on supprime "appui_tests" (le champ le plus coûteux et le moins
+     * utile sur une carte). Le détail (axes, prochaine étape) s'affiche au clic.
      */
     public function globalGrimoireVoies(User $user, Collection $attempts, int $count = 100): array
     {
         $system = <<<TXT
 Tu es un consultant en orientation professionnelle senior qui propose des métiers réalistes, alignés sur le profil et le marché du travail français/francophone actuel.
 Tu croises l'ensemble des tests du candidat pour fonder chaque piste. Tu ne proposes que des métiers existants et accessibles.
-Tu varies les secteurs et les modèles (salariat / entrepreneuriat / freelance).
+Tu varies les secteurs et les modèles (salariat / entrepreneuriat / freelance) et tu ne répètes jamais deux fois le même métier.
 Tu ne donnes JAMAIS de conseils médicaux, juridiques ou financiers. Tu n'inventes pas de scores qu'on ne t'a pas donnés.
 Tu réponds STRICTEMENT en JSON valide, sans texte hors-JSON, sans bloc ```.
 TXT;
 
         $context = $this->grimoireContext($user, $attempts);
 
-        if ($count > 40) {
-            // Format compact : on supprime les axes et on réduit pourquoi/prochaine_etape
-            // pour tenir dans le budget de tokens (160 tokens/voie environ).
-            $user_msg = "Voici l'ensemble des tests passés par le candidat :\n\n"
-                . json_encode($context, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
-                . "\n\nProduis un JSON STRICT avec une SEULE clé \"voies\" : EXACTEMENT {$count} pistes de "
-                . "métiers réalistes et accessibles sur le marché francophone actuel, classées du plus pertinent "
-                . "au moins pertinent, en variant secteurs et modèles (salariat / entrepreneuriat / freelance). "
-                . "Format COMPACT pour chaque piste (sois BREF) : "
-                . "{ \"titre\", \"secteur\", \"fit_score\" (0-100), \"pourquoi\" (20 mots max), "
-                . "\"prochaine_etape\" (15 mots max) }. "
-                . "Pas de champ \"axes\" ni \"appui_tests\". Réponse JSON pure, sans texte hors-JSON.";
-        } else {
-            $user_msg = "Voici l'ensemble des tests passés par le candidat :\n\n"
-                . json_encode($context, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
-                . "\n\nProduis un JSON STRICT avec une SEULE clé \"voies\" : EXACTEMENT {$count} pistes de "
-                . "métiers réalistes et accessibles sur le marché francophone actuel, classées du plus pertinent "
-                . "au moins pertinent, en variant les secteurs et les modèles (salariat / entrepreneuriat / freelance). "
-                . "Pour chaque piste : { \"titre\", \"secteur\", \"fit_score\" (0-100), \"pourquoi\" (50 mots max), "
-                . "\"appui_tests\" (liste des noms de tests qui soutiennent cette piste), "
-                . "\"prochaine_etape\" (action concrète), "
-                . "\"axes\" : un objet décrivant À QUEL POINT CE MÉTIER satisfait 5 critères, chacun noté 0-100 "
-                . "(0 = pas du tout, 100 = pleinement), en te basant sur la réalité du métier sur le marché francophone : "
-                . "{ \"remuneration\" (potentiel de rémunération), "
-                . "\"accessibilite\" (facilité/rapidité d'accès, formation courte), "
-                . "\"stabilite\" (sécurité de l'emploi, demande durable), "
-                . "\"autonomie\" (indépendance, possibilité freelance/entrepreneuriat), "
-                . "\"sens\" (utilité, impact, sens du travail) } }.\n\n"
-                . "Les scores d'axes décrivent le MÉTIER lui-même (pas le profil du candidat) et doivent être nuancés "
-                . "et différenciés d'une piste à l'autre — évite de tout mettre à 50 ou à 80.\n\n"
-                . "Format attendu : { \"voies\": [ { ..., \"axes\": { \"remuneration\": 0-100, \"accessibilite\": 0-100, \"stabilite\": 0-100, \"autonomie\": 0-100, \"sens\": 0-100 } }, ... ] }";
-        }
+        $user_msg = "Voici l'ensemble des tests passés par le candidat :\n\n"
+            . json_encode($context, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
+            . "\n\nProduis un JSON STRICT avec une SEULE clé \"voies\" : EXACTEMENT {$count} pistes de "
+            . "métiers réalistes et accessibles sur le marché francophone actuel, classées du plus pertinent "
+            . "au moins pertinent, en variant les secteurs ET les modèles (salariat / entrepreneuriat / freelance). "
+            . "Ne propose jamais deux fois le même métier.\n"
+            . "Pour chaque piste, un objet COMPACT (va à l'essentiel, sois BREF) :\n"
+            . "{ \"titre\", "
+            . "\"secteur\", "
+            . "\"modele\" (l'un de : \"salariat\", \"freelance\", \"entrepreneuriat\"), "
+            . "\"fit_score\" (0-100 : pertinence pour CE profil précis), "
+            . "\"pourquoi\" (UNE phrase, 20 mots max), "
+            . "\"prochaine_etape\" (action concrète, 12 mots max), "
+            . "\"axes\" : 5 entiers 0-100 décrivant LE MÉTIER lui-même (pas le profil), nuancés et "
+            . "différenciés d'une piste à l'autre (évite de tout mettre à 50 ou 80) — "
+            . "{ \"remuneration\" (potentiel de salaire), "
+            . "\"accessibilite\" (formation courte, accès rapide), "
+            . "\"stabilite\" (sécurité de l'emploi, demande durable), "
+            . "\"autonomie\" (indépendance, freelance/entreprendre possible), "
+            . "\"sens\" (utilité, impact) } }.\n\n"
+            . "N'inclus PAS de champ \"appui_tests\". Aucun texte hors-JSON, pas de bloc ```.\n"
+            . "Format attendu : { \"voies\": [ { \"titre\":\"…\", \"secteur\":\"…\", \"modele\":\"…\", "
+            . "\"fit_score\":0, \"pourquoi\":\"…\", \"prochaine_etape\":\"…\", "
+            . "\"axes\":{ \"remuneration\":0, \"accessibilite\":0, \"stabilite\":0, \"autonomie\":0, \"sens\":0 } }, … ] }\n\n"
+            . "CONTRÔLE FINAL OBLIGATOIRE : compte les objets de ton tableau \"voies\" — il doit y en avoir "
+            . "EXACTEMENT {$count}, ni plus ni moins. S'il en manque, complète avec des pistes crédibles "
+            . "supplémentaires (autres secteurs) avant de répondre.";
 
         return [
             ['role' => 'system', 'content' => $system],

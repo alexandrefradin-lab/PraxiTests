@@ -3,16 +3,17 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { Head, Link, router } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 const props = defineProps({
-    grimoire:   Object,
-    tests:      Array,
-    ai_pending: Boolean,
-    is_empty:   Boolean,
+    grimoire:      Object,
+    tests:         Array,
+    ai_pending:    Boolean,
+    voies_pending: Boolean,   // synthèse affichée, mais pistes encore en génération
+    is_empty:      Boolean,
 })
 
 const voies = computed(() => props.grimoire?.voies ?? [])
 
 // ── Onglets ───────────────────────────────────────────────────────────────
-const pistesCount = ref(Math.min(50, props.grimoire?.requested_voies_count ?? 20))
+const pistesCount = ref(Math.min(50, props.grimoire?.requested_voies_count ?? 30))
 const tabs = computed(() => [
     { key: 'synthese', label: 'Relecture globale' },
     { key: 'tests',    label: 'Résultats des tests' },
@@ -76,6 +77,26 @@ const rankedVoies = computed(() => {
         .map(x => x.v)
 })
 
+// ── Cartes dépliables : détail (axes + prochaine étape) au clic ──────────
+// On garde un Set d'index dépliés. Cartes compactes par défaut (scannables),
+// le détail s'ouvre à la demande — c'est le « détail au clic ».
+const expanded = ref(new Set())
+function toggleCard(i) {
+    const s = new Set(expanded.value)
+    s.has(i) ? s.delete(i) : s.add(i)
+    expanded.value = s
+}
+function isExpanded(i) { return expanded.value.has(i) }
+
+// Libellé lisible du modèle d'exercice (salariat / freelance / entrepreneuriat).
+function modeleLabel(m) {
+    return ({
+        salariat: 'Salariat',
+        freelance: 'Freelance',
+        entrepreneuriat: 'Entrepreneuriat',
+    })[String(m || '').toLowerCase()] || null
+}
+
 // Découpe la synthèse en paragraphes affichables.
 const synthParagraphs = computed(() => {
     let raw = (props.grimoire?.synthesis || '').trim()
@@ -110,9 +131,9 @@ const synthParagraphs = computed(() => {
 let timer = null
 let pollCount = ref(0)  // nombre de polls depuis le démarrage
 
-// Affiche un bouton "Réessayer" dans l'écran pending si > 3 min sans réponse.
-// Permet à l'utilisateur de sortir manuellement si le job OVH a été tué.
-const pendingTooLong = computed(() => pollCount.value >= 36) // 36 × 5s = 3 min
+// Affiche un bouton "Réessayer" dans l'écran pending si > 5 min sans réponse.
+// Avec QUEUE_CONNECTION=database le job peut démarrer jusqu'à 1 min après le dispatch.
+const pendingTooLong = computed(() => pollCount.value >= 60) // 60 × 5s = 5 min
 
 function startPolling() {
     if (timer) return
@@ -122,14 +143,21 @@ function startPolling() {
             const r = await fetch(route('grimoire.status'), { headers: { Accept: 'application/json' } })
             const data = await r.json()
             pollCount.value++
-            if (data.ready || data.failed || data.stuck) {
+
+            // Deux jalons : on attend la SYNTHÈSE (écran pleine page) puis les VOIES
+            // (loader dans l'onglet Pistes). On recharge dès que le jalon courant est
+            // atteint — la synthèse s'affiche sans attendre la fin des pistes.
+            const target = props.ai_pending
+                ? (data.synthese_ready || data.failed || data.stuck)
+                : (data.voies_ready || data.failed || data.stuck)
+
+            if (target) {
                 stopPolling()
-                // Recharge complète : synthèse, voies, tests et pistes d'un coup.
-                // Si stuck, le contrôleur purge le verrou et redispatch automatiquement.
+                // Recharge partielle : on rafraîchit la page (synthèse + voies + flags).
                 router.reload()
             }
         } catch (e) { /* retry au prochain tick */ }
-    }, 5000)
+    }, 4000)
 }
 function stopPolling() {
     if (timer) { clearInterval(timer); timer = null }
@@ -142,11 +170,14 @@ function retryFromPending() {
     router.reload()
 }
 
-onMounted(() => { if (props.ai_pending) startPolling() })
-watch(() => props.ai_pending, (pending) => {
-    if (pending) startPolling()
+// Démarre le polling tant qu'il reste quelque chose à attendre (synthèse OU voies).
+function maybePoll() {
+    if (props.ai_pending || props.voies_pending) startPolling()
     else stopPolling()
-})
+}
+onMounted(maybePoll)
+watch(() => props.ai_pending, maybePoll)
+watch(() => props.voies_pending, maybePoll)
 onUnmounted(stopPolling)
 
 const refreshing = ref(false)
@@ -302,9 +333,17 @@ function fitClass(score) {
                     </section>
                 </div>
 
-                <!-- ── Onglet 3 : Les 30 pistes ──────────────────────── -->
+                <!-- ── Onglet 3 : Les pistes ─────────────────────────── -->
                 <div v-show="activeTab === 'pistes'" role="tabpanel" id="panel-pistes" aria-labelledby="tab-pistes">
-                    <p v-if="!voies.length" class="grim-voies-empty">
+                    <!-- Pistes en cours de génération (la synthèse, elle, est déjà là) -->
+                    <div v-if="voies_pending && !voies.length" class="grim-voies-loading">
+                        <div class="grim-pulse-dots"><span></span><span></span><span></span></div>
+                        <p class="grim-voies-loading-text">
+                            L'oracle trace tes <strong>{{ pistesCount }}</strong> pistes métiers…
+                        </p>
+                        <p class="grim-voies-loading-sub">Quelques secondes — la relecture est déjà disponible dans l'onglet précédent.</p>
+                    </div>
+                    <p v-else-if="!voies.length" class="grim-voies-empty">
                         Aucune piste générée pour l'instant. Choisis un nombre de pistes et clique sur « Régénérer le Grimoire ».
                     </p>
                     <section v-if="voies.length" class="grim-voies">
@@ -343,7 +382,12 @@ function fitClass(score) {
                         </div>
 
                         <div class="grim-voies-grid">
-                            <article v-for="(v, i) in rankedVoies" :key="v.titre || i" class="grim-voie-card">
+                            <article
+                                v-for="(v, i) in rankedVoies"
+                                :key="v.titre || i"
+                                class="grim-voie-card"
+                                :class="{ 'grim-voie-card--open': isExpanded(i) }"
+                            >
                                 <div class="grim-voie-head">
                                     <span class="grim-voie-rank">{{ i + 1 }}</span>
                                     <span
@@ -359,18 +403,39 @@ function fitClass(score) {
                                     </span>
                                 </div>
                                 <h3 class="grim-voie-titre">{{ v.titre }}</h3>
-                                <p v-if="v.secteur" class="grim-voie-secteur">{{ v.secteur }}</p>
+                                <div class="grim-voie-meta">
+                                    <span v-if="v.secteur" class="grim-voie-secteur">{{ v.secteur }}</span>
+                                    <span v-if="modeleLabel(v.modele)" class="grim-voie-modele">{{ modeleLabel(v.modele) }}</span>
+                                </div>
                                 <p v-if="v.pourquoi" class="grim-voie-why">{{ v.pourquoi }}</p>
 
-                                <div v-if="v.appui_tests?.length" class="grim-voie-appui">
-                                    <span class="grim-voie-appui-label">Appuyé par</span>
-                                    <span v-for="(t, j) in v.appui_tests" :key="j" class="grim-appui-tag">{{ t }}</span>
-                                </div>
+                                <!-- Détail au clic : axes + prochaine étape -->
+                                <button
+                                    v-if="v.prochaine_etape || (v.axes && hasAxes)"
+                                    type="button"
+                                    class="grim-voie-toggle"
+                                    :aria-expanded="isExpanded(i)"
+                                    @click="toggleCard(i)"
+                                >
+                                    {{ isExpanded(i) ? 'Masquer le détail' : 'Voir le détail' }}
+                                    <span class="grim-voie-toggle-caret" :class="{ 'is-open': isExpanded(i) }">▾</span>
+                                </button>
 
-                                <p v-if="v.prochaine_etape" class="grim-voie-next">
-                                    <span class="grim-voie-next-label">Prochaine étape</span>
-                                    {{ v.prochaine_etape }}
-                                </p>
+                                <div v-show="isExpanded(i)" class="grim-voie-detail">
+                                    <div v-if="v.axes && typeof v.axes === 'object'" class="grim-voie-axes">
+                                        <div v-for="a in axisDefs" :key="a.key" class="grim-axis-row" :title="a.hint">
+                                            <span class="grim-axis-label">{{ a.label }}</span>
+                                            <span class="grim-axis-bar">
+                                                <span class="grim-axis-fill" :style="{ width: axisValue(v, a.key) + '%' }"></span>
+                                            </span>
+                                            <span class="grim-axis-num">{{ axisValue(v, a.key) }}</span>
+                                        </div>
+                                    </div>
+                                    <p v-if="v.prochaine_etape" class="grim-voie-next">
+                                        <span class="grim-voie-next-label">Prochaine étape</span>
+                                        {{ v.prochaine_etape }}
+                                    </p>
+                                </div>
                             </article>
                         </div>
                     </section>
@@ -810,6 +875,41 @@ function fitClass(score) {
 .grim-appui-tag { font-family: var(--font-body, 'Inter', sans-serif); font-size: 12px; background: rgba(166,117,32,0.1); color: var(--grim-gold-dark); padding: 2px 9px; border-radius: 4px; border: 1px solid rgba(166,117,32,0.25); }
 .grim-voie-next { font-family: var(--font-body, 'Inter', sans-serif); font-size: .95rem; line-height: 1.55; color: var(--grim-ink); border-top: 1px solid rgba(166,117,32,0.25); padding-top: .75rem; }
 .grim-voie-next-label { display: block; font-family: var(--font-data, monospace); font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--grim-red); margin-bottom: .25rem; }
+
+/* Secteur + modèle sur une ligne */
+.grim-voie-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: .65rem; }
+.grim-voie-meta .grim-voie-secteur { margin-bottom: 0; }
+.grim-voie-modele {
+    font-family: var(--font-data, monospace); font-size: 10px; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--grim-gold-dark); background: rgba(166,117,32,0.10);
+    border: 1px solid rgba(166,117,32,0.30); border-radius: 999px; padding: 2px 9px;
+}
+
+/* Bouton "Voir le détail" */
+.grim-voie-toggle {
+    display: inline-flex; align-items: center; gap: .35rem;
+    font-family: var(--font-data, monospace); font-size: 11px; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--grim-gold-dark); background: transparent; border: none; cursor: pointer;
+    padding: .2rem 0; margin-top: .1rem;
+}
+.grim-voie-toggle:hover { color: var(--grim-red); }
+.grim-voie-toggle-caret { transition: transform .18s ease; display: inline-block; }
+.grim-voie-toggle-caret.is-open { transform: rotate(180deg); }
+
+/* Détail déplié : axes + prochaine étape */
+.grim-voie-detail { margin-top: .65rem; }
+.grim-voie-axes { display: flex; flex-direction: column; gap: .4rem; margin-bottom: .85rem; }
+.grim-axis-row { display: grid; grid-template-columns: 5.5rem 1fr 2.2ch; align-items: center; gap: .55rem; }
+.grim-axis-label { font-family: var(--font-body, 'Inter', sans-serif); font-size: 12px; color: var(--text-secondary, #6B5A3E); }
+.grim-axis-bar { height: 6px; border-radius: 999px; background: rgba(166,117,32,0.16); overflow: hidden; }
+.grim-axis-fill { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--grim-gold), var(--grim-gold-dark)); }
+.grim-axis-num { font-family: var(--font-data, monospace); font-size: 11px; color: var(--grim-gold-dark); text-align: right; }
+
+/* Pistes en cours de génération (génération progressive) */
+.grim-voies-loading { text-align: center; padding: 3.5rem 1rem; }
+.grim-voies-loading-text { font-family: var(--font-body, 'Inter', sans-serif); font-size: 1.05rem; color: var(--grim-ink); margin: 1.2rem 0 .35rem; }
+.grim-voies-loading-text strong { color: var(--grim-red); }
+.grim-voies-loading-sub { font-family: var(--font-body, 'Inter', sans-serif); font-size: .92rem; color: var(--text-muted, #8C7A5E); margin: 0; }
 
 /* ── Épreuves relues : cartes ─────────────────────────────────────────── */
 .grim-tests { margin-bottom: 3rem; }

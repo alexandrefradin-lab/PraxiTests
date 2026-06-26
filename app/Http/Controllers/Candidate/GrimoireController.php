@@ -38,27 +38,42 @@ class GrimoireController extends Controller
         $grimoire  = $user->getOrCreateGrimoire();
         $signature = $service->signature($attempts);
 
-        // Garde-fou « synthèse OK mais aucune voie » : un Grimoire marqué ready dont
-        // les voies sont vides (clé JSON ratée, appel voies échoué…) restait figé sans
-        // jamais se régénérer. On le relance, borné à 2 tentatives via le compteur
-        // ai_metadata->voies_attempts (géré par le service, remis à 0 dès qu'il y a des
-        // voies). Anti-boucle indispensable avec QUEUE_CONNECTION=sync où chaque visite
-        // rejouerait l'IA de façon synchrone.
-        $voiesEmpty      = empty($grimoire->voies);
+        // Génération progressive : la synthèse est sauvegardée AVANT les voies
+        // (voies_phase = pending → done). Tant que la phase n'est pas "done", des
+        // voies vides sont NORMALES (elles arrivent) — on ne relance donc rien.
+        $voiesPhase = $grimoire->ai_metadata['voies_phase'] ?? null;
+        $voiesEmpty = empty($grimoire->voies);
+
+        // Garde-fou « synthèse OK mais aucune voie » : un Grimoire dont la phase voies
+        // est TERMINÉE (done) mais vide (clé JSON ratée, appel voies échoué…) restait
+        // figé. On le relance, borné à 2 tentatives via ai_metadata->voies_attempts
+        // (remis à 0 dès qu'il y a des voies). Anti-boucle indispensable en sync.
         $voiesAttempts   = (int) ($grimoire->ai_metadata['voies_attempts'] ?? 0);
-        $needsVoiesRetry = $grimoire->status === 'ready' && $voiesEmpty && $voiesAttempts < 2;
+        $needsVoiesRetry = $grimoire->status === 'ready' && $voiesPhase === 'done'
+            && $voiesEmpty && $voiesAttempts < 2;
+
+        // Étape 2 (voies) interrompue : la synthèse est là (status ready) mais la
+        // phase voies est restée "pending" et le job a été tué (OVH max_execution_time)
+        // il y a plus de 3 min → on relance pour terminer les voies (synthèse réutilisée).
+        $stuckVoies = $grimoire->status === 'ready'
+            && $voiesPhase === 'pending'
+            && $voiesEmpty
+            && $grimoire->updated_at
+            && $grimoire->updated_at->lt(now()->subMinutes(3));
 
         // Grimoire absent ou périmé (un test ajouté/refait) → on (re)lance la génération.
         $needsGeneration = $grimoire->status !== 'ready'
             || $grimoire->tests_signature !== $signature
-            || $needsVoiesRetry;
+            || $needsVoiesRetry
+            || $stuckVoies;
 
-        // Détecte un Grimoire bloqué sur "pending" (job tué par OVH avant completion) :
-        // le statut ne passe jamais à ready/failed, le polling tourne à vide indéfiniment.
-        // Seuil ramené à 3 min (l'appel IA le plus long dépasse rarement 2 min sur OVH).
+        // Détecte un Grimoire bloqué sur "pending" (job tué ou pas encore démarré) :
+        // Avec QUEUE_CONNECTION=database + cron toutes les minutes, le job peut prendre
+        // jusqu'à 1 min pour démarrer + ~2 min pour tourner = 3 min max normal.
+        // Seuil à 7 min pour éviter les faux positifs (relances inutiles).
         $stuckPending = $grimoire->status === 'pending'
             && $grimoire->updated_at
-            && $grimoire->updated_at->lt(now()->subMinutes(3));
+            && $grimoire->updated_at->lt(now()->subMinutes(7));
 
         // Cooldown anti-boucle : si writeFallback a tracé un échec récent (< 3 min),
         // on ne redispatch pas le job — évite les boucles infinies quand la clé API
@@ -78,23 +93,39 @@ class GrimoireController extends Controller
         }
 
         if ($needsGeneration && ($grimoire->status !== 'failed' || $stuckPending) && !$recentlyFailed) {
-            if ($grimoire->status === 'ready') {
-                // périmé : on repasse en pending le temps de la régénération
-                $grimoire->update(['status' => 'pending']);
+            // On marque l'état "régénération en cours" de façon DÉTECTABLE par le front :
+            // voies vidées + voies_phase=pending. Sans ça, un Grimoire encore "ready" avec
+            // son ancien contenu n'aurait déclenché ni écran d'attente ni polling, et la
+            // nouvelle version ne serait jamais apparue toute seule. La synthèse, elle, est
+            // conservée à l'écran le temps que la nouvelle se calcule (moins brutal).
+            if ($grimoire->status === 'ready' || $stuckPending) {
+                $grimoire->update([
+                    'status'      => 'pending',
+                    'voies'       => [],
+                    'ai_metadata' => array_merge($grimoire->ai_metadata ?? [], ['voies_phase' => 'pending']),
+                ]);
             }
-            if ($stuckPending) {
-                // Bloqué depuis trop longtemps → reset + relance forcée
-                $grimoire->update(['status' => 'pending']);
-            }
-            // force=true si le candidat a cliqué "Régénérer" (tests_signature vidée par refresh())
-            // ou si le job est bloqué depuis trop longtemps (stuckPending).
-            // Sans force, le job pourrait sauter silencieusement si un verrou résiduel
-            // ou une vérification d'idempotence l'empêche de tourner.
-            $forceRegen = ($grimoire->fresh()->tests_signature === '') || $stuckPending;
+            // force=true si le candidat a cliqué "Régénérer" (tests_signature vidée par refresh()),
+            // si le job est bloqué (stuckPending/stuckVoies) ou s'il faut relancer les voies
+            // (needsVoiesRetry) : ces cas ont status=ready + signature à jour, donc sans force
+            // le job sauterait via sa vérification d'idempotence.
+            $forceRegen = ($grimoire->fresh()->tests_signature === '')
+                || $stuckPending || $stuckVoies || $needsVoiesRetry;
             GenerateGlobalGrimoire::dispatch($user->id, force: $forceRegen)->afterResponse();
         }
 
-        $pending = $grimoire->fresh()->status === 'pending';
+        $grimoire = $grimoire->fresh();
+
+        // Écran d'attente PLEINE PAGE : seulement tant qu'il n'y a AUCUNE synthèse à
+        // montrer (toute première génération). Dès que la synthèse existe, on affiche
+        // la page et les voies se chargent à part (voies_pending).
+        $aiPending = $grimoire->status === 'pending' && empty($grimoire->synthesis);
+
+        // Voies en cours : la synthèse est affichée mais les pistes se génèrent encore.
+        $voiesPhaseNow = $grimoire->ai_metadata['voies_phase'] ?? null;
+        $voiesPending  = !empty($grimoire->synthesis)
+            && empty($grimoire->voies)
+            && ($voiesPhaseNow === 'pending' || $grimoire->status === 'pending');
 
         return Inertia::render('Candidate/Grimoire', [
             'grimoire' => [
@@ -114,8 +145,9 @@ class GrimoireController extends Controller
                 'results_url'  => route('results.show', $a->id),
                 'pdf_url'      => $a->result?->ai_synthesis ? route('results.pdf', $a->id) : null,
             ])->values(),
-            'ai_pending' => $pending,
-            'is_empty'   => false,
+            'ai_pending'   => $aiPending,
+            'voies_pending' => $voiesPending,
+            'is_empty'     => false,
         ]);
     }
 
@@ -155,17 +187,32 @@ class GrimoireController extends Controller
     {
         $grimoire = auth()->user()->profileGrimoire;
 
-        // Détecte un Grimoire bloqué sur "pending" depuis > 6 min :
-        // le front recharge alors la page pour déclencher un nouveau dispatch.
-        $stuck = $grimoire
+        $voiesPhase    = $grimoire?->ai_metadata['voies_phase'] ?? null;
+        $syntheseReady = !empty($grimoire?->synthesis);
+        $voiesReady    = $voiesPhase === 'done' || !empty($grimoire?->voies);
+
+        // "Bloqué" : soit l'écran pleine page traîne (status pending > 8 min sans
+        // synthèse), soit l'étape voies est restée "pending" trop longtemps (> 8 min).
+        $stuckSynth = $grimoire
             && $grimoire->status === 'pending'
+            && empty($grimoire->synthesis)
             && $grimoire->updated_at
-            && $grimoire->updated_at->lt(now()->subMinutes(6));
+            && $grimoire->updated_at->lt(now()->subMinutes(8));
+
+        $stuckVoies = $grimoire
+            && $syntheseReady
+            && !$voiesReady
+            && $voiesPhase === 'pending'
+            && $grimoire->updated_at
+            && $grimoire->updated_at->lt(now()->subMinutes(8));
 
         return response()->json([
-            'ready'  => $grimoire?->status === 'ready',
-            'failed' => $grimoire?->status === 'failed',
-            'stuck'  => $stuck,
+            // 'ready' = tout est prêt (synthèse + voies) — compat avec l'ancien front.
+            'ready'          => $grimoire?->status === 'ready' && $voiesReady,
+            'synthese_ready' => $syntheseReady,
+            'voies_ready'    => $voiesReady,
+            'failed'         => $grimoire?->status === 'failed',
+            'stuck'          => (bool) ($stuckSynth || $stuckVoies),
         ]);
     }
 
@@ -235,10 +282,14 @@ class GrimoireController extends Controller
 
             $meta = $grimoire->ai_metadata ?? [];
             $meta['requested_voies_count'] = $requestedCount;
+            // Régénération détectable par le front (loader pistes + polling) : voies vidées
+            // + phase pending. La synthèse reste affichée le temps du recalcul.
+            $meta['voies_phase'] = 'pending';
 
             $grimoire->update([
                 'status'         => 'pending',
                 'tests_signature' => '',
+                'voies'          => [],
                 'ai_metadata'    => $meta,
             ]);
         } finally {

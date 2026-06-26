@@ -36,103 +36,137 @@ class GlobalGrimoireService
             return null;
         }
 
-        $grimoire = $user->getOrCreateGrimoire();
+        $grimoire  = $user->getOrCreateGrimoire();
         $requested = (int) ($grimoire->ai_metadata['requested_voies_count'] ?? 0);
         $count = ($requested >= 1 && $requested <= 50)
             ? $requested
             : (int) config('ai.tasks.global_grimoire.count', 30);
 
-        // Deux prompts distincts (synthèse / voies) générés EN PARALLÈLE via chatMany().
-        // C'est le levier d'accélération : ~2x plus rapide qu'un seul gros appel qui
-        // devait produire les ~4000 tokens de synthèse + voies en série.
-        $synthMessages = $this->prompts->globalGrimoireSynthese($user, $attempts);
-        $voiesMessages = $this->prompts->globalGrimoireVoies($user, $attempts, $count);
+        $driver        = $this->ai->forTask('global_grimoire');
+        $signature     = $this->signature($attempts);
+        $testsIncluded = $this->testsIncluded($attempts);
 
-        // Hooks plugins : 'ai.grimoire.messages' reste appliqué à la relecture (synthèse),
-        // 'ai.grimoire.voies_messages' permet d'enrichir le prompt des voies.
-        $synthMessages = PluginHooks::applyFilters('ai.grimoire.messages', $synthMessages, $user, $attempts);
-        $voiesMessages = PluginHooks::applyFilters('ai.grimoire.voies_messages', $voiesMessages, $user, $attempts);
+        // ════════════════════════════════════════════════════════════════════
+        // GÉNÉRATION PROGRESSIVE EN DEUX TEMPS
+        // ════════════════════════════════════════════════════════════════════
+        // Avant : un seul gros appel (synthèse + voies riches) bloquait l'écran
+        // ~90 s avant d'afficher quoi que ce soit. Désormais on sépare :
+        //   1) la SYNTHÈSE (rapide) → sauvegarde immédiate, page affichable tout de
+        //      suite (status=ready), voies marquées "pending".
+        //   2) les VOIES (compactes, nombreuses) → sauvegardées ensuite ; le front
+        //      affiche un loader dans l'onglet Pistes et recharge dès qu'elles
+        //      arrivent. Perçu beaucoup plus rapide.
+        // En QUEUE_CONNECTION=sync + afterResponse, les deux étapes tournent dans le
+        // même process après la réponse : la sauvegarde intermédiaire est donc bien
+        // visible par le polling du front entre les deux appels.
+        // ════════════════════════════════════════════════════════════════════
 
-        $driver = $this->ai->forTask('global_grimoire');
+        // Retry "voies seules" : si la synthèse est déjà là, à jour, et que seules
+        // les voies manquent (phase pending), on NE refait PAS l'appel synthèse.
+        $skipSynthese = $grimoire->synthesis
+            && $grimoire->tests_signature === $signature
+            && (($grimoire->ai_metadata['voies_phase'] ?? null) === 'pending');
 
-        // max_tokens généreux : 30 voies détaillées en JSON dépassent facilement 3200
-        // tokens (accents = plus de tokens) → réponse tronquée = JSON invalide. Sonnet
-        // accepte largement ces plafonds ; ParsesAiJson répare en dernier recours.
-        // Gestion partielle (MET-M3) : si l'un des deux appels échoue, on sauvegarde
-        // ce que l'autre a produit plutôt que de tout perdre.
-        $rawSynth = '';
-        $rawVoies = '';
+        $usageSynth = ['input_tokens' => 0, 'output_tokens' => 0];
 
-        // max_tokens dynamique : ~160 tokens/voie compacte (>40), ~300 tokens/voie détaillée.
-        $voiesMaxTokens = min(16000, max(4000, $count * ($count > 40 ? 160 : 300)));
+        // ── ÉTAPE 1 : synthèse croisée ──────────────────────────────────────
+        if ($skipSynthese) {
+            $synthese = (string) $grimoire->synthesis;
+        } else {
+            $synthMessages = $this->prompts->globalGrimoireSynthese($user, $attempts);
+            $synthMessages = PluginHooks::applyFilters('ai.grimoire.messages', $synthMessages, $user, $attempts);
 
-        try {
-            $responses = $driver->chatMany([
-                'synthese' => ['messages' => $synthMessages, 'options' => ['temperature' => 0.6, 'max_tokens' => 2600]],
-                'voies'    => ['messages' => $voiesMessages, 'options' => ['temperature' => 0.6, 'max_tokens' => $voiesMaxTokens]],
-            ]);
-            $rawSynth = (string) ($responses['synthese'] ?? '');
-            $rawVoies = (string) ($responses['voies'] ?? '');
-        } catch (\Exception $e) {
-            // chatMany a échoué globalement — on tente chaque appel séparément.
-            \Log::warning('Grimoire chatMany failed, falling back to sequential calls', [
-                'user_id' => $user->id,
-                'error'   => $e->getMessage(),
-            ]);
-
+            $rawSynth = '';
             try {
                 $rawSynth = (string) $driver->chat($synthMessages, ['temperature' => 0.6, 'max_tokens' => 2600]);
             } catch (\Exception $eSynth) {
                 \Log::warning('Grimoire synthesis failed', ['user_id' => $user->id, 'error' => $eSynth->getMessage()]);
             }
 
-            try {
-                $rawVoies = (string) $driver->chat($voiesMessages, ['temperature' => 0.6, 'max_tokens' => $voiesMaxTokens]);
-            } catch (\Exception $eVoies) {
-                \Log::warning('Grimoire voies failed', ['user_id' => $user->id, 'error' => $eVoies->getMessage()]);
+            $rawSynth  = PluginHooks::applyFilters('ai.grimoire.output', $rawSynth, $user, $attempts);
+            $jsonSynth = $this->parseJson($rawSynth);
+            $synthese  = $this->normalizeSynthesisParagraphs(
+                (string) ($jsonSynth['synthese'] ?? $jsonSynth['synthèse'] ?? '')
+            );
+
+            // Synthèse vide : on garde l'ancienne si elle existe, sinon on échoue
+            // proprement (le job déclenche alors writeFallback, pas d'écran figé).
+            if ($synthese === '') {
+                if ($grimoire->synthesis) {
+                    $synthese = (string) $grimoire->synthesis;
+                } else {
+                    throw new \RuntimeException('Grimoire: synthèse vide et aucune synthèse antérieure.');
+                }
             }
+
+            $usageSynth = $driver->lastUsage();
         }
 
-        $rawSynth = PluginHooks::applyFilters('ai.grimoire.output', $rawSynth, $user, $attempts);
-        $rawVoies = PluginHooks::applyFilters('ai.grimoire.voies_output', $rawVoies, $user, $attempts);
+        // Sauvegarde INTERMÉDIAIRE : la relecture est visible immédiatement, les
+        // voies restent "pending" (le front affiche un loader dans l'onglet Pistes).
+        $grimoire = $user->getOrCreateGrimoire();
+        $grimoire->update([
+            'synthesis'       => $synthese,
+            'voies'           => [],   // anciennes voies périmées (signature/contenu différents)
+            'tests_included'  => $testsIncluded,
+            'tests_signature' => $signature,   // déjà à jour → pas de 2e régénération de synthèse
+            'ai_driver'       => $driver->key(),
+            'ai_model'        => $driver->model(),
+            'ai_metadata'     => array_merge($grimoire->ai_metadata ?? [], [
+                'prompt_version' => config('ai.tasks.global_grimoire.prompt_version', '1.1'),
+                'tests_count'    => $attempts->count(),
+                'voies_phase'    => 'pending',
+                'generated_at'   => now()->toIso8601String(),
+            ]),
+            'status'          => 'ready',   // page affichable : synthèse disponible
+            'generated_at'    => now(),
+        ]);
 
-        $jsonSynth = $this->parseJson($rawSynth);
+        // ── ÉTAPE 2 : voies métiers (format compact, nombreuses, fiables) ───
+        $voiesMessages = $this->prompts->globalGrimoireVoies($user, $attempts, $count);
+        $voiesMessages = PluginHooks::applyFilters('ai.grimoire.voies_messages', $voiesMessages, $user, $attempts);
+
+        // ~120 tokens / voie compacte → on prévoit large (×160) pour ne JAMAIS
+        // tronquer le JSON (la troncature = pistes perdues = "seulement 15").
+        $voiesMaxTokens = min(16000, max(3000, $count * 160));
+
+        $rawVoies = '';
+        try {
+            $rawVoies = (string) $driver->chat($voiesMessages, ['temperature' => 0.6, 'max_tokens' => $voiesMaxTokens]);
+        } catch (\Exception $eVoies) {
+            \Log::warning('Grimoire voies failed', ['user_id' => $user->id, 'error' => $eVoies->getMessage()]);
+        }
+
+        $rawVoies  = PluginHooks::applyFilters('ai.grimoire.voies_output', $rawVoies, $user, $attempts);
         $jsonVoies = $this->parseJson($rawVoies);
+        $voies     = $this->extractVoies($jsonVoies);
+        $voies     = PluginHooks::applyFilters('grimoire.voies', $voies, $user, $attempts);
 
-        $synthese = $this->normalizeSynthesisParagraphs(
-            (string) ($jsonSynth['synthese'] ?? $jsonSynth['synthèse'] ?? '')
-        );
-        $voies    = $this->extractVoies($jsonVoies);
-        $voies    = PluginHooks::applyFilters('grimoire.voies', $voies, $user, $attempts);
-
-        $usage = $driver->lastUsage();
+        $usageVoies = $driver->lastUsage();
 
         $grimoire = $user->getOrCreateGrimoire();
 
-        // Compteur de tentatives « voies vides » : tant que l'IA ne renvoie aucune voie
-        // on incrémente (le contrôleur relance jusqu'à 2 essais) ; dès qu'on en a, reset.
-        // Lu AVANT la réécriture de ai_metadata pour survivre aux régénérations.
+        // Compteur de tentatives « voies vides » : tant que l'IA ne renvoie aucune
+        // voie on incrémente (le contrôleur relance jusqu'à 2 essais) ; dès qu'on en
+        // a, reset. Lu AVANT la réécriture de ai_metadata.
         $priorAttempts = (int) (($grimoire->ai_metadata ?? [])['voies_attempts'] ?? 0);
         $voiesCount    = is_array($voies) ? count($voies) : 0;
         $voiesAttempts = $voiesCount === 0 ? $priorAttempts + 1 : 0;
 
+        $totalTokens = ($usageSynth['input_tokens'] ?? 0) + ($usageSynth['output_tokens'] ?? 0)
+                     + ($usageVoies['input_tokens'] ?? 0) + ($usageVoies['output_tokens'] ?? 0);
+
         $grimoire->update([
-            'synthesis'       => $synthese,
-            'voies'           => $voies,
-            'tests_included'  => $this->testsIncluded($attempts),
-            'tests_signature' => $this->signature($attempts),
-            'ai_driver'       => $driver->key(),
-            'ai_model'        => $driver->model(),
-            'ai_tokens_used'  => ($usage['input_tokens'] ?? 0) + ($usage['output_tokens'] ?? 0),
-            'ai_metadata'     => [
-                'prompt_version' => config('ai.tasks.global_grimoire.prompt_version', '1.0'),
-                'tests_count'    => $attempts->count(),
+            'voies'          => $voies,
+            'ai_tokens_used' => $totalTokens,
+            'ai_metadata'    => array_merge($grimoire->ai_metadata ?? [], [
                 'voies_count'    => $voiesCount,
                 'voies_attempts' => $voiesAttempts,
-                'input_tokens'   => $usage['input_tokens'] ?? null,
-                'output_tokens'  => $usage['output_tokens'] ?? null,
+                'voies_phase'    => 'done',
+                'input_tokens'   => ($usageSynth['input_tokens'] ?? 0) + ($usageVoies['input_tokens'] ?? 0),
+                'output_tokens'  => ($usageSynth['output_tokens'] ?? 0) + ($usageVoies['output_tokens'] ?? 0),
                 'generated_at'   => now()->toIso8601String(),
-            ],
+            ]),
             'status'          => 'ready',
             'generated_at'    => now(),
         ]);

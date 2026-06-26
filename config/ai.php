@@ -42,8 +42,8 @@ return [
         ],
         'global_grimoire' => [
             'driver' => null,            // = défaut (anthropic)
-            'prompt_version' => '1.0',
-            'count' => 20,               // nombre de "Voies Possibles" consolidées (max 50) — 20 par défaut pour OVH (<30s)
+            'prompt_version' => '1.1',   // 1.1 = pistes compactes + génération progressive
+            'count' => 30,               // nombre de "Voies Possibles" par défaut (max 50). Format compact => 30 tient en <30s.
         ],
         'cv_extract' => [
             'driver' => null,
