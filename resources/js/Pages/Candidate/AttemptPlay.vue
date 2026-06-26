@@ -167,7 +167,14 @@ const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
                         Armurerie
                     </Link>
                     <span class="ac-header-sep" aria-hidden="true"></span>
-                    <span class="ac-logo">P</span>
+                    <svg class="ac-logo" width="26" height="26" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <circle cx="19" cy="19" r="17.5" stroke="#A67520" stroke-width="1"/>
+                        <circle cx="19" cy="19" r="13" stroke="#A67520" stroke-width="0.5" opacity="0.5"/>
+                        <polygon points="19,6 20.4,18 19,21 17.6,18" fill="#A67520"/>
+                        <polygon points="19,32 20.4,20 19,17 17.6,20" fill="#A67520" opacity="0.35"/>
+                        <circle cx="19" cy="19" r="2" fill="#A67520"/>
+                        <circle cx="19" cy="19" r="1" fill="#F0E8D4"/>
+                    </svg>
                     <span class="ac-test-name">{{ attempt.test.name }}</span>
                 </div>
 
@@ -569,16 +576,8 @@ const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
 
 .ac-logo {
     display: inline-flex;
-    align-items: center;
-    justify-content: center;
     width: 26px;
     height: 26px;
-    background: var(--color-primary);
-    color: var(--bg-base);
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    border-radius: 6px;
     flex-shrink: 0;
 }
 
