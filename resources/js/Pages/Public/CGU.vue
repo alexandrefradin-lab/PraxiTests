@@ -4,8 +4,8 @@ import { defineProps } from 'vue'
 
 defineProps({ branding: { type: Object, default: () => ({ name: 'PraxiQuest' }) } })
 
-const version = '1.0'
-const date = '18 juin 2026'
+const version = '1.1'
+const date = '26 juin 2026'
 </script>
 
 <template>
@@ -33,6 +33,26 @@ const date = '18 juin 2026'
             <p style="font-family:var(--font-data); font-size:13px; color:var(--text-muted); margin-bottom:3rem">
                 Version {{ version }} — Entrée en vigueur le {{ date }}
             </p>
+
+            <!-- Avertissement important — encart proéminent -->
+            <section class="cgu-section cgu-warning" style="background:rgba(123,21,21,0.05); border:1px solid rgba(123,21,21,0.25); border-left:4px solid var(--color-secondary,#7B1515); border-radius:8px; padding:1.5rem 1.75rem; margin-bottom:3rem">
+                <h2 style="margin-top:0; color:var(--color-secondary,#7B1515)">⚠️ Avertissement important — Nature du service</h2>
+                <p>
+                    <strong>{{ branding?.name ?? 'PraxiQuest' }} est un outil d'auto-évaluation, d'orientation et de développement personnel, fourni à titre purement informatif et pédagogique.</strong>
+                </p>
+                <p>
+                    La Plateforme <strong>ne constitue pas, ne remplace pas et ne saurait en aucun cas se substituer</strong> à l'avis, au diagnostic, à la consultation, au suivi ou au traitement d'un professionnel qualifié, notamment&nbsp;: <strong>psychologue, psychiatre, médecin ou tout professionnel de santé, psychothérapeute, coach professionnel, conseiller en orientation, en bilan de compétences, en évolution professionnelle, avocat ou conseiller financier.</strong>
+                </p>
+                <p>
+                    Les tests proposés <strong>ne sont pas des outils de diagnostic médical, psychologique ou psychiatrique</strong>. Leurs résultats, ainsi que les synthèses et suggestions générées par intelligence artificielle, n'ont aucune valeur clinique, médicale ou de certification, et ne doivent jamais être interprétés comme tels.
+                </p>
+                <p>
+                    L'Utilisateur demeure <strong>seul responsable</strong> de l'interprétation des résultats et des décisions — personnelles, professionnelles, médicales ou financières — qu'il prend à leur lecture. Pour toute décision importante, il lui est recommandé de consulter un professionnel qualifié.
+                </p>
+                <p style="margin-bottom:0">
+                    <strong>En cas de mal-être, de souffrance psychologique ou de détresse</strong>, la Plateforme ne saurait constituer une réponse adaptée&nbsp;: il convient de consulter sans délai un professionnel de santé. En cas d'urgence vitale, contactez le <strong>15</strong> (SAMU) ou le <strong>3114</strong> (numéro national de prévention du suicide, gratuit, 24h/24 en France).
+                </p>
+            </section>
 
             <!-- 1 -->
             <section class="cgu-section">
@@ -85,7 +105,10 @@ const date = '18 juin 2026'
                     La Plateforme utilise des systèmes d'intelligence artificielle (ci-après « IA ») pour générer des synthèses de résultats et suggérer des pistes d'orientation professionnelle, incluant une liste indicative de quinze (15) métiers.
                 </p>
                 <p>
-                    <strong>Ces suggestions constituent des indications à titre purement informatif et non contraignant.</strong> Elles ne sauraient en aucun cas être assimilées à un conseil professionnel, psychologique, médical, juridique ou financier. L'éditeur ne garantit pas l'exactitude, la complétude ou l'adéquation des suggestions générées par l'IA aux situations individuelles de chaque utilisateur.
+                    <strong>Ces suggestions constituent des indications à titre purement informatif et non contraignant.</strong> Elles ne sauraient en aucun cas être assimilées à un conseil professionnel, psychologique, médical, thérapeutique, de coaching, juridique ou financier, ni se substituer à l'avis d'un psychologue, d'un médecin, d'un coach ou de tout autre professionnel qualifié. L'éditeur ne garantit pas l'exactitude, la complétude ou l'adéquation des suggestions générées par l'IA aux situations individuelles de chaque utilisateur.
+                </p>
+                <p>
+                    L'intelligence artificielle peut produire des résultats inexacts, incomplets ou inadaptés (« hallucinations »). L'Utilisateur est invité à exercer son propre discernement et à ne prendre aucune décision importante sur la seule base des contenus générés.
                 </p>
                 <p>
                     L'Utilisateur est seul responsable des décisions qu'il prend à la lecture de ces synthèses. L'éditeur décline expressément toute responsabilité quant aux conséquences — directes ou indirectes — de l'utilisation des résultats générés par l'IA.
@@ -163,7 +186,10 @@ const date = '18 juin 2026'
                     Dans les limites permises par la loi applicable, la responsabilité de l'éditeur est strictement limitée aux dommages directs prouvés causés par une faute lourde ou intentionnelle. En aucun cas l'éditeur ne saurait être tenu responsable des dommages indirects (perte de chance, préjudice financier, atteinte à l'image, etc.).
                 </p>
                 <p>
-                    L'éditeur ne peut être tenu responsable des décisions professionnelles ou personnelles prises par l'Utilisateur sur la base des résultats de tests ou des suggestions d'orientation générées par l'IA.
+                    L'éditeur ne peut être tenu responsable des décisions professionnelles, personnelles, médicales, psychologiques ou financières prises par l'Utilisateur sur la base des résultats de tests ou des suggestions d'orientation générées par l'IA. La Plateforme étant un outil d'auto-évaluation et de développement personnel, elle ne se substitue pas à un suivi par un psychologue, un médecin, un coach ou tout autre professionnel qualifié, et l'éditeur décline toute responsabilité quant aux conséquences d'une absence de consultation d'un tel professionnel.
+                </p>
+                <p>
+                    L'Utilisateur reconnaît utiliser la Plateforme en toute connaissance de cause, de sa propre initiative et sous sa seule responsabilité. Il déclare ne pas l'utiliser en remplacement d'une prise en charge médicale, psychologique ou thérapeutique dont il aurait besoin.
                 </p>
             </section>
 

@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/cgu', [LegalController::class, 'cgu'])->name('cgu');
 Route::get('/confidentialite', [LegalController::class, 'confidentialite'])->name('confidentialite');
+Route::get('/mentions-legales', [LegalController::class, 'mentions'])->name('mentions');
+Route::get('/contact', [LegalController::class, 'contact'])->name('contact');
 
 // Désabonnement marketing (cf. audit E-5) — URL signée, sans compte requis.
 Route::get('/email/unsubscribe/{user}', \App\Http\Controllers\UnsubscribeController::class)
@@ -28,10 +30,11 @@ Route::get('/email/unsubscribe/{user}', \App\Http\Controllers\UnsubscribeControl
 // NOTE : Le middleware 'subscribed' (EnsureSubscribed) est disponible mais
 // non appliqué ici — accès libre en phase bêta. Pour activer le paywall,
 // ajouter 'subscribed' au middleware group ci-dessous.
-// NOTE : Le middleware 'verified' a été retiré car aucun flux de vérification
-// d'email n'est implémenté (route verification.notice inexistante → 500).
-// À réintroduire avec les routes/contrôleur/mail de vérification si besoin.
-Route::middleware(['auth'])->group(function () {
+// Groupe candidat — 'verified' impose la confirmation d'email avant l'accès aux
+// tests/résultats. Flux complet dans routes/auth.php (verification.*). Kill-switch
+// via config praxiquest.security.require_email_verification + exemption staff
+// (App\Http\Middleware\EnsureEmailVerified).
+Route::middleware(['auth', 'verified'])->group(function () {
     // Onboarding profil (statut, ancienneté, CV)
     Route::get('/onboarding', [OnboardingController::class, 'show'])->name('onboarding.show');
     Route::post('/onboarding', [OnboardingController::class, 'store'])->name('onboarding.store');
@@ -111,7 +114,7 @@ Route::middleware(['auth'])->prefix('mon-parcours')->name('beliefs.')->group(fun
 });
 
 // ─── Billing / Stripe ────────────────────────────────────────────────────────
-Route::middleware(['auth'])->prefix('billing')->name('billing.')->group(function () {
+Route::middleware(['auth', 'verified'])->prefix('billing')->name('billing.')->group(function () {
     Route::get('/plans',    [BillingController::class, 'plans'])->name('plans');
     Route::post('/checkout',[BillingController::class, 'checkout'])->name('checkout');
     Route::get('/manage',   [BillingController::class, 'manage'])->name('manage');

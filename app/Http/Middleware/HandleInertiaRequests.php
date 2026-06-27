@@ -19,6 +19,8 @@ class HandleInertiaRequests extends Middleware
         return array_merge(parent::share($request), [
             'auth' => [
                 'user' => $request->user()?->only(['id', 'name', 'email', 'locale']),
+                // Permet d'afficher un bandeau « confirmez votre email » côté front.
+                'email_verified' => (bool) $request->user()?->hasVerifiedEmail(),
             ],
             // Total d'Éclats global (lazy) — alimente la barre du layout candidat
             // sur toutes les pages, pas seulement pendant une tentative.
@@ -43,6 +45,8 @@ class HandleInertiaRequests extends Middleware
                 'success'     => fn () => $request->session()->get('success'),
                 'error'       => fn () => $request->session()->get('error'),
                 'info'        => fn () => $request->session()->get('info'),
+                'warning'     => fn () => $request->session()->get('warning'),
+                'status'      => fn () => $request->session()->get('status'),
                 'achievement' => fn () => $request->session()->get('achievement'),
             ],
         ]);

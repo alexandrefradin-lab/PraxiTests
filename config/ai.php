@@ -79,6 +79,12 @@ return [
         'global_grimoire_voies' => [
             'driver' => 'anthropic_haiku',
         ],
+        // Grimoire — IMPACT IA SUR LE MÉTIER (onglet « Ton métier face à l'IA ») → Haiku.
+        // Relecture courte et structurée (Markdown) : analyse de l'exposition du métier
+        // du candidat à l'IA. Générée en même temps que les voies (étape 2 du job).
+        'global_grimoire_ia_impact' => [
+            'driver' => 'anthropic_haiku',
+        ],
         // Extraction JSON pure → Haiku.
         'cv_extract' => [
             'driver' => 'anthropic_haiku',

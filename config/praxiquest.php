@@ -43,6 +43,58 @@ return [
         'required_extensions' => ['pdo', 'mbstring', 'openssl', 'fileinfo', 'json', 'tokenizer', 'xml', 'ctype'],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Sécurité
+    |--------------------------------------------------------------------------
+    | require_email_verification : si true, les candidats doivent confirmer leur
+    |   adresse email (lien reçu par mail) avant d'accéder aux tests/billing.
+    |   ⚠️  Kill-switch : NE PAS activer tant que l'envoi SMTP n'est pas vérifié
+    |   en production (sinon les nouveaux comptes sont bloqués). Passer
+    |   REQUIRE_EMAIL_VERIFICATION=false dans .env pour désactiver temporairement.
+    |
+    | captcha : protection anti-bot optionnelle sur l'inscription (Cloudflare
+    |   Turnstile). Inactif tant que les clés ne sont pas renseignées.
+    */
+    'security' => [
+        'require_email_verification' => env('REQUIRE_EMAIL_VERIFICATION', true),
+        'captcha' => [
+            'enabled'    => env('TURNSTILE_ENABLED', false),
+            'site_key'   => env('TURNSTILE_SITE_KEY'),
+            'secret_key' => env('TURNSTILE_SECRET_KEY'),
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Contact / support
+    |--------------------------------------------------------------------------
+    | Adresse affichée sur la page de contact, les pages légales et les emails.
+    */
+    'contact' => [
+        'email'   => env('PRAXIQUEST_CONTACT_EMAIL', 'contact@decisionpro.fr'),
+        'company' => env('PRAXIQUEST_COMPANY_NAME', 'PraxiQuest'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Mentions légales (obligatoire — art. 6 LCEN)
+    |--------------------------------------------------------------------------
+    | Renseigner via .env. ⚠️ SIRET / RCS doivent être complétés avant
+    | l'ouverture commerciale (placeholders ci-dessous).
+    */
+    'legal' => [
+        'editor_name'    => env('LEGAL_EDITOR_NAME', 'Praxis Accompagnement'),
+        'editor_status'  => env('LEGAL_EDITOR_STATUS', 'Entrepreneur individuel'),
+        'editor_siret'   => env('LEGAL_EDITOR_SIRET', ''),          // À COMPLÉTER
+        'editor_address' => env('LEGAL_EDITOR_ADDRESS', ''),        // À COMPLÉTER
+        'editor_email'   => env('PRAXIQUEST_CONTACT_EMAIL', 'contact@decisionpro.fr'),
+        'publisher'      => env('LEGAL_PUBLISHER', 'Alexandre Fradin'),
+        'host_name'      => env('LEGAL_HOST_NAME', 'OVH SAS'),
+        'host_address'   => env('LEGAL_HOST_ADDRESS', '2 rue Kellermann, 59100 Roubaix, France'),
+        'host_phone'     => env('LEGAL_HOST_PHONE', '1007'),
+    ],
+
     'branding' => [
         'name'    => env('APP_NAME', 'PraxiQuest'),
         'tagline' => 'Évaluer. Orienter. Transformer.',
@@ -82,7 +134,9 @@ return [
             'phone'   => env('PRAXIQUEST_PDF_PHONE'),
             'website' => env('PRAXIQUEST_PDF_WEBSITE'),
             'address' => env('PRAXIQUEST_PDF_ADDRESS'),
-            'legal'   => 'Document confidentiel — usage personnel. Données traitées conformément au RGPD.',
+            'legal'   => 'Document confidentiel — usage personnel. Données traitées conformément au RGPD. '
+                . "Outil d'auto-évaluation et de développement personnel : les contenus, générés par IA à titre "
+                . "informatif, ne constituent pas un avis professionnel et ne remplacent pas un psychologue, un médecin ou un coach.",
         ],
     ],
 ];

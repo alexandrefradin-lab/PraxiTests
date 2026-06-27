@@ -17,7 +17,9 @@
 
     $org = array_merge([
         'name'  => $brand['name'],
-        'legal' => 'Document confidentiel — usage personnel. Données traitées conformément au RGPD.',
+        'legal' => 'Document confidentiel — usage personnel. Données traitées conformément au RGPD. '
+            . "Outil d'auto-évaluation et de développement personnel : contenus générés par IA à titre informatif, "
+            . "ne constituant pas un avis professionnel et ne remplaçant pas un psychologue, un médecin ou un coach.",
         'advisor' => null, 'email' => null, 'phone' => null, 'website' => null,
     ], $org ?? []);
 
@@ -30,6 +32,37 @@
     $synthesis = $grimoire->synthesis;
     $voies     = is_array($grimoire->voies) ? $grimoire->voies : [];
     $tests     = is_array($grimoire->tests_included) ? $grimoire->tests_included : [];
+    $iaImpact  = trim((string) ($grimoire->ia_impact ?? ''));
+
+    // Rendu Markdown minimal (titres ##, listes -/*, gras **…**) → HTML pour DomPDF.
+    // Léger et sûr : on échappe le texte puis on applique un petit sous-ensemble.
+    $renderIaMd = function (string $md): string {
+        $lines = preg_split('/\r?\n/', $md);
+        $html  = '';
+        $inList = false;
+        $inline = function (string $s): string {
+            $s = e($s);
+            $s = preg_replace('/\*\*(.+?)\*\*/u', '<strong>$1</strong>', $s);
+            $s = preg_replace('/(?<!\*)\*(?!\s)(.+?)(?<!\s)\*(?!\*)/u', '<em>$1</em>', $s);
+            return $s;
+        };
+        foreach ($lines as $line) {
+            $t = trim($line);
+            if ($t === '') { if ($inList) { $html .= '</ul>'; $inList = false; } continue; }
+            if (preg_match('/^#{2,3}\s+(.*)$/u', $t, $m)) {
+                if ($inList) { $html .= '</ul>'; $inList = false; }
+                $html .= '<p class="ia-h">' . $inline($m[1]) . '</p>';
+            } elseif (preg_match('/^[-*]\s+(.*)$/u', $t, $m)) {
+                if (! $inList) { $html .= '<ul class="ia-ul">'; $inList = true; }
+                $html .= '<li>' . $inline($m[1]) . '</li>';
+            } else {
+                if ($inList) { $html .= '</ul>'; $inList = false; }
+                $html .= '<p class="ia-p">' . $inline($t) . '</p>';
+            }
+        }
+        if ($inList) { $html .= '</ul>'; }
+        return $html;
+    };
 
     $ink       = '#2A1E08';
     $inkSoft   = '#6B5A3E';
@@ -340,6 +373,35 @@
         margin-bottom: 0;
     }
 
+    /* ── Bloc « Ton métier face à l'IA » (Markdown rendu) ── */
+    .ia-block .ia-h {
+        font-size: 11.5px;
+        font-weight: 700;
+        color: #7B1515;
+        font-family: 'Lora', DejaVu Serif, serif;
+        margin: 12px 0 5px;
+    }
+    .ia-block .ia-h:first-child { margin-top: 0; }
+    .ia-block .ia-p {
+        font-size: 11px;
+        line-height: 1.7;
+        color: #2A1E08;
+        text-align: justify;
+        margin: 0 0 8px;
+        font-family: 'Lato', DejaVu Sans, sans-serif;
+    }
+    .ia-block .ia-ul {
+        margin: 0 0 8px;
+        padding-left: 16px;
+    }
+    .ia-block .ia-ul li {
+        font-size: 11px;
+        line-height: 1.6;
+        color: #2A1E08;
+        margin-bottom: 4px;
+        font-family: 'Lato', DejaVu Sans, sans-serif;
+    }
+
     /* ── Voie card ── */
     .voie-card {
         background: #FAF8F4;
@@ -543,6 +605,22 @@
     @foreach(array_filter(explode("\n\n", $synthesis), fn($p) => trim($p) !== '') as $para)
         <div class="synthesis-para">{{ trim($para) }}</div>
     @endforeach
+</div>
+@endif
+
+{{-- ── SECTION : Ton métier face à l'IA ── --}}
+@if($iaImpact)
+<div class="section-title-wrap">
+    <table class="section-title-table">
+        <tr>
+            <td class="section-title-text">Ton métier face à l'IA</td>
+            <td class="section-title-line-gold" style="width:28px;"></td>
+            <td class="section-title-line-gray"></td>
+        </tr>
+    </table>
+</div>
+<div class="synthesis-block ia-block">
+    {!! $renderIaMd($iaImpact) !!}
 </div>
 @endif
 

@@ -56,10 +56,18 @@ class AuthController extends Controller
     }
 
     /** Version des CGU actuellement en vigueur — à incrémenter à chaque nouvelle version */
-    private const CGU_VERSION = '1.0';
+    private const CGU_VERSION = '1.1';
 
     public function register(Request $request)
     {
+        // Honeypot anti-bot (SEC) : le champ 'website' est invisible pour les
+        // humains (masqué en CSS) mais rempli par la plupart des bots. S'il est
+        // renseigné, on abandonne silencieusement sans créer de compte ni
+        // révéler la raison (le bot croit à un simple retour de page).
+        if (filled($request->input('website'))) {
+            return redirect()->route('home');
+        }
+
         $data = $request->validate([
             'name'     => ['required', 'string', 'max:120'],
             'email'    => ['required', 'email', 'unique:users,email'],

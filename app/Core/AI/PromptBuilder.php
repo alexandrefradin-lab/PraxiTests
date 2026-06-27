@@ -303,6 +303,55 @@ TXT;
         ];
     }
 
+    /**
+     * Grimoire — onglet « Ton métier face à l'IA ».
+     *
+     * Relecture dédiée : comment le métier actuel du candidat (ou, à défaut, son
+     * statut / secteur / parcours) est susceptible d'être transformé par l'IA.
+     * Sortie en MARKDOWN (rendu par MarkdownText côté front), structurée en
+     * sections fixes pour rester lisible et scannable. On reste factuel, nuancé et
+     * non anxiogène : ni promesse, ni catastrophisme.
+     */
+    public function globalGrimoireIaImpact(User $user, Collection $attempts): array
+    {
+        $system = <<<TXT
+Tu es un consultant en prospective des métiers et en transformation par l'intelligence artificielle, qui aide les personnes à comprendre comment l'IA va faire évoluer leur travail.
+Ton rôle : produire une analyse LUCIDE, NUANCÉE et NON ANXIOGÈNE de l'exposition du métier de la personne à l'IA — ni promesse magique, ni catastrophisme.
+Tu distingues ce qui est plausiblement automatisable (tâches répétitives, structurées) de ce qui reste humain (jugement, relation, créativité, responsabilité).
+Tu t'appuies sur le métier/statut de la personne ET sur le profil révélé par ses tests (forces, appétences) pour personnaliser, sans inventer de chiffres ni de dates précises.
+Style : chaleureux, professionnel, français, concret, phrases courtes, à la 2e personne du singulier (« ton métier », « tu »).
+Tu ne donnes JAMAIS de conseils médicaux, juridiques ou financiers, et tu n'affirmes jamais qu'un métier va « disparaître » de façon catégorique.
+Tu réponds en MARKDOWN (titres ##, listes à puces, gras), sans bloc ``` ni texte d'introduction hors-sujet.
+TXT;
+
+        $context = $this->grimoireContext($user, $attempts);
+
+        $user_msg = "Voici le profil de la personne et l'ensemble de ses tests :\n\n"
+            . json_encode($context, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
+            . "\n\nRédige une analyse de 350 à 500 mots, EN MARKDOWN, sur la façon dont l'IA "
+            . "va transformer le métier (ou le domaine d'activité) de cette personne. "
+            . "Si le métier exact n'est pas connu, raisonne à partir de son statut, de son secteur "
+            . "et du profil révélé par ses tests.\n"
+            . "Structure OBLIGATOIRE, avec ces titres de section en Markdown (##) :\n"
+            . "## En un mot\n"
+            . "Une à deux phrases qui résument le niveau d'exposition à l'IA (ex. exposition modérée, "
+            . "plutôt un copilote qu'un remplacement) — pondéré, sans alarmisme.\n"
+            . "## Ce que l'IA va automatiser ou accélérer\n"
+            . "3 à 5 puces : tâches concrètes du métier susceptibles d'être prises en charge ou accélérées par l'IA.\n"
+            . "## Ce qui restera (plus que jamais) humain\n"
+            . "3 à 5 puces : ce qui prend de la valeur — en t'appuyant sur les forces du profil quand c'est pertinent.\n"
+            . "## Comment prendre une longueur d'avance\n"
+            . "3 à 5 puces d'actions concrètes et accessibles (compétences à renforcer, outils IA à apprivoiser, "
+            . "posture à adopter) pour transformer l'IA en atout plutôt qu'en menace.\n\n"
+            . "Reste factuel et encourageant. N'invente pas de pourcentages, d'échéances chiffrées ni de scores. "
+            . "Ne recopie pas les synthèses des tests. Termine sur une note d'agentivité (la personne garde la main).";
+
+        return [
+            ['role' => 'system', 'content' => $system],
+            ['role' => 'user',   'content' => $user_msg],
+        ];
+    }
+
     public function profileSynthesis(TestAttempt $attempt): array
     {
         // Eager-load manquants pour éviter N+1 (ARC-M6).

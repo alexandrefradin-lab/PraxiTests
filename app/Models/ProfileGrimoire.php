@@ -16,6 +16,7 @@ class ProfileGrimoire extends Model
         'user_id',
         'synthesis',
         'voies',
+        'ia_impact',
         'tests_included',
         'tests_signature',
         'ai_driver',

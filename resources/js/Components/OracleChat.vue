@@ -296,6 +296,11 @@ onBeforeUnmount(() => {
                         &#10148;
                     </button>
                 </footer>
+
+                <p style="margin:0;padding:0.5rem 0.9rem 0.7rem;font-size:10.5px;line-height:1.5;color:var(--pt-text-muted,#8C7A5E);text-align:center">
+                    L'Oracle est une IA d'orientation : ses réponses sont indicatives et ne remplacent pas
+                    l'avis d'un psychologue, d'un médecin ou d'un coach.
+                </p>
             </section>
         </transition>
 

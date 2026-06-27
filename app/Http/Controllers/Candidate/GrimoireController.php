@@ -131,6 +131,7 @@ class GrimoireController extends Controller
             'grimoire' => [
                 'synthesis'      => $grimoire->synthesis,
                 'voies'          => $grimoire->voies ?? [],
+                'ia_impact'      => $grimoire->ia_impact,
                 'tests_included' => $grimoire->tests_included ?? [],
                 'status'         => $grimoire->status,
                 'generated_at'   => $grimoire->generated_at?->toIso8601String(),

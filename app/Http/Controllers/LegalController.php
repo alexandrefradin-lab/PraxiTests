@@ -19,4 +19,26 @@ class LegalController extends Controller
     {
         return Inertia::render('Public/Confidentialite');
     }
+
+    /**
+     * Mentions légales (obligatoire — art. 6 LCEN).
+     * Identité de l'éditeur, du directeur de publication et de l'hébergeur.
+     */
+    public function mentions()
+    {
+        return Inertia::render('Public/Mentions', [
+            'legal'   => config('praxiquest.legal'),
+            'contact' => config('praxiquest.contact'),
+        ]);
+    }
+
+    /**
+     * Page Contact / Support (publique).
+     */
+    public function contact()
+    {
+        return Inertia::render('Public/Contact', [
+            'contact' => config('praxiquest.contact'),
+        ]);
+    }
 }

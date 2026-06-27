@@ -42,8 +42,9 @@ class GlobalGrimoireService
             ? $requested
             : (int) config('ai.tasks.global_grimoire.count', 30);
 
-        $driver        = $this->ai->forTask('global_grimoire');        // synthèse → Sonnet (rédactionnel)
-        $voiesDriver   = $this->ai->forTask('global_grimoire_voies');  // voies → Haiku (structuré, 3× moins cher)
+        $driver         = $this->ai->forTask('global_grimoire');           // synthèse → Sonnet (rédactionnel)
+        $voiesDriver    = $this->ai->forTask('global_grimoire_voies');     // voies → Haiku (structuré, 3× moins cher)
+        $iaImpactDriver = $this->ai->forTask('global_grimoire_ia_impact'); // « Ton métier face à l'IA » → Haiku
         $signature     = $this->signature($attempts);
         $testsIncluded = $this->testsIncluded($attempts);
 
@@ -151,6 +152,28 @@ class GlobalGrimoireService
 
         $usageVoies = $voiesDriver->lastUsage();
 
+        // ── ÉTAPE 3 : « Ton métier face à l'IA » (Markdown, Haiku) ──────────
+        // Analyse dédiée de l'exposition du métier du candidat à l'IA. Générée
+        // ici (avec les voies) pour ne pas retarder l'affichage de la synthèse.
+        // Résiliente : en cas d'échec on conserve l'analyse précédente plutôt
+        // que de faire échouer tout le Grimoire.
+        $iaImpactMessages = $this->prompts->globalGrimoireIaImpact($user, $attempts);
+        $iaImpactMessages = PluginHooks::applyFilters('ai.grimoire.ia_impact_messages', $iaImpactMessages, $user, $attempts);
+
+        $iaImpact   = (string) ($grimoire->ia_impact ?? '');   // repli = ancienne analyse
+        $usageImpact = ['input_tokens' => 0, 'output_tokens' => 0];
+        try {
+            $rawImpact = (string) $iaImpactDriver->chat($iaImpactMessages, ['temperature' => 0.6, 'max_tokens' => 1600]);
+            $rawImpact = PluginHooks::applyFilters('ai.grimoire.ia_impact_output', $rawImpact, $user, $attempts);
+            $rawImpact = $this->cleanMarkdown($rawImpact);
+            if ($rawImpact !== '') {
+                $iaImpact = $rawImpact;
+            }
+            $usageImpact = $iaImpactDriver->lastUsage();
+        } catch (\Exception $eImpact) {
+            \Log::warning('Grimoire ia_impact failed', ['user_id' => $user->id, 'error' => $eImpact->getMessage()]);
+        }
+
         $grimoire = $user->getOrCreateGrimoire();
 
         // Compteur de tentatives « voies vides » : tant que l'IA ne renvoie aucune
@@ -161,17 +184,19 @@ class GlobalGrimoireService
         $voiesAttempts = $voiesCount === 0 ? $priorAttempts + 1 : 0;
 
         $totalTokens = ($usageSynth['input_tokens'] ?? 0) + ($usageSynth['output_tokens'] ?? 0)
-                     + ($usageVoies['input_tokens'] ?? 0) + ($usageVoies['output_tokens'] ?? 0);
+                     + ($usageVoies['input_tokens'] ?? 0) + ($usageVoies['output_tokens'] ?? 0)
+                     + ($usageImpact['input_tokens'] ?? 0) + ($usageImpact['output_tokens'] ?? 0);
 
         $grimoire->update([
             'voies'          => $voies,
+            'ia_impact'      => $iaImpact,
             'ai_tokens_used' => $totalTokens,
             'ai_metadata'    => array_merge($grimoire->ai_metadata ?? [], [
                 'voies_count'    => $voiesCount,
                 'voies_attempts' => $voiesAttempts,
                 'voies_phase'    => 'done',
-                'input_tokens'   => ($usageSynth['input_tokens'] ?? 0) + ($usageVoies['input_tokens'] ?? 0),
-                'output_tokens'  => ($usageSynth['output_tokens'] ?? 0) + ($usageVoies['output_tokens'] ?? 0),
+                'input_tokens'   => ($usageSynth['input_tokens'] ?? 0) + ($usageVoies['input_tokens'] ?? 0) + ($usageImpact['input_tokens'] ?? 0),
+                'output_tokens'  => ($usageSynth['output_tokens'] ?? 0) + ($usageVoies['output_tokens'] ?? 0) + ($usageImpact['output_tokens'] ?? 0),
                 'generated_at'   => now()->toIso8601String(),
             ]),
             'status'          => 'ready',
@@ -343,6 +368,23 @@ class GlobalGrimoireService
         }
 
         return implode("\n\n", $paras);
+    }
+
+    /**
+     * Nettoie un Markdown renvoyé par l'IA pour l'onglet « Ton métier face à l'IA ».
+     * Retire un éventuel fence ```/```markdown enveloppant et les espaces superflus.
+     */
+    protected function cleanMarkdown(string $text): string
+    {
+        $text = trim($text);
+        if ($text === '') {
+            return '';
+        }
+        // Fence enveloppant : ```markdown … ``` ou ``` … ```
+        if (preg_match('/^```[a-zA-Z]*\s*\n(.*)\n```$/s', $text, $m)) {
+            $text = trim($m[1]);
+        }
+        return $text;
     }
 
     protected function testsIncluded(Collection $attempts): array

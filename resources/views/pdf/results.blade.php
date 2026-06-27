@@ -31,7 +31,9 @@
         'name'    => $brand['name'],
         'advisor' => null, 'email' => null, 'phone' => null,
         'website' => null, 'address' => null,
-        'legal'   => 'Document confidentiel — usage personnel. Données traitées conformément au RGPD.',
+        'legal'   => 'Document confidentiel — usage personnel. Données traitées conformément au RGPD. '
+            . "Outil d'auto-évaluation et de développement personnel : contenus générés par IA à titre informatif, "
+            . "ne constituant pas un avis professionnel et ne remplaçant pas un psychologue, un médecin ou un coach.",
     ], $org ?? []);
 
     $sections = array_merge([

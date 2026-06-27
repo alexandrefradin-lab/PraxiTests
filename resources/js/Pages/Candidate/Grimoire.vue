@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { Head, Link, router } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
+import MarkdownText from '@/Components/MarkdownText.vue'
 const props = defineProps({
     grimoire:      Object,
     tests:         Array,
@@ -12,11 +13,17 @@ const props = defineProps({
 
 const voies = computed(() => props.grimoire?.voies ?? [])
 
+// Onglet « Ton métier face à l'IA » : analyse Markdown générée avec les voies.
+const iaImpact  = computed(() => (props.grimoire?.ia_impact ?? '').trim())
+// En cours : l'analyse arrive en même temps que les pistes (étape 2 du job).
+const iaPending = computed(() => props.voies_pending && !iaImpact.value)
+
 // ── Onglets ───────────────────────────────────────────────────────────────
 const pistesCount = ref(Math.min(50, props.grimoire?.requested_voies_count ?? 30))
 const tabs = computed(() => [
     { key: 'synthese', label: 'Relecture globale' },
     { key: 'tests',    label: 'Résultats des tests' },
+    { key: 'ia',       label: 'Ton métier face à l\'IA' },
     { key: 'pistes',   label: `${voies.value.length || pistesCount.value} Pistes métiers` },
 ])
 const activeTab = ref('synthese')
@@ -341,7 +348,31 @@ function fitClass(score) {
                     </section>
                 </div>
 
-                <!-- ── Onglet 3 : Les pistes ─────────────────────────── -->
+                <!-- ── Onglet 3 : Ton métier face à l'IA ─────────────── -->
+                <div v-show="activeTab === 'ia'" role="tabpanel" id="panel-ia" aria-labelledby="tab-ia">
+                    <!-- Analyse en cours (elle arrive avec les pistes) -->
+                    <div v-if="iaPending" class="grim-voies-loading">
+                        <div class="grim-pulse-dots"><span></span><span></span><span></span></div>
+                        <p class="grim-voies-loading-text">L'oracle sonde l'avenir de ton métier face à l'IA…</p>
+                        <p class="grim-voies-loading-sub">Quelques secondes — la relecture est déjà disponible dans le premier onglet.</p>
+                    </div>
+                    <p v-else-if="!iaImpact" class="grim-voies-empty">
+                        Cette analyse n'a pas encore été générée. Clique sur « Régénérer le Grimoire » pour l'obtenir.
+                    </p>
+                    <section v-else class="grim-ia">
+                        <div class="grim-section-head">
+                            <h2 class="grim-section-title">Ton métier face à l'IA</h2>
+                            <p class="grim-voies-intro">
+                                Comment l'intelligence artificielle est susceptible de transformer ton métier — et comment en faire un atout.
+                            </p>
+                        </div>
+                        <div class="grim-scroll grim-ia-scroll">
+                            <MarkdownText :source="iaImpact" />
+                        </div>
+                    </section>
+                </div>
+
+                <!-- ── Onglet 4 : Les pistes ─────────────────────────── -->
                 <div v-show="activeTab === 'pistes'" role="tabpanel" id="panel-pistes" aria-labelledby="tab-pistes">
                     <!-- Pistes en cours de génération (la synthèse, elle, est déjà là) -->
                     <div v-if="voies_pending && !voies.length" class="grim-voies-loading">
@@ -477,6 +508,12 @@ function fitClass(score) {
                     <p v-if="regenError" class="grim-regen-error" role="alert">{{ regenError }}</p>
                     <p v-if="grimoire?.disclaimer" class="grim-disclaimer">
                         {{ grimoire.disclaimer.disclaimer_text }}
+                    </p>
+                    <p class="grim-disclaimer" style="font-style:normal;font-size:12px;margin-top:0.85rem">
+                        <strong>Outil d'auto-évaluation et de développement personnel.</strong>
+                        Les contenus de ce Grimoire sont générés par IA, à titre informatif. Ils ne
+                        constituent pas un avis professionnel et ne remplacent pas un psychologue, un
+                        médecin ou un coach.
                     </p>
                 </footer>
             </div>
@@ -618,6 +655,10 @@ function fitClass(score) {
 }
 
 .grim-synthesis { max-width: 760px; margin: 0 auto 3.5rem; }
+
+/* Onglet « Ton métier face à l'IA » : même parchemin que la synthèse. */
+.grim-ia { max-width: 760px; margin: 0 auto 3.5rem; }
+.grim-ia-scroll { margin-top: 0; }
 .grim-scroll {
     position: relative;
     background:

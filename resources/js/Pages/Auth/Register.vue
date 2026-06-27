@@ -11,6 +11,7 @@ const form = useForm({
     password_confirmation: '',
     terms: false,
     quest_title: '',
+    website: '', // honeypot anti-bot — doit rester vide
 })
 
 const submit = () => form.post(route('register'), {
@@ -59,6 +60,18 @@ const questOptions = [
         </div>
 
         <form @submit.prevent="submit" style="display:flex;flex-direction:column;gap:1.125rem">
+
+            <!-- Honeypot anti-bot : invisible et inaccessible au clavier/lecteurs d'écran -->
+            <div aria-hidden="true" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;overflow:hidden">
+                <label for="register-website">Ne pas remplir</label>
+                <input
+                    id="register-website"
+                    type="text"
+                    v-model="form.website"
+                    tabindex="-1"
+                    autocomplete="off"
+                >
+            </div>
 
             <!-- BLOC NEUROMARKETING : Ancrage identitaire précoce -->
             <div class="lp-anim-ctas">

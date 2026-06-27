@@ -30,6 +30,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'role'       => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'subscribed' => \App\Http\Middleware\EnsureSubscribed::class,
             '2fa'        => \App\Http\Middleware\EnsureTwoFactorAuthenticated::class,
+            // Surcharge l'alias 'verified' natif : ajoute kill-switch + exemption staff.
+            'verified'   => \App\Http\Middleware\EnsureEmailVerified::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

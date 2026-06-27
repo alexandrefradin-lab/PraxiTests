@@ -260,6 +260,8 @@ onMounted(() => {
     <div style="display:flex;gap:20px">
       <Link href="/cgu" style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted,#8C7A5E);text-decoration:none">CGU</Link>
       <Link href="/confidentialite" style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted,#8C7A5E);text-decoration:none">Confidentialite</Link>
+      <Link href="/mentions-legales" style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted,#8C7A5E);text-decoration:none">Mentions legales</Link>
+      <Link href="/contact" style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted,#8C7A5E);text-decoration:none">Contact</Link>
     </div>
     <div style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;color:var(--text-ghost,#B0A08A);letter-spacing:.04em">{{ new Date().getFullYear() }} Praxis Accompagnement</div>
   </footer>

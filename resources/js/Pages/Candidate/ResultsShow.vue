@@ -197,6 +197,12 @@ onMounted(() => {
                         :source="result.ai_synthesis"
                         class="ac-synthesis-full"
                     />
+
+                    <p v-if="result.ai_synthesis" class="ac-legal-note">
+                        <strong>Outil d'auto-évaluation et de développement personnel.</strong>
+                        Cette synthèse est générée par IA, à titre informatif. Elle ne constitue pas
+                        un avis professionnel et ne remplace pas un psychologue, un médecin ou un coach.
+                    </p>
                 </section>
 
                 <!-- ── DIMENSIONS SCORING ─────────────────────────── -->
@@ -504,6 +510,18 @@ onMounted(() => {
     border-left: 2px solid var(--color-signal);
     border-radius: 0 8px 8px 0;
 }
+
+/* ── Mention légale sous la synthèse IA ── */
+.ac-legal-note {
+    margin: 1.5rem 0 0;
+    padding-top: 1rem;
+    border-top: 1px solid var(--glass-border, rgba(166,117,32,0.18));
+    font-family: 'Inter', sans-serif;
+    font-size: 11.5px;
+    line-height: 1.55;
+    color: var(--text-muted, #8C7A5E);
+}
+.ac-legal-note strong { color: var(--text-primary); font-weight: 600; }
 
 /* ── DIMENSIONS ──────────────────────────────── */
 .ac-dimensions {

@@ -66,6 +66,14 @@ class BillingController extends Controller
             : $plan['stripe_monthly'];
         $trialDays = config('plans.default_trial_days');
 
+        // Garde-fou : les Price IDs Stripe sont vides tant qu'ils n'ont pas été
+        // renseignés (.env / config plans). Évite une 500 Stripe « No such price ».
+        if (blank($priceId)) {
+            Log::warning('Checkout sans Price ID Stripe', ['plan' => $request->plan, 'period' => $request->period]);
+            return redirect()->route('billing.plans')
+                ->with('error', "Ce plan n'est pas encore disponible. Merci de réessayer plus tard ou de contacter le support.");
+        }
+
         // Si déjà abonné → swap de plan plutôt que nouveau checkout
         if ($user->subscribed('default')) {
             try {
@@ -95,6 +103,12 @@ class BillingController extends Controller
             return Inertia::location($checkout->url);
         } catch (IncompletePayment $e) {
             return redirect()->route('cashier.payment', [$e->payment->id, 'redirect' => route('billing.manage')]);
+        } catch (\Throwable $e) {
+            // Erreur Stripe (price invalide, clé absente, API indisponible…) :
+            // pas de 500, on renvoie l'utilisateur vers les plans avec un message.
+            Log::error('Stripe checkout failed', ['user_id' => $user->id, 'plan' => $request->plan, 'msg' => $e->getMessage()]);
+            return redirect()->route('billing.plans')
+                ->with('error', "Le paiement n'a pas pu être initié. Réessaie dans un instant ou contacte le support.");
         }
     }
 
