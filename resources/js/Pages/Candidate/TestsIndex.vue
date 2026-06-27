@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { Link, Head, router } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
+import WelcomeModal from '@/Components/WelcomeModal.vue'
 
 const props = defineProps({
     tests: Array,
@@ -57,6 +58,7 @@ function emblem(slug) {
 <template>
     <CandidateLayout>
         <Head title="L'Armurerie — Épreuves" />
+        <WelcomeModal />
 
         <!-- ── En-tête page ── -->
         <div class="mb-8">

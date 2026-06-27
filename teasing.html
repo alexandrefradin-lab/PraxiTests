@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PraxiQuest — Découvrez qui vous êtes vraiment</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink:       #0a0806;
+      --parchment: #f5ecd7;
+      --gold:      #c9962a;
+      --gold-light:#e8be5a;
+      --gold-dim:  #7a5a18;
+      --ember:     #d4421a;
+      --ash:       #2a2218;
+      --fog:       #1a140e;
+      --sepia:     #8c7250;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--ink);
+      color: var(--parchment);
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 18px;
+      line-height: 1.7;
+      overflow-x: hidden;
+      cursor: crosshair;
+    }
+
+    /* ── Grain overlay ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.04;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* ── Radial ambient light ── */
+    .ambient {
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      mix-blend-mode: screen;
+      z-index: 0;
+    }
+    .ambient-1 {
+      width: 900px; height: 900px;
+      top: -250px; left: 50%;
+      transform: translateX(-50%);
+      background: radial-gradient(circle, rgba(201,150,42,0.12) 0%, transparent 70%);
+      animation: breathe 8s ease-in-out infinite;
+    }
+    .ambient-2 {
+      width: 600px; height: 600px;
+      bottom: 10%; right: -150px;
+      background: radial-gradient(circle, rgba(212,66,26,0.07) 0%, transparent 70%);
+      animation: breathe 12s ease-in-out infinite reverse;
+    }
+    @keyframes breathe {
+      0%, 100% { opacity: 0.6; transform: translateX(-50%) scale(1); }
+      50%       { opacity: 1;   transform: translateX(-50%) scale(1.08); }
+    }
+    .ambient-2 { animation-name: breathe2; }
+    @keyframes breathe2 {
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50%       { opacity: 1;   transform: scale(1.1); }
+    }
+
+    /* ── Section wrapper ── */
+    .section { position: relative; z-index: 1; }
+
+    /* ════════════════════════════════
+       HERO
+    ════════════════════════════════ */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 4rem 2rem 6rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-ornament {
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 2px;
+      height: 120px;
+      background: linear-gradient(to bottom, transparent, var(--gold));
+      opacity: 0;
+      animation: fadeDown 1.2s 0.3s forwards;
+    }
+    @keyframes fadeDown {
+      to { opacity: 0.6; }
+    }
+
+    .hero-sigil {
+      font-size: 3.5rem;
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: riseIn 1s 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      filter: drop-shadow(0 0 24px rgba(201,150,42,0.5));
+    }
+
+    .hero-badge {
+      display: inline-block;
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.35em;
+      color: var(--gold);
+      text-transform: uppercase;
+      border: 1px solid var(--gold-dim);
+      padding: 0.4em 1.4em;
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: riseIn 1s 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    h1 {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(3.2rem, 8vw, 7rem);
+      font-weight: 900;
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+      opacity: 0;
+      animation: riseIn 1.1s 1.1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    h1 .line-gold {
+      display: block;
+      color: var(--gold);
+      text-shadow: 0 0 60px rgba(201,150,42,0.35);
+    }
+
+    h1 .line-white {
+      display: block;
+      color: var(--parchment);
+    }
+
+    .hero-sub {
+      max-width: 560px;
+      margin: 2.5rem auto 0;
+      font-size: 1.2rem;
+      font-style: italic;
+      color: rgba(245, 236, 215, 0.65);
+      opacity: 0;
+      animation: riseIn 1s 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .hero-cta-group {
+      margin-top: 3.5rem;
+      display: flex;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      opacity: 0;
+      animation: riseIn 1s 1.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .btn-primary {
+      font-family: 'Cinzel', serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--ink);
+      background: var(--gold);
+      border: none;
+      padding: 1.1em 2.8em;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--gold-light);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s ease;
+    }
+    .btn-primary:hover::before { transform: scaleX(1); }
+    .btn-primary:hover { box-shadow: 0 0 30px rgba(201,150,42,0.4); }
+    .btn-primary span { position: relative; z-index: 1; }
+
+    .btn-ghost {
+      font-family: 'Cinzel', serif;
+      font-size: 0.85rem;
+      font-weight: 400;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--parchment);
+      background: transparent;
+      border: 1px solid rgba(245,236,215,0.3);
+      padding: 1.1em 2.8em;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn-ghost:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Scroll indicator */
+    .scroll-hint {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--gold-dim);
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      opacity: 0;
+      animation: riseIn 1s 2.2s forwards;
+    }
+    .scroll-hint::after {
+      content: '';
+      display: block;
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, var(--gold-dim), transparent);
+      animation: pulse-line 2s ease-in-out infinite;
+    }
+    @keyframes pulse-line {
+      0%, 100% { opacity: 0.3; }
+      50%       { opacity: 1; }
+    }
+
+    /* ════════════════════════════════
+       DIVIDER / ORNAMENT
+    ════════════════════════════════ */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin: 0 auto;
+      max-width: 600px;
+      padding: 0 2rem;
+    }
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--gold-dim));
+    }
+    .divider-line.rev {
+      background: linear-gradient(to left, transparent, var(--gold-dim));
+    }
+    .divider-glyph {
+      color: var(--gold);
+      font-size: 1.1rem;
+      opacity: 0.7;
+    }
+
+    /* ════════════════════════════════
+       FEATURES / GRIMOIRE
+    ════════════════════════════════ */
+    .features-section {
+      padding: 8rem 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-eyebrow {
+      font-family: 'Cinzel', serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--gold);
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      font-weight: 600;
+      text-align: center;
+      color: var(--parchment);
+      line-height: 1.15;
+      margin-bottom: 1rem;
+    }
+
+    .section-desc {
+      text-align: center;
+      color: rgba(245,236,215,0.55);
+      font-style: italic;
+      max-width: 520px;
+      margin: 0 auto 5rem;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5px;
+      background: var(--gold-dim);
+      border: 1.5px solid var(--gold-dim);
+    }
+
+    .feature-card {
+      background: var(--fog);
+      padding: 2.8rem 2.4rem;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.3s;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(to right, transparent, var(--gold), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .feature-card:hover { background: var(--ash); }
+    .feature-card:hover::before { opacity: 1; }
+
+    .feature-number {
+      font-family: 'Cinzel', serif;
+      font-size: 4rem;
+      font-weight: 900;
+      color: var(--gold-dim);
+      opacity: 0.4;
+      line-height: 1;
+      margin-bottom: 1rem;
+      transition: color 0.3s, opacity 0.3s;
+    }
+    .feature-card:hover .feature-number {
+      color: var(--gold);
+      opacity: 0.6;
+    }
+
+    .feature-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--parchment);
+      margin-bottom: 0.75rem;
+      letter-spacing: 0.05em;
+    }
+
+    .feature-text {
+      font-size: 0.95rem;
+      color: rgba(245,236,215,0.55);
+      line-height: 1.7;
+    }
+
+    .feature-tag {
+      display: inline-block;
+      margin-top: 1.2rem;
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--gold);
+      border: 1px solid var(--gold-dim);
+      padding: 0.3em 0.8em;
+    }
+
+    /* ════════════════════════════════
+       SÉQUENCE NARRATIVE / QUÊTE
+    ════════════════════════════════ */
+    .quest-section {
+      background: linear-gradient(to bottom, transparent, rgba(201,150,42,0.04), transparent);
+      padding: 8rem 2rem;
+    }
+
+    .quest-inner {
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    .quest-steps {
+      margin-top: 4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .quest-step {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      gap: 2rem;
+      padding: 2.5rem 0;
+      border-left: 1px solid var(--gold-dim);
+      padding-left: 2.5rem;
+      position: relative;
+      opacity: 0;
+      transform: translateX(-20px);
+      transition: opacity 0.7s, transform 0.7s;
+    }
+    .quest-step.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .quest-step::before {
+      content: '';
+      position: absolute;
+      left: -6px; top: 50%;
+      transform: translateY(-50%);
+      width: 11px; height: 11px;
+      background: var(--gold);
+      border-radius: 50%;
+      box-shadow: 0 0 12px rgba(201,150,42,0.6);
+    }
+
+    .step-icon {
+      font-size: 2.2rem;
+      margin-top: 0.2rem;
+      filter: drop-shadow(0 0 8px rgba(201,150,42,0.4));
+    }
+
+    .step-label {
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.4rem;
+    }
+
+    .step-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--parchment);
+      margin-bottom: 0.6rem;
+    }
+
+    .step-desc {
+      font-size: 0.95rem;
+      color: rgba(245,236,215,0.55);
+      font-style: italic;
+    }
+
+    /* ════════════════════════════════
+       STAT / NUMBERS
+    ════════════════════════════════ */
+    .stats-band {
+      border-top: 1px solid var(--gold-dim);
+      border-bottom: 1px solid var(--gold-dim);
+      padding: 4rem 2rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      text-align: center;
+      gap: 2rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .stat-num {
+      font-family: 'Cinzel', serif;
+      font-size: 3rem;
+      font-weight: 900;
+      color: var(--gold);
+      line-height: 1;
+      display: block;
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      color: rgba(245,236,215,0.5);
+      font-style: italic;
+      margin-top: 0.4rem;
+    }
+
+    /* ════════════════════════════════
+       ORACLE TEASER
+    ════════════════════════════════ */
+    .oracle-section {
+      padding: 8rem 2rem;
+      text-align: center;
+      position: relative;
+    }
+
+    .oracle-frame {
+      max-width: 680px;
+      margin: 3rem auto 0;
+      border: 1px solid var(--gold-dim);
+      padding: 3rem;
+      position: relative;
+      background: radial-gradient(ellipse at center top, rgba(201,150,42,0.06) 0%, transparent 60%);
+    }
+    .oracle-frame::before, .oracle-frame::after {
+      content: '✦';
+      position: absolute;
+      color: var(--gold);
+      font-size: 0.9rem;
+      opacity: 0.6;
+    }
+    .oracle-frame::before { top: -0.6rem; left: 50%; transform: translateX(-50%); }
+    .oracle-frame::after  { bottom: -0.6rem; left: 50%; transform: translateX(-50%); }
+
+    .oracle-chat {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .chat-bubble {
+      max-width: 75%;
+      padding: 0.9rem 1.3rem;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      position: relative;
+      text-align: left;
+    }
+    .chat-bubble.user {
+      align-self: flex-end;
+      background: rgba(201,150,42,0.12);
+      border: 1px solid rgba(201,150,42,0.2);
+      color: var(--parchment);
+    }
+    .chat-bubble.oracle {
+      align-self: flex-start;
+      background: rgba(26,20,14,0.8);
+      border: 1px solid var(--gold-dim);
+      color: rgba(245,236,215,0.8);
+      font-style: italic;
+    }
+    .chat-bubble.oracle::before {
+      content: '◈ ';
+      color: var(--gold);
+      font-style: normal;
+    }
+
+    .oracle-cursor {
+      display: inline-block;
+      width: 8px; height: 1.1em;
+      background: var(--gold);
+      margin-left: 2px;
+      vertical-align: text-bottom;
+      animation: blink 1.1s step-end infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0; }
+    }
+
+    .oracle-note {
+      font-size: 0.8rem;
+      color: rgba(245,236,215,0.3);
+      font-style: italic;
+      margin-top: 1rem;
+    }
+
+    /* ════════════════════════════════
+       WAITLIST / CTA FINAL
+    ════════════════════════════════ */
+    .cta-section {
+      padding: 8rem 2rem 10rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-bg-rune {
+      position: absolute;
+      font-size: 28rem;
+      font-family: 'Cinzel', serif;
+      font-weight: 900;
+      color: var(--gold);
+      opacity: 0.02;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      user-select: none;
+      line-height: 1;
+    }
+
+    .cta-section .section-title { margin-bottom: 0.75rem; }
+
+    .email-form {
+      margin: 3rem auto 0;
+      max-width: 480px;
+      display: flex;
+      gap: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .email-input {
+      flex: 1;
+      background: rgba(245,236,215,0.05);
+      border: 1px solid var(--gold-dim);
+      border-right: none;
+      color: var(--parchment);
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 1rem;
+      padding: 1rem 1.4rem;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .email-input::placeholder { color: rgba(245,236,215,0.3); font-style: italic; }
+    .email-input:focus { border-color: var(--gold); background: rgba(201,150,42,0.05); }
+
+    .email-form .btn-primary {
+      border: 1px solid var(--gold);
+      white-space: nowrap;
+      font-size: 0.75rem;
+      padding: 1em 1.8em;
+    }
+
+    .form-note {
+      margin-top: 1rem;
+      font-size: 0.8rem;
+      color: rgba(245,236,215,0.3);
+      font-style: italic;
+    }
+
+    .success-msg {
+      display: none;
+      font-family: 'Cinzel', serif;
+      color: var(--gold);
+      font-size: 0.9rem;
+      letter-spacing: 0.1em;
+      padding: 1.5rem;
+      border: 1px solid var(--gold-dim);
+      margin-top: 2rem;
+    }
+
+    /* ════════════════════════════════
+       FOOTER
+    ════════════════════════════════ */
+    footer {
+      border-top: 1px solid rgba(122,90,24,0.3);
+      padding: 2.5rem 2rem;
+      text-align: center;
+      color: rgba(245,236,215,0.2);
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+    }
+
+    footer a {
+      color: var(--gold-dim);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    footer a:hover { color: var(--gold); }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .email-form { flex-direction: column; }
+      .email-input { border-right: 1px solid var(--gold-dim); border-bottom: none; }
+      .quest-step { grid-template-columns: 50px 1fr; gap: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ambient ambient-1"></div>
+  <div class="ambient ambient-2"></div>
+
+  <!-- ══════ HERO ══════ -->
+  <section class="hero section">
+    <div class="hero-ornament"></div>
+
+    <div class="hero-sigil">⚜</div>
+
+    <div class="hero-badge">Bêta privée · Été 2026</div>
+
+    <h1>
+      <span class="line-white">Révélez</span>
+      <span class="line-gold">votre</span>
+      <span class="line-white">vocation</span>
+    </h1>
+
+    <p class="hero-sub">
+      Une plateforme d'évaluation intelligente qui transforme vos tests
+      de personnalité en une carte de votre potentiel professionnel.
+    </p>
+
+    <div class="hero-cta-group">
+      <a href="#waitlist" class="btn-primary"><span>Rejoindre la liste d'attente</span></a>
+      <a href="#quete" class="btn-ghost">Découvrir la quête →</a>
+    </div>
+
+    <div class="scroll-hint">Descendre</div>
+  </section>
+
+  <!-- ══════ FEATURES ══════ -->
+  <section class="section features-section">
+    <p class="section-eyebrow">L'Arsenal</p>
+    <h2 class="section-title">Des outils taillés<br/>pour se connaître vraiment</h2>
+    <p class="section-desc">Chaque fonctionnalité a été pensée comme une épreuve révélatrice, pas comme un simple formulaire.</p>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-number">01</div>
+        <div class="feature-title">Tests professionnels</div>
+        <p class="feature-text">Un catalogue de tests psychométriques validés — personnalité, compétences cognitives, valeurs, style managérial. Chacun con&ccedil;u pour révéler une facette de votre identité professionnelle.</p>
+        <span class="feature-tag">✦ Scientifiquement fondé</span>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-number">02</div>
+        <div class="feature-title">Le Grimoire IA</div>
+        <p class="feature-text">Après vos tests, une intelligence artificielle synthétise l'ensemble en un portrait narratif unique — vos forces, vos tensions, vos angles morts. Une lecture que vous ne trouverez nulle part ailleurs.</p>
+        <span class="feature-tag">✦ IA générative</span>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-number">03</div>
+        <div class="feature-title">15 pistes métiers</div>
+        <p class="feature-text">Pas une liste générique. Des suggestions contextualisées à votre profil, votre situation (salarié, entrepreneur, demandeur d'emploi) et votre trajectoire. Avec des voies concrètes pour y accéder.</p>
+        <span class="feature-tag">✦ Personnalisé</span>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-number">04</div>
+        <div class="feature-title">L'Oracle</div>
+        <p class="feature-text">Un assistant conversationnel ancré dans vos résultats. Posez vos questions les plus intimes sur votre orientation : il connaît votre Grimoire, vos tests, vos aspirations.</p>
+        <span class="feature-tag">✦ Chat contextuel</span>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-number">05</div>
+        <div class="feature-title">Éclats & Salle du Trésor</div>
+        <p class="feature-text">Chaque test accompli vous rapporte des Éclats — une monnaie d'expérience qui déverrouille des modules de développement personnel : gestion du temps, leadership, concentration profonde...</p>
+        <span class="feature-tag">✦ Gamification</span>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-number">06</div>
+        <div class="feature-title">Système de plugins</div>
+        <p class="feature-text">PraxiQuest est une plateforme ouverte. Des organismes, coachs et RH peuvent déployer leurs propres batteries de tests. Un écosystème en expansion permanente.</p>
+        <span class="feature-tag">✦ Extensible</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider section">
+    <div class="divider-line"></div>
+    <div class="divider-glyph">✧</div>
+    <div class="divider-line rev"></div>
+  </div>
+
+  <!-- ══════ QUEST / NARRATIVE ══════ -->
+  <section class="quest-section section" id="quete">
+    <div class="quest-inner">
+      <p class="section-eyebrow">La Quête</p>
+      <h2 class="section-title">Votre parcours,<br/>étape par étape</h2>
+      <p class="section-desc">De l'inscription à la révélation, quatre actes qui changent la perspective.</p>
+
+      <div class="quest-steps">
+        <div class="quest-step">
+          <div class="step-icon">🧭</div>
+          <div>
+            <div class="step-label">Acte I</div>
+            <div class="step-title">Posez le cadre</div>
+            <p class="step-desc">Votre statut, votre ancienneté, votre CV. PraxiQuest ne vous évalue pas à blanc — il contextualise chaque résultat dans votre réalité de terrain.</p>
+          </div>
+        </div>
+
+        <div class="quest-step">
+          <div class="step-icon">⚗️</div>
+          <div>
+            <div class="step-label">Acte II</div>
+            <div class="step-title">Traversez les épreuves</div>
+            <p class="step-desc">Tests de personnalité, de valeurs, de stress au travail, de leadership... Des épreuves soigneusement choisies, pas un questionnaire interminable.</p>
+          </div>
+        </div>
+
+        <div class="quest-step">
+          <div class="step-icon">📖</div>
+          <div>
+            <div class="step-label">Acte III</div>
+            <div class="step-title">Recevez votre Grimoire</div>
+            <p class="step-desc">L'IA tisse une synthèse narrative de tous vos résultats. Un portrait vivant — vos voies d'excellence, vos zones de tension, votre impact potentiel sur l'IA.</p>
+          </div>
+        </div>
+
+        <div class="quest-step">
+          <div class="step-icon">🗺️</div>
+          <div>
+            <div class="step-label">Acte IV</div>
+            <div class="step-title">Explorez vos horizons</div>
+            <p class="step-desc">15 pistes métiers adaptées, l'Oracle pour approfondir, et la Salle du Trésor pour continuer à grandir. La quête ne s'arrête pas au résultat.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════ STATS ══════ -->
+  <div class="stats-band section">
+    <div>
+      <span class="stat-num">11+</span>
+      <div class="stat-label">tests disponibles dès le lancement</div>
+    </div>
+    <div>
+      <span class="stat-num">15</span>
+      <div class="stat-label">pistes métiers générées par l'IA</div>
+    </div>
+    <div>
+      <span class="stat-num">6</span>
+      <div class="stat-label">apps de développement débloquables</div>
+    </div>
+    <div>
+      <span class="stat-num">∞</span>
+      <div class="stat-label">plugins tiers possibles</div>
+    </div>
+  </div>
+
+  <!-- ══════ ORACLE TEASER ══════ -->
+  <section class="oracle-section section">
+    <p class="section-eyebrow">L'Oracle</p>
+    <h2 class="section-title">Une conversation<br/>qui vous connaît</h2>
+    <p class="section-desc">Imaginez un conseiller d'orientation qui a lu chacun de vos résultats avant que vous lui posiez la première question.</p>
+
+    <div class="oracle-frame">
+      <div class="oracle-chat" id="oracle-demo">
+        <div class="chat-bubble user">Est-ce que je suis vraiment fait pour le management ?</div>
+        <div class="chat-bubble oracle" id="oracle-resp"></div>
+      </div>
+      <p class="oracle-note">✦ L'Oracle répond en s'appuyant sur votre Grimoire et l'ensemble de vos résultats</p>
+    </div>
+  </section>
+
+  <!-- ══════ WAITLIST ══════ -->
+  <section class="cta-section section" id="waitlist">
+    <div class="cta-bg-rune">✦</div>
+    <p class="section-eyebrow">La Porte</p>
+    <h2 class="section-title">Entrez en liste d'attente</h2>
+    <p class="section-desc" style="margin-bottom:0;">Les premiers inscrits bénéficieront d'un accès bêta prioritaire et d'un mois offert.</p>
+
+    <form class="email-form" id="waitlist-form" onsubmit="handleSubmit(event)">
+      <input
+        type="email"
+        class="email-input"
+        placeholder="votre@email.fr"
+        required
+        id="email-input"
+      />
+      <button type="submit" class="btn-primary"><span>Rejoindre</span></button>
+    </form>
+    <p class="form-note">Aucun spam. Désabonnement en un clic. Lancement prévu été 2026.</p>
+
+    <div class="success-msg" id="success-msg">
+      ✦ &nbsp; Votre quête commence. Nous vous contacterons dès l'ouverture des portes.
+    </div>
+  </section>
+
+  <!-- ══════ FOOTER ══════ -->
+  <footer>
+    <div class="divider" style="margin-bottom:1.5rem;">
+      <div class="divider-line"></div>
+      <div class="divider-glyph" style="font-size:0.7rem;">⚜</div>
+      <div class="divider-line rev"></div>
+    </div>
+    <p>
+      © 2026 PraxiQuest — <a href="mailto:contact@praxiquest.fr">contact@praxiquest.fr</a>
+      &nbsp;·&nbsp;
+      <a href="#">Mentions légales</a>
+      &nbsp;·&nbsp;
+      <a href="#">Politique de confidentialité</a>
+    </p>
+    <p style="margin-top:0.5rem;opacity:0.5;font-style:italic;">Révélez ce que vous portez déjà en vous.</p>
+  </footer>
+
+  <script>
+    // ── Intersection Observer pour animations scroll ──
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll('.quest-step').forEach(el => observer.observe(el));
+
+    // ── Oracle typing animation ──
+    const oracleText = `Votre profil montre un fort potentiel d'influence et de structuration — des qualités managériales réelles. Cependant votre Grimoire révèle un besoin d'autonomie créative qui peut créer une tension avec les contraintes hiérarchiques. Pas un obstacle : une donnée à intégrer dans votre choix de contexte.`;
+
+    let charIndex = 0;
+    const respEl = document.getElementById('oracle-resp');
+    respEl.innerHTML = '<span class="oracle-cursor"></span>';
+
+    function typeNextChar() {
+      if (charIndex < oracleText.length) {
+        respEl.innerHTML = oracleText.slice(0, charIndex + 1) + '<span class="oracle-cursor"></span>';
+        charIndex++;
+        const delay = oracleText[charIndex - 1] === '.' ? 340 :
+                      oracleText[charIndex - 1] === ':' ? 200 :
+                      oracleText[charIndex - 1] === '—' ? 160 : 28;
+        setTimeout(typeNextChar, delay);
+      } else {
+        respEl.innerHTML = oracleText + '<span class="oracle-cursor"></span>';
+      }
+    }
+
+    // Start typing when oracle section enters view
+    const oracleSection = document.querySelector('.oracle-section');
+    let typingStarted = false;
+    const oracleObserver = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && !typingStarted) {
+        typingStarted = true;
+        setTimeout(typeNextChar, 600);
+      }
+    }, { threshold: 0.4 });
+    oracleObserver.observe(oracleSection);
+
+    // ── Waitlist form ──
+    function handleSubmit(e) {
+      e.preventDefault();
+      const form = document.getElementById('waitlist-form');
+      const msg  = document.getElementById('success-msg');
+      form.style.display = 'none';
+      msg.style.display = 'block';
+    }
+
+    // ── Subtle parallax on hero sigil ──
+    document.addEventListener('mousemove', (e) => {
+      const x = (e.clientX / window.innerWidth  - 0.5) * 12;
+      const y = (e.clientY / window.innerHeight - 0.5) * 12;
+      const sigil = document.querySelector('.hero-sigil');
+      if (sigil) sigil.style.transform = `translate(${x}px, ${y}px)`;
+    });
+  </script>
+</body>
+</html>
