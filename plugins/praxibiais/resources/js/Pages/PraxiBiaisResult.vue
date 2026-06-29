@@ -1,36 +1,42 @@
 <script setup>
 /**
  * Page résultats — PraxiBiais (biais cognitifs professionnels)
+ * Redesign 2026-06-29 : structure narrative, impact en premier.
  *
  * RÈGLE : n'utiliser que les classes pt-* et les variables var(--pt-*).
  * Ne jamais hardcoder de couleurs Tailwind (bg-indigo-600, etc.).
  */
 import { computed, ref } from 'vue'
-import { Link } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import SynthesisCard from '@/Components/SynthesisCard.vue'
-import MarkdownText from '@/Components/MarkdownText.vue'
 
 const props = defineProps({
     attempt: Object,
     result:  Object,
 })
 
-const scoring  = computed(() => props.result?.scoring ?? {})
-const scores   = computed(() => scoring.value.scores ?? {})
-const top3     = computed(() => scoring.value.top3 ?? [])
-const profile  = computed(() => scoring.value.profile ?? {})
+const scoring = computed(() => props.result?.scoring ?? {})
+const scores  = computed(() => scoring.value.scores ?? {})
+const top3    = computed(() => scoring.value.top3 ?? [])
+const profile = computed(() => scoring.value.profile ?? {})
 
-// Biais triés par score décroissant pour le tableau complet
+// top3 PHP ne contient pas `details` — on les récupère depuis scores (enrichi)
+const top3WithDetails = computed(() =>
+    (top3.value ?? []).map(b => scores.value[b.slug] ?? b)
+)
+
+// Tous les biais triés par score décroissant
 const allBiais = computed(() =>
     Object.values(scores.value).sort((a, b) => b.score - a.score)
 )
 
-// Carte dépliée
-const expanded = ref(null)
-const toggle   = (slug) => { expanded.value = expanded.value === slug ? null : slug }
+// Les 7 biais après le top 3 (pour la section "explorer")
+const rest = computed(() => allBiais.value.slice(3))
 
-// Couleur selon niveau
+const expanded = ref(null)
+const toggle   = (key) => { expanded.value = expanded.value === key ? null : key }
+
+// ── Couleurs par niveau ────────────────────────────────────────────────────────
 const levelColor = (slug) => ({
     critical: '#dc2626',
     high:     '#ea580c',
@@ -39,19 +45,21 @@ const levelColor = (slug) => ({
 }[slug] ?? '#64748b')
 
 const levelBg = (slug) => ({
-    critical: 'rgba(220,38,38,.1)',
-    high:     'rgba(234,88,12,.1)',
-    moderate: 'rgba(var(--pt-gold-rgb, 212,160,23),.12)',
+    critical: 'rgba(220,38,38,.12)',
+    high:     'rgba(234,88,12,.12)',
+    moderate: 'rgba(212,160,23,.15)',
     low:      'rgba(100,116,139,.1)',
 }[slug] ?? 'rgba(100,116,139,.1)')
 
-// Couleur de la barre de score (0–100 → rouge→or→vert)
 const barColor = (score) => {
     if (score >= 80) return '#dc2626'
     if (score >= 65) return '#ea580c'
     if (score >= 35) return 'var(--pt-gold)'
     return '#64748b'
 }
+
+// Signal strength : 1–5 segments colorés
+const signalLevel = (score) => Math.ceil((score / 100) * 5)
 
 // Emoji profil
 const profileEmoji = computed(() => ({
@@ -69,212 +77,320 @@ const profileEmoji = computed(() => ({
 
         <div style="max-width:800px;margin:0 auto">
 
-            <!-- En-tête ───────────────────────────────────────────────────── -->
-            <div style="text-align:center;margin-bottom:2rem">
-                <span class="pt-badge" style="margin-bottom:.75rem">Le Cartographe Mental</span>
-                <h1 style="font-size:26px;font-weight:700;margin-top:6px;color:var(--pt-text)">
-                    Vos biais cognitifs professionnels
+            <!-- ── OUVERTURE CHOC ───────────────────────────────────────────── -->
+            <div style="text-align:center;padding:2rem 1rem 1.75rem">
+                <span class="pt-badge" style="margin-bottom:1rem;display:inline-block">
+                    Le Cartographe Mental
+                </span>
+                <h1 style="font-size:24px;font-weight:700;color:var(--pt-text);line-height:1.4;margin-bottom:.875rem">
+                    En 40 questions, vous venez d'identifier<br>
+                    <span style="color:var(--pt-gold)">pourquoi vous n'avancez pas aussi vite<br>
+                    que vous le pourriez.</span>
                 </h1>
-                <p style="font-size:14px;color:var(--pt-text-muted);margin-top:6px;line-height:1.5">
-                    10 biais analysés · 40 questions · Scoring direct / inverse / scénario
+                <p style="font-size:14px;color:var(--pt-text-muted);max-width:520px;margin:0 auto;line-height:1.65">
+                    Voici la cartographie de vos freins cognitifs — les mécanismes
+                    silencieux qui influencent vos décisions professionnelles à votre insu.
                 </p>
             </div>
 
-            <!-- Profil composite ──────────────────────────────────────────── -->
-            <div class="pt-card" style="padding:1.75rem;margin-bottom:1.5rem;border-left:4px solid var(--pt-gold)">
-                <div style="display:flex;align-items:flex-start;gap:1rem">
-                    <span style="font-size:2.5rem;line-height:1">{{ profileEmoji }}</span>
+            <!-- ── PROFIL DOMINANT (révélation) ───────────────────────────── -->
+            <div class="pt-card" style="padding:2rem;margin-bottom:2rem;position:relative;overflow:hidden">
+                <!-- bandeau gradient en haut -->
+                <div style="position:absolute;top:0;left:0;right:0;height:4px;
+                            background:linear-gradient(90deg,var(--pt-gold),#ea580c)"></div>
+
+                <div style="display:flex;align-items:flex-start;gap:1.25rem">
+                    <!-- Avatar profil -->
+                    <div style="width:64px;height:64px;border-radius:50%;
+                                background:var(--pt-surface-2);flex-shrink:0;
+                                display:flex;align-items:center;justify-content:center;
+                                font-size:2rem;border:2px solid var(--pt-gold)">
+                        {{ profileEmoji }}
+                    </div>
+
                     <div style="flex:1">
-                        <p style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--pt-text-light);margin-bottom:4px">
+                        <p style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;
+                                  color:var(--pt-gold);font-weight:600;margin-bottom:6px">
                             Votre profil cognitif dominant
                         </p>
-                        <h2 style="font-size:20px;font-weight:700;color:var(--pt-text);margin-bottom:.75rem">
+                        <h2 style="font-size:22px;font-weight:700;color:var(--pt-text);
+                                   line-height:1.2;margin-bottom:.875rem">
                             {{ profile.label }}
                         </h2>
-                        <p style="font-size:14px;color:var(--pt-text-muted);line-height:1.65">
+                        <p style="font-size:14px;color:var(--pt-text-muted);line-height:1.7;margin:0">
                             {{ profile.desc }}
                         </p>
                     </div>
                 </div>
             </div>
 
-            <!-- Top 3 biais ───────────────────────────────────────────────── -->
-            <h2 style="font-size:16px;font-weight:600;color:var(--pt-text);margin-bottom:1rem">
-                Vos 3 freins décisionnels principaux
+            <!-- ── TOP 3 FREINS (narratif + coût visible) ─────────────────── -->
+            <h2 style="font-size:12px;font-weight:700;text-transform:uppercase;
+                       letter-spacing:.1em;color:var(--pt-text-light);margin-bottom:1.25rem">
+                Vos 3 freins décisionnels dominants
             </h2>
 
-            <div style="display:flex;flex-direction:column;gap:.75rem;margin-bottom:2rem">
+            <div style="display:flex;flex-direction:column;gap:1rem;margin-bottom:2.5rem">
                 <div
-                    v-for="(biais, i) in top3"
+                    v-for="(biais, i) in top3WithDetails"
                     :key="biais.slug"
                     class="pt-card"
-                    style="padding:1.25rem 1.5rem;cursor:pointer;transition:box-shadow .15s"
+                    style="padding:1.5rem;cursor:pointer;
+                           border-left:4px solid transparent;transition:border-color .2s"
+                    :style="{ borderLeftColor: levelColor(biais.level?.slug) }"
                     @click="toggle(biais.slug)"
                 >
-                    <div style="display:flex;align-items:center;gap:1rem">
-                        <!-- Rang -->
-                        <div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0"
-                             :style="{ background: i === 0 ? 'var(--pt-gold)' : 'var(--pt-surface-2)', color: i === 0 ? '#fff' : 'var(--pt-text)' }">
+                    <!-- En-tête : rang + label + level -->
+                    <div style="display:flex;align-items:flex-start;gap:1rem;margin-bottom:1rem">
+                        <div style="width:36px;height:36px;border-radius:50%;flex-shrink:0;
+                                    display:flex;align-items:center;justify-content:center;
+                                    font-size:14px;font-weight:800"
+                             :style="{
+                                 background: i === 0 ? 'var(--pt-gold)' : levelBg(biais.level?.slug),
+                                 color: i === 0 ? '#fff' : levelColor(biais.level?.slug),
+                             }">
                             {{ i + 1 }}
                         </div>
-
-                        <!-- Nom + teaser -->
-                        <div style="flex:1;min-width:0">
-                            <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:4px">
-                                <span style="font-size:15px;font-weight:600;color:var(--pt-text)">{{ biais.label }}</span>
-                                <span style="font-size:11px;padding:2px 8px;border-radius:999px;font-weight:600"
-                                      :style="{ background: levelBg(biais.level.slug), color: levelColor(biais.level.slug) }">
-                                    {{ biais.level.label }}
+                        <div style="flex:1">
+                            <div style="display:flex;align-items:center;gap:.5rem;
+                                        flex-wrap:wrap;margin-bottom:6px">
+                                <span style="font-size:16px;font-weight:700;color:var(--pt-text)">
+                                    {{ biais.label }}
+                                </span>
+                                <span style="font-size:11px;padding:2px 8px;
+                                             border-radius:999px;font-weight:600"
+                                      :style="{ background: levelBg(biais.level?.slug),
+                                                color: levelColor(biais.level?.slug) }">
+                                    {{ biais.level?.label }}
                                 </span>
                             </div>
-                            <p style="font-size:13px;color:var(--pt-text-muted);line-height:1.4;margin:0">
-                                {{ biais.teaser }}
+                            <!-- Teaser : la phrase miroir -->
+                            <p style="font-size:15px;color:var(--pt-text-muted);
+                                      font-style:italic;line-height:1.5;margin:0">
+                                "{{ biais.teaser }}"
                             </p>
                         </div>
-
-                        <!-- Score + barre -->
-                        <div style="text-align:right;min-width:60px">
-                            <span style="font-size:20px;font-weight:700" :style="{ color: levelColor(biais.level.slug) }">
-                                {{ biais.score }}<small style="font-size:12px;font-weight:400;color:var(--pt-text-light)">/100</small>
-                            </span>
-                        </div>
                     </div>
 
-                    <!-- Barre de score -->
-                    <div style="height:4px;background:var(--pt-surface-2);border-radius:2px;margin-top:.875rem;overflow:hidden">
-                        <div style="height:100%;border-radius:2px;transition:width .6s ease"
-                             :style="{ width: biais.score + '%', background: barColor(biais.score) }"></div>
-                    </div>
-
-                    <!-- Détails dépliables -->
-                    <div v-if="expanded === biais.slug && biais.details"
-                         style="margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--pt-border)">
-                        <div style="display:grid;gap:1rem">
-                            <div>
-                                <p style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--pt-text-light);margin-bottom:4px">Ce qui se passe dans votre cerveau</p>
-                                <p style="font-size:13px;color:var(--pt-text-muted);line-height:1.6">{{ biais.details.definition }}</p>
-                            </div>
-                            <div>
-                                <p style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--pt-text-light);margin-bottom:4px">Comment ça se manifeste</p>
-                                <p style="font-size:13px;color:var(--pt-text-muted);line-height:1.6">{{ biais.details.manifestation }}</p>
-                            </div>
-                            <div>
-                                <p style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--pt-text-light);margin-bottom:4px">Le coût invisible</p>
-                                <p style="font-size:13px;color:var(--pt-text-muted);line-height:1.6">{{ biais.details.cout }}</p>
-                            </div>
-                            <div style="background:var(--pt-surface-2);border-radius:8px;padding:.875rem 1rem">
-                                <p style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--pt-gold);margin-bottom:4px">✦ Piste d'action</p>
-                                <p style="font-size:13px;color:var(--pt-text);line-height:1.6;font-style:italic">{{ biais.details.piste }}</p>
+                    <!-- Signal strength (5 segments) -->
+                    <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:1rem">
+                        <span style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;
+                                     color:var(--pt-text-light);white-space:nowrap">
+                            Intensité
+                        </span>
+                        <div style="display:flex;gap:3px">
+                            <div v-for="n in 5" :key="n"
+                                 style="width:22px;height:7px;border-radius:3px;transition:background .3s"
+                                 :style="{
+                                     background: n <= signalLevel(biais.score)
+                                         ? levelColor(biais.level?.slug)
+                                         : 'var(--pt-surface-2)'
+                                 }">
                             </div>
                         </div>
+                        <span style="font-size:12px;font-weight:700"
+                              :style="{ color: levelColor(biais.level?.slug) }">
+                            {{ biais.score }}<span style="font-weight:400;font-size:11px;color:var(--pt-text-light)">/100</span>
+                        </span>
                     </div>
 
-                    <!-- Indicateur déplier -->
-                    <p style="font-size:12px;color:var(--pt-text-light);margin-top:.5rem;text-align:right">
-                        {{ expanded === biais.slug ? '▲ Réduire' : '▼ Voir le détail' }}
+                    <!-- Coût invisible (toujours visible, c'est l'impact) -->
+                    <div v-if="biais.details?.cout"
+                         style="border-radius:8px;padding:.875rem 1rem;margin-bottom:.875rem"
+                         :style="{ background: levelBg(biais.level?.slug) }">
+                        <p style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;
+                                  color:var(--pt-text-light);margin-bottom:5px">
+                            ⚠ Le coût invisible
+                        </p>
+                        <p style="font-size:13px;color:var(--pt-text);
+                                  line-height:1.65;margin:0;font-weight:500">
+                            {{ biais.details.cout }}
+                        </p>
+                    </div>
+
+                    <!-- Dépliable : mécanisme + manifestation + piste d'action -->
+                    <transition name="fade">
+                        <div v-if="expanded === biais.slug && biais.details"
+                             style="padding-top:1rem;border-top:1px solid var(--pt-border)">
+                            <div style="display:grid;gap:.875rem">
+                                <div>
+                                    <p style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;
+                                              color:var(--pt-text-light);margin-bottom:4px">
+                                        Ce qui se passe dans votre cerveau
+                                    </p>
+                                    <p style="font-size:13px;color:var(--pt-text-muted);line-height:1.65">
+                                        {{ biais.details.definition }}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;
+                                              color:var(--pt-text-light);margin-bottom:4px">
+                                        Comment ça se manifeste
+                                    </p>
+                                    <p style="font-size:13px;color:var(--pt-text-muted);line-height:1.65">
+                                        {{ biais.details.manifestation }}
+                                    </p>
+                                </div>
+                                <div style="background:rgba(212,160,23,.1);border-radius:8px;
+                                            padding:.875rem 1rem;border-left:3px solid var(--pt-gold)">
+                                    <p style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;
+                                              color:var(--pt-gold);margin-bottom:4px">
+                                        ✦ Ce que vous pouvez faire maintenant
+                                    </p>
+                                    <p style="font-size:13px;color:var(--pt-text);line-height:1.65;margin:0">
+                                        {{ biais.details.piste }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </transition>
+
+                    <p style="font-size:12px;color:var(--pt-text-light);
+                              margin-top:.75rem;text-align:right;margin-bottom:0">
+                        {{ expanded === biais.slug ? '▲ Masquer' : '▼ Comprendre ce biais' }}
                     </p>
                 </div>
             </div>
 
-            <!-- Carte complète des 10 biais ──────────────────────────────── -->
-            <h2 style="font-size:16px;font-weight:600;color:var(--pt-text);margin-bottom:1rem">
+            <!-- ── CARTOGRAPHIE COMPLÈTE ────────────────────────────────────── -->
+            <h2 style="font-size:12px;font-weight:700;text-transform:uppercase;
+                       letter-spacing:.1em;color:var(--pt-text-light);margin-bottom:1.25rem">
                 Cartographie de vos 10 biais
             </h2>
 
-            <div class="pt-card" style="padding:1.5rem;margin-bottom:1.5rem">
-                <div style="display:flex;flex-direction:column;gap:.875rem">
-                    <div v-for="biais in allBiais" :key="biais.slug"
-                         style="display:flex;align-items:center;gap:.75rem">
-
-                        <!-- Nom -->
-                        <div style="min-width:180px;flex:1">
-                            <span style="font-size:13px;font-weight:500;color:var(--pt-text)">{{ biais.label }}</span>
-                        </div>
-
-                        <!-- Barre -->
-                        <div style="flex:2;height:8px;background:var(--pt-surface-2);border-radius:4px;overflow:hidden">
-                            <div style="height:100%;border-radius:4px;transition:width .6s ease"
-                                 :style="{ width: biais.score + '%', background: barColor(biais.score) }"></div>
-                        </div>
-
-                        <!-- Score + niveau -->
-                        <div style="min-width:120px;display:flex;align-items:center;gap:.5rem">
-                            <span style="font-size:13px;font-weight:600;min-width:36px;text-align:right"
-                                  :style="{ color: levelColor(biais.level.slug) }">
-                                {{ biais.score }}
+            <div class="pt-card" style="padding:1.5rem;margin-bottom:2rem">
+                <div style="display:flex;flex-direction:column;gap:1rem">
+                    <div v-for="biais in allBiais" :key="'map-' + biais.slug">
+                        <div style="display:flex;align-items:center;
+                                    justify-content:space-between;margin-bottom:7px">
+                            <span style="font-size:13px;font-weight:600;color:var(--pt-text)">
+                                {{ biais.label }}
                             </span>
-                            <span style="font-size:11px;padding:2px 6px;border-radius:999px;white-space:nowrap"
-                                  :style="{ background: levelBg(biais.level.slug), color: levelColor(biais.level.slug) }">
-                                {{ biais.level.label }}
-                            </span>
+                            <div style="display:flex;align-items:center;gap:.5rem">
+                                <span style="font-size:11px;padding:2px 7px;border-radius:999px"
+                                      :style="{ background: levelBg(biais.level?.slug),
+                                                color: levelColor(biais.level?.slug) }">
+                                    {{ biais.level?.label }}
+                                </span>
+                                <span style="font-size:13px;font-weight:700;min-width:28px;text-align:right"
+                                      :style="{ color: levelColor(biais.level?.slug) }">
+                                    {{ biais.score }}
+                                </span>
+                            </div>
+                        </div>
+                        <div style="height:10px;background:var(--pt-surface-2);
+                                    border-radius:5px;overflow:hidden">
+                            <div style="height:100%;border-radius:5px;
+                                        transition:width .8s cubic-bezier(.4,0,.2,1)"
+                                 :style="{ width: biais.score + '%',
+                                           background: barColor(biais.score) }">
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Légende -->
-                <div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--pt-border);display:flex;flex-wrap:wrap;gap:.75rem">
-                    <span v-for="(label, slug) in { critical: 'Blocage majeur ≥80', high: 'Frein significatif ≥65', moderate: 'Tendance active ≥35', low: 'Angle mort discret <35' }"
+                <div style="margin-top:1.25rem;padding-top:1rem;
+                            border-top:1px solid var(--pt-border);
+                            display:flex;flex-wrap:wrap;gap:.5rem">
+                    <span v-for="(label, slug) in {
+                              critical: '≥80 · Blocage majeur',
+                              high:     '≥65 · Frein significatif',
+                              moderate: '≥35 · Tendance active',
+                              low:      '<35 · Angle mort',
+                          }"
                           :key="slug"
-                          style="font-size:11px;padding:3px 8px;border-radius:999px"
+                          style="font-size:11px;padding:3px 9px;border-radius:999px"
                           :style="{ background: levelBg(slug), color: levelColor(slug) }">
                         {{ label }}
                     </span>
                 </div>
             </div>
 
-            <!-- Tous les biais (détails dépliables) ─────────────────────── -->
-            <h2 style="font-size:16px;font-weight:600;color:var(--pt-text);margin-bottom:1rem">
-                Comprendre chaque biais
+            <!-- ── EXPLORER LES AUTRES BIAIS (7 restants, dépliables) ─────── -->
+            <h2 style="font-size:12px;font-weight:700;text-transform:uppercase;
+                       letter-spacing:.1em;color:var(--pt-text-light);margin-bottom:.875rem">
+                Explorer les autres biais
             </h2>
 
-            <div style="display:flex;flex-direction:column;gap:.5rem;margin-bottom:2rem">
-                <div
-                    v-for="biais in allBiais"
-                    :key="'detail-' + biais.slug"
-                    class="pt-card"
-                    style="padding:1rem 1.25rem;cursor:pointer"
-                    @click="toggle('detail-' + biais.slug)"
-                >
-                    <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem">
+            <div style="display:flex;flex-direction:column;gap:.5rem;margin-bottom:2.5rem">
+                <div v-for="biais in rest"
+                     :key="'det-' + biais.slug"
+                     class="pt-card"
+                     style="padding:1rem 1.25rem;cursor:pointer"
+                     @click="toggle('det-' + biais.slug)">
+
+                    <div style="display:flex;align-items:center;justify-content:space-between">
                         <div style="display:flex;align-items:center;gap:.75rem">
-                            <span style="font-size:14px;font-weight:600;color:var(--pt-text)">{{ biais.label }}</span>
+                            <span style="font-size:14px;font-weight:600;color:var(--pt-text)">
+                                {{ biais.label }}
+                            </span>
                             <span style="font-size:11px;padding:2px 7px;border-radius:999px"
-                                  :style="{ background: levelBg(biais.level.slug), color: levelColor(biais.level.slug) }">
+                                  :style="{ background: levelBg(biais.level?.slug),
+                                            color: levelColor(biais.level?.slug) }">
                                 {{ biais.score }}/100
                             </span>
                         </div>
-                        <span style="font-size:12px;color:var(--pt-text-light);flex-shrink:0">
-                            {{ expanded === 'detail-' + biais.slug ? '▲' : '▼' }}
+                        <span style="font-size:12px;color:var(--pt-text-light)">
+                            {{ expanded === 'det-' + biais.slug ? '▲' : '▼' }}
                         </span>
                     </div>
 
-                    <div v-if="expanded === 'detail-' + biais.slug && biais.details"
-                         style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--pt-border)">
-                        <div style="display:grid;gap:.875rem">
-                            <div>
-                                <p style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--pt-text-light);margin-bottom:3px">Mécanisme</p>
-                                <p style="font-size:13px;color:var(--pt-text-muted);line-height:1.6">{{ biais.details.definition }}</p>
-                            </div>
-                            <div>
-                                <p style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--pt-text-light);margin-bottom:3px">Manifestation</p>
-                                <p style="font-size:13px;color:var(--pt-text-muted);line-height:1.6">{{ biais.details.manifestation }}</p>
-                            </div>
-                            <div>
-                                <p style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--pt-text-light);margin-bottom:3px">Coût invisible</p>
-                                <p style="font-size:13px;color:var(--pt-text-muted);line-height:1.6">{{ biais.details.cout }}</p>
-                            </div>
-                            <div style="background:var(--pt-surface-2);border-radius:8px;padding:.75rem 1rem">
-                                <p style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--pt-gold);margin-bottom:3px">✦ Piste</p>
-                                <p style="font-size:13px;color:var(--pt-text);line-height:1.6;font-style:italic">{{ biais.details.piste }}</p>
+                    <p v-if="expanded !== 'det-' + biais.slug"
+                       style="font-size:12px;color:var(--pt-text-light);
+                              margin:.375rem 0 0;font-style:italic">
+                        {{ biais.teaser }}
+                    </p>
+
+                    <transition name="fade">
+                        <div v-if="expanded === 'det-' + biais.slug && biais.details"
+                             style="margin-top:1rem;padding-top:1rem;
+                                    border-top:1px solid var(--pt-border)">
+                            <div style="display:grid;gap:.875rem">
+                                <div>
+                                    <p style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;
+                                              color:var(--pt-text-light);margin-bottom:3px">
+                                        Mécanisme
+                                    </p>
+                                    <p style="font-size:13px;color:var(--pt-text-muted);line-height:1.65">
+                                        {{ biais.details.definition }}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;
+                                              color:var(--pt-text-light);margin-bottom:3px">
+                                        Coût invisible
+                                    </p>
+                                    <p style="font-size:13px;color:var(--pt-text-muted);line-height:1.65">
+                                        {{ biais.details.cout }}
+                                    </p>
+                                </div>
+                                <div style="background:rgba(212,160,23,.1);border-radius:8px;
+                                            padding:.75rem 1rem">
+                                    <p style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;
+                                              color:var(--pt-gold);margin-bottom:3px">
+                                        ✦ Piste
+                                    </p>
+                                    <p style="font-size:13px;color:var(--pt-text);line-height:1.65;margin:0">
+                                        {{ biais.details.piste }}
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </transition>
                 </div>
             </div>
 
-            <!-- Synthèse IA ───────────────────────────────────────────────── -->
+            <!-- ── SYNTHÈSE IA ──────────────────────────────────────────────── -->
             <SynthesisCard :attempt="attempt" :result="result" />
 
         </div>
     </CandidateLayout>
 </template>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active { transition: opacity .2s, transform .2s; }
+.fade-enter-from,
+.fade-leave-to     { opacity: 0; transform: translateY(-4px); }
+</style>

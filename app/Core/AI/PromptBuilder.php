@@ -219,11 +219,17 @@ TXT;
     public function globalGrimoireSynthese(User $user, Collection $attempts): array
     {
         $system = <<<TXT
-Tu es un consultant en orientation professionnelle senior, formé aux approches RIASEC, MBTI, Big Five et intelligence émotionnelle.
-Ton rôle : produire une RELECTURE GLOBALE qui CROISE plusieurs tests entre eux — pas une simple juxtaposition de synthèses individuelles.
-Tu mets en évidence les convergences (ce qui se confirme d'un test à l'autre), les tensions (ce qui semble se contredire) et le fil conducteur du profil.
-Style : chaleureux, professionnel, français, sans jargon, sans flatterie creuse, phrases courtes.
-Tu ne donnes JAMAIS de conseils médicaux, juridiques ou financiers. Tu n'inventes pas de scores qu'on ne t'a pas donnés.
+Tu es un lecteur de profil exigeant — pas un consultant RH bienveillant, pas un coach motivationnel.
+Tu lis les données croisées de plusieurs tests et tu dis ce qu'elles révèlent réellement, sans édulcorer.
+
+Structure imposée — 4 paragraphes dans cet ordre EXACT :
+1. LA TENSION CENTRALE : commence par la contradiction la plus nette entre ce que la personne croit d'elle-même et ce que les données croisées révèlent. Nommer franchement. Pas d'introduction générale, pas de "Votre profil révèle des forces significatives". Aller droit au fait.
+2. LE COÛT RÉEL : ce que ce pattern lui coûte concrètement — des occasions manquées, des années perdues, des décisions qui l'ont maintenu(e) en dessous de son potentiel. Être spécifique, pas abstrait.
+3. LES CONSTANTES : ce qui se confirme d'un test à l'autre (convergences solides), en nommant les tests et les dimensions concernées. Ce sont les données sur lesquelles elle peut vraiment s'appuyer.
+4. LE DÉFI : une seule question ou un seul constat qui ouvre une voie — pas une liste de conseils rassurants. Quelque chose qui donne envie d'agir.
+
+Style : vous, direct, phrases courtes, aucune flatterie creuse, aucun jargon RH. Factuel et précis.
+Tu ne donnes JAMAIS de conseils médicaux, juridiques ou financiers. Tu n'inventes pas de scores.
 Tu réponds STRICTEMENT en JSON valide, sans texte hors-JSON, sans bloc ```.
 TXT;
 
@@ -232,18 +238,19 @@ TXT;
         $user_msg = "Voici l'ensemble des tests passés par le candidat :\n\n"
             . json_encode($context, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
             . "\n\nProduis un JSON STRICT avec une SEULE clé \"synthese\" : 400 à 600 mots, "
-            . "OBLIGATOIREMENT structurée en 3 à 4 paragraphes distincts, en CROISANT les tests "
-            . "(convergences, tensions, fil conducteur). Chaque paragraphe développe une idée et fait "
-            . "au moins 4 phrases.\n"
+            . "OBLIGATOIREMENT en 4 paragraphes distincts dans l'ordre imposé "
+            . "(tension centrale → coût réel → constantes → défi), chaque paragraphe faisant au moins 3 phrases.\n"
             . "RÈGLE DE FORMAT IMPÉRATIVE : sépare chaque paragraphe par un DOUBLE saut de ligne, "
             . "écrit dans la chaîne JSON sous la forme échappée \\n\\n. Ne renvoie jamais la synthèse "
             . "comme un bloc unique sans saut de ligne.\n"
             . "Ne recopie pas les synthèses individuelles. N'utilise jamais de chiffres ni de percentiles "
-            . "— appuie-toi sur les labels qualitatifs.\n\n"
+            . "— appuie-toi sur les labels qualitatifs. COMMENCE le premier paragraphe par la contradiction "
+            . "ou la tension centrale, PAS par les forces ou les atouts.\n\n"
             . "Exemple EXACT du format attendu (garde les \\n\\n entre les paragraphes) :\n"
-            . "{ \"synthese\": \"Premier paragraphe qui pose le fil conducteur...\\n\\nDeuxième paragraphe "
-            . "sur les convergences entre les tests...\\n\\nTroisième paragraphe sur les tensions et la "
-            . "manière de les habiter...\" }";
+            . "{ \"synthese\": \"[Tension centrale — la contradiction qui ressort des tests croisés]...\\n\\n"
+            . "[Coût réel — ce que ça coûte concrètement]...\\n\\n"
+            . "[Constantes — ce qui se confirme d'un test à l'autre, en nommant les tests]...\\n\\n"
+            . "[Défi — une seule question ou voie qui ouvre quelque chose]...\" }";
 
         return [
             ['role' => 'system', 'content' => $system],
