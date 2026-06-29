@@ -107,7 +107,7 @@ const submit = () => form.post(route('admin.invitations.store'))
                         id="inv-message"
                         v-model="form.message"
                         rows="3"
-                        placeholder="Ex. : Ce test fait partie de votre bilan de compétences. N'hésitez pas à me contacter si vous avez des questions."
+                        placeholder="Ex. : Ce test fait partie de votre parcours d'orientation. N'hésitez pas à me contacter si vous avez des questions."
                         class="pt-input mt-2"
                         maxlength="1000"
                     ></textarea>

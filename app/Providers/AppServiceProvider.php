@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Mail\Transport\BrevoApiTransport;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Praxis\Core\Gamification\GamificationEngine;
@@ -20,6 +22,11 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Transport Brevo API (HTTP) — contourne le blocage SMTP OVH.
+        // Utilise BREVO_API_KEY (xkeysib-...) depuis le .env.
+        config(['mail.mailers.brevo' => ['transport' => 'brevo']]);
+        Mail::extend('brevo', fn() => new BrevoApiTransport(env('BREVO_API_KEY', '')));
+
         AwardXpOnAnswer::register($this->app->make(GamificationEngine::class));
 
         // Câble les séquences email aux événements du parcours (cf. audit Fo-4).

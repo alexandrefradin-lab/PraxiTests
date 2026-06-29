@@ -1,0 +1,27 @@
+{
+  "slug": "praxibiais",
+  "name": "Le Cartographe Mental — Biais cognitifs professionnels (PraxiBiais)",
+  "version": "1.0.0",
+  "author": "Praxis Accompagnement",
+  "type": "test",
+  "description": "Identifie les 10 biais cognitifs qui freinent la prise de décision professionnelle : statu quo, aversion à la perte, coût irrécupérable, conformité familiale, biais d'autorité, identité métier figée, biais de confirmation, biais de disponibilité, surconfiance, sous-estimation de soi. 40 questions, 4 profils composites.",
+  "namespace": "Praxis\\Plugins\\PraxiBiais",
+  "service_provider": "Praxis\\Plugins\\PraxiBiais\\PluginServiceProvider",
+  "permissions": [
+    "read:profiles",
+    "write:results",
+    "send:mail"
+  ],
+  "requires": {
+    "praxiquest": ">=1.0.0",
+    "php": ">=8.2"
+  },
+  "test": {
+    "slug": "praxibiais",
+    "name": "Le Cartographe Mental — Biais cognitifs professionnels",
+    "description": "Ce que ce test mesure : les biais cognitifs qui influencent tes décisions professionnelles à ton insu. En 7 minutes, tu identifies tes freins décisionnels invisibles — les mécanismes cérébraux qui te font rester là où tu es, peser les risques asymétriquement, ou chercher des confirmations plutôt que des vérités.",
+    "type": "questionnaire",
+    "scoring_engine": "praxibiais-cognitif",
+    "estimated_minutes": 7
+  }
+}

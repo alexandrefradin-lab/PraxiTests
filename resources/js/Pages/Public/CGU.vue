@@ -41,7 +41,7 @@ const date = '26 juin 2026'
                     <strong>{{ branding?.name ?? 'PraxiQuest' }} est un outil d'auto-évaluation, d'orientation et de développement personnel, fourni à titre purement informatif et pédagogique.</strong>
                 </p>
                 <p>
-                    La Plateforme <strong>ne constitue pas, ne remplace pas et ne saurait en aucun cas se substituer</strong> à l'avis, au diagnostic, à la consultation, au suivi ou au traitement d'un professionnel qualifié, notamment&nbsp;: <strong>psychologue, psychiatre, médecin ou tout professionnel de santé, psychothérapeute, coach professionnel, conseiller en orientation, en bilan de compétences, en évolution professionnelle, avocat ou conseiller financier.</strong>
+                    La Plateforme <strong>ne constitue pas, ne remplace pas et ne saurait en aucun cas se substituer</strong> à l'avis, au diagnostic, à la consultation, au suivi ou au traitement d'un professionnel qualifié, notamment&nbsp;: <strong>psychologue, psychiatre, médecin ou tout professionnel de santé, psychothérapeute, coach professionnel, conseiller en orientation, en évolution professionnelle, avocat ou conseiller financier.</strong>
                 </p>
                 <p>
                     Les tests proposés <strong>ne sont pas des outils de diagnostic médical, psychologique ou psychiatrique</strong>. Leurs résultats, ainsi que les synthèses et suggestions générées par intelligence artificielle, n'ont aucune valeur clinique, médicale ou de certification, et ne doivent jamais être interprétés comme tels.

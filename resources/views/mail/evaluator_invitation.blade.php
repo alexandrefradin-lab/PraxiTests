@@ -12,7 +12,7 @@
         <tr><td style="padding:30px 32px 12px;">
           <p style="font-size:15px;margin:0 0 14px;">Bonjour,</p>
           <p style="font-size:14px;line-height:1.7;margin:0 0 14px;">
-            <strong>{{ $candidateName }}</strong> réalise actuellement un bilan de ses compétences
+            <strong>{{ $candidateName }}</strong> réalise actuellement une évaluation de ses compétences
             comportementales et souhaite recueillir votre regard en tant que
             <strong>{{ $relationLabel }}</strong>.
           </p>

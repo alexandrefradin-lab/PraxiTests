@@ -4,7 +4,7 @@
   "version": "3.0.1",
   "author": "Praxis Accompagnement",
   "type": "test",
-  "description": "Test d'orientation Holland RIASEC : 84 questions binaires, 6 types × 2 sous-domaines, code 3 lettres dominant, génération de leads pour bilan de compétences.",
+  "description": "Test d'orientation Holland RIASEC : 84 questions binaires, 6 types × 2 sous-domaines, code 3 lettres dominant, révèle les familles de métiers et d'environnements de travail qui correspondent le mieux au candidat.",
   "namespace": "Praxis\\Plugins\\PraxiMet",
   "service_provider": "Praxis\\Plugins\\PraxiMet\\PluginServiceProvider",
   "permissions": [

@@ -13,7 +13,7 @@ class OnAttemptCompleted
             return;
         }
 
-        // Crée / upgrade un lead PraxiMet (génération de leads pour bilan de compétences).
+        // Crée / upgrade un lead PraxiMet.
         Lead::updateOrCreate(
             ['email' => $attempt->user->email],
             [
