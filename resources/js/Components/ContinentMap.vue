@@ -5,21 +5,22 @@ const props = defineProps({
     tests: { type: Array, default: () => [] }
 })
 
+// ── Nodes repositionnés pour viewBox 900×250 (compact) ──────────────────────
 const NODES = [
-    { slug: 'orientation-express', x: 450, y: 55,  label: 'Boussole' },
-    { slug: 'praximet',            x: 598, y: 100, label: 'La Voie' },
-    { slug: 'praximum',            x: 660, y: 200, label: 'Grande Carte' },
-    { slug: 'praxis360',           x: 598, y: 300, label: 'Constellation' },
-    { slug: 'praxiemo',            x: 450, y: 350, label: 'Émotions' },
-    { slug: 'praxicare',           x: 302, y: 300, label: 'Sentinelle' },
-    { slug: 'praxiself',           x: 240, y: 200, label: 'Forge du Soi' },
-    { slug: 'praxispeak',          x: 302, y: 100, label: 'Voix du Héros' },
-    { slug: 'praxivaleurs',        x: 550, y: 148, label: 'Valeurs' },
-    { slug: 'praxilink',           x: 550, y: 258, label: 'Liens' },
-    { slug: 'praxizen',            x: 350, y: 258, label: 'Refuge' },
-    { slug: 'praxitempo',          x: 350, y: 148, label: 'Maître du Temps' },
-    { slug: 'praxiflow',           x: 450, y: 200, label: 'Flux · Cœur' },
-    { slug: 'praxiboost',          x: 450, y: 290, label: 'Éclat' },
+    { slug: 'orientation-express', x: 450, y: 38,  label: 'Boussole' },
+    { slug: 'praximet',            x: 602, y: 72,  label: 'La Voie' },
+    { slug: 'praximum',            x: 660, y: 128, label: 'Grande Carte' },
+    { slug: 'praxis360',           x: 602, y: 184, label: 'Constellation' },
+    { slug: 'praxiemo',            x: 450, y: 215, label: 'Émotions' },
+    { slug: 'praxicare',           x: 298, y: 184, label: 'Sentinelle' },
+    { slug: 'praxiself',           x: 240, y: 128, label: 'Forge du Soi' },
+    { slug: 'praxispeak',          x: 298, y: 72,  label: 'Voix du Héros' },
+    { slug: 'praxivaleurs',        x: 552, y: 96,  label: 'Valeurs' },
+    { slug: 'praxilink',           x: 552, y: 160, label: 'Liens' },
+    { slug: 'praxizen',            x: 348, y: 160, label: 'Refuge' },
+    { slug: 'praxitempo',          x: 348, y: 96,  label: 'Maître du Temps' },
+    { slug: 'praxiflow',           x: 450, y: 122, label: 'Flux · Cœur' },
+    { slug: 'praxiboost',          x: 450, y: 183, label: 'Éclat' },
 ]
 
 const EDGES = [
@@ -87,10 +88,12 @@ function isAvailable(slug) {
     return !!testMap.value[slug]
 }
 
+const completedCount = computed(() =>
+    props.tests.filter(t => t.completed_at || t.completed).length
+)
 const explorationPct = computed(() => {
     if (!props.tests.length) return 0
-    const done = props.tests.filter(t => t.completed_at || t.completed).length
-    return Math.round(done / props.tests.length * 100)
+    return Math.round(completedCount.value / props.tests.length * 100)
 })
 </script>
 
@@ -99,138 +102,132 @@ const explorationPct = computed(() => {
         <!-- Header -->
         <div class="cm-header">
             <div class="cm-title">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                     <circle cx="12" cy="12" r="9"/>
                     <polygon points="12,6 14,12 12,18 10,12" fill="currentColor"/>
                 </svg>
                 Carte du Continent Intérieur
             </div>
             <div class="cm-right">
+                <span class="cm-count">{{ completedCount }}/{{ tests.length }} épreuves</span>
                 <div class="cm-bar"><div class="cm-fill" :style="{ width: explorationPct + '%' }"></div></div>
-                <span class="cm-pct">{{ explorationPct }}% exploré</span>
+                <span class="cm-pct">{{ explorationPct }}%</span>
             </div>
         </div>
 
         <!-- Map -->
         <div class="cm-body">
-            <svg viewBox="0 0 900 410" xmlns="http://www.w3.org/2000/svg" class="cm-svg"
+            <svg viewBox="0 0 900 250" xmlns="http://www.w3.org/2000/svg" class="cm-svg"
                  role="img" aria-label="Carte de tes épreuves et de ta progression">
 
                 <defs>
-                    <!-- Dot grid texture -->
+                    <!-- Parchemin dot-grid -->
                     <pattern id="cmgrid" x="0" y="0" width="28" height="28" patternUnits="userSpaceOnUse">
-                        <circle cx="14" cy="14" r="0.8" fill="#A67520" opacity="0.18"/>
+                        <circle cx="14" cy="14" r="0.7" fill="#8B6914" opacity="0.12"/>
                     </pattern>
-                    <!-- Subtle radial fade at edges -->
-                    <radialGradient id="cmfade" cx="50%" cy="50%" r="50%">
-                        <stop offset="60%" stop-color="transparent" stop-opacity="0"/>
-                        <stop offset="100%" stop-color="#0d0a04" stop-opacity="0.4"/>
+                    <!-- Vignette parchemin -->
+                    <radialGradient id="cmfade" cx="50%" cy="50%" r="55%">
+                        <stop offset="55%" stop-color="transparent" stop-opacity="0"/>
+                        <stop offset="100%" stop-color="#E8DFC0" stop-opacity="0.45"/>
                     </radialGradient>
                 </defs>
 
-                <!-- Parchment-style background -->
-                <rect width="900" height="410" fill="url(#cmgrid)"/>
+                <!-- Fond parchemin clair -->
+                <rect width="900" height="250" fill="#FAF6EB"/>
+                <rect width="900" height="250" fill="url(#cmgrid)"/>
 
-                <!-- Decorative rings — visible orbital guides -->
-                <circle cx="450" cy="205" r="190" fill="none" stroke="#A67520" stroke-width="0.6" opacity="0.2" stroke-dasharray="6 12"/>
-                <circle cx="450" cy="205" r="112" fill="none" stroke="#A67520" stroke-width="0.5" opacity="0.15" stroke-dasharray="4 9"/>
-                <circle cx="450" cy="205" r="42"  fill="none" stroke="#A67520" stroke-width="0.7" opacity="0.25"/>
+                <!-- Anneaux orbitaux -->
+                <ellipse cx="450" cy="126" rx="215" ry="100" fill="none" stroke="#8B6914" stroke-width="0.6" opacity="0.14" stroke-dasharray="7 14"/>
+                <ellipse cx="450" cy="126" rx="120"  ry="55"  fill="none" stroke="#8B6914" stroke-width="0.5" opacity="0.10" stroke-dasharray="5 10"/>
+                <circle  cx="450" cy="126" r="40"   fill="none" stroke="#8B6914" stroke-width="0.6" opacity="0.18"/>
 
-                <!-- ALL edges — always visible, styled by state -->
+                <!-- Arêtes -->
                 <g>
                     <line
                         v-for="([a, b], i) in EDGES"
                         :key="i"
                         :x1="nodeMap[a]?.x" :y1="nodeMap[a]?.y"
                         :x2="nodeMap[b]?.x" :y2="nodeMap[b]?.y"
-                        :stroke="(isCompleted(a) && isCompleted(b)) ? '#D4A843' : '#A67520'"
-                        :stroke-width="(isCompleted(a) && isCompleted(b)) ? '1.4' : '0.9'"
-                        :opacity="(isCompleted(a) && isCompleted(b)) ? '0.55' : '0.25'"
-                        stroke-dasharray="5 7"
+                        :stroke="(isCompleted(a) && isCompleted(b)) ? '#C4860A' : '#8B6914'"
+                        :stroke-width="(isCompleted(a) && isCompleted(b)) ? '1.3' : '0.8'"
+                        :opacity="(isCompleted(a) && isCompleted(b)) ? '0.5' : '0.2'"
+                        stroke-dasharray="4 6"
                     />
                 </g>
 
-                <!-- ALL nodes — every node is visible regardless of availability -->
+                <!-- Nœuds -->
                 <g v-for="node in NODES" :key="node.slug">
 
-                    <!-- COMPLETED node -->
+                    <!-- ACCOMPLI -->
                     <template v-if="isCompleted(node.slug)">
-                        <!-- Glow -->
-                        <circle :cx="node.x" :cy="node.y" r="28" fill="#D4A843" opacity="0.08"/>
-                        <!-- Circle -->
+                        <circle :cx="node.x" :cy="node.y" r="25" fill="#C4860A" opacity="0.07"/>
                         <circle :cx="node.x" :cy="node.y"
-                                :r="node.slug === 'praxiflow' ? 23 : 20"
-                                fill="#1e1004"
-                                stroke="#D4A843"
-                                :stroke-width="node.slug === 'praxiflow' ? 2 : 1.6"/>
-                        <!-- Icon -->
-                        <svg :x="node.x-9" :y="node.y-9" width="18" height="18"
-                             viewBox="0 0 24 24" fill="none" stroke="#D4A843"
-                             stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                                :r="node.slug === 'praxiflow' ? 20 : 17"
+                                fill="#FAF6EB"
+                                stroke="#C4860A"
+                                :stroke-width="node.slug === 'praxiflow' ? 2 : 1.8"/>
+                        <svg :x="node.x-8" :y="node.y-8" width="16" height="16"
+                             viewBox="0 0 24 24" fill="none" stroke="#C4860A"
+                             stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
                              overflow="visible">
                             <g v-html="ICONS[node.slug] || FALLBACK"></g>
                         </svg>
-                        <!-- Check badge -->
-                        <circle :cx="node.x+14" :cy="node.y-14" r="5" fill="#10B981" stroke="#1e1004" stroke-width="1.2"/>
-                        <!-- Label -->
-                        <text :x="node.x" :y="node.y+35" text-anchor="middle"
-                              font-size="9" fill="#D4A843" opacity="0.95"
+                        <circle :cx="node.x+12" :cy="node.y-12" r="5" fill="#10B981" stroke="#FAF6EB" stroke-width="1.2"/>
+                        <text :x="node.x" :y="node.y+29" text-anchor="middle"
+                              font-size="8" fill="#6B4C1A" opacity="0.9"
                               font-family="'Space Mono',monospace" letter-spacing="0.02em">
                             {{ node.label }}
                         </text>
                     </template>
 
-                    <!-- AVAILABLE but not completed -->
+                    <!-- DISPONIBLE non accompli -->
                     <template v-else-if="isAvailable(node.slug)">
                         <circle :cx="node.x" :cy="node.y"
-                                :r="node.slug === 'praxiflow' ? 23 : 20"
-                                fill="#150d02" stroke="#A67520" stroke-width="1.2" opacity="0.75"/>
-                        <svg :x="node.x-9" :y="node.y-9" width="18" height="18"
-                             viewBox="0 0 24 24" fill="none" stroke="#A67520"
+                                :r="node.slug === 'praxiflow' ? 20 : 17"
+                                fill="#F2EACF" stroke="#8B6914" stroke-width="1.1" opacity="0.8"/>
+                        <svg :x="node.x-8" :y="node.y-8" width="16" height="16"
+                             viewBox="0 0 24 24" fill="none" stroke="#8B6914"
                              stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
                              opacity="0.55" overflow="visible">
                             <g v-html="ICONS[node.slug] || FALLBACK"></g>
                         </svg>
-                        <text :x="node.x" :y="node.y+33" text-anchor="middle"
-                              font-size="8.5" fill="#A67520" opacity="0.55"
+                        <text :x="node.x" :y="node.y+28" text-anchor="middle"
+                              font-size="7.5" fill="#8B6914" opacity="0.55"
                               font-family="'Space Mono',monospace" letter-spacing="0.02em">
                             {{ node.label }}
                         </text>
                     </template>
 
-                    <!-- UNKNOWN zone — plugin non activé -->
+                    <!-- INCONNU / plugin désactivé -->
                     <template v-else>
-                        <!-- Dim ghost node -->
-                        <circle :cx="node.x" :cy="node.y" r="20"
-                                fill="#100b02" stroke="#A67520"
+                        <circle :cx="node.x" :cy="node.y" r="17"
+                                fill="#EDE5CB" stroke="#8B6914"
                                 stroke-width="0.7" stroke-dasharray="4 5"
                                 opacity="0.3"/>
-                        <!-- "?" -->
                         <text :x="node.x" :y="node.y+4" text-anchor="middle"
-                              font-size="11" fill="#A67520" opacity="0.25"
+                              font-size="10" fill="#8B6914" opacity="0.25"
                               font-family="'Space Mono',monospace">?</text>
-                        <text :x="node.x" :y="node.y+33" text-anchor="middle"
-                              font-size="7.5" fill="#A67520" opacity="0.2"
+                        <text :x="node.x" :y="node.y+28" text-anchor="middle"
+                              font-size="7" fill="#8B6914" opacity="0.2"
                               font-family="'Space Mono',monospace" letter-spacing="0.02em">
                             {{ node.label }}
                         </text>
                     </template>
                 </g>
 
-                <!-- Edge-fade vignette -->
-                <rect width="900" height="410" fill="url(#cmfade)" pointer-events="none"/>
+                <!-- Vignette parchemin sur les bords -->
+                <rect width="900" height="250" fill="url(#cmfade)" pointer-events="none"/>
 
-                <!-- Compass rose -->
-                <g transform="translate(857,36)" opacity="0.35">
-                    <circle cx="0" cy="0" r="18" fill="none" stroke="#A67520" stroke-width="0.8"/>
-                    <circle cx="0" cy="0" r="3"  fill="none" stroke="#A67520" stroke-width="0.5"/>
-                    <path d="M0,-13 L2.5,5 L0,2 L-2.5,5Z" fill="#D4A843" opacity="0.9"/>
-                    <path d="M0,13  L2.5,-5 L0,-2 L-2.5,-5Z" fill="#A67520" opacity="0.35"/>
-                    <text x="0" y="-20" text-anchor="middle" font-size="6" fill="#A67520" font-family="'Space Mono',monospace">N</text>
+                <!-- Rose des vents -->
+                <g transform="translate(862,28)" opacity="0.25">
+                    <circle cx="0" cy="0" r="16" fill="none" stroke="#8B6914" stroke-width="0.8"/>
+                    <path d="M0,-11 L2,4 L0,2 L-2,4Z" fill="#C4860A" opacity="0.8"/>
+                    <path d="M0,11 L2,-4 L0,-2 L-2,-4Z" fill="#8B6914" opacity="0.4"/>
+                    <text x="0" y="-17" text-anchor="middle" font-size="5.5" fill="#8B6914" font-family="'Space Mono',monospace">N</text>
                 </g>
 
                 <!-- Watermark -->
-                <text x="45" y="398" font-size="7.5" fill="#A67520" opacity="0.15"
+                <text x="38" y="244" font-size="7" fill="#8B6914" opacity="0.1"
                       font-family="'Space Mono',monospace" letter-spacing="0.14em">
                     TERRA INCOGNITA · CARTOGRAPHIA INTERIOR
                 </text>
@@ -238,81 +235,86 @@ const explorationPct = computed(() => {
             </svg>
         </div>
 
-        <!-- Legend -->
+        <!-- Légende -->
         <div class="cm-legend">
             <div class="cm-leg-item"><span class="cm-dot cm-dot-gold"></span>Accomplie</div>
             <div class="cm-leg-item"><span class="cm-dot cm-dot-dim"></span>À explorer</div>
-            <div class="cm-leg-item"><span class="cm-dot cm-dot-green"></span>Épreuve validée</div>
         </div>
     </div>
 </template>
 
 <style scoped>
 .cm-wrap {
-    border-radius: 14px;
-    border: 1px solid rgba(166, 117, 32, 0.3);
+    border-radius: 12px;
+    border: 1px solid rgba(139, 105, 20, 0.25);
     overflow: hidden;
-    background: #130e05;
-    margin-bottom: 2rem;
+    background: #FAF6EB;
+    margin-bottom: 1.75rem;
+    max-width: 860px;
 }
 .cm-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.6rem 1.1rem;
-    border-bottom: 1px solid rgba(166, 117, 32, 0.2);
-    background: rgba(166, 117, 32, 0.06);
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid rgba(139, 105, 20, 0.15);
+    background: rgba(139, 105, 20, 0.04);
 }
 .cm-title {
     display: flex;
     align-items: center;
     gap: 0.4rem;
-    font-size: 10px;
+    font-size: 9.5px;
     font-weight: 600;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: #D4A843;
+    color: #6B4C1A;
     font-family: 'Space Mono', monospace;
 }
-.cm-right { display: flex; align-items: center; gap: 0.6rem; }
+.cm-right { display: flex; align-items: center; gap: 0.5rem; }
+.cm-count {
+    font-size: 9px;
+    font-family: 'Space Mono', monospace;
+    color: rgba(107, 76, 26, 0.5);
+    white-space: nowrap;
+}
 .cm-bar {
-    width: 100px;
+    width: 80px;
     height: 3px;
     border-radius: 99px;
-    background: rgba(166, 117, 32, 0.2);
+    background: rgba(139, 105, 20, 0.15);
     overflow: hidden;
 }
 .cm-fill {
     height: 100%;
     border-radius: 99px;
-    background: linear-gradient(90deg, #A67520, #D4A843);
+    background: linear-gradient(90deg, #8B6914, #C4860A);
     transition: width 0.6s ease;
 }
 .cm-pct {
-    font-size: 10px;
+    font-size: 9px;
     font-family: 'Space Mono', monospace;
-    color: rgba(212, 168, 67, 0.6);
+    color: rgba(107, 76, 26, 0.55);
     white-space: nowrap;
 }
-.cm-body { padding: 0.25rem 0.25rem 0; }
+.cm-body { padding: 0; }
 .cm-svg  { width: 100%; height: auto; display: block; }
 .cm-legend {
     display: flex;
-    gap: 1.2rem;
+    gap: 1rem;
     justify-content: flex-end;
-    padding: 0.5rem 1.1rem;
-    border-top: 1px solid rgba(166, 117, 32, 0.12);
+    padding: 0.35rem 1rem;
+    border-top: 1px solid rgba(139, 105, 20, 0.1);
 }
 .cm-leg-item {
     display: flex;
     align-items: center;
     gap: 5px;
-    font-size: 9.5px;
-    color: rgba(212, 168, 67, 0.45);
+    font-size: 9px;
+    color: rgba(107, 76, 26, 0.45);
     font-family: 'Space Mono', monospace;
 }
-.cm-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; }
-.cm-dot-gold  { background: #D4A843; }
-.cm-dot-dim   { background: transparent; border: 1px solid #A67520; opacity: 0.6; }
-.cm-dot-green { background: #10B981; }
+.cm-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; }
+.cm-dot-gold  { background: #C4860A; }
+.cm-dot-dim   { background: transparent; border: 1px solid #8B6914; opacity: 0.5; }
 </style>
