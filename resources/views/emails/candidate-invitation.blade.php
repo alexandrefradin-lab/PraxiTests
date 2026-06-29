@@ -25,9 +25,10 @@
     <div class="body">
         <p>Bonjour,</p>
         <p>Vous avez été invité(e) à passer <strong>{{ $invitation->test->name ?? 'un test' }}</strong>.</p>
-        @if(!empty($invitation->metadata['message']))
+        @php $customMessage = $invitation->metadata['message'] ?? null; @endphp
+        @if(!empty($customMessage))
         <p style="background:#f9f9f9;padding:12px;border-radius:4px;font-style:italic">
-            "{{ $invitation->metadata['message'] }}"
+            "{{ $customMessage }}"
         </p>
         @endif
         @if($invitation->expires_at)

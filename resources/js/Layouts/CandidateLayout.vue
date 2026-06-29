@@ -6,6 +6,16 @@ import OracleChat from '@/Components/OracleChat.vue'
 const mobileOpen = ref(false)
 const mobileDrawer = ref(null)
 const navigating = ref(false)
+const userMenuOpen = ref(false)
+const userMenuRef = ref(null)
+
+function closeUserMenu () { userMenuOpen.value = false }
+function onUserMenuKeydown (e) {
+    if (e.key === 'Escape') closeUserMenu()
+}
+function onClickOutsideUserMenu (e) {
+    if (userMenuRef.value && !userMenuRef.value.contains(e.target)) closeUserMenu()
+}
 const navTarget = ref('')
 let navTimeout = null
 let stopNavStart = null
@@ -56,6 +66,7 @@ function onKeydown(e) {
 onMounted(() => {
     startAiPoll()
     window.addEventListener('keydown', onKeydown)
+    document.addEventListener('click', onClickOutsideUserMenu)
     stopNavStart = router.on('start', (event) => {
         navTarget.value = event.detail?.visit?.url ?? ''
         navTimeout = setTimeout(() => { navigating.value = true }, 120)
@@ -68,6 +79,7 @@ onMounted(() => {
 })
 onBeforeUnmount(() => {
     document.removeEventListener('keydown',trapFocus)
+    document.removeEventListener('click', onClickOutsideUserMenu)
     stopAiPoll()
     window.removeEventListener('keydown', onKeydown)
     if (stopNavStart) stopNavStart()
@@ -206,34 +218,73 @@ watch(() => page.props.gamification?.level, (newLevel) => {
 
                     <!-- User zone -->
                     <div style="display: flex; align-items: center; gap: 8px">
-                        <Link :href="route('profile.edit')"
-                            class="cand-profile-link"
-                            style="display: flex; align-items: center; gap: 8px; text-decoration: none; padding: 3px 8px 3px 3px; border-radius: 999px; transition: background 0.15s"
-                            title="Modifier mon profil (statut, parcours, CV)">
-                            <div style="position: relative; width: 30px; height: 30px; flex-shrink: 0;">
-                                <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
-                                    <polygon points="15,2 26,8.5 26,21.5 15,28 4,21.5 4,8.5" fill="var(--color-accent)" stroke="var(--color-primary)" stroke-width="1"/>
-                                    <polygon points="15,5 23,9.5 23,20.5 15,25 7,20.5 7,9.5" fill="none" stroke="var(--color-primary)" stroke-width="0.4" opacity="0.4"/>
-                                </svg>
-                                <span style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 11px; font-weight: 700; color: var(--color-primary); letter-spacing: 0.03em; text-transform: uppercase; line-height: 1; user-select: none;">
-                                    {{ user.name ? user.name.slice(0, 2) : '?' }}
-                                </span>
-                            </div>
-                            <span style="font-size: 13px; color: var(--text-secondary); font-family: var(--font-body)">{{ user.name }}</span>
-                        </Link>
 
-                        <Link :href="route('gdpr.show')"
-                            class="cand-nav-link"
-                            style="font-family: var(--font-display); font-size: 12px; font-weight: 500; color: var(--text-muted); text-decoration: none; padding: 5px 10px; border-radius: var(--r-sm); transition: color 0.15s, background 0.15s; display: inline-flex; align-items: center;"
-                            title="Mes données & confidentialité">
-                            <i class="ti ti-shield-lock" style="font-size: 15px;"></i>
-                        </Link>
+                        <!-- User dropdown trigger -->
+                        <div ref="userMenuRef" style="position: relative;">
+                            <button
+                                type="button"
+                                class="cand-profile-link"
+                                :aria-expanded="userMenuOpen"
+                                aria-haspopup="true"
+                                @click.stop="userMenuOpen = !userMenuOpen"
+                                @keydown="onUserMenuKeydown"
+                                style="display: flex; align-items: center; gap: 8px; text-decoration: none; padding: 3px 8px 3px 3px; border-radius: 999px; transition: background 0.15s; background: none; border: none; cursor: pointer;"
+                            >
+                                <div style="position: relative; width: 30px; height: 30px; flex-shrink: 0;">
+                                    <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
+                                        <polygon points="15,2 26,8.5 26,21.5 15,28 4,21.5 4,8.5" fill="var(--color-accent)" stroke="var(--color-primary)" stroke-width="1"/>
+                                        <polygon points="15,5 23,9.5 23,20.5 15,25 7,20.5 7,9.5" fill="none" stroke="var(--color-primary)" stroke-width="0.4" opacity="0.4"/>
+                                    </svg>
+                                    <span style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 11px; font-weight: 700; color: var(--color-primary); letter-spacing: 0.03em; text-transform: uppercase; line-height: 1; user-select: none;">
+                                        {{ user.name ? user.name.slice(0, 2) : '?' }}
+                                    </span>
+                                </div>
+                                <span style="font-size: 13px; color: var(--text-secondary); font-family: var(--font-body)">{{ user.name }}</span>
+                                <i class="ti ti-chevron-down" style="font-size: 12px; color: var(--text-muted); transition: transform 0.2s;" :style="userMenuOpen ? 'transform: rotate(180deg)' : ''"></i>
+                            </button>
 
-                        <Link :href="route('logout')" method="post" as="button"
-                            class="ac-btn-danger"
-                            style="font-size: 12px; padding: 5px 12px; border-radius: var(--r-sm)">
-                            Quitter la Quête
-                        </Link>
+                            <!-- Dropdown panel -->
+                            <Transition name="pt-usermenu">
+                                <div v-if="userMenuOpen" class="cand-user-menu" role="menu">
+                                    <div class="cand-user-menu-header">
+                                        <div style="font-size: 12px; font-weight: 600; color: var(--text-primary); font-family: var(--font-display);">{{ user.name }}</div>
+                                        <div style="font-size: 10px; color: var(--color-primary); font-family: var(--font-data); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 2px;">Héros de la Quête</div>
+                                    </div>
+                                    <div class="cand-user-menu-divider"></div>
+                                    <Link :href="route('profile.edit')" class="cand-user-menu-item" role="menuitem" @click="closeUserMenu">
+                                        <i class="ti ti-user-circle"></i>
+                                        <div>
+                                            <div>Mon identité</div>
+                                            <div class="cand-user-menu-item-sub">Statut, parcours, CV</div>
+                                        </div>
+                                    </Link>
+                                    <Link :href="route('billing.manage')" class="cand-user-menu-item" role="menuitem" @click="closeUserMenu">
+                                        <i class="ti ti-credit-card"></i>
+                                        <div>
+                                            <div>Mon abonnement</div>
+                                            <div class="cand-user-menu-item-sub">Modifier ou résilier</div>
+                                        </div>
+                                    </Link>
+                                    <Link :href="route('contact')" class="cand-user-menu-item" role="menuitem" @click="closeUserMenu">
+                                        <i class="ti ti-help-circle"></i>
+                                        <div>
+                                            <div>Aide & contact</div>
+                                            <div class="cand-user-menu-item-sub">Nous écrire</div>
+                                        </div>
+                                    </Link>
+                                    <div class="cand-user-menu-divider"></div>
+                                    <Link :href="route('gdpr.show')" class="cand-user-menu-item cand-user-menu-item--muted" role="menuitem" @click="closeUserMenu">
+                                        <i class="ti ti-shield-lock"></i>
+                                        <div>Mes données & RGPD</div>
+                                    </Link>
+                                    <Link :href="route('logout')" method="post" as="button" class="cand-user-menu-item cand-user-menu-item--danger" role="menuitem" @click="closeUserMenu">
+                                        <i class="ti ti-door-exit"></i>
+                                        <div>Quitter la Quête</div>
+                                    </Link>
+                                </div>
+                            </Transition>
+                        </div>
+
                     </div>
                 </nav>
             </div>
@@ -383,7 +434,19 @@ watch(() => page.props.gamification?.level, (newLevel) => {
                             class="cand-drawer-link"
                             :class="{ 'cand-drawer-link--active': isActive('/profile') }">
                             <i class="ti ti-user-circle"></i>
-                            <span>Mon profil</span>
+                            <span>Mon identité</span>
+                        </Link>
+                        <Link :href="route('billing.manage')"
+                            class="cand-drawer-link"
+                            :class="{ 'cand-drawer-link--active': isActive('/billing') }">
+                            <i class="ti ti-credit-card"></i>
+                            <span>Mon abonnement</span>
+                        </Link>
+                        <Link :href="route('contact')"
+                            class="cand-drawer-link"
+                            :class="{ 'cand-drawer-link--active': isActive('/contact') }">
+                            <i class="ti ti-help-circle"></i>
+                            <span>Aide & contact</span>
                         </Link>
                         <Link :href="route('gdpr.show')"
                             class="cand-drawer-link"
@@ -773,6 +836,91 @@ watch(() => page.props.gamification?.level, (newLevel) => {
     );
     background-size: 200% 100%;
     animation: pt-shimmer 1.6s ease-in-out infinite;
+}
+
+/* ── User dropdown menu ── */
+.cand-user-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 220px;
+    background: var(--bg-surface);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--r);
+    box-shadow: 0 8px 32px rgba(30, 20, 5, 0.18), 0 2px 8px rgba(30, 20, 5, 0.08);
+    z-index: 200;
+    overflow: hidden;
+}
+
+.cand-user-menu-header {
+    padding: 12px 14px 10px;
+}
+
+.cand-user-menu-divider {
+    height: 1px;
+    background: var(--glass-border);
+    margin: 0;
+}
+
+.cand-user-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-decoration: none;
+    background: none;
+    border: none;
+    width: 100%;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.12s, color 0.12s;
+}
+.cand-user-menu-item i {
+    font-size: 16px;
+    width: 18px;
+    text-align: center;
+    flex-shrink: 0;
+    opacity: 0.6;
+    transition: opacity 0.12s;
+}
+.cand-user-menu-item:hover {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+}
+.cand-user-menu-item:hover i { opacity: 1; }
+
+.cand-user-menu-item-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 400;
+    margin-top: 1px;
+    font-family: var(--font-body);
+}
+
+.cand-user-menu-item--muted {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.cand-user-menu-item--danger {
+    color: var(--color-danger, #B03020);
+}
+.cand-user-menu-item--danger i { color: var(--color-danger, #B03020); }
+.cand-user-menu-item--danger:hover {
+    background: rgba(176, 48, 32, 0.07);
+    color: var(--color-danger, #B03020);
+}
+
+/* Dropdown transition */
+.pt-usermenu-enter-active { transition: opacity 0.15s ease, transform 0.15s ease; }
+.pt-usermenu-leave-active { transition: opacity 0.1s ease, transform 0.1s ease; }
+.pt-usermenu-enter-from, .pt-usermenu-leave-to {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
 }
 
 /* ── Responsive : burger visible < 768px, nav desktop masquée ── */

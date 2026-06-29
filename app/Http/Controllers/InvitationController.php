@@ -2,11 +2,70 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Test;
 use App\Models\TestInvitation;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class InvitationController extends Controller
 {
+    // ─── Interface conseiller ─────────────────────────────────────────────────
+
+    /**
+     * Formulaire d'invitation individuelle d'un candidat.
+     * Accessible aux administrateurs et aux professionnels (rôle 'professional').
+     */
+    public function create()
+    {
+        $tests = Test::where('published', true)
+            ->orderBy('name')
+            ->get(['id', 'name', 'slug'])
+            ->toArray();
+
+        return Inertia::render('Admin/Invitations/Create', [
+            'tests' => $tests,
+        ]);
+    }
+
+    /**
+     * Crée une invitation et envoie l'email (via le hook created du modèle).
+     */
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'test_id'    => ['required', 'integer', 'exists:tests,id'],
+            'email'      => ['required', 'email', 'max:180'],
+            'first_name' => ['nullable', 'string', 'max:80'],
+            'last_name'  => ['nullable', 'string', 'max:80'],
+            'message'    => ['nullable', 'string', 'max:1000'],
+            'expires_at' => ['nullable', 'date', 'after:today'],
+        ]);
+
+        // Cloisonnement multi-tenant : on rattache l'invitation au premier compte
+        // professionnel de l'utilisateur (ou null si admin sans compte PA).
+        $user = auth()->user();
+        $professionalAccountId = $user->hasRole('admin')
+            ? null
+            : $user->professionalAccounts()->value('professional_accounts.id');
+
+        TestInvitation::create([
+            'test_id'                 => $data['test_id'],
+            'professional_account_id' => $professionalAccountId,
+            'email'                   => $data['email'],
+            'first_name'              => $data['first_name'] ?? null,
+            'last_name'               => $data['last_name'] ?? null,
+            'metadata'                => array_filter(['message' => $data['message'] ?? null]),
+            'expires_at'              => $data['expires_at'] ?? null,
+            // token et expires_at par défaut gérés par le hook creating()
+        ]);
+
+        return redirect()
+            ->route('admin.conseiller')
+            ->with('success', "Invitation envoyée à {$data['email']}.");
+    }
+
+    // ─── Lien public (atterrissage candidat) ──────────────────────────────────
+
     public function land(Request $request, string $token)
     {
         $invitation = TestInvitation::where('token', $token)->firstOrFail();

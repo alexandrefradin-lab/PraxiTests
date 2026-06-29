@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\PluginController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\SubscriptionController;
 use App\Http\Controllers\Admin\TestEditorController;
+use App\Http\Controllers\InvitationController;
 use Illuminate\Support\Facades\Route;
 
 // Dashboard + Leads + Campagnes : accessibles aux professionnels et aux admins.
@@ -24,6 +25,10 @@ Route::middleware(['auth', 'verified', 'role:admin|professional', '2fa'])
         Route::resource('leads', LeadController::class);
         Route::resource('campaigns', CampaignController::class);
         Route::post('campaigns/{campaign}/send', [CampaignController::class, 'send'])->name('campaigns.send');
+
+        // ── Invitations individuelles candidat (tunnel B2B) ───────────────────
+        Route::get('invitations/create',  [InvitationController::class, 'create'])->name('invitations.create');
+        Route::post('invitations',        [InvitationController::class, 'store'])->name('invitations.store');
     });
 
 // Configuration sensible (tests, plugins, réglages) : réservée aux admins (SEC-13)

@@ -20,13 +20,17 @@ class TestInvitation extends Model
         'sent_at',
         'opened_at',
         'expires_at',
+        'consent_share_professional',
+        'consent_given_at',
     ];
 
     protected $casts = [
-        'metadata'   => 'array',
-        'sent_at'    => 'datetime',
-        'opened_at'  => 'datetime',
-        'expires_at' => 'datetime',
+        'metadata'                   => 'array',
+        'sent_at'                    => 'datetime',
+        'opened_at'                  => 'datetime',
+        'expires_at'                 => 'datetime',
+        'consent_given_at'           => 'datetime',
+        'consent_share_professional' => 'boolean',
     ];
 
     protected static function booted(): void
@@ -45,13 +49,20 @@ class TestInvitation extends Model
 
         static::created(function (self $inv) {
             // MET-C2 — Envoyer l'email d'invitation au candidat dès la création.
-            // On vérifie que l'email est présent et que la relation test est chargeable.
+            // updateQuietly() évite de re-déclencher les événements Eloquent.
             if ($inv->email) {
                 try {
                     \Illuminate\Support\Facades\Mail::to($inv->email)
                         ->queue(new \App\Mail\CandidateInvitationMail($inv));
+                    // Marquer l'invitation comme "envoyée" dès que le job est dispatché
+                    // (pour sync : c'est déjà parti ; pour async : c'est en file).
+                    $inv->updateQuietly([
+                        'sent_at' => now(),
+                        'status'  => 'sent',
+                    ]);
                 } catch (\Throwable $e) {
                     report($e);
+                    // En cas d'échec d'envoi, on ne change pas le statut (reste pending)
                 }
             }
         });

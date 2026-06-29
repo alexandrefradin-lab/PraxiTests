@@ -107,9 +107,14 @@ const openRate = (c) => (c.delivered > 0 ? Math.round((c.opened / c.delivered) *
                 <h1 class="text-2xl font-semibold" style="font-family:var(--font-display);color:var(--text-primary)">Tableau de bord conseiller</h1>
                 <p class="text-sm mt-1" style="color:var(--text-muted)">Suivez vos candidats, leurs synthèses IA et vos campagnes.</p>
             </div>
-            <Link href="/admin/campaigns/create" class="ac-btn-primary text-sm">
-                + Inviter des candidats
+            <Link :href="route('admin.invitations.create')" class="ac-btn-primary text-sm">
+                + Inviter un candidat
             </Link>
+        </div>
+
+        <!-- Flash success -->
+        <div v-if="$page.props.flash?.success" class="mb-6 p-4 rounded-lg text-sm" style="background:#ecfdf5;color:#065f46;border:1px solid #6ee7b7">
+            {{ $page.props.flash.success }}
         </div>
 
         <!-- KPIs -->
@@ -191,7 +196,10 @@ const openRate = (c) => (c.delivered > 0 ? Math.round((c.opened / c.delivered) *
                         </tbody>
                     </table>
                 </div>
-                <p v-else class="text-sm py-8 text-center" style="color:var(--text-muted)">Aucun candidat invité pour le moment.</p>
+                <div v-else class="py-10 text-center">
+                    <p class="text-sm mb-3" style="color:var(--text-muted)">Aucun candidat invité pour le moment.</p>
+                    <Link :href="route('admin.invitations.create')" class="ac-btn-primary text-sm">+ Inviter le premier candidat</Link>
+                </div>
             </section>
 
             <!-- Synthèses IA & métiers -->

@@ -39,8 +39,10 @@ class AnthropicDriver extends AbstractDriver
 
         $data = $response->json();
         $this->usage = [
-            'input_tokens'  => $data['usage']['input_tokens']  ?? 0,
-            'output_tokens' => $data['usage']['output_tokens'] ?? 0,
+            'input_tokens'               => $data['usage']['input_tokens']               ?? 0,
+            'output_tokens'              => $data['usage']['output_tokens']              ?? 0,
+            'cache_creation_input_tokens'=> $data['usage']['cache_creation_input_tokens'] ?? 0,
+            'cache_read_input_tokens'    => $data['usage']['cache_read_input_tokens']    ?? 0,
         ];
 
         return $this->extractText($data);
@@ -94,7 +96,7 @@ class AnthropicDriver extends AbstractDriver
             }
         }
 
-        $this->usage = ['input_tokens' => 0, 'output_tokens' => 0];
+        $this->usage = ['input_tokens' => 0, 'output_tokens' => 0, 'cache_creation_input_tokens' => 0, 'cache_read_input_tokens' => 0];
         $out = [];
 
         foreach ($keys as $key) {
@@ -107,8 +109,10 @@ class AnthropicDriver extends AbstractDriver
             }
 
             $data = $resp->json();
-            $this->usage['input_tokens']  += $data['usage']['input_tokens']  ?? 0;
-            $this->usage['output_tokens'] += $data['usage']['output_tokens'] ?? 0;
+            $this->usage['input_tokens']                += $data['usage']['input_tokens']                ?? 0;
+            $this->usage['output_tokens']               += $data['usage']['output_tokens']               ?? 0;
+            $this->usage['cache_creation_input_tokens'] += $data['usage']['cache_creation_input_tokens'] ?? 0;
+            $this->usage['cache_read_input_tokens']     += $data['usage']['cache_read_input_tokens']     ?? 0;
 
             $out[$key] = $this->extractText($data);
         }
@@ -135,7 +139,18 @@ class AnthropicDriver extends AbstractDriver
             'temperature' => $options['temperature'] ?? $this->config['temperature'] ?? 0.7,
             'messages'    => $clean,
         ];
-        if ($system) $payload['system'] = $system;
+        if ($system) {
+            // Prompt caching : le system prompt est identique entre les appels pour
+            // un même bénéficiaire → on le marque "ephemeral" (TTL 5 min, renouvelé
+            // à chaque lecture). Anthropic ne cache que si ≥ 1024 tokens, sinon il
+            // ignore silencieusement le marqueur. Gain : lecture du cache à 10 % du
+            // coût d'entrée normal (écriture à 125 %, amortie dès le 2e appel).
+            $payload['system'] = [[
+                'type'          => 'text',
+                'text'          => $system,
+                'cache_control' => ['type' => 'ephemeral'],
+            ]];
+        }
 
         return $payload;
     }
@@ -146,6 +161,7 @@ class AnthropicDriver extends AbstractDriver
         return [
             'x-api-key'         => $this->config['api_key'],
             'anthropic-version' => '2023-06-01',
+            'anthropic-beta'    => 'prompt-caching-2024-07-31',
             'content-type'      => 'application/json',
         ];
     }
