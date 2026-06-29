@@ -45,7 +45,7 @@ const formatDate = (iso) => {
                             color: var(--text-secondary);
                         "
                     >
-                        Toutes tes Épreuves passées et en progression.
+                        Toutes tes expéditions — accomplies et en cours.
                     </p>
                 </div>
 
@@ -68,7 +68,7 @@ const formatDate = (iso) => {
                         color: var(--text-secondary);
                     "
                 >
-                    En progression · {{ inProgress.length }}
+                    En cours d'expédition · {{ inProgress.length }}
                 </p>
 
                 <div class="space-y-3">
@@ -117,7 +117,7 @@ const formatDate = (iso) => {
                                     color: var(--text-secondary);
                                 "
                             >
-                                Commencé le {{ formatDate(a.started_at) }}
+                                Expédition ouverte le {{ formatDate(a.started_at) }}
                             </p>
                         </div>
 
@@ -234,7 +234,7 @@ const formatDate = (iso) => {
                                     color: var(--text-secondary);
                                 "
                             >
-                                Complété le {{ formatDate(a.completed_at) }}
+                                Accomplie le {{ formatDate(a.completed_at) }}
                             </p>
                         </div>
 

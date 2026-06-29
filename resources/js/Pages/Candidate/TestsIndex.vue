@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { Link, Head, router } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import WelcomeModal from '@/Components/WelcomeModal.vue'
+import ContinentMap from '@/Components/ContinentMap.vue'
 
 const props = defineProps({
     tests: Array,
@@ -60,6 +61,8 @@ function emblem(slug) {
         <Head title="L'Armurerie — Épreuves" />
         <WelcomeModal />
 
+        <ContinentMap :tests="tests" />
+
         <!-- ── En-tête page ── -->
         <div class="mb-8">
             <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
@@ -88,7 +91,7 @@ function emblem(slug) {
                     <div :style="{ width: Math.round(completedCount / tests.length * 100) + '%', height:'100%', background:'var(--color-primary)', borderRadius:'99px', transition:'width 0.4s ease' }"></div>
                 </div>
                 <span style="font-size:0.72rem;font-weight:600;color:var(--text-secondary);flex-shrink:0;white-space:nowrap;">
-                    {{ completedCount }}/{{ tests.length }} complétées
+                    {{ completedCount }}/{{ tests.length }} accomplies
                 </span>
             </div>
 
@@ -149,7 +152,7 @@ function emblem(slug) {
                             class="mt-1"
                             style="font-size:10px;font-weight:700;color:#10B981;background:#D1FAE5;border-radius:20px;padding:2px 8px;display:inline-flex;align-items:center;gap:3px;"
                         >
-                            ✓ Complété
+                            ✓ Accomplie
                         </span>
                     </div>
                     <span class="pt-emblem" v-html="emblem(test.slug)"></span>

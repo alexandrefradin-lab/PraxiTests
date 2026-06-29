@@ -119,7 +119,7 @@ class PraxiBiaisQuestionsSeeder extends Seeder
                     // q34 → idx 33 (scenario)
                     ['text' => "Une reconversion vous permettrait de gagner 20% de plus dans 2 ans mais vous feriez une pause de 6 mois avec moins de revenus. Vous renoncez instinctivement.", 'biais' => 'aversion_perte', 'type' => 'scenario', 'idx' => 33, 'scenario' => true],
                     // q35 → idx 34 (scenario)
-                    ['text' => "Un conseiller Pôle Emploi vous déconseille fortement une voie qui vous attire. Vous abandonnez l'idée sans chercher d'autres avis.", 'biais' => 'biais_autorite', 'type' => 'scenario', 'idx' => 34, 'scenario' => true],
+                    ['text' => "Un expert vous déconseille fortement une voie qui vous attire. Vous abandonnez l'idée sans chercher d'autres avis.", 'biais' => 'biais_autorite', 'type' => 'scenario', 'idx' => 34, 'scenario' => true],
                     // q36 → idx 35 (scenario)
                     ['text' => "Les médias rapportent plusieurs cas de reconversions ratées dans un secteur qui vous attire. Vous réduisez significativement votre intérêt pour ce secteur.", 'biais' => 'disponibilite', 'type' => 'scenario', 'idx' => 35, 'scenario' => true],
                     // q37 → idx 36 (scenario)
