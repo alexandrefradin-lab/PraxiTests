@@ -36,13 +36,13 @@ const props = defineProps({
 const DEFAULT_COLOR = '#A67520'
 // Palette adaptée au fond (clair = parchemin / sombre = encre)
 const pal = computed(() => props.dark ? {
-    line:        '#C99030',
-    area:        'rgba(201,144,48,0.20)',
-    defaultPt:   '#C99030',
+    line:        '#E6BE5A',
+    area:        'rgba(230,190,90,0.24)',
+    defaultPt:   '#E6BE5A',
     pointBorder: 'rgba(18,12,4,0.85)',
-    grid:        'rgba(201,144,48,0.18)',
-    angle:       'rgba(201,144,48,0.22)',
-    tick:        'rgba(240,232,212,0.50)',
+    grid:        'rgba(225,185,95,0.42)',
+    angle:       'rgba(225,185,95,0.50)',
+    tick:        'rgba(240,232,212,0.70)',
     backdrop:    'transparent',
     labelStroke: 'rgba(18,12,4,0.85)',
 } : {
@@ -94,7 +94,7 @@ const chartData = computed(() => ({
         data:                 props.axes.map(a => a.value ?? 0),
         backgroundColor:      pal.value.area,
         borderColor:          pal.value.line,
-        borderWidth:          2.5,
+        borderWidth:          props.dark ? 3 : 2.5,
         borderJoinStyle:      'round',
         pointBackgroundColor: props.axes.map(a => a.color || pal.value.defaultPt),
         pointBorderColor:     pal.value.pointBorder,
