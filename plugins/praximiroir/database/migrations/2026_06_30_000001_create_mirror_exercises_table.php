@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('title');
             $table->string('summary');                             // visible même verrouillé
             $table->longText('body');                              // contenu markdown
-            $table->string('prompt');                              // question principale de réflexion
+            $table->text('prompt');                                // question principale de réflexion
             $table->unsignedSmallInteger('duration_min')->default(15);
             $table->string('icon')->nullable();
             $table->boolean('is_active')->default(true);
