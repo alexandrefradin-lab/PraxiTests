@@ -127,52 +127,66 @@ function emblem(slug) {
         </div>
 
         <!-- ── Grille des tests ── -->
-        <div v-if="tests.length > 0" class="parch-grid">
+        <div v-if="tests.length > 0" class="grid md:grid-cols-2 gap-4">
             <div
                 v-for="test in tests"
                 :key="test.id"
-                class="parch-card"
-                :class="{ 'parch-card--done': test.completed_at || test.completed, 'parch-card--locked': !profile_complete }"
+                class="pt-card p-6 flex flex-col transition-all duration-200 group"
+                :style="{ cursor: profile_complete ? 'pointer' : 'default' }"
                 @click="goToTest(test)"
             >
-                <!-- ── Emblème grand format ── -->
-                <div class="parch-emblem-wrap">
-                    <div class="parch-emblem" v-html="emblem(test.slug)"></div>
-                    <!-- Halo derrière l'emblème si accomplie -->
-                    <div v-if="test.completed_at || test.completed" class="parch-halo"></div>
+                <!-- Badge type + emblème médiéval + complété -->
+                <div class="flex items-start justify-between mb-3 gap-3">
+                    <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+                        <span
+                            class="inline-block px-2 py-0.5 rounded text-[10px] uppercase tracking-widest mt-1"
+                            style="font-family:'Space Mono',monospace; color:var(--text-secondary); background:var(--bg-elevated);"
+                        >
+                            {{ test.type ?? 'Épreuve' }}
+                        </span>
+                        <span
+                            v-if="test.completed_at || test.completed"
+                            class="mt-1"
+                            style="font-size:10px;font-weight:700;color:#10B981;background:#D1FAE5;border-radius:20px;padding:2px 8px;display:inline-flex;align-items:center;gap:3px;"
+                        >
+                            ✓ Accomplie
+                        </span>
+                    </div>
+                    <span class="pt-emblem" v-html="emblem(test.slug)"></span>
                 </div>
 
-                <!-- ── Corps ── -->
-                <div class="parch-body">
-                    <!-- Badges -->
-                    <div class="parch-badges">
-                        <span class="parch-tag">{{ test.type ?? 'Épreuve' }}</span>
-                        <span v-if="test.completed_at || test.completed" class="parch-done-badge">✓ Accomplie</span>
-                    </div>
+                <!-- Titre -->
+                <h3
+                    class="font-bold mb-2 leading-snug"
+                    style="font-family:'Space Grotesk',sans-serif; font-size:16px; color:var(--text-primary);"
+                >
+                    {{ test.name }}
+                </h3>
 
-                    <!-- Titre -->
-                    <h3 class="parch-title">{{ test.name }}</h3>
+                <!-- Description (2 lignes max) -->
+                <p
+                    class="text-[13px] leading-relaxed flex-1 overflow-hidden"
+                    style="font-family:'Inter',sans-serif; color:var(--text-secondary); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;"
+                >
+                    {{ test.description }}
+                </p>
 
-                    <!-- Description -->
-                    <p class="parch-desc">{{ test.description }}</p>
-                </div>
-
-                <!-- ── Pied de carte ── -->
-                <div class="parch-footer">
-                    <span class="parch-time">≈ {{ test.estimated_minutes }} min</span>
-                    <!-- Carte accomplie : score si dispo, sinon badge or -->
-                    <div v-if="test.completed_at || test.completed" class="parch-score-ring">
-                        <span v-if="test.score != null" class="parch-score-val">{{ test.score }}<small>%</small></span>
-                        <span v-else class="parch-score-check">✓</span>
-                    </div>
-                    <!-- Carte disponible -->
-                    <span v-else class="parch-cta" :class="{ 'parch-cta--off': !profile_complete }">
+                <!-- Footer -->
+                <div class="flex items-center justify-between mt-5 pt-4" style="border-top:1px solid var(--glass-border);">
+                    <span
+                        class="text-xs"
+                        style="font-family:'Space Mono',monospace; color:var(--text-secondary);"
+                    >
+                        ≈ {{ test.estimated_minutes }} min
+                    </span>
+                    <span
+                        class="pt-btn-primary text-xs px-4 py-2"
+                        :class="{ 'opacity-40': !profile_complete }"
+                        style="pointer-events:none;"
+                    >
                         Entrer dans l'Épreuve →
                     </span>
                 </div>
-
-                <!-- Trait doré bas -->
-                <div class="parch-bar"></div>
             </div>
         </div>
 
@@ -194,242 +208,33 @@ function emblem(slug) {
 </template>
 
 <style scoped>
-/* ═══════════════════════════════════
-   GRILLE PARCHEMIN
-═══════════════════════════════════ */
-.parch-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1.25rem;
+.pt-card {
+    transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 }
-@media (min-width: 768px) {
-    .parch-grid { grid-template-columns: repeat(2, 1fr); }
+.pt-card:hover {
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 8px 28px rgba(166, 117, 32, 0.16);
+    transform: translateY(-3px);
 }
-
-/* ── Carte ── */
-.parch-card {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    background: linear-gradient(145deg, #FDFBF4 0%, #F7EDCF 60%, #F2E5BA 100%);
-    border: 1px solid rgba(180, 130, 20, 0.22);
-    border-radius: 14px;
-    padding: 1.4rem 1.4rem 1rem;
-    cursor: pointer;
-    transition: box-shadow 0.22s ease, border-color 0.22s ease, transform 0.22s ease;
-    overflow: hidden;
-    /* Texture papier subtile via pseudo */
-}
-.parch-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 14px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
-    pointer-events: none;
-    opacity: 0.6;
-}
-.parch-card:hover {
-    transform: translateY(-4px);
-    border-color: rgba(196, 134, 10, 0.55);
-    box-shadow: 0 10px 32px rgba(150, 100, 10, 0.18), 0 2px 8px rgba(150, 100, 10, 0.1);
-}
-.parch-card--done {
-    background: linear-gradient(145deg, #FDFAF0 0%, #F5E8B8 55%, #EDD98A 100%);
-    border-color: rgba(196, 134, 10, 0.38);
-}
-.parch-card--done:hover {
-    border-color: rgba(196, 134, 10, 0.7);
-    box-shadow: 0 10px 32px rgba(150, 100, 10, 0.22), 0 0 0 2px rgba(196,134,10,0.12);
-}
-.parch-card--locked {
-    cursor: default;
-    opacity: 0.82;
-}
-.parch-card--locked:hover {
-    transform: none;
-    box-shadow: none;
-    border-color: rgba(180, 130, 20, 0.22);
-}
-
-/* ── Emblème ── */
-.parch-emblem-wrap {
-    position: relative;
-    width: 56px;
-    height: 56px;
-    margin-bottom: 1rem;
-    flex-shrink: 0;
-}
-.parch-halo {
-    position: absolute;
-    inset: -6px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(196,134,10,0.22) 0%, transparent 70%);
-    animation: halo-pulse 3s ease-in-out infinite;
-}
-@keyframes halo-pulse {
-    0%, 100% { opacity: 0.6; transform: scale(1); }
-    50%       { opacity: 1;   transform: scale(1.12); }
-}
-.parch-emblem {
-    position: relative;
-    z-index: 1;
-    width: 56px;
-    height: 56px;
+.pt-emblem {
+    width: 44px;
+    height: 44px;
+    flex: none;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    background: rgba(196, 134, 10, 0.10);
-    border: 1.5px solid rgba(196, 134, 10, 0.30);
-    color: #A36808;
-    transition: transform 0.22s ease, background 0.22s ease;
+    color: var(--color-primary);
+    background: var(--bg-elevated);
+    border: 1px solid var(--glass-border);
+    transition: border-color 0.2s ease, transform 0.2s ease;
 }
-.parch-card:hover .parch-emblem {
-    background: rgba(196, 134, 10, 0.16);
-    transform: rotate(-5deg) scale(1.08);
+.pt-emblem :deep(svg) {
+    width: 24px;
+    height: 24px;
 }
-.parch-emblem :deep(svg) {
-    width: 28px;
-    height: 28px;
-}
-
-/* ── Corps ── */
-.parch-body {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-.parch-badges {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    margin-bottom: 0.55rem;
-}
-.parch-tag {
-    font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: #8B6914;
-    background: rgba(196, 134, 10, 0.10);
-    border: 1px solid rgba(196, 134, 10, 0.20);
-    border-radius: 4px;
-    padding: 2px 7px;
-}
-.parch-done-badge {
-    font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: #166534;
-    background: #DCFCE7;
-    border-radius: 20px;
-    padding: 2px 8px;
-    display: inline-flex;
-    align-items: center;
-}
-.parch-title {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 18px;
-    font-weight: 700;
-    line-height: 1.25;
-    color: #3D2A00;
-    margin-bottom: 0.5rem;
-}
-.parch-desc {
-    font-family: 'Inter', sans-serif;
-    font-size: 13px;
-    line-height: 1.65;
-    color: #7A6030;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    flex: 1;
-}
-
-/* ── Pied de carte ── */
-.parch-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 1.1rem;
-    padding-top: 0.85rem;
-    border-top: 1px solid rgba(196, 134, 10, 0.18);
-}
-.parch-time {
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    color: #9B7A2E;
-}
-/* Score anneau circulaire */
-.parch-score-ring {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 40% 35%, #FFF8E1, #E8C44A);
-    border: 2px solid rgba(196, 134, 10, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 8px rgba(196, 134, 10, 0.25);
-    flex-shrink: 0;
-}
-.parch-score-val {
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    font-weight: 700;
-    color: #5A3E00;
-    line-height: 1;
-}
-.parch-score-val small {
-    font-size: 7px;
-    vertical-align: super;
-}
-.parch-score-check {
-    font-size: 16px;
-    color: #8B6914;
-    font-weight: 900;
-}
-/* CTA */
-.parch-cta {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 11px;
-    font-weight: 700;
-    color: #7A5200;
-    background: linear-gradient(135deg, rgba(196,134,10,0.15), rgba(196,134,10,0.08));
-    border: 1px solid rgba(196,134,10,0.3);
-    border-radius: 20px;
-    padding: 5px 12px;
-    transition: background 0.18s ease, border-color 0.18s ease;
-    white-space: nowrap;
-}
-.parch-card:hover .parch-cta {
-    background: linear-gradient(135deg, rgba(196,134,10,0.28), rgba(196,134,10,0.16));
-    border-color: rgba(196,134,10,0.55);
-}
-.parch-cta--off {
-    opacity: 0.4;
-}
-/* Trait doré bas de carte */
-.parch-bar {
-    position: absolute;
-    bottom: 0;
-    left: 10%;
-    right: 10%;
-    height: 2px;
-    background: linear-gradient(to right, transparent, rgba(196,134,10,0.5), transparent);
-    border-radius: 0 0 2px 2px;
-    transition: opacity 0.22s ease;
-    opacity: 0;
-}
-.parch-card:hover .parch-bar {
-    opacity: 1;
-}
-.parch-card--done .parch-bar {
-    opacity: 0.6;
+.group:hover .pt-emblem {
+    border-color: var(--color-primary);
+    transform: rotate(-4deg) scale(1.05);
 }
 </style>
