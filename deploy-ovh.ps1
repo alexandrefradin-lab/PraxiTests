@@ -20,7 +20,13 @@ if ($LASTEXITCODE -ne 0) { Write-Host "ERREUR npm run build" -ForegroundColor Re
 Write-Host "=== 2. Git add + commit + push ===" -ForegroundColor Cyan
 git add -A
 git add -f public/build
-$msg = "feat: maj complete pour test OVH ($(Get-Date -Format 'yyyy-MM-dd HH:mm'))"
+
+# Demander un vrai message de commit pour la traçabilité
+$msg = Read-Host "Message de commit (ex: fix: trailing comma plugin.json)"
+if (-not $msg) {
+    $msg = "chore: maj $(Get-Date -Format 'yyyy-MM-dd HH:mm')"
+    Write-Host "Message par defaut : $msg" -ForegroundColor Yellow
+}
 git commit -m $msg
 git push origin main
 if ($LASTEXITCODE -ne 0) { Write-Host "ERREUR git push" -ForegroundColor Red; Read-Host; exit 1 }
@@ -28,5 +34,5 @@ if ($LASTEXITCODE -ne 0) { Write-Host "ERREUR git push" -ForegroundColor Red; Re
 Write-Host ""
 Write-Host "=== OK ! Pousse termine. ===" -ForegroundColor Green
 Write-Host "Maintenant connecte-toi en SSH sur OVH et lance :" -ForegroundColor Green
-Write-Host "    cd ~/praxiquest && bash deploy-server.sh" -ForegroundColor White
+Write-Host "    cd ~/www && bash deploy-server.sh" -ForegroundColor White
 Read-Host "Appuyez sur Entree pour fermer"

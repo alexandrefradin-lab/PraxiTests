@@ -74,6 +74,8 @@
             "Praxis\\Plugins\\PraxiVision\\Database\\Seeders\\": "plugins/praxivision/database/seeders/",
             "Praxis\\Plugins\\PraxiBiais\\": "plugins/praxibiais/src/",
             "Praxis\\Plugins\\PraxiBiais\\Database\\Seeders\\": "plugins/praxibiais/database/seeders/",
+            "Praxis\\Plugins\\PraxiMiroir\\": "plugins/praximiroir/src/",
+            "Praxis\\Plugins\\PraxiMiroir\\Database\\Seeders\\": "plugins/praximiroir/database/seeders/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         },
@@ -96,7 +98,8 @@
             "plugins/praxilead/PluginServiceProvider.php",
             "plugins/praxizenith/PluginServiceProvider.php",
             "plugins/praxivision/PluginServiceProvider.php",
-            "plugins/praxibiais/PluginServiceProvider.php"
+            "plugins/praxibiais/PluginServiceProvider.php",
+            "plugins/praximiroir/PluginServiceProvider.php"
         ]
     },
     "autoload-dev": {
