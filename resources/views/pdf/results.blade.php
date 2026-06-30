@@ -1231,16 +1231,3 @@
 
 </body>
 </html>
-al-align:top; text-align:right; font-size:10.5px; color:{{ $ink }}; width:45%;">
-                    @if($org['email'])<div>{{ $org['email'] }}</div>@endif
-                    @if($org['phone'])<div>{{ $org['phone'] }}</div>@endif
-                    @if($org['website'])<div style="color:{{ $goldDark }}; font-weight:bold;">{{ $org['website'] }}</div>@endif
-                </td>
-            </tr>
-        </table>
-    </div>
-</div>
-@endif
-
-</body>
-</html>
