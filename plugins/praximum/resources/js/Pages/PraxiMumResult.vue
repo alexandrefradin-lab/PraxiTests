@@ -94,28 +94,30 @@ const niveauColor = {
                 subtitle="Scores T normés (50 = moyenne). 30 facettes détaillées."
             />
 
-            <!-- Archétype principal -->
-            <section v-if="archetype" class="pt-card overflow-hidden mb-8 pq-reveal" style="animation-delay:0.2s" :style="{ background: `linear-gradient(135deg, ${archetype.couleur1}, ${archetype.couleur2})` }">
-                <div class="p-10 text-white">
-                    <div class="flex items-start justify-between gap-6 flex-wrap">
-                        <div class="flex items-center gap-4">
-                            <span class="text-6xl">{{ archetype.emoji }}</span>
-                            <div>
-                                <p class="text-xs uppercase tracking-wider text-white/70">Ton archétype</p>
-                                <h2 class="text-3xl font-semibold mt-1">{{ archetype.nom }}</h2>
-                                <p class="text-white/90 mt-1 text-base">{{ archetype.tagline }}</p>
-                            </div>
-                        </div>
-                        <div class="bg-white/15 backdrop-blur rounded-xl px-4 py-3 text-center">
-                            <p class="text-xs uppercase tracking-wider text-white/70">Rareté</p>
-                            <p class="text-2xl font-semibold mt-0.5">{{ archetype.rarete }}%</p>
-                        </div>
+            <!-- Archétype principal — blason « constellation » -->
+            <section v-if="archetype" class="mum-arch pq-reveal mb-8" style="animation-delay:0.2s">
+                <span class="mum-orn mum-tl"></span><span class="mum-orn mum-tr"></span><span class="mum-orn mum-bl"></span><span class="mum-orn mum-br"></span>
+                <div class="mum-arch-grid">
+                    <!-- Blason -->
+                    <div class="mum-crest">
+                        <svg viewBox="0 0 120 132" class="mum-crest-svg" aria-hidden="true">
+                            <polygon points="60,4 112,32 112,90 60,128 8,90 8,32" fill="rgba(230,190,90,0.07)" stroke="var(--color-primary)" stroke-width="2"/>
+                            <polygon points="60,16 100,38 100,84 60,116 20,84 20,38" fill="none" stroke="var(--color-primary)" stroke-width="0.6" opacity="0.5"/>
+                        </svg>
+                        <span class="mum-crest-emoji">{{ archetype.emoji }}</span>
+                        <span class="mum-crest-rare">RARETÉ {{ archetype.rarete }}%</span>
                     </div>
-                    <p class="mt-6 text-white/95 leading-relaxed text-[15px]">{{ archetype.description }}</p>
-                    <div class="flex flex-wrap gap-2 mt-6">
-                        <span v-for="trait in archetype.traits" :key="trait" class="bg-white/20 backdrop-blur text-white text-xs font-medium px-3 py-1 rounded-full">{{ trait }}</span>
+                    <!-- Corps -->
+                    <div class="mum-arch-body">
+                        <span class="mum-kicker">✦ Ton archétype</span>
+                        <h2 class="mum-name">{{ archetype.nom }}</h2>
+                        <p class="mum-tagline">{{ archetype.tagline }}</p>
+                        <p class="mum-desc">{{ archetype.description }}</p>
+                        <div class="mum-chips">
+                            <span v-for="trait in archetype.traits" :key="trait">{{ trait }}</span>
+                        </div>
+                        <p v-if="archetype.distance > 0" class="mum-near">Profil le plus proche · combinaison {{ archetype.matched_key }}</p>
                     </div>
-                    <p v-if="archetype.distance > 0" class="text-xs text-white/60 mt-4">Profil le plus proche · combinaison {{ archetype.matched_key }}</p>
                 </div>
             </section>
 
@@ -191,6 +193,42 @@ const niveauColor = {
     opacity: 0;
     animation: pqReveal 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
+
+/* ── Archétype : blason constellation ── */
+.mum-arch {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    padding: 1.9rem 2rem;
+    color: #F0E8D4;
+    background: radial-gradient(ellipse at 22% 12%, #241a0e, var(--color-accent) 62%, #120c04);
+    border: 1px solid var(--color-primary-dark);
+    box-shadow: 0 12px 30px rgba(42,30,8,0.30);
+}
+.mum-orn {
+    position: absolute;
+    width: 16px; height: 16px;
+    border: 1.5px solid var(--color-primary);
+    opacity: 0.7;
+    pointer-events: none;
+}
+.mum-tl { top: 10px; left: 10px; border-right: 0; border-bottom: 0; border-radius: 3px 0 0 0; }
+.mum-tr { top: 10px; right: 10px; border-left: 0; border-bottom: 0; border-radius: 0 3px 0 0; }
+.mum-bl { bottom: 10px; left: 10px; border-right: 0; border-top: 0; border-radius: 0 0 0 3px; }
+.mum-br { bottom: 10px; right: 10px; border-left: 0; border-top: 0; border-radius: 0 0 3px 0; }
+.mum-arch-grid { display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; }
+.mum-crest { position: relative; width: 120px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; }
+.mum-crest-svg { width: 120px; height: 132px; display: block; }
+.mum-crest-emoji { position: absolute; top: 38px; left: 0; right: 0; text-align: center; font-size: 40px; line-height: 1; }
+.mum-crest-rare { position: absolute; bottom: 13px; left: 50%; transform: translateX(-50%); font-family: var(--font-data); font-size: 9px; letter-spacing: 0.08em; color: var(--color-primary-light); white-space: nowrap; }
+.mum-arch-body { flex: 1; min-width: 240px; }
+.mum-kicker { font-family: var(--font-data); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-primary-light); }
+.mum-name { font-family: var(--font-display); font-size: 1.9rem; font-weight: 700; letter-spacing: -0.02em; color: #F4ECD8; margin: 0.2rem 0 0.25rem; text-shadow: 0 0 22px rgba(230,190,90,0.2); }
+.mum-tagline { font-size: 14px; color: rgba(240,232,212,0.8); margin: 0 0 0.8rem; }
+.mum-desc { font-size: 13.5px; line-height: 1.7; color: rgba(240,232,212,0.62); margin: 0 0 1rem; }
+.mum-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.mum-chips span { font-family: var(--font-data); font-size: 10.5px; color: var(--color-primary-light); background: rgba(230,190,90,0.10); border: 1px solid rgba(230,190,90,0.35); padding: 3px 11px; border-radius: 20px; }
+.mum-near { font-size: 11px; color: rgba(240,232,212,0.45); margin-top: 0.9rem; }
 @keyframes pqReveal {
     from { opacity: 0; transform: translateY(20px); }
     to   { opacity: 1; transform: none; }
