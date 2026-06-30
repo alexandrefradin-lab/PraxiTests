@@ -1,8 +1,8 @@
 #!/bin/bash
 # ================================================================
 # PraxiQuest — Déploiement SERVEUR (à lancer en SSH sur OVH)
-# Cible : ~/www (la SEULE app servie par praxiquest.decisionpro.fr)
-# Usage : cd ~/www && bash deploy-server.sh
+# Cible : ~/praxiquest (la SEULE app servie par praxiquest.decisionpro.fr)
+# Usage : cd ~/praxiquest && bash deploy-server.sh
 # Pré-requis : avoir lancé deploy-ovh.ps1 en local (push GitHub) avant.
 # ================================================================
 set -e
@@ -12,7 +12,7 @@ ok() { echo -e "${GREEN}✓ $1${RESET}"; }
 msg() { echo -e "${YELLOW}→ $1${RESET}"; }
 err() { echo -e "${RED}✗ $1${RESET}"; exit 1; }
 
-cd "$HOME/www" || { echo "✗ ~/www introuvable"; exit 1; }
+cd "$HOME/praxiquest" || { echo "✗ ~/praxiquest introuvable"; exit 1; }
 
 # Résolution de composer (PATH non chargé en shell non-interactif)
 COMPOSER_BIN="$(command -v composer || command -v composer2 || true)"
