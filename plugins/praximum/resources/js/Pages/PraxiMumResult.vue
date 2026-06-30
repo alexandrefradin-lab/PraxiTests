@@ -105,11 +105,13 @@ const niveauColor = {
                             <polygon points="60,16 100,38 100,84 60,116 20,84 20,38" fill="none" stroke="var(--color-primary)" stroke-width="0.6" opacity="0.5"/>
                         </svg>
                         <span class="mum-crest-emoji">{{ archetype.emoji }}</span>
-                        <span class="mum-crest-rare">RARETÉ {{ archetype.rarete }}%</span>
                     </div>
                     <!-- Corps -->
                     <div class="mum-arch-body">
-                        <span class="mum-kicker">✦ Ton archétype</span>
+                        <div class="mum-krow">
+                            <span class="mum-kicker">✦ Ton archétype</span>
+                            <span v-if="archetype.rarete != null" class="mum-rare-badge">Rareté · {{ archetype.rarete }}%</span>
+                        </div>
                         <h2 class="mum-name">{{ archetype.nom }}</h2>
                         <p class="mum-tagline">{{ archetype.tagline }}</p>
                         <p class="mum-desc">{{ archetype.description }}</p>
@@ -220,10 +222,23 @@ const niveauColor = {
 .mum-arch-grid { display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; }
 .mum-crest { position: relative; width: 120px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; }
 .mum-crest-svg { width: 120px; height: 132px; display: block; }
-.mum-crest-emoji { position: absolute; top: 38px; left: 0; right: 0; text-align: center; font-size: 40px; line-height: 1; }
-.mum-crest-rare { position: absolute; bottom: 13px; left: 50%; transform: translateX(-50%); font-family: var(--font-data); font-size: 9px; letter-spacing: 0.08em; color: var(--color-primary-light); white-space: nowrap; }
+.mum-crest-emoji { position: absolute; top: 50%; left: 0; right: 0; transform: translateY(-50%); text-align: center; font-size: 44px; line-height: 1; }
 .mum-arch-body { flex: 1; min-width: 240px; }
+.mum-krow { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.15rem; }
 .mum-kicker { font-family: var(--font-data); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-primary-light); }
+.mum-rare-badge {
+    font-family: var(--font-data);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--color-accent);
+    background: linear-gradient(180deg, var(--color-primary-light), var(--color-primary));
+    border: 1px solid var(--color-primary-dark);
+    border-radius: 999px;
+    padding: 3px 12px;
+    white-space: nowrap;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.3);
+}
 .mum-name { font-family: var(--font-display); font-size: 1.9rem; font-weight: 700; letter-spacing: -0.02em; color: #F4ECD8; margin: 0.2rem 0 0.25rem; text-shadow: 0 0 22px rgba(230,190,90,0.2); }
 .mum-tagline { font-size: 14px; color: rgba(240,232,212,0.8); margin: 0 0 0.8rem; }
 .mum-desc { font-size: 13.5px; line-height: 1.7; color: rgba(240,232,212,0.62); margin: 0 0 1rem; }
