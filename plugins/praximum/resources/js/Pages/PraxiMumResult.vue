@@ -68,7 +68,7 @@ const facettesByDim = computed(() => {
     const out = {}
     Object.entries(metaFac.value).forEach(([fk, info]) => {
         if (!out[info.dim]) out[info.dim] = []
-        out[info.dim].push({ key: fk, label: info.label, ...(facettes.value[fk] ?? {}) })
+        out[info.dim].push({ key: fk, label: info.label, court: info.court, ...(facettes.value[fk] ?? {}) })
     })
     return out
 })
@@ -166,6 +166,7 @@ const niveauColor = {
                         <div class="pt-progress-track">
                             <div class="h-full rounded-full" :style="{ width: (animatedFacs[f.key] ?? 0) + '%', backgroundColor: metaDim[dimKey]?.color }"></div>
                         </div>
+                        <p v-if="f.court" class="text-xs mt-2" style="color:var(--text-muted); line-height:1.45">{{ f.court }}</p>
                     </div>
                 </div>
             </section>
