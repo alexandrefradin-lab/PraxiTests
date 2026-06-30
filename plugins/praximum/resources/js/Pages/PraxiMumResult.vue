@@ -64,11 +64,45 @@ const radarAxes = computed(() =>
         }))
 )
 
+// Définitions de repli (résultats stockés avant l'ajout de `court` au scoring).
+const FACET_DEF = {
+    O1_FAN: "Imagination vive, rêverie, vie intérieure riche.",
+    O2_EST: "Sensibilité à l'art et à la beauté.",
+    O3_SEN: "Conscience et importance accordée à ses émotions.",
+    O4_ACT: "Goût de la nouveauté et de l'expérimentation.",
+    O5_IDE: "Curiosité intellectuelle, plaisir de réfléchir.",
+    O6_VAL: "Ouverture à remettre en question les conventions.",
+    C1_COM: "Sentiment d'être capable et efficace.",
+    C2_ORD: "Organisation, méthode, goût du rangement.",
+    C3_DEV: "Respect de ses engagements et de ses principes.",
+    C4_REA: "Ambition et exigence de résultats.",
+    C5_DIS: "Capacité à se motiver et à aller au bout.",
+    C6_DEL: "Réflexion avant d'agir, prudence.",
+    E1_CHA: "Cordialité, facilité à créer des liens chaleureux.",
+    E2_GRE: "Goût de la compagnie et des groupes.",
+    E3_ASS: "Aisance à s'affirmer et à prendre le lead.",
+    E4_ACT: "Rythme de vie soutenu, énergie, dynamisme.",
+    E5_STI: "Attrait pour l'excitation et la stimulation.",
+    E6_EMO: "Tendance à la joie et à l'enthousiasme.",
+    A1_CON: "Tendance à croire en la sincérité des autres.",
+    A2_DRO: "Franchise, sincérité, refus de manipuler.",
+    A3_ALT: "Souci actif du bien-être d'autrui.",
+    A4_COM: "Tendance à coopérer plutôt qu'à s'opposer.",
+    A5_MOD: "Humilité et discrétion sur soi-même.",
+    A6_SEN: "Compassion, attention aux besoins des autres.",
+    N1_ANX: "Tendance à l'inquiétude et à la nervosité.",
+    N2_HOS: "Propension à la colère et à la frustration.",
+    N3_DEP: "Tendance au découragement et à la tristesse.",
+    N4_CON: "Gêne sociale, sensibilité au jugement.",
+    N5_IMP: "Difficulté à résister aux envies immédiates.",
+    N6_VUL: "Sensibilité au stress sous pression.",
+}
+
 const facettesByDim = computed(() => {
     const out = {}
     Object.entries(metaFac.value).forEach(([fk, info]) => {
         if (!out[info.dim]) out[info.dim] = []
-        out[info.dim].push({ key: fk, label: info.label, court: info.court, ...(facettes.value[fk] ?? {}) })
+        out[info.dim].push({ key: fk, label: info.label, court: info.court ?? FACET_DEF[fk] ?? '', ...(facettes.value[fk] ?? {}) })
     })
     return out
 })
