@@ -72,7 +72,7 @@ function emblem(slug) {
                     </h1>
                     <p class="mt-2 text-sm" style="color:var(--text-secondary); font-family:'Inter',sans-serif;">
                         Chaque Épreuve est une étape de ta cartographie intérieure.
-                        Passe-les dans l'ordre qui te convient — tes résultats s'accumulent dans ton Grimoire pour forger une synthèse IA et dévoiler tes voies d'avenir. À tout moment, l'Oracle est là pour répondre à tes questions et t'orienter.
+                        Passe-les dans l'ordre qui te convient — tes résultats s'accumulent dans ton Grimoire pour forger une synthèse IA et dévoiler tes voies d'avenir. À tout moment, l'Oracle (en bas à droite) est là pour répondre à tes questions et t'orienter.
                     </p>
                 </div>
                 <span

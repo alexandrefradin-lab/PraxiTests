@@ -429,6 +429,30 @@ h1, h2, h3, h4, .font-display {
     .ac-row-hover { transition: background 0.15s; }
     .ac-row-hover:hover { background: var(--bg-elevated); }
 
+    /* ── Contenu sur panneau « constellation » sombre (ResultPanel dark) ── */
+    .ac-panel-title { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; color: #F4ECD8; }
+    .ac-panel-sub   { font-size: 0.8rem; color: rgba(240,232,212,0.6); }
+    .ac-dark-muted  { color: rgba(240,232,212,0.6); }
+    .ac-dark-strong { color: #F4ECD8; }
+    .ac-dark-track {
+        height: 6px;
+        border-radius: 99px;
+        background: rgba(240,232,212,0.10);
+        overflow: hidden;
+    }
+    .ac-dark-track > div { height: 100%; border-radius: 99px; transition: width 0.7s ease; }
+    .ac-dark-item {
+        border: 1px solid rgba(230,190,90,0.20);
+        border-radius: 12px;
+        padding: 1rem;
+        background: rgba(0,0,0,0.18);
+    }
+    .ac-dark-name { font-weight: 600; font-size: 0.9rem; color: #F0E8D4; }
+    .ac-dark-def  { font-size: 0.75rem; line-height: 1.45; color: rgba(240,232,212,0.6); margin-top: 0.5rem; }
+    /* Barres horizontales (tests sans radar : viz de repli) */
+    .ac-dark-bar-row { margin-bottom: 1.1rem; }
+    .ac-dark-bar-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.35rem; }
+
     /* ── Cases à cocher / radios (accent or) ── */
     .ac-checkbox, .ac-radio {
         appearance: none;

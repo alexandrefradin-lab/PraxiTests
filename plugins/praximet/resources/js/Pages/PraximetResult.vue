@@ -20,6 +20,16 @@ const meta = computed(() => scoring.value.types_meta ?? {})
 
 const codeLetters = computed(() => code.value.split(''))
 
+// Définitions neutres et brèves par type RIASEC (repli si absentes des données).
+const DIM_DEF = {
+    R: "Goût du concret, du manuel et du technique.",
+    I: "Curiosité, analyse et résolution de problèmes.",
+    A: "Créativité et expression artistique.",
+    S: "Attrait pour aider et accompagner les autres.",
+    E: "Goût de convaincre, diriger et entreprendre.",
+    C: "Préférence pour l'ordre, la méthode et les données.",
+}
+
 // Hexagone RIASEC — axes dans l'ordre iconique R, I, A, S, E, C (valeurs 0–100).
 const RIASEC_ORDER = ['R', 'I', 'A', 'S', 'E', 'C']
 const radarAxes = computed(() =>
@@ -59,37 +69,38 @@ const radarAxes = computed(() =>
             </ResultPanel>
 
             <!-- 6 types RIASEC -->
-            <section class="pt-card p-8 mb-8">
-                <h2 class="text-xl font-semibold mb-6">Tes 6 dimensions</h2>
+            <ResultPanel class="mb-8">
+                <h2 class="ac-panel-title mb-6">Tes 6 dimensions</h2>
                 <div class="space-y-5">
-                    <div v-for="(score, key) in dimensions" :key="key">
+                    <div v-for="(score, key) in dimensions" :key="key" class="ac-dark-item">
                         <div class="flex items-center justify-between mb-1">
                             <div>
-                                <span class="font-semibold" :style="{ color: meta[key]?.color }">{{ meta[key]?.label ?? key }}</span>
-                                <p class="text-xs text-slate-500 mt-0.5">{{ meta[key]?.desc }}</p>
+                                <span class="ac-dark-name" :style="{ color: meta[key]?.color }">{{ meta[key]?.label ?? key }}</span>
                             </div>
-                            <span class="text-sm font-medium text-slate-700">{{ score }}%</span>
+                            <span class="text-sm font-medium ac-dark-muted">{{ score }}%</span>
                         </div>
-                        <div class="pt-progress-track">
-                            <div class="h-full rounded-full transition-all duration-700" :style="{ width: score + '%', backgroundColor: meta[key]?.color }"></div>
+                        <div class="ac-dark-track">
+                            <div :style="{ width: score + '%', backgroundColor: meta[key]?.color }"></div>
                         </div>
+                        <p v-if="meta[key]?.desc || DIM_DEF[key]" class="ac-dark-def">{{ meta[key]?.desc || DIM_DEF[key] }}</p>
                     </div>
                 </div>
-            </section>
+            </ResultPanel>
 
             <!-- Sous-domaines -->
-            <section v-if="scoring.sous_domaines" class="pt-card p-8 mb-8">
-                <h2 class="text-xl font-semibold mb-6">Détail par sous-domaine</h2>
+            <ResultPanel v-if="scoring.sous_domaines" class="mb-8">
+                <h2 class="ac-panel-title mb-6">Détail par sous-domaine</h2>
                 <div class="grid md:grid-cols-2 gap-5">
-                    <div v-for="(subs, type) in scoring.sous_domaines" :key="type" class="border border-slate-100 rounded-xl p-5">
-                        <h3 class="font-semibold mb-3" :style="{ color: meta[type]?.color }">{{ meta[type]?.label }}</h3>
+                    <div v-for="(subs, type) in scoring.sous_domaines" :key="type" class="ac-dark-item">
+                        <h3 class="ac-dark-name mb-1" :style="{ color: meta[type]?.color }">{{ meta[type]?.label }}</h3>
+                        <p v-if="meta[type]?.desc || DIM_DEF[type]" class="ac-dark-def" style="margin-top:0;margin-bottom:0.75rem">{{ meta[type]?.desc || DIM_DEF[type] }}</p>
                         <div v-for="(value, label) in subs" :key="label" class="flex justify-between text-sm py-1">
-                            <span class="text-slate-600">{{ label }}</span>
-                            <span class="font-medium">{{ value }}/7</span>
+                            <span class="ac-dark-muted">{{ label }}</span>
+                            <span class="font-medium ac-dark-name">{{ value }}/7</span>
                         </div>
                     </div>
                 </div>
-            </section>
+            </ResultPanel>
 
             <ResultPdfButton :attempt-id="attempt.id" />
         </div>

@@ -16,6 +16,7 @@ import SynthesisCard from '@/Components/SynthesisCard.vue'
 import Disclaimer from '@/Components/Disclaimer.vue'
 import RestitutionHeader from '@/Components/RestitutionHeader.vue'
 import ResultPdfButton from '@/Components/ResultPdfButton.vue'
+import ResultPanel from '@/Components/ResultPanel.vue'
 
 const props = defineProps({
     attempt:      Object,
@@ -38,6 +39,16 @@ const bandColor = (color) => ({
 }[color] ?? '#94A3B8')
 
 const barWidth = (dimKey) => Math.min(100, Math.max(0, dims.value[dimKey] ?? 0))
+
+// ── Barres de repli (constellation) : 2 sous-dimensions ASRS, < 3 axes ───────
+// Inattention / Hyperactivité-Impulsivité, fréquence rapportée 0–100.
+const barAxes = computed(() =>
+    Object.entries(dims.value).map(([key, value]) => ({
+        key,
+        label: meta.value[key]?.label ?? key,
+        value: Math.min(100, Math.max(0, Number(value ?? 0))),
+    }))
+)
 
 // Couleur de la jauge globale : neutre (or), jamais « bon / mauvais ».
 const gaugeColor = computed(() => 'var(--pt-gold)')
@@ -90,6 +101,22 @@ const gaugeColor = computed(() => 'var(--pt-gold)')
                 <div style="width:36px;height:36px;border-radius:50%;border:3px solid var(--pt-cream-dark);border-top-color:var(--pt-gold);animation:spin 1s linear infinite;margin:0 auto"></div>
                 <p style="margin-top:1rem;color:var(--pt-text-muted)">Analyse en cours… (1 à 2 minutes)</p>
             </div>
+
+            <!-- Visualisation constellation : 2 sous-dimensions ASRS -->
+            <ResultPanel label="Tes deux axes d'attention" class="mb-8" style="margin-bottom:1rem">
+                <div class="ac-dark-bar-row" v-for="ax in barAxes" :key="ax.key">
+                    <div class="ac-dark-bar-head">
+                        <span class="ac-dark-name">{{ ax.label }}</span>
+                        <span class="ac-dark-muted" style="font-size:0.8rem">{{ ax.value }}/100</span>
+                    </div>
+                    <div class="ac-dark-track">
+                        <div :style="{ width: ax.value + '%', backgroundColor: 'var(--color-primary)' }"></div>
+                    </div>
+                </div>
+                <p class="ac-dark-def" style="margin-top:0.25rem">
+                    Chaque barre indique la fréquence rapportée des symptômes sur cet axe (0 à 100) ; il s'agit d'une fréquence déclarée, non d'un score clinique.
+                </p>
+            </ResultPanel>
 
             <!-- Profil par dimension -->
             <div class="pt-card" style="padding:1.5rem;margin-bottom:1rem">

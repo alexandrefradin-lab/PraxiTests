@@ -43,8 +43,8 @@
       <!-- ══════════════════════════════════════════════
            PROFIL COMMUNICANT — 5 DIMENSIONS
       ══════════════════════════════════════════════ -->
-      <section class="pt-card pt-dimensions" aria-labelledby="dimensions-heading">
-        <h2 id="dimensions-heading" class="pt-section-title">Votre profil communicant</h2>
+      <ResultPanel class="mb-8" aria-labelledby="dimensions-heading">
+        <h2 id="dimensions-heading" class="ac-panel-title mb-6">Votre profil communicant</h2>
 
         <div class="pt-dimensions__grid">
           <div
@@ -54,22 +54,21 @@
           >
             <div class="pt-dim-row__header">
               <span class="pt-dim-row__icon" aria-hidden="true">{{ dim.icon }}</span>
-              <span class="pt-dim-row__name">{{ dim.label }}</span>
+              <span class="pt-dim-row__name ac-dark-name">{{ dim.label }}</span>
               <span
-                class="pt-dim-row__score"
+                class="pt-dim-row__score ac-dark-strong"
                 :aria-label="`${dim.label} : ${dim.score} sur 100`"
-              >{{ dim.score }}<span class="pt-dim-row__score-max">/100</span></span>
+              >{{ dim.score }}<span class="pt-dim-row__score-max ac-dark-muted">/100</span></span>
             </div>
 
             <div
-              class="pt-dim-row__bar-track"
+              class="ac-dark-track pt-dim-row__bar-track"
               role="progressbar"
               :aria-valuenow="dim.score"
               aria-valuemin="0"
               aria-valuemax="100"
             >
               <div
-                class="pt-dim-row__bar-fill"
                 :style="{
                   width: `${dim.score}%`,
                   backgroundColor: dim.color,
@@ -78,10 +77,10 @@
               />
             </div>
 
-            <p class="pt-dim-row__description">{{ dim.description }}</p>
+            <p class="pt-dim-row__description ac-dark-def">{{ dim.description }}</p>
           </div>
         </div>
-      </section>
+      </ResultPanel>
 
       <!-- ══════════════════════════════════════════════
            STYLE COMMUNICANT DOMINANT
@@ -835,23 +834,11 @@ function startJourneyExercise() {
 }
 
 .pt-dim-row__bar-track {
-  height: 8px;
-  border-radius: 4px;
-  background: var(--pt-cream);
-  overflow: hidden;
   margin-bottom: 0.4rem;
 }
 
-.pt-dim-row__bar-fill {
-  height: 100%;
-  border-radius: 4px;
-}
-
 .pt-dim-row__description {
-  font-size: 0.82rem;
-  color: var(--pt-text-muted);
   margin: 0;
-  line-height: 1.5;
 }
 
 /* ══════════════════════════════════════════════

@@ -30,6 +30,14 @@ const scoreColor = (pct) => {
     return 'var(--pt-success, #16a34a)'
 }
 
+// Niveau de score → couleur éclaircie (lisible sur panneau sombre)
+const scoreColorDark = (pct) => {
+    if (pct < 20) return '#f87171'
+    if (pct < 45) return '#fb923c'
+    if (pct < 70) return '#60a5fa'
+    return '#4ade80'
+}
+
 // Niveau de score → étiquette
 const scoreLabel = (pct) => {
     if (pct < 20) return 'À développer'
@@ -201,8 +209,8 @@ const gridRows = computed(() => {
             </ResultPanel>
 
             <!-- Jauges par dimension ──────────────────────────────────── -->
-            <section class="pt-card p-8 mb-8">
-                <h2 class="text-xl font-semibold mb-6" style="color: var(--pt-navy)">
+            <ResultPanel class="mb-8">
+                <h2 class="ac-panel-title mb-6">
                     Tes 5 dimensions
                 </h2>
                 <div class="space-y-5">
@@ -214,7 +222,7 @@ const gridRows = computed(() => {
                         <div class="flex items-center justify-between mb-1">
                             <div class="flex items-center gap-2">
                                 <span class="text-lg leading-none">{{ dimIcon(dimId) }}</span>
-                                <span class="font-medium" style="color: var(--pt-navy)">
+                                <span class="font-medium ac-dark-name">
                                     {{ dimInfo.label }}
                                 </span>
                                 <span
@@ -225,46 +233,42 @@ const gridRows = computed(() => {
                                 <span
                                     v-if="dimId === scoring.weak_dimension"
                                     class="pt-badge"
-                                    style="background: var(--pt-cream, #f8f5ef); color: var(--pt-navy); font-size: 0.65rem"
+                                    style="background: rgba(240,232,212,0.12); color: #F0E8D4; font-size: 0.65rem"
                                 >À travailler</span>
                             </div>
                             <span
                                 class="text-xs px-2 py-0.5 rounded-full font-medium"
                                 :style="{
-                                    backgroundColor: scoreColor(norms[dimId] ?? 0) + '20',
-                                    color: scoreColor(norms[dimId] ?? 0)
+                                    backgroundColor: scoreColorDark(norms[dimId] ?? 0) + '24',
+                                    color: scoreColorDark(norms[dimId] ?? 0)
                                 }"
                             >{{ scoreLabel(norms[dimId] ?? 0) }}</span>
                         </div>
 
                         <!-- Barre de progression -->
                         <div class="flex items-center gap-3">
-                            <div
-                                class="flex-1 rounded-full overflow-hidden"
-                                style="height: 8px; background: var(--pt-cream, #f8f5ef)"
-                            >
+                            <div class="ac-dark-track flex-1">
                                 <div
-                                    class="h-full rounded-full"
                                     :style="{
                                         width: (norms[dimId] ?? 0) + '%',
-                                        backgroundColor: dimInfo.color ?? scoreColor(norms[dimId] ?? 0),
+                                        backgroundColor: dimInfo.color ?? scoreColorDark(norms[dimId] ?? 0),
                                         transition: 'width 0.8s ease'
                                     }"
                                 ></div>
                             </div>
                             <span
                                 class="text-sm font-semibold w-10 text-right"
-                                :style="{ color: scoreColor(norms[dimId] ?? 0) }"
+                                :style="{ color: scoreColorDark(norms[dimId] ?? 0) }"
                             >{{ norms[dimId] ?? 0 }}%</span>
                         </div>
 
                         <!-- Description courte -->
-                        <p class="text-xs mt-1" style="color: var(--pt-text-muted)">
+                        <p class="ac-dark-def">
                             {{ dimInfo.description }}
                         </p>
                     </div>
                 </div>
-            </section>
+            </ResultPanel>
 
             <!-- Exercice recommandé du jour ───────────────────────────── -->
             <section v-if="recommended" class="pt-card p-8 mb-8" style="border-left: 4px solid var(--pt-gold, #f59e0b)">

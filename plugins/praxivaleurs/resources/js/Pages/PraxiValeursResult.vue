@@ -62,20 +62,21 @@ const radarAxes = computed(() =>
             </ResultPanel>
 
             <!-- Toutes les dimensions -->
-            <section class="pt-card p-8 mb-8">
-                <h2 class="text-xl font-semibold mb-6">Tes 10 valeurs</h2>
+            <ResultPanel class="mb-8">
+                <h2 class="ac-panel-title mb-6">Tes 10 valeurs</h2>
                 <div class="space-y-4">
-                    <div v-for="([key, score]) in all" :key="key">
+                    <div v-for="([key, score]) in all" :key="key" class="ac-dark-item">
                         <div class="flex justify-between text-sm mb-1">
-                            <span class="font-medium" :style="{ color: meta[key]?.color }">{{ meta[key]?.label }}</span>
-                            <span class="text-slate-500">{{ score }}/100</span>
+                            <span class="ac-dark-name" :style="{ color: meta[key]?.color }">{{ meta[key]?.label }}</span>
+                            <span class="ac-dark-muted">{{ score }}/100</span>
                         </div>
-                        <div class="pt-progress-track">
-                            <div class="h-full rounded-full transition-all duration-700" :style="{ width: score + '%', backgroundColor: meta[key]?.color }"></div>
+                        <div class="ac-dark-track">
+                            <div :style="{ width: score + '%', backgroundColor: meta[key]?.color }"></div>
                         </div>
+                        <p v-if="meta[key]?.court" class="ac-dark-def">{{ meta[key]?.court }}</p>
                     </div>
                 </div>
-            </section>
+            </ResultPanel>
 
             <!-- Définitions -->
             <section class="pt-card p-8 mb-8">

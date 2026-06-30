@@ -44,6 +44,15 @@ const barWidth = (dimKey) => {
     return dims.value[dimKey] ?? 0
 }
 
+// Définitions neutres de repli (si meta.description absente).
+const SUBDIM_DEF = {
+    eoe: "Tendance à la saturation face au trop-plein de sollicitations.",
+    aes: "Sensibilité fine au beau et profondeur de réflexion.",
+    lst: "Réactivité élevée aux stimulations sensorielles fortes.",
+    emo: "Intensité du ressenti et de la résonance émotionnelle.",
+}
+const subDimDef = (key) => SUBDIM_DEF[key] ?? ''
+
 // Axes de la toile d'araignée — dimensions normalisées 0..100, ordre du meta conservé
 const radarAxes = computed(() =>
     Object.entries(dims.value).map(([key, value]) => {
@@ -96,24 +105,24 @@ const radarAxes = computed(() =>
             </ResultPanel>
 
             <!-- Sous-dimensions -->
-            <div class="pt-card" style="padding:1.5rem;margin-bottom:1rem">
+            <ResultPanel class="mb-8">
                 <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1.25rem">
-                    <h2 style="font-size:16px;font-weight:500">Vos 3 sous-dimensions</h2>
+                    <h2 class="ac-panel-title">Vos 3 sous-dimensions</h2>
                     <span v-if="Object.values(normScores).some(n => n?.label)"
-                        style="font-size:11px;color:var(--pt-text-light);font-style:italic">
+                        class="ac-dark-muted" style="font-size:11px;font-style:italic">
                         Comparé à une population de référence
                     </span>
                 </div>
 
-                <div style="display:flex;flex-direction:column;gap:1rem">
-                    <div v-for="(score, dimKey) in dims" :key="dimKey">
+                <div style="display:flex;flex-direction:column;gap:1.1rem">
+                    <div v-for="(score, dimKey) in dims" :key="dimKey" class="ac-dark-item">
                         <div style="display:flex;align-items:center;gap:12px">
-                            <span style="font-size:13px;font-weight:500;min-width:150px">
+                            <span class="ac-dark-name" style="min-width:150px">
                                 {{ meta[dimKey]?.label ?? dimKey }}
                             </span>
 
-                            <div class="pt-progress-track" style="flex:1">
-                                <div class="pt-progress-fill" :style="{ width: barWidth(dimKey) + '%' }"></div>
+                            <div class="ac-dark-track" style="flex:1">
+                                <div :style="{ width: barWidth(dimKey) + '%', background: 'var(--color-primary)' }"></div>
                             </div>
 
                             <div v-if="normScores[dimKey]?.label"
@@ -121,7 +130,7 @@ const radarAxes = computed(() =>
                                 <div style="display:flex;gap:3px">
                                     <div v-for="n in 5" :key="n"
                                         style="width:9px;height:9px;border-radius:50%;transition:background .2s"
-                                        :style="{ background: n <= normScores[dimKey].dots ? dotColor(normScores[dimKey].color) : 'var(--pt-cream-dark)' }">
+                                        :style="{ background: n <= normScores[dimKey].dots ? dotColor(normScores[dimKey].color) : 'rgba(240,232,212,0.18)' }">
                                     </div>
                                 </div>
                                 <span style="font-size:12px;font-weight:500"
@@ -130,18 +139,17 @@ const radarAxes = computed(() =>
                                 </span>
                             </div>
 
-                            <div v-else style="font-size:12px;color:var(--pt-text-light);min-width:36px;text-align:right">
+                            <div v-else class="ac-dark-muted" style="font-size:12px;min-width:36px;text-align:right">
                                 {{ score }}%
                             </div>
                         </div>
 
-                        <p v-if="meta[dimKey]?.description"
-                            style="font-size:12px;color:var(--pt-text-light);margin-top:5px;padding-left:162px;line-height:1.4">
-                            {{ meta[dimKey].description }}
+                        <p class="ac-dark-def">
+                            {{ meta[dimKey]?.description ?? subDimDef(dimKey) }}
                         </p>
                     </div>
                 </div>
-            </div>
+            </ResultPanel>
 
             <Disclaimer>
                 <strong>Des pistes, pas un verdict.</strong> Les métiers proposés sont générés

@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import SynthesisCard from '@/Components/SynthesisCard.vue'
 import RestitutionHeader from '@/Components/RestitutionHeader.vue'
+import ResultPanel from '@/Components/ResultPanel.vue'
 import ResultPdfButton from '@/Components/ResultPdfButton.vue'
 
 const props = defineProps({
@@ -15,13 +16,16 @@ const mbi = computed(() => scoring.value.mbi ?? {})
 const profile = computed(() => scoring.value.profile)
 const meta = computed(() => scoring.value.meta_profiles?.[profile.value] ?? {})
 
-const severityColor = {
-    faible: 'text-emerald-700 bg-emerald-50',
-    modere: 'text-amber-700 bg-amber-50',
-    eleve:  'text-rose-700 bg-rose-50',
-}
 const severityLabel = { faible: 'Faible', modere: 'Modéré', eleve: 'Élevé' }
 const sevHex = { faible: '#16a34a', modere: '#d97706', eleve: '#dc2626' }
+// Variantes éclaircies pour fond sombre (panneaux constellation)
+const sevHexDark = { faible: '#4ade80', modere: '#fbbf24', eleve: '#f87171' }
+// Pastille de sévérité lisible sur fond sombre
+const severityChipStyle = {
+    faible: { color: '#4ade80', background: 'rgba(74,222,128,0.14)', border: '1px solid rgba(74,222,128,0.35)' },
+    modere: { color: '#fbbf24', background: 'rgba(251,191,36,0.14)', border: '1px solid rgba(251,191,36,0.35)' },
+    eleve:  { color: '#f87171', background: 'rgba(248,113,113,0.14)', border: '1px solid rgba(248,113,113,0.35)' },
+}
 
 /* ─── Quadrant Karasek (demandes × latitude) ─────────────────────────
  * X = latitude décisionnelle (marge de manœuvre), Y = demandes psycho.
@@ -47,11 +51,13 @@ const quadrants = computed(() => {
         return `rgba(${r},${g},${b},${a})`
     }
     const c = k => m[k]?.color ?? '#999'
+    // Sur fond sombre : zones plus opaques, libellés en ton clair.
+    const FILL = 0.22
     return [
-        { key: 'tendu',   label: 'Tendu',    x: QX0,        y: QY0,        w: thX.value - QX0,        h: thY.value - QY0,        fill: tint(c('tendu'), 0.13),   text: c('tendu') },
-        { key: 'actif',   label: 'Actif',    x: thX.value,  y: QY0,        w: QX0 + QW - thX.value,   h: thY.value - QY0,        fill: tint(c('actif'), 0.13),   text: c('actif') },
-        { key: 'passif',  label: 'Passif',   x: QX0,        y: thY.value,  w: thX.value - QX0,        h: QY0 + QH - thY.value,   fill: tint(c('passif'), 0.13),  text: c('passif') },
-        { key: 'detendu', label: 'Détendu',  x: thX.value,  y: thY.value,  w: QX0 + QW - thX.value,   h: QY0 + QH - thY.value,   fill: tint(c('detendu'), 0.13), text: c('detendu') },
+        { key: 'tendu',   label: 'Tendu',    x: QX0,        y: QY0,        w: thX.value - QX0,        h: thY.value - QY0,        fill: tint(c('tendu'), FILL),   text: '#F0E8D4' },
+        { key: 'actif',   label: 'Actif',    x: thX.value,  y: QY0,        w: QX0 + QW - thX.value,   h: thY.value - QY0,        fill: tint(c('actif'), FILL),   text: '#F0E8D4' },
+        { key: 'passif',  label: 'Passif',   x: QX0,        y: thY.value,  w: thX.value - QX0,        h: QY0 + QH - thY.value,   fill: tint(c('passif'), FILL),  text: '#F0E8D4' },
+        { key: 'detendu', label: 'Détendu',  x: thX.value,  y: thY.value,  w: QX0 + QW - thX.value,   h: QY0 + QH - thY.value,   fill: tint(c('detendu'), FILL), text: '#F0E8D4' },
     ]
 })
 
@@ -69,8 +75,15 @@ const mbiItems = computed(() => ([
     const sx = v => (Math.max(0, Math.min(max, v)) / max) * BW
     return { ...it, max, val, sev,
         z1: sx(it.t1), z2: sx(it.t2), full: BW,
-        markX: sx(val), color: sevHex[sev] }
+        markX: sx(val), color: sevHexDark[sev] }
 })))
+
+/* ─── Définitions neutres des 3 facteurs Karasek ── */
+const karasekDef = {
+    demandes: "Charge mentale et pression ressenties au travail.",
+    latitude: "Marge d'autonomie et de décision au travail.",
+    soutien:  "Appui reçu des collègues et de la hiérarchie.",
+}
 
 /* ─── Soutien social ── */
 const soutienPct = computed(() => {
@@ -98,9 +111,9 @@ const soutienPct = computed(() => {
             </section>
 
             <!-- Quadrant Karasek -->
-            <section class="pt-card p-8 mb-8">
-                <h2 class="text-xl font-semibold mb-1">Karasek — Le modèle tension / contrôle</h2>
-                <p class="text-sm text-slate-500 mb-6">Ta position selon la pression subie (demandes) et ta marge de manœuvre (latitude).</p>
+            <ResultPanel label="Ton positionnement (Karasek)" class="mb-8">
+                <h2 class="ac-panel-title mb-1">Karasek — Le modèle tension / contrôle</h2>
+                <p class="ac-dark-muted text-sm mb-6">Ta position selon la pression subie (demandes) et ta marge de manœuvre (latitude).</p>
 
                 <div class="flex justify-center">
                     <svg viewBox="0 0 412 392" class="w-full max-w-md" role="img" aria-label="Quadrant de Karasek">
@@ -112,65 +125,66 @@ const soutienPct = computed(() => {
                                   :x="q.x + q.w / 2" :y="q.y + q.h / 2"
                                   text-anchor="middle" dominant-baseline="middle"
                                   font-family="'Space Grotesk', sans-serif" font-size="13" font-weight="600"
-                                  :fill="q.text" :opacity="profile === q.key ? 0.25 : 0.55">{{ q.label }}</text>
+                                  :fill="q.text" :opacity="profile === q.key ? 1 : 0.7">{{ q.label }}</text>
                         </g>
 
-                        <!-- Seuils -->
-                        <line :x1="thX" :y1="QY0" :x2="thX" :y2="QY0 + QH" stroke="#A67520" stroke-width="1" stroke-dasharray="4 4" opacity="0.5" />
-                        <line :x1="QX0" :y1="thY" :x2="QX0 + QW" :y2="thY" stroke="#A67520" stroke-width="1" stroke-dasharray="4 4" opacity="0.5" />
+                        <!-- Seuils (filets dorés) -->
+                        <line :x1="thX" :y1="QY0" :x2="thX" :y2="QY0 + QH" stroke="var(--color-primary)" stroke-width="1" stroke-dasharray="4 4" opacity="0.55" />
+                        <line :x1="QX0" :y1="thY" :x2="QX0 + QW" :y2="thY" stroke="var(--color-primary)" stroke-width="1" stroke-dasharray="4 4" opacity="0.55" />
 
                         <!-- Cadre + axes -->
-                        <rect :x="QX0" :y="QY0" :width="QW" :height="QH" fill="none" stroke="rgba(42,30,8,0.18)" stroke-width="1" />
+                        <rect :x="QX0" :y="QY0" :width="QW" :height="QH" fill="none" stroke="rgba(230,190,90,0.30)" stroke-width="1" />
 
                         <!-- Point candidat (halo + cœur) -->
-                        <circle :cx="ptX" :cy="ptY" r="13" :fill="meta.color" opacity="0.18" />
+                        <circle :cx="ptX" :cy="ptY" r="13" :fill="meta.color" opacity="0.28" />
                         <circle :cx="ptX" :cy="ptY" r="7" :fill="meta.color" stroke="#F0E8D4" stroke-width="2" />
 
                         <!-- Labels d'axes -->
                         <text :x="QX0 + QW / 2" y="384" text-anchor="middle"
-                              font-family="'Space Mono', monospace" font-size="11" fill="#6B5A3E" letter-spacing="1">
+                              font-family="'Space Mono', monospace" font-size="11" fill="#C9B589" letter-spacing="1">
                             LATITUDE DÉCISIONNELLE →
                         </text>
                         <text :x="20" :y="QY0 + QH / 2" text-anchor="middle"
-                              font-family="'Space Mono', monospace" font-size="11" fill="#6B5A3E" letter-spacing="1"
+                              font-family="'Space Mono', monospace" font-size="11" fill="#C9B589" letter-spacing="1"
                               :transform="`rotate(-90 20 ${QY0 + QH / 2})`">
                             DEMANDES PSYCHO →
                         </text>
                     </svg>
                 </div>
 
-                <!-- Détail chiffré -->
-                <div class="grid md:grid-cols-3 gap-5 mt-6 pt-6 border-t border-slate-100">
-                    <div v-for="(label, key) in { demandes: 'Demandes psychologiques', latitude: 'Latitude décisionnelle', soutien: 'Soutien social' }" :key="key">
-                        <p class="text-sm font-medium text-slate-700">{{ label }}</p>
+                <!-- Détail chiffré : 3 scores -->
+                <div class="grid md:grid-cols-3 gap-5 mt-6 pt-6" style="border-top:1px solid rgba(230,190,90,0.20)">
+                    <div v-for="(label, key) in { demandes: 'Demandes psychologiques', latitude: 'Latitude décisionnelle', soutien: 'Soutien social' }" :key="key" class="ac-dark-item">
+                        <p class="ac-dark-name">{{ label }}</p>
                         <div class="flex items-baseline gap-1 mt-1">
-                            <span class="text-3xl font-semibold" style="font-family: var(--font-data)">{{ karasek[key] }}</span>
-                            <span class="text-sm text-slate-400">/ {{ karasek[key + '_max'] }}</span>
+                            <span class="text-3xl font-semibold" style="font-family: var(--font-data); color:#F4ECD8">{{ karasek[key] }}</span>
+                            <span class="ac-dark-muted text-sm">/ {{ karasek[key + '_max'] }}</span>
                         </div>
-                        <div class="pt-progress-track mt-2">
-                            <div class="pt-progress-fill" :style="{ width: ((karasek[key] / karasek[key + '_max']) * 100) + '%' }"></div>
+                        <div class="ac-dark-track mt-2">
+                            <div :style="{ width: ((karasek[key] / karasek[key + '_max']) * 100) + '%', background: 'var(--color-primary)' }"></div>
                         </div>
+                        <p class="ac-dark-def">{{ karasekDef[key] }}</p>
                     </div>
                 </div>
-                <p class="text-xs text-slate-500 mt-4">
-                    Soutien social : <span class="font-medium">{{ soutienPct }} %</span> du maximum.
-                    Un faible soutien combiné à une forte tension peut faire basculer vers l'<span class="font-medium text-rose-700">iso-strain</span>.
+                <p class="ac-dark-muted text-xs mt-4">
+                    Soutien social : <span class="font-medium" style="color:#F0E8D4">{{ soutienPct }} %</span> du maximum.
+                    Un faible soutien combiné à une forte tension peut faire basculer vers l'<span class="font-medium" style="color:#f87171">iso-strain</span>.
                 </p>
-            </section>
+            </ResultPanel>
 
             <!-- MBI — jauges zonées -->
-            <section class="pt-card p-8 mb-8">
-                <h2 class="text-xl font-semibold mb-1">MBI — Signes d'épuisement professionnel</h2>
-                <p class="text-sm text-slate-500 mb-6">Position de ton score sur l'échelle, des zones <span class="text-emerald-700 font-medium">faible</span> · <span class="text-amber-700 font-medium">modérée</span> · <span class="text-rose-700 font-medium">élevée</span>.</p>
+            <ResultPanel class="mb-8">
+                <h2 class="ac-panel-title mb-1">MBI — Signes d'épuisement professionnel</h2>
+                <p class="ac-dark-muted text-sm mb-6">Position de ton score sur l'échelle, des zones <span class="font-medium" style="color:#4ade80">faible</span> · <span class="font-medium" style="color:#fbbf24">modérée</span> · <span class="font-medium" style="color:#f87171">élevée</span>.</p>
 
-                <div class="space-y-8">
-                    <div v-for="item in mbiItems" :key="item.key">
+                <div class="space-y-6">
+                    <div v-for="item in mbiItems" :key="item.key" class="ac-dark-item">
                         <div class="flex justify-between items-start gap-3 mb-2">
                             <div>
-                                <p class="font-medium">{{ item.label }}</p>
-                                <p class="text-xs text-slate-500 mt-0.5">{{ item.desc }}</p>
+                                <p class="ac-dark-name">{{ item.label }}</p>
+                                <p class="ac-dark-def" style="margin-top:0.35rem">{{ item.desc }}</p>
                             </div>
-                            <span :class="severityColor[item.sev]" class="text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap">{{ severityLabel[item.sev] }}</span>
+                            <span class="text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap" :style="severityChipStyle[item.sev]">{{ severityLabel[item.sev] }}</span>
                         </div>
 
                         <svg viewBox="0 0 300 40" class="w-full" role="img" :aria-label="`${item.label} : ${item.val} sur ${item.max}`">
@@ -181,30 +195,30 @@ const soutienPct = computed(() => {
                             </defs>
                             <!-- Zones (extrémités arrondies via clip) -->
                             <g :clip-path="`url(#mbi-${item.key})`">
-                                <rect x="0"        y="14" :width="item.z1"            height="12" fill="rgba(22,163,74,0.18)" />
-                                <rect :x="item.z1" y="14" :width="item.z2 - item.z1"  height="12" fill="rgba(217,119,6,0.20)" />
-                                <rect :x="item.z2" y="14" :width="item.full - item.z2" height="12" fill="rgba(220,38,38,0.20)" />
+                                <rect x="0"        y="14" :width="item.z1"            height="12" fill="rgba(74,222,128,0.22)" />
+                                <rect :x="item.z1" y="14" :width="item.z2 - item.z1"  height="12" fill="rgba(251,191,36,0.24)" />
+                                <rect :x="item.z2" y="14" :width="item.full - item.z2" height="12" fill="rgba(248,113,113,0.24)" />
                             </g>
                             <!-- séparateurs de seuils -->
-                            <line :x1="item.z1" y1="11" :x2="item.z1" y2="29" stroke="#F0E8D4" stroke-width="1.5" />
-                            <line :x1="item.z2" y1="11" :x2="item.z2" y2="29" stroke="#F0E8D4" stroke-width="1.5" />
+                            <line :x1="item.z1" y1="11" :x2="item.z1" y2="29" stroke="#241a0e" stroke-width="1.5" />
+                            <line :x1="item.z2" y1="11" :x2="item.z2" y2="29" stroke="#241a0e" stroke-width="1.5" />
 
                             <!-- Marqueur du score -->
                             <line :x1="item.markX" y1="8" :x2="item.markX" y2="32" :stroke="item.color" stroke-width="2.5" stroke-linecap="round" />
-                            <circle :cx="item.markX" cy="8" r="4.5" :fill="item.color" stroke="#F0E8D4" stroke-width="1.5" />
+                            <circle :cx="item.markX" cy="8" r="4.5" :fill="item.color" stroke="#241a0e" stroke-width="1.5" />
                         </svg>
 
                         <div class="flex justify-between items-baseline mt-1">
-                            <span class="text-xs text-slate-400" style="font-family: var(--font-data)">0</span>
+                            <span class="ac-dark-muted text-xs" style="font-family: var(--font-data)">0</span>
                             <span class="text-sm">
                                 <span class="text-xl font-semibold" :style="{ color: item.color, fontFamily: 'var(--font-data)' }">{{ item.val }}</span>
-                                <span class="text-slate-400"> / {{ item.max }}</span>
+                                <span class="ac-dark-muted"> / {{ item.max }}</span>
                             </span>
-                            <span class="text-xs text-slate-400" style="font-family: var(--font-data)">{{ item.max }}</span>
+                            <span class="ac-dark-muted text-xs" style="font-family: var(--font-data)">{{ item.max }}</span>
                         </div>
                     </div>
                 </div>
-            </section>
+            </ResultPanel>
 
             <!-- Synthèse IA -->
             <SynthesisCard :source="attempt.result?.ai_synthesis" title="Ta synthèse" />

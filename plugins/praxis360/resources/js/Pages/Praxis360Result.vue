@@ -56,6 +56,15 @@ const dotColor = (color) => ({
     muted: 'var(--pt-cream-dark)',
 }[color] ?? '#94A3B8')
 
+// Variantes éclaircies pour le panneau sombre (constellation)
+const dotColorDark = (color) => ({
+    gold:  'var(--color-primary-light, #E6BE5A)',
+    navy:  '#cbd5e1',
+    slate: '#cbd5e1',
+    amber: '#fbbf24',
+    muted: 'rgba(240,232,212,0.55)',
+}[color] ?? '#cbd5e1')
+
 const barWidth = (dimKey) => {
     const norm = normScores.value[dimKey]
     if (norm?.percentile) return Math.min(100, Math.max(0, Math.round((norm.percentile / 99) * 100)))
@@ -112,11 +121,11 @@ const barWidth = (dimKey) => {
             </ResultPanel>
 
             <!-- Dimensions avec étalonnage -->
-            <div class="pt-card" style="padding:1.5rem;margin-bottom:1rem">
+            <ResultPanel class="mb-8">
                 <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1.25rem">
-                    <h2 style="font-size:16px;font-weight:500">Vos 6 dimensions</h2>
+                    <h2 class="ac-panel-title">Vos 6 dimensions</h2>
                     <span v-if="Object.values(normScores).some(n => n?.label)"
-                        style="font-size:11px;color:var(--pt-text-light);font-style:italic">
+                        class="ac-dark-muted" style="font-size:11px;font-style:italic">
                         Comparé à une population de référence
                     </span>
                 </div>
@@ -124,12 +133,12 @@ const barWidth = (dimKey) => {
                 <div style="display:flex;flex-direction:column;gap:1rem">
                     <div v-for="(score, dimKey) in dims" :key="dimKey">
                         <div style="display:flex;align-items:center;gap:12px">
-                            <span style="font-size:13px;font-weight:500;min-width:180px">
+                            <span class="ac-dark-name" style="font-size:13px;min-width:180px">
                                 {{ labelOf(dimKey) }}
                             </span>
 
-                            <div class="pt-progress-track" style="flex:1">
-                                <div class="pt-progress-fill" :style="{ width: barWidth(dimKey) + '%' }"></div>
+                            <div class="ac-dark-track" style="flex:1">
+                                <div :style="{ width: barWidth(dimKey) + '%', background: 'var(--color-primary)' }"></div>
                             </div>
 
                             <!-- Étalonnage : dots + label -->
@@ -138,28 +147,29 @@ const barWidth = (dimKey) => {
                                 <div style="display:flex;gap:3px">
                                     <div v-for="n in 5" :key="n"
                                         style="width:9px;height:9px;border-radius:50%;transition:background .2s"
-                                        :style="{ background: n <= normScores[dimKey].dots ? dotColor(normScores[dimKey].color) : 'var(--pt-cream-dark)' }">
+                                        :style="{ background: n <= normScores[dimKey].dots ? dotColorDark(normScores[dimKey].color) : 'rgba(240,232,212,0.18)' }">
                                     </div>
                                 </div>
                                 <span style="font-size:12px;font-weight:500"
-                                    :style="{ color: dotColor(normScores[dimKey].color) }">
+                                    :style="{ color: dotColorDark(normScores[dimKey].color) }">
                                     {{ normScores[dimKey].label }}
                                 </span>
                             </div>
 
                             <!-- Fallback : score normalisé -->
-                            <div v-else style="font-size:12px;color:var(--pt-text-light);min-width:36px;text-align:right">
+                            <div v-else class="ac-dark-muted" style="font-size:12px;min-width:36px;text-align:right">
                                 {{ score }}%
                             </div>
                         </div>
 
                         <p v-if="meta[dimKey]?.description"
-                            style="font-size:12px;color:var(--pt-text-light);margin-top:5px;padding-left:192px;line-height:1.4">
+                            class="ac-dark-def"
+                            style="padding-left:192px">
                             {{ meta[dimKey].description }}
                         </p>
                     </div>
                 </div>
-            </div>
+            </ResultPanel>
 
             <!-- Forces & axes de progrès -->
             <div v-if="strengths.length || improvements.length"

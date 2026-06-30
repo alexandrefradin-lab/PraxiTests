@@ -11,6 +11,8 @@ import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import SynthesisCard from '@/Components/SynthesisCard.vue'
 import RestitutionHeader from '@/Components/RestitutionHeader.vue'
 import ResultPdfButton from '@/Components/ResultPdfButton.vue'
+import RadarChart from '@/Components/RadarChart.vue'
+import ResultPanel from '@/Components/ResultPanel.vue'
 
 const props = defineProps({
     attempt: Object,
@@ -30,6 +32,35 @@ const top3WithDetails = computed(() =>
 // Tous les biais triés par score décroissant
 const allBiais = computed(() =>
     Object.values(scores.value).sort((a, b) => b.score - a.score)
+)
+
+// ── Radar des 10 biais (score 0–100) ────────────────────────────────────────
+// Libellés courts pour la lisibilité des axes de la toile.
+const RADAR_LABEL = {
+    statu_quo:             'Statu quo',
+    aversion_perte:        'Aversion perte',
+    cout_irrecuperable:    'Coût irrécup.',
+    conformite_familiale:  'Conformité',
+    biais_autorite:        'Autorité',
+    identite_metier:       'Identité métier',
+    biais_confirmation:    'Confirmation',
+    disponibilite:         'Disponibilité',
+    surconfiance:          'Surconfiance',
+    sous_estimation:       'Sous-estim.',
+}
+// Ordre fixe (catalogue) pour une toile stable d'une restitution à l'autre.
+const RADAR_ORDER = [
+    'statu_quo', 'aversion_perte', 'cout_irrecuperable', 'conformite_familiale',
+    'biais_autorite', 'identite_metier', 'biais_confirmation', 'disponibilite',
+    'surconfiance', 'sous_estimation',
+]
+const radarAxes = computed(() =>
+    RADAR_ORDER
+        .filter((slug) => scores.value[slug])
+        .map((slug) => ({
+            label: RADAR_LABEL[slug] ?? scores.value[slug].label,
+            value: Number(scores.value[slug].score ?? 0),
+        }))
 )
 
 // Les 7 biais après le top 3 (pour la section "explorer")
@@ -124,6 +155,16 @@ const profileEmoji = computed(() => ({
                     </div>
                 </div>
             </div>
+
+            <!-- ── TOILE DES 10 BIAIS (constellation) ───────────────────────── -->
+            <ResultPanel label="Votre toile cognitive" class="mb-8" style="margin-bottom:2rem">
+                <div class="flex justify-center">
+                    <RadarChart :axes="radarAxes" dark />
+                </div>
+                <p class="ac-dark-def" style="text-align:center;margin-top:1rem">
+                    Chaque axe situe l'intensité d'un biais (0 à 100) : plus le tracé s'étend, plus ce mécanisme pèse dans vos décisions.
+                </p>
+            </ResultPanel>
 
             <!-- ── TOP 3 FREINS (narratif + coût visible) ─────────────────── -->
             <h2 style="font-size:12px;font-weight:700;text-transform:uppercase;

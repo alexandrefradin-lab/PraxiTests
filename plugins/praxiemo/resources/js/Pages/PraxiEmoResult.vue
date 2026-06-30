@@ -16,11 +16,31 @@ const dims = computed(() => scoring.value.meta_dimensions ?? {})
 const fams = computed(() => scoring.value.meta_families ?? {})
 const dimScores = computed(() => scoring.value.dim_scores ?? {})
 
+// Définitions neutres et brèves par dimension (repli si absentes des données).
+const DIM_DEF = {
+    1:  "Capacité à reconnaître ses propres émotions.",
+    4:  "Assurance dans ses capacités et ses choix.",
+    9:  "Aptitude à dire et partager ses ressentis.",
+    16: "Capacité à réfléchir avant de réagir.",
+    2:  "Garder son calme et son efficacité sous pression.",
+    3:  "Maîtriser et canaliser sa colère.",
+    5:  "Capacité à se motiver par soi-même.",
+    6:  "Tendance à envisager l'avenir positivement.",
+    7:  "Capacité à rebondir après une épreuve.",
+    8:  "Aisance à s'adapter au changement.",
+    10: "Affirmer ses besoins avec respect.",
+    11: "Percevoir et comprendre les émotions d'autrui.",
+    12: "Aborder les sujets sensibles avec délicatesse.",
+    13: "Collaborer avec des personnes différentes de soi.",
+    14: "Donner de l'élan et de l'énergie aux autres.",
+    15: "Désamorcer et résoudre les tensions.",
+}
+
 const byFamily = computed(() => {
     const groups = {}
     Object.entries(dims.value).forEach(([id, d]) => {
         if (!groups[d.famille]) groups[d.famille] = []
-        groups[d.famille].push({ id: parseInt(id), ...d, score: dimScores.value[id] ?? 0 })
+        groups[d.famille].push({ id: parseInt(id), ...d, score: dimScores.value[id] ?? 0, def: d.court ?? d.desc ?? DIM_DEF[id] ?? '' })
     })
     return groups
 })
@@ -45,6 +65,13 @@ const dimColor = (score) => {
     if (score <= 12) return '#ea580c'
     if (score <= 16) return '#2563eb'
     return '#16a34a'
+}
+// Variantes éclaircies pour fond sombre (panneau constellation)
+const dimColorDark = (score) => {
+    if (score <= 8)  return '#f87171'
+    if (score <= 12) return '#fb923c'
+    if (score <= 16) return '#60a5fa'
+    return '#4ade80'
 }
 const dimLabel = (score) => {
     if (score <= 8)  return 'Zone de développement prioritaire'
@@ -86,23 +113,24 @@ const dimLabel = (score) => {
             </ResultPanel>
 
             <!-- 4 familles -->
-            <section v-for="(famQuestions, famId) in byFamily" :key="famId" class="pt-card p-8 mb-6">
-                <h2 class="text-xl font-semibold mb-6" :style="{ color: fams[famId]?.color }">{{ fams[famId]?.label }}</h2>
+            <ResultPanel v-for="(famQuestions, famId) in byFamily" :key="famId" class="mb-6">
+                <h2 class="ac-panel-title mb-6" :style="{ color: fams[famId]?.color }">{{ fams[famId]?.label }}</h2>
                 <div class="space-y-4">
-                    <div v-for="d in famQuestions" :key="d.id">
+                    <div v-for="d in famQuestions" :key="d.id" class="ac-dark-item">
                         <div class="flex justify-between items-baseline mb-1">
-                            <span class="font-medium">{{ d.label }}</span>
-                            <span class="text-xs px-2 py-0.5 rounded-full" :style="{ backgroundColor: dimColor(d.score) + '20', color: dimColor(d.score) }">{{ dimLabel(d.score) }}</span>
+                            <span class="ac-dark-name">{{ d.label }}</span>
+                            <span class="text-xs px-2 py-0.5 rounded-full" :style="{ backgroundColor: dimColorDark(d.score) + '22', color: dimColorDark(d.score) }">{{ dimLabel(d.score) }}</span>
                         </div>
                         <div class="flex items-center gap-3">
-                            <div class="pt-progress-track flex-1">
-                                <div class="h-full rounded-full transition-all duration-700" :style="{ width: ((d.score / 20) * 100) + '%', backgroundColor: dimColor(d.score) }"></div>
+                            <div class="ac-dark-track flex-1">
+                                <div :style="{ width: ((d.score / 20) * 100) + '%', backgroundColor: dimColorDark(d.score) }"></div>
                             </div>
-                            <span class="text-sm font-semibold w-12 text-right">{{ d.score }}/20</span>
+                            <span class="text-sm font-semibold w-12 text-right ac-dark-name">{{ d.score }}/20</span>
                         </div>
+                        <p v-if="d.def" class="ac-dark-def">{{ d.def }}</p>
                     </div>
                 </div>
-            </section>
+            </ResultPanel>
 
             <!-- Top forces / dev -->
             <div class="grid md:grid-cols-2 gap-6 mb-8">
