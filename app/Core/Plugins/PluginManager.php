@@ -97,15 +97,24 @@ class PluginManager
 
     protected function autoloadPlugin(array $manifest): void
     {
+        $pluginPath = $manifest['_path'] ?? '';
+
         // Si le plugin a son propre composer / autoload, on l'inclut.
-        $autoload = ($manifest['_path'] ?? '') . '/vendor/autoload.php';
+        $autoload = $pluginPath . '/vendor/autoload.php';
         if (is_file($autoload)) {
             require_once $autoload;
             return;
         }
 
+        // Charge explicitement le PluginServiceProvider.php à la racine du plugin.
+        // Il n'est PAS dans src/ donc le PSR-4 ci-dessous ne le trouverait pas.
+        $providerFile = $pluginPath . '/PluginServiceProvider.php';
+        if (is_file($providerFile)) {
+            require_once $providerFile;
+        }
+
         // Fallback : charge tout le src/ en PSR-4 simplifié.
-        $src = ($manifest['_path'] ?? '') . '/src';
+        $src = $pluginPath . '/src';
         if (is_dir($src)) {
             $namespace = trim($manifest['namespace'] ?? '', '\\');
             spl_autoload_register(function ($class) use ($namespace, $src) {
