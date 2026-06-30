@@ -116,6 +116,34 @@ const hasTreasure = computed(() => {
     try { return route().has('treasure.index') } catch (e) { return false }
 })
 
+// ─── Badge "nouveau trésor débloqué" ──────────────────────────────────────
+// Compare le nombre de trésors débloqués (partagé via Inertia) avec la dernière
+// valeur vue stockée en localStorage. Affiche un point animé sur "Le Trésor"
+// jusqu'à la prochaine visite de /treasure.
+const LS_KEY = 'pq_treasure_seen_count'
+const hasNewTreasure = ref(false)
+
+function checkNewTreasure() {
+    const current = page.props.gamification?.treasure_unlocked_count ?? 0
+    const seen = parseInt(localStorage.getItem(LS_KEY) ?? '0', 10)
+    hasNewTreasure.value = current > seen
+}
+
+function markTreasureSeen() {
+    const current = page.props.gamification?.treasure_unlocked_count ?? 0
+    localStorage.setItem(LS_KEY, String(current))
+    hasNewTreasure.value = false
+}
+
+// Vérifier au montage et à chaque changement de gamification (ex. après un test)
+onMounted(() => { checkNewTreasure() })
+watch(() => page.props.gamification?.treasure_unlocked_count, () => { checkNewTreasure() })
+
+// Effacer le badge dès que l'utilisateur arrive sur /treasure
+watch(() => page.url, (url) => {
+    if (url.startsWith('/treasure')) markTreasureSeen()
+})
+
 // ─── Achievement toast ────────────────────────────────────────────────────
 const showAchievement = ref(false)
 const achievementData = ref(null)
@@ -210,8 +238,9 @@ watch(() => page.props.gamification?.level, (newLevel) => {
                     <Link v-if="hasTreasure" :href="route('treasure.index')"
                         class="cand-nav-link"
                         :class="{ 'cand-nav-link--active': isActive('/treasure') }"
-                        style="font-family: var(--font-display); font-size: 13px; font-weight: 500; color: var(--text-secondary); text-decoration: none; padding: 6px 13px; border-radius: var(--r); transition: color 0.15s, background 0.15s">
+                        style="position:relative; font-family: var(--font-display); font-size: 13px; font-weight: 500; color: var(--text-secondary); text-decoration: none; padding: 6px 13px; border-radius: var(--r); transition: color 0.15s, background 0.15s">
                         Le Trésor
+                        <span v-if="hasNewTreasure && !isActive('/treasure')" class="tresor-dot" aria-label="Nouveau trésor débloqué"></span>
                     </Link>
 
                     <div style="width: 1px; height: 20px; background: var(--border-mid); margin: 0 8px"></div>
@@ -420,9 +449,11 @@ watch(() => page.props.gamification?.level, (newLevel) => {
                         </Link>
                         <Link v-if="hasTreasure" :href="route('treasure.index')"
                             class="cand-drawer-link"
-                            :class="{ 'cand-drawer-link--active': isActive('/treasure') }">
+                            :class="{ 'cand-drawer-link--active': isActive('/treasure') }"
+                            style="position:relative;">
                             <i class="ti ti-stars"></i>
                             <span>Le Trésor</span>
+                            <span v-if="hasNewTreasure && !isActive('/treasure')" class="tresor-dot tresor-dot--drawer" aria-label="Nouveau trésor débloqué"></span>
                         </Link>
                     </div>
 
@@ -971,5 +1002,32 @@ watch(() => page.props.gamification?.level, (newLevel) => {
 }
 .pt-lvl-content {
     animation: pt-lvlpulse 2.2s ease-in-out infinite;
+}
+
+/* ── Badge "nouveau trésor" ── */
+@keyframes tresor-pulse {
+    0%, 100% { transform: scale(1);   box-shadow: 0 0 0 0 rgba(166,117,32,0.6); }
+    50%       { transform: scale(1.2); box-shadow: 0 0 0 5px rgba(166,117,32,0); }
+}
+.tresor-dot {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    border: 1.5px solid var(--bg-base);
+    animation: tresor-pulse 1.8s ease-in-out infinite;
+    pointer-events: none;
+}
+/* Version drawer : positionnée à droite du texte */
+.tresor-dot--drawer {
+    position: absolute;
+    top: 50%;
+    right: 14px;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
 }
 </style>

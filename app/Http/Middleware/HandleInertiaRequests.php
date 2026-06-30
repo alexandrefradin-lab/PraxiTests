@@ -30,8 +30,22 @@ class HandleInertiaRequests extends Middleware
                 ? \Illuminate\Support\Facades\Cache::remember(
                     "eclats.{$request->user()->id}",
                     60,
-                    fn () => app(\Praxis\Core\Gamification\GamificationEngine::class)
-                        ->globalProgressOf($request->user())
+                    function () use ($request) {
+                        $user = $request->user();
+                        $data = app(\Praxis\Core\Gamification\GamificationEngine::class)
+                            ->globalProgressOf($user);
+                        // Nombre de trésors débloqués (comparaison par seuil, sans matching profil)
+                        // Utilisé par le Layout pour afficher un badge "nouveau trésor" sur le menu.
+                        try {
+                            $data['treasure_unlocked_count'] = app(\Praxis\Core\Gamification\RewardCatalog::class)
+                                ->all()
+                                ->filter(fn ($r) => ($data['xp_total'] ?? 0) >= ($r['threshold'] ?? PHP_INT_MAX))
+                                ->count();
+                        } catch (\Throwable $e) {
+                            $data['treasure_unlocked_count'] = 0;
+                        }
+                        return $data;
+                    }
                 )
                 : null,
             'branding' => [

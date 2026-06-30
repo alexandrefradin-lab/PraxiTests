@@ -1,6 +1,6 @@
 <script setup>
-import { ref, computed } from 'vue'
-import { Link, Head, useForm, router } from '@inertiajs/vue3'
+import { ref } from 'vue'
+import { Link, Head, useForm } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import MarkdownText from '@/Components/MarkdownText.vue'
 
