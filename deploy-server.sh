@@ -56,13 +56,14 @@ php artisan praxiquest:plugins:discover --sync
 ok "Plugins découverts"
 
 msg "Reconstruction des caches..."
+mkdir -p storage/framework/views   # view:clear plante si ce dossier est absent
 php artisan cache:clear
 php artisan config:clear
 php artisan route:clear
-php artisan view:clear 2>/dev/null || true   # certains plugins n'ont pas de resources/views/
+php artisan view:clear
 php artisan config:cache
 php artisan route:cache
-php artisan view:cache  2>/dev/null || true   # idem
+php artisan view:cache
 ok "Caches OK"
 
 msg "Permissions..."
