@@ -52,7 +52,7 @@ php artisan db:seed --class=CareerPathsSeeder --force --no-interaction
 ok "Référentiel des pistes métiers (PTP) OK"
 
 msg "Découverte et activation des nouveaux plugins..."
-php artisan plugins:discover --sync
+php artisan praxiquest:plugins:discover --sync
 ok "Plugins découverts"
 
 msg "Reconstruction des caches..."

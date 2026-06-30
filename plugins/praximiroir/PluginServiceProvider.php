@@ -21,6 +21,9 @@ class PluginServiceProvider extends AbstractPlugin
             '--force' => true,
         ]);
 
+        // Le seeder est hors de src/ donc pas dans le PSR-4 du PluginManager.
+        require_once __DIR__ . '/database/seeders/MirrorExercisesSeeder.php';
+
         \Artisan::call('db:seed', [
             '--class' => 'Praxis\\Plugins\\PraxiMiroir\\Database\\Seeders\\MirrorExercisesSeeder',
             '--force' => true,
