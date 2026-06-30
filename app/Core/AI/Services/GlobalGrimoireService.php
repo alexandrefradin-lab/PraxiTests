@@ -124,23 +124,72 @@ class GlobalGrimoireService
             'generated_at'    => now(),
         ]);
 
-        // ── ÉTAPE 2 : voies métiers (format compact, nombreuses, fiables) ───
-        // Sur-demande : Haiku (modèle économique) sous-livre parfois le compte exact
-        // (ex. 27 au lieu de 30). On demande ~20 % de plus, puis on tronque au nombre
-        // voulu → l'utilisateur obtient bien $count pistes (et jamais davantage).
+        // ── ÉTAPES 2+3 EN PARALLÈLE : voies métiers + impact IA ────────────
+        // Les deux appels Haiku sont INDÉPENDANTS. On les lance simultanément
+        // via chatMany() (Http::pool / Guzzle async). Sur OVH mutualisé qui
+        // bloque parfois les connexions sortantes simultanées, chatMany bascule
+        // automatiquement en séquentiel — donc aucun risque de régression.
+        //
+        // Gain attendu : ~40-50 % sur la durée totale post-synthèse.
+        // Si les deux tâches pointent vers des providers DIFFÉRENTS (deepseek vs
+        // anthropic_haiku), chatMany tourne sur le driver voies et applique le
+        // modèle ia_impact via options['model'] — toujours Anthropic dans ce cas.
+        // ─────────────────────────────────────────────────────────────────────
+
+        // Sur-demande : Haiku sous-livre parfois le compte exact (ex. 27/30).
+        // On demande ~20 % de plus, puis on tronque au nombre voulu.
         $genCount = min(60, $count + max(3, (int) ceil($count * 0.2)));
-        $voiesMessages = $this->prompts->globalGrimoireVoies($user, $attempts, $genCount);
-        $voiesMessages = PluginHooks::applyFilters('ai.grimoire.voies_messages', $voiesMessages, $user, $attempts);
+
+        $voiesMessages    = $this->prompts->globalGrimoireVoies($user, $attempts, $genCount);
+        $voiesMessages    = PluginHooks::applyFilters('ai.grimoire.voies_messages', $voiesMessages, $user, $attempts);
+
+        $iaImpactMessages = $this->prompts->globalGrimoireIaImpact($user, $attempts);
+        $iaImpactMessages = PluginHooks::applyFilters('ai.grimoire.ia_impact_messages', $iaImpactMessages, $user, $attempts);
 
         // ~120 tokens / voie compacte → on prévoit large (×160) pour ne JAMAIS
         // tronquer le JSON (la troncature = pistes perdues = "seulement 15").
         $voiesMaxTokens = min(20000, max(3000, $genCount * 160));
 
-        $rawVoies = '';
+        $rawVoies  = '';
+        $rawImpact = '';
+
+        $parallelBatch = [
+            'voies' => [
+                'messages' => $voiesMessages,
+                'options'  => ['temperature' => 0.6, 'max_tokens' => $voiesMaxTokens],
+            ],
+            'ia_impact' => [
+                'messages' => $iaImpactMessages,
+                'options'  => [
+                    'temperature' => 0.6,
+                    'max_tokens'  => 1600,
+                    // Force le modèle ia_impact si différent du driver voies
+                    // (ex : ia_impact = anthropic_haiku, voies = deepseek).
+                    'model'       => $iaImpactDriver->model(),
+                ],
+            ],
+        ];
+
         try {
-            $rawVoies = (string) $voiesDriver->chat($voiesMessages, ['temperature' => 0.6, 'max_tokens' => $voiesMaxTokens]);
-        } catch (\Exception $eVoies) {
-            \Log::warning('Grimoire voies failed', ['user_id' => $user->id, 'error' => $eVoies->getMessage()]);
+            $parallelResults = $voiesDriver->chatMany($parallelBatch);
+            $rawVoies        = (string) ($parallelResults['voies']     ?? '');
+            $rawImpact       = (string) ($parallelResults['ia_impact'] ?? '');
+        } catch (\Exception $eParallel) {
+            // chatMany a complètement échoué (rare) → repli séquentiel complet.
+            \Log::warning('Grimoire chatMany failed, falling back to sequential', [
+                'user_id' => $user->id,
+                'error'   => $eParallel->getMessage(),
+            ]);
+            try {
+                $rawVoies = (string) $voiesDriver->chat($voiesMessages, ['temperature' => 0.6, 'max_tokens' => $voiesMaxTokens]);
+            } catch (\Exception $eVoies) {
+                \Log::warning('Grimoire voies failed', ['user_id' => $user->id, 'error' => $eVoies->getMessage()]);
+            }
+            try {
+                $rawImpact = (string) $iaImpactDriver->chat($iaImpactMessages, ['temperature' => 0.6, 'max_tokens' => 1600]);
+            } catch (\Exception $eImpact) {
+                \Log::warning('Grimoire ia_impact failed', ['user_id' => $user->id, 'error' => $eImpact->getMessage()]);
+            }
         }
 
         $rawVoies  = PluginHooks::applyFilters('ai.grimoire.voies_output', $rawVoies, $user, $attempts);
@@ -152,26 +201,13 @@ class GlobalGrimoireService
 
         $usageVoies = $voiesDriver->lastUsage();
 
-        // ── ÉTAPE 3 : « Ton métier face à l'IA » (Markdown, Haiku) ──────────
-        // Analyse dédiée de l'exposition du métier du candidat à l'IA. Générée
-        // ici (avec les voies) pour ne pas retarder l'affichage de la synthèse.
-        // Résiliente : en cas d'échec on conserve l'analyse précédente plutôt
-        // que de faire échouer tout le Grimoire.
-        $iaImpactMessages = $this->prompts->globalGrimoireIaImpact($user, $attempts);
-        $iaImpactMessages = PluginHooks::applyFilters('ai.grimoire.ia_impact_messages', $iaImpactMessages, $user, $attempts);
-
-        $iaImpact   = (string) ($grimoire->ia_impact ?? '');   // repli = ancienne analyse
-        $usageImpact = ['input_tokens' => 0, 'output_tokens' => 0];
-        try {
-            $rawImpact = (string) $iaImpactDriver->chat($iaImpactMessages, ['temperature' => 0.6, 'max_tokens' => 1600]);
-            $rawImpact = PluginHooks::applyFilters('ai.grimoire.ia_impact_output', $rawImpact, $user, $attempts);
-            $rawImpact = $this->cleanMarkdown($rawImpact);
-            if ($rawImpact !== '') {
-                $iaImpact = $rawImpact;
-            }
-            $usageImpact = $iaImpactDriver->lastUsage();
-        } catch (\Exception $eImpact) {
-            \Log::warning('Grimoire ia_impact failed', ['user_id' => $user->id, 'error' => $eImpact->getMessage()]);
+        // ── Post-traitement impact IA ────────────────────────────────────────
+        $iaImpact    = (string) ($grimoire->ia_impact ?? '');   // repli = ancienne analyse
+        $usageImpact = $iaImpactDriver->lastUsage();
+        $rawImpact   = PluginHooks::applyFilters('ai.grimoire.ia_impact_output', $rawImpact, $user, $attempts);
+        $rawImpact   = $this->cleanMarkdown($rawImpact);
+        if ($rawImpact !== '') {
+            $iaImpact = $rawImpact;
         }
 
         $grimoire = $user->getOrCreateGrimoire();

@@ -152,13 +152,20 @@ class ResultController extends Controller
     public function history()
     {
         $attempts = TestAttempt::with([
-                'test:id,name,slug,description',
+                'test:id,name,slug,description,plugin_id',
+                'test.plugin:id,type',
                 'result:attempt_id,ai_synthesis,suggested_jobs',
             ])
             ->where('user_id', auth()->id())
             ->select(['id', 'test_id', 'status', 'started_at', 'completed_at'])
             ->latest('started_at')
             ->get()
+            // Exclure les mini-apps
+            ->filter(fn ($a) => $a->test?->plugin?->type !== 'mini-app')
+            // Une seule entrée par test : la plus récente
+            ->groupBy('test_id')
+            ->map(fn ($group) => $group->first())
+            ->values()
             ->map(fn ($a) => [
                 'id'               => $a->id,
                 'status'           => $a->status,

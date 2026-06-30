@@ -72,7 +72,7 @@ return [
     | Adresse affichée sur la page de contact, les pages légales et les emails.
     */
     'contact' => [
-        'email'   => env('PRAXIQUEST_CONTACT_EMAIL', 'contact@decisionpro.fr'),
+        'email'   => env('PRAXIQUEST_CONTACT_EMAIL', 'contact@praxiquest.fr'),
         'company' => env('PRAXIQUEST_COMPANY_NAME', 'PraxiQuest'),
     ],
 
@@ -88,7 +88,7 @@ return [
         'editor_status'  => env('LEGAL_EDITOR_STATUS', 'Entrepreneur individuel'),
         'editor_siret'   => env('LEGAL_EDITOR_SIRET', ''),          // À COMPLÉTER
         'editor_address' => env('LEGAL_EDITOR_ADDRESS', ''),        // À COMPLÉTER
-        'editor_email'   => env('PRAXIQUEST_CONTACT_EMAIL', 'contact@decisionpro.fr'),
+        'editor_email'   => env('PRAXIQUEST_CONTACT_EMAIL', 'contact@praxiquest.fr'),
         'publisher'      => env('LEGAL_PUBLISHER', 'Alexandre Fradin'),
         'host_name'      => env('LEGAL_HOST_NAME', 'OVH SAS'),
         'host_address'   => env('LEGAL_HOST_ADDRESS', '2 rue Kellermann, 59100 Roubaix, France'),

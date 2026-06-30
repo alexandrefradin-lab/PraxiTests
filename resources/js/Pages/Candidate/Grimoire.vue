@@ -21,10 +21,10 @@ const iaPending = computed(() => props.voies_pending && !iaImpact.value)
 // ── Onglets ───────────────────────────────────────────────────────────────
 const pistesCount = ref(Math.min(50, props.grimoire?.requested_voies_count ?? 30))
 const tabs = computed(() => [
-    { key: 'synthese', label: 'Relecture globale' },
-    { key: 'tests',    label: 'Résultats des tests' },
-    { key: 'ia',       label: 'Ton métier face à l\'IA' },
-    { key: 'pistes',   label: `${voies.value.length || pistesCount.value} Pistes métiers` },
+    { key: 'synthese', label: 'Relecture globale',        roman: 'I',   tocLabel: 'Synthèse',     pg: '✦' },
+    { key: 'tests',    label: 'Résultats des tests',      roman: 'II',  tocLabel: 'Mes épreuves', pg: String(props.tests?.length ?? 0) },
+    { key: 'ia',       label: 'Ton métier face à l\'IA', roman: 'III', tocLabel: 'Métier & IA',  pg: 'IA' },
+    { key: 'pistes',   label: `${voies.value.length || pistesCount.value} Pistes métiers`, roman: 'IV', tocLabel: 'Voies', pg: String(voies.value.length || pistesCount.value) },
 ])
 const activeTab = ref('synthese')
 
@@ -288,8 +288,11 @@ function fitClass(score) {
 
                 </header>
 
-                <!-- ── Barre d'onglets ──────────────────────────────────── -->
-                <nav class="grim-tabs" role="tablist" @keydown="onTabKeydown">
+                <div class="grim-body">
+
+                <!-- ── Table des matières latérale ──────────────────────── -->
+                <aside class="grim-toc" role="navigation" aria-label="Sommaire du Grimoire">
+                    <div class="grim-toc-title">Sommaire</div>
                     <button
                         v-for="tab in tabs"
                         :key="tab.key"
@@ -298,15 +301,21 @@ function fitClass(score) {
                         :aria-selected="activeTab === tab.key"
                         :aria-controls="'panel-' + tab.key"
                         :tabindex="activeTab === tab.key ? 0 : -1"
-                        class="grim-tab"
-                        :class="{ 'grim-tab--active': activeTab === tab.key }"
+                        class="grim-toc-item"
+                        :class="{ 'grim-toc-item--active': activeTab === tab.key }"
                         @click="activeTab = tab.key"
+                        @keydown="onTabKeydown"
                     >
-                        {{ tab.label }}
+                        <span class="grim-toc-num">{{ tab.roman }}</span>
+                        <span class="grim-toc-label">{{ tab.tocLabel }}</span>
+                        <span class="grim-toc-dots" aria-hidden="true"></span>
+                        <span class="grim-toc-pg">{{ tab.pg }}</span>
                     </button>
-                </nav>
+                </aside>
 
-                <!-- ── Onglet 1 : Relecture globale ───────────────────── -->
+                <main class="grim-main">
+
+                <!-- ── Panneau 1 : Relecture globale ─────────────────────── -->
                 <div v-show="activeTab === 'synthese'" role="tabpanel" id="panel-synthese" aria-labelledby="tab-synthese">
                     <div v-if="grimoire?.status === 'failed'" class="grim-alert">
                         {{ grimoire.synthesis }}
@@ -481,6 +490,9 @@ function fitClass(score) {
 
                 </div>
 
+                </main>
+                </div><!-- /grim-body -->
+
                 <footer class="grim-footer">
                     <div class="grim-rule"><span>&#10022;</span></div>
                     <div class="grim-pistes-picker">
@@ -595,36 +607,78 @@ function fitClass(score) {
 .grim-pulse-dots span:nth-child(3) { animation-delay: .4s; }
 @keyframes grimPulse { 0%, 80%, 100% { opacity: .25; transform: scale(.8); } 40% { opacity: 1; transform: scale(1); } }
 
-/* ── Onglets ──────────────────────────────────────────────────────────── */
-.grim-tabs {
-    display: flex;
-    gap: 0;
-    border-bottom: 2px solid var(--border-mid, rgba(166,117,32,0.25));
-    margin-bottom: 2.5rem;
-    overflow-x: auto;
-    scrollbar-width: none;
+/* ── Layout corps du Grimoire ─────────────────────────────────────────── */
+.grim-body {
+    display: grid;
+    grid-template-columns: 185px 1fr;
+    gap: 3rem;
+    align-items: start;
 }
-.grim-tabs::-webkit-scrollbar { display: none; }
+.grim-main { min-width: 0; }
 
-.grim-tab {
-    font-family: var(--font-display, 'Space Grotesk', sans-serif);
-    font-size: .95rem;
-    font-weight: 500;
-    color: var(--text-secondary, #6B5A3E);
+/* ── Table des matières latérale ───────────────────────────────────────── */
+.grim-toc {
+    position: sticky;
+    top: 2rem;
+    border-right: 1px solid rgba(166,117,32,0.28);
+    padding-right: 1.4rem;
+}
+.grim-toc-title {
+    font-family: var(--font-data, monospace);
+    font-size: 10px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: rgba(166,117,32,0.55);
+    margin-bottom: .9rem;
+    padding-bottom: .5rem;
+    border-bottom: 1px solid rgba(166,117,32,0.18);
+}
+.grim-toc-item {
+    display: flex;
+    align-items: baseline;
+    width: 100%;
     background: transparent;
     border: none;
-    border-bottom: 2px solid transparent;
-    margin-bottom: -2px;
-    padding: .75rem 1.5rem;
+    border-right: 2px solid transparent;
+    margin-right: -1px;
+    padding: 6px 0;
     cursor: pointer;
-    white-space: nowrap;
-    transition: color .15s, border-color .15s;
+    text-align: left;
+    transition: color .15s;
 }
-.grim-tab:hover { color: var(--grim-gold-dark); }
-.grim-tab--active {
-    color: var(--grim-gold-dark);
-    font-weight: 700;
-    border-bottom-color: var(--grim-gold);
+.grim-toc-item:hover .grim-toc-num,
+.grim-toc-item:hover .grim-toc-label { color: var(--grim-gold-dark); }
+.grim-toc-item--active { border-right-color: var(--grim-gold); }
+.grim-toc-item--active .grim-toc-num,
+.grim-toc-item--active .grim-toc-label { color: var(--grim-ink); font-weight: 600; }
+.grim-toc-item--active .grim-toc-pg { color: var(--grim-gold-dark); }
+.grim-toc-num {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-style: italic;
+    font-size: 13px;
+    color: rgba(166,117,32,0.65);
+    min-width: 1.7rem;
+    flex-shrink: 0;
+}
+.grim-toc-label {
+    font-family: var(--font-body, 'Inter', sans-serif);
+    font-size: 13px;
+    color: var(--text-secondary, #6B5A3E);
+    white-space: nowrap;
+    flex-shrink: 1;
+    overflow: hidden;
+}
+.grim-toc-dots {
+    flex: 1;
+    border-bottom: 1px dotted rgba(166,117,32,0.30);
+    margin: 0 6px 3px;
+    min-width: 4px;
+}
+.grim-toc-pg {
+    font-family: var(--font-data, monospace);
+    font-size: 11px;
+    color: rgba(166,117,32,0.55);
+    flex-shrink: 0;
 }
 
 .grim-header { text-align: center; margin-bottom: 2.75rem; }
@@ -1036,7 +1090,35 @@ function fitClass(score) {
 .grim-picker-range { width: 100%; accent-color: var(--grim-gold); cursor: pointer; }
 .grim-picker-bounds { display: flex; justify-content: space-between; font-family: var(--font-data, monospace); font-size: 11px; color: var(--text-muted, #8C7A5E); margin-top: .3rem; }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
+    /* Sidebar → bande horizontale compacte */
+    .grim-body {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+    .grim-toc {
+        position: static;
+        border-right: none;
+        border-bottom: 1px solid rgba(166,117,32,0.28);
+        padding-right: 0;
+        padding-bottom: .75rem;
+        margin-bottom: 1.75rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+    .grim-toc-title { display: none; }
+    .grim-toc-item {
+        width: auto;
+        padding: 5px 12px;
+        border-right: none;
+        border-bottom: 2px solid transparent;
+        border-radius: 0;
+    }
+    .grim-toc-item--active { border-bottom-color: var(--grim-gold); }
+    .grim-toc-dots, .grim-toc-pg { display: none; }
+    .grim-toc-num { min-width: auto; margin-right: 4px; }
+
     .grim-scroll { padding: 1.8rem 1.4rem; }
     .grim-scroll :deep(.pt-md p) { text-align: left; }
     .grim-test-actions { flex-direction: row; width: 100%; }

@@ -37,30 +37,42 @@
     // Rendu Markdown minimal (titres ##, listes -/*, gras **…**) → HTML pour DomPDF.
     // Léger et sûr : on échappe le texte puis on applique un petit sous-ensemble.
     $renderIaMd = function (string $md): string {
-        $lines = preg_split('/\r?\n/', $md);
-        $html  = '';
-        $inList = false;
+        $lines  = preg_split('/\r?\n/', $md);
+        $html   = '';
+        $items  = [];
         $inline = function (string $s): string {
             $s = e($s);
             $s = preg_replace('/\*\*(.+?)\*\*/u', '<strong>$1</strong>', $s);
             $s = preg_replace('/(?<!\*)\*(?!\s)(.+?)(?<!\s)\*(?!\*)/u', '<em>$1</em>', $s);
             return $s;
         };
+        $flushList = function () use (&$items, &$html, $inline) {
+            if ($items) {
+                $html .= '<table style="width:100%;border-collapse:collapse;margin:4px 0 8px;">';
+                foreach ($items as $it) {
+                    $html .= '<tr>'
+                        . '<td style="width:10px;vertical-align:top;padding-right:7px;padding-bottom:4px;font-size:12px;color:#A67520;font-weight:bold;line-height:1.7;">&#8250;</td>'
+                        . '<td style="font-size:11px;line-height:1.7;color:#2A1E08;padding-bottom:4px;">' . $inline($it) . '</td>'
+                        . '</tr>';
+                }
+                $html  .= '</table>';
+                $items  = [];
+            }
+        };
         foreach ($lines as $line) {
             $t = trim($line);
-            if ($t === '') { if ($inList) { $html .= '</ul>'; $inList = false; } continue; }
+            if ($t === '') { $flushList(); continue; }
             if (preg_match('/^#{2,3}\s+(.*)$/u', $t, $m)) {
-                if ($inList) { $html .= '</ul>'; $inList = false; }
+                $flushList();
                 $html .= '<p class="ia-h">' . $inline($m[1]) . '</p>';
             } elseif (preg_match('/^[-*]\s+(.*)$/u', $t, $m)) {
-                if (! $inList) { $html .= '<ul class="ia-ul">'; $inList = true; }
-                $html .= '<li>' . $inline($m[1]) . '</li>';
+                $items[] = $m[1];
             } else {
-                if ($inList) { $html .= '</ul>'; $inList = false; }
+                $flushList();
                 $html .= '<p class="ia-p">' . $inline($t) . '</p>';
             }
         }
-        if ($inList) { $html .= '</ul>'; }
+        $flushList();
         return $html;
     };
 
@@ -263,7 +275,6 @@
     }
     /* Logo circle — tableau pour centrage dompdf */
     .logo-circle-wrap {
-        display: inline-block;
         width: 44px;
         height: 44px;
         border-radius: 22px;
@@ -304,10 +315,8 @@
         padding: 12px 0 16px 0;
     }
     .chip {
-        display: inline-block;
         background: rgba(255,255,255,0.08);
         border: 1px solid rgba(166,117,32,0.4);
-        border-radius: 10px;
         padding: 2px 9px;
         margin: 2px 3px 2px 0;
         font-size: 9px;
@@ -369,9 +378,6 @@
         margin-bottom: 10px;
         font-family: 'Lato', DejaVu Sans, sans-serif;
     }
-    .synthesis-para:last-child {
-        margin-bottom: 0;
-    }
 
     /* ── Bloc « Ton métier face à l'IA » (Markdown rendu) ── */
     .ia-block .ia-h {
@@ -390,17 +396,7 @@
         margin: 0 0 8px;
         font-family: 'Lato', DejaVu Sans, sans-serif;
     }
-    .ia-block .ia-ul {
-        margin: 0 0 8px;
-        padding-left: 16px;
-    }
-    .ia-block .ia-ul li {
-        font-size: 11px;
-        line-height: 1.6;
-        color: #2A1E08;
-        margin-bottom: 4px;
-        font-family: 'Lato', DejaVu Sans, sans-serif;
-    }
+    /* ia-ul supprimé : rendu via table (dompdf-safe) */
 
     /* ── Voie card ── */
     .voie-card {
@@ -430,7 +426,6 @@
         height: 26px;
         border-radius: 13px;
         background: #A67520;
-        display: inline-block;
     }
     .voie-num-circle table {
         width: 26px;
@@ -465,7 +460,6 @@
         padding-top: 2px;
     }
     .voie-fit-badge {
-        display: inline-block;
         background: #7B1515;
         color: #F5DDB0;
         font-size: 9px;
@@ -651,7 +645,9 @@
             </td>
             @if(isset($v['fit_score']))
             <td class="voie-fit-cell">
-                <span class="voie-fit-badge">{{ min(100, (int)$v['fit_score']) }}%</span>
+                <table style="border-collapse:collapse;float:right;">
+                    <tr><td class="voie-fit-badge">{{ min(100, (int)$v['fit_score']) }}%</td></tr>
+                </table>
             </td>
             @endif
         </tr>
@@ -689,7 +685,7 @@
             <td colspan="2">
                 <div class="voie-next">
                     <span class="voie-next-label">Prochaine étape &rarr;</span>
-                    {{ $v['prochaine_etape'] }}
+                                     {{ $v['prochaine_etape'] }}
                 </div>
             </td>
         </tr>

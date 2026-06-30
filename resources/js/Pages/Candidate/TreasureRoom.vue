@@ -21,7 +21,7 @@ const unlockedPct = computed(() => {
     <CandidateLayout>
         <Head title="La Salle du Trésor" />
 
-        <!-- ── En-tête page (calqué sur L'Armurerie) ── -->
+        <!-- ── En-tête page ── -->
         <div class="mb-8">
             <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
                 <div>
@@ -73,7 +73,18 @@ const unlockedPct = computed(() => {
             </p>
         </div>
 
-        <!-- ── Alerte profil incomplet (calqué sur L'Armurerie) ── -->
+        <!-- ── Explication fonctionnement mini-apps ── -->
+        <div class="trs-explainer mb-8">
+            <i class="ti ti-info-circle text-lg shrink-0" style="color:var(--text-muted); margin-top:1px;"></i>
+            <p class="text-sm leading-relaxed" style="color:var(--text-secondary); font-family:'Inter',sans-serif; margin:0;">
+                Chaque trésor est une <strong style="color:var(--text-primary);">mini-application indépendante</strong> :
+                un parcours de pratiques guidées à raison d'<strong style="color:var(--text-primary);">une par jour</strong>.
+                Tu avances à ton rythme, tu gagnes des Éclats à chaque pratique accomplie,
+                et tu conserves l'accès au module <strong style="color:var(--text-primary);">pour toujours</strong> une fois révélé.
+            </p>
+        </div>
+
+        <!-- ── Alerte profil incomplet ── -->
         <div
             v-if="!profile_complete"
             class="rounded-xl border-2 p-5 mb-8 flex items-start gap-4"
@@ -92,7 +103,7 @@ const unlockedPct = computed(() => {
                     class="inline-flex items-center gap-1 mt-2 text-sm font-semibold transition-opacity hover:opacity-70"
                     style="color:var(--color-primary); font-family:'Inter',sans-serif; text-decoration:underline; text-underline-offset:3px;"
                 >
-                    → La compléter maintenant
+                    &#x2192; La compléter maintenant
                 </Link>
             </div>
         </div>
@@ -172,7 +183,7 @@ const unlockedPct = computed(() => {
                     style="border-top:1px solid var(--glass-border);"
                 >
                     <span style="font-family:'Space Mono',monospace; font-size:11px; color:var(--text-muted); flex-shrink:0;">
-                        <template v-if="item.estimated_minutes">≈ {{ item.estimated_minutes }} min</template>
+                        <template v-if="item.estimated_minutes">&#x2248; {{ item.estimated_minutes }} min</template>
                         <template v-else>Module offert</template>
                     </span>
                     <Link
@@ -181,7 +192,7 @@ const unlockedPct = computed(() => {
                         class="pt-btn-primary text-xs px-4 py-2"
                         :class="{ 'opacity-40 pointer-events-none': !profile_complete }"
                     >
-                        Ouvrir le trésor →
+                        Ouvrir le trésor &#x2192;
                     </Link>
                 </div>
             </article>
@@ -205,6 +216,17 @@ const unlockedPct = computed(() => {
 </template>
 
 <style scoped>
+/* ── Explication fonctionnement ── */
+.trs-explainer {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--r-lg);
+    padding: 0.9rem 1.25rem;
+}
+
 /* ── Bandeau Éclats ── */
 .trs-eclats {
     display: flex;
@@ -244,7 +266,7 @@ const unlockedPct = computed(() => {
     gap: 4px;
 }
 
-/* ── Emblème circulaire (calqué sur .pt-emblem de l'Armurerie) ── */
+/* ── Emblème circulaire ── */
 .trs-emblem {
     width: 44px;
     height: 44px;
@@ -265,5 +287,4 @@ const unlockedPct = computed(() => {
     border-color: var(--color-primary);
     transform: rotate(-4deg) scale(1.05);
 }
-
 </style>

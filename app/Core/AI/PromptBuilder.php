@@ -10,6 +10,15 @@ use Illuminate\Support\Collection;
 class PromptBuilder
 {
     /**
+     * Cache en mémoire du contexte Grimoire pour la durée d'une requête.
+     * Évite de reconstruire le même tableau (profil + tests) 3 fois de suite
+     * (globalGrimoireSynthese → globalGrimoireVoies → globalGrimoireIaImpact).
+     * Clé = user_id, valeur = contexte sérialisé. Léger : durée de vie = process PHP.
+     *
+     * @var array<int, array>
+     */
+    protected array $grimoireContextCache = [];
+    /**
      * L'Oracle — chat conversationnel d'orientation (widget flottant).
      *
      * Construit la liste de messages multi-tours : un system prompt qui pose la
@@ -182,6 +191,12 @@ TXT;
      */
     protected function grimoireContext(User $user, Collection $attempts): array
     {
+        // Mémoïzation par user_id : la méthode est appelée 3 fois (synthèse, voies,
+        // impact IA) sur les MÊMES données. Le cache process évite 3 re-formatages.
+        if (isset($this->grimoireContextCache[$user->id])) {
+            return $this->grimoireContextCache[$user->id];
+        }
+
         $profile = $user->profile;
 
         // Eager-load manquants pour éviter N+1 (ARC-M6).
@@ -197,7 +212,7 @@ TXT;
             ];
         })->values()->all();
 
-        return [
+        $context = [
             'profil' => [
                 'statut'          => $profile?->status,
                 'depuis'          => $profile?->status_since?->format('Y-m'),
@@ -210,6 +225,10 @@ TXT;
             ],
             'tests'  => $tests,
         ];
+
+        $this->grimoireContextCache[$user->id] = $context;
+
+        return $context;
     }
 
     /**

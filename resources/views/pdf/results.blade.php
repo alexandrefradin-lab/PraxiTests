@@ -152,9 +152,14 @@
         };
         $flushList = function () use (&$list, &$html, $inline) {
             if ($list) {
-                $html .= '<ul class="synth-ul">';
-                foreach ($list as $it) $html .= '<li>' . $inline($it) . '</li>';
-                $html .= '</ul>';
+                $html .= '<table style="width:100%;border-collapse:collapse;margin:4px 0 11px;">';
+                foreach ($list as $it) {
+                    $html .= '<tr>'
+                        . '<td style="width:10px;vertical-align:top;padding-right:8px;padding-bottom:4px;font-size:12px;color:#A67520;font-weight:bold;line-height:1.7;">&#8250;</td>'
+                        . '<td style="font-size:11px;line-height:1.7;color:#1C1408;padding-bottom:4px;">' . $inline($it) . '</td>'
+                        . '</tr>';
+                }
+                $html .= '</table>';
                 $list = [];
             }
         };
@@ -373,19 +378,16 @@
         font-size: 22px;
         font-weight: bold;
         color: {{ $parchment }};
-        display: block;
     }
     .score-denom {
         font-size: 9px;
         color: {{ $primary }};
         font-weight: bold;
         font-family: "DejaVu Sans Mono", monospace;
-        display: block;
     }
 
     /* Badge profil — fond cramoisi */
     .profile-badge {
-        display: inline-block;
         background: {{ $secondary }};
         color: #F5DDB0;
         font-size: 9px;
@@ -393,7 +395,6 @@
         letter-spacing: 1px;
         text-transform: uppercase;
         padding: 3px 10px;
-        border-radius: 2px;
         margin-bottom: 6px;
         font-family: "DejaVu Sans Mono", monospace;
     }
@@ -451,8 +452,7 @@
     .synth-h2 { font-size: 12.5px; font-weight: bold; }
     .synth-h3 { font-size: 11.5px; font-weight: bold; }
     .synth-hr { border-top: 0.75px solid {{ $hair }}; margin: 12px 0; height: 0; }
-    .synth-ul { margin: 4px 0 11px; padding-left: 17px; }
-    .synth-ul li { font-size: 11px; line-height: 1.7; color: {{ $ink }}; margin-bottom: 4px; }
+    /* synth-ul supprimé : rendu via table (dompdf-safe) */
     .synth strong { color: {{ $accent }}; }
     .ai-badge {
         font-family: "DejaVu Sans Mono", monospace;
@@ -559,7 +559,6 @@
         font-weight: bold;
         color: #FFFFFF;
         padding: 4px 10px;
-        border-radius: 11px;
     }
 
     /* ══════════════════════════════════════════════════════
@@ -572,7 +571,7 @@
                  text-transform: uppercase; color: {{ $inkSoft }}; text-align: center; margin-top: 4px; }
     .sub-val   { font-family: "DejaVu Sans Mono", monospace; font-size: 10px; font-weight: bold;
                  color: {{ $goldDark }}; text-align: right; }
-    .sev-pill  { display: inline-block; padding: 2px 8px; border-radius: 9px; font-size: 8px;
+    .sev-pill  { padding: 2px 8px; font-size: 8px;
                  font-weight: bold; color: {{ $parchment }}; font-family: "DejaVu Sans Mono", monospace; }
 
     /* ══════════════════════════════════════════════════════
@@ -603,10 +602,8 @@
 
     /* Chip de score inline dans hero */
     .code-chip {
-        display: inline-block;
         margin-left: 8px;
         padding: 2px 10px;
-        border-radius: 11px;
         background: {{ $primary }};
         color: {{ $accent }};
         font-size: 11px;
@@ -616,7 +613,7 @@
     }
 
     /* Chip points forts / axes (section strengths, fallback) */
-    .chip { display: inline-block; padding: 4px 10px; margin: 0 5px 6px 0; border-radius: 11px;
+    .chip { padding: 4px 10px; margin: 0 5px 6px 0;
             font-size: 10px; border: 0.5px solid; }
     .chip-up   { background: #EAF1E9; color: {{ $eagle }};     border-color: #BCD3BE; }
     .chip-grow { background: #F3E4DF; color: {{ $secondary }}; border-color: #E0BFB6; }
@@ -938,8 +935,8 @@
                         <table>
                             <tr>
                                 <td>
-                                    <span class="score-number">{{ $headline['pct'] }}</span>
-                                    <span class="score-denom">/100</span>
+                                    <div class="score-number">{{ $headline['pct'] }}</div>
+                                    <div class="score-denom">/100</div>
                                 </td>
                             </tr>
                         </table>
@@ -948,7 +945,9 @@
                 @endif
                 <td style="vertical-align:middle; padding:20px 20px;">
                     @if($headline['code'])
-                        <div class="profile-badge">&#9670; Profil : {{ $headline['code'] }}</div>
+                        <table style="border-collapse:collapse;margin-bottom:6px;">
+                            <tr><td class="profile-badge">&#9670; Profil&nbsp;: {{ $headline['code'] }}</td></tr>
+                        </table>
                     @endif
                     <div class="hero-label">
                         {{ $headline['label'] ?? 'Profil établi' }}
@@ -1122,7 +1121,11 @@
                             </div>
                         </td>
                         <td style="width:12%; text-align:right;">
-                            @if(!empty($item['level']))<span class="sev-pill" style="background:{{ $goldDark }};">{{ $item['level'] }}</span>@endif
+                            @if(!empty($item['level']))
+                            <table style="border-collapse:collapse;float:right;">
+                                <tr><td class="sev-pill" style="background:{{ $goldDark }};">{{ $item['level'] }}</td></tr>
+                            </table>
+                            @endif
                         </td>
                     </tr>
                 @endforeach
@@ -1185,7 +1188,9 @@
                     </td>
                     @if($fitPct !== null)
                     <td style="width:60px; text-align:right; vertical-align:top; padding:13px 14px 13px 6px;">
-                        <span class="fit-pill" style="background:{{ $fitColor($fitPct) }};">{{ $fitPct }}%</span>
+                        <table style="border-collapse:collapse;float:right;">
+                            <tr><td class="fit-pill" style="background:{{ $fitColor($fitPct) }};">{{ $fitPct }}%</td></tr>
+                        </table>
                     </td>
                     @endif
                 </tr>
@@ -1212,7 +1217,21 @@
                     @if($org['advisor'])<div style="font-size:10.5px; color:{{ $ink }}; margin-top:2px;">{{ $org['advisor'] }}</div>@endif
                     @if($org['address'])<div style="font-size:10px; color:{{ $inkSoft }}; margin-top:3px;">{{ $org['address'] }}</div>@endif
                 </td>
+                
                 <td style="vertical-align:top; text-align:right; font-size:10.5px; color:{{ $ink }}; width:45%;">
+                    @if($org['email'])<div>{{ $org['email'] }}</div>@endif
+                    @if($org['phone'])<div>{{ $org['phone'] }}</div>@endif
+                    @if($org['website'])<div style="color:{{ $goldDark }}; font-weight:bold;">{{ $org['website'] }}</div>@endif
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+@endif
+
+</body>
+</html>
+al-align:top; text-align:right; font-size:10.5px; color:{{ $ink }}; width:45%;">
                     @if($org['email'])<div>{{ $org['email'] }}</div>@endif
                     @if($org['phone'])<div>{{ $org['phone'] }}</div>@endif
                     @if($org['website'])<div style="color:{{ $goldDark }}; font-weight:bold;">{{ $org['website'] }}</div>@endif
