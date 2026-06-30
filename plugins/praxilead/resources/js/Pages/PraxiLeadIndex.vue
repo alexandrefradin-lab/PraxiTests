@@ -2,7 +2,6 @@
 import { computed } from 'vue'
 import { Link, Head } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
-import JourneyCalendar from '@/Components/JourneyCalendar.vue'
 
 const props = defineProps({
     practices:  { type: Array,  default: () => [] },
@@ -13,22 +12,29 @@ const props = defineProps({
 })
 
 const iconFor = (name) => ({
-    compass: '🧭', target: '🎯', ear: '👂', message: '💬', handshake: '🤝',
-    gift: '🎁', flame: '🔥', shield: '🛡️', scale: '⚖️', users: '👥',
-    clock: '⏳', book: '📖', heart: '❤️', rocket: '🚀', eye: '👁️',
-    seedling: '🌱', anchor: '⚓', map: '🗺️', lightbulb: '💡', sun: '☀️',
-}[name] ?? '⭐')
+    compass: 'ti-compass', target: 'ti-target', ear: 'ti-ear', message: 'ti-message',
+    handshake: 'ti-handshake', gift: 'ti-gift', flame: 'ti-flame', shield: 'ti-shield',
+    scale: 'ti-scale', users: 'ti-users', clock: 'ti-clock', book: 'ti-book',
+    heart: 'ti-heart', rocket: 'ti-rocket', eye: 'ti-eye', seedling: 'ti-plant',
+    anchor: 'ti-anchor', map: 'ti-map', lightbulb: 'ti-bulb', sun: 'ti-sun',
+}[name] ?? 'ti-sparkles')
 
-// Pratique du jour (débloquée la plus récente non faite, sinon le jour courant).
-const todayPractice = computed(() =>
-    props.practices.find(p => p.is_today) ?? null
+const todayPractice = computed(() => props.practices.find(p => p.is_today) ?? null)
+const donePercent   = computed(() => Math.round((props.completed / props.totalDays) * 100))
+
+const dayStrip = computed(() => {
+    const center = props.currentDay
+    const start  = Math.max(1, center - 3)
+    const end    = Math.min(props.totalDays, start + 6)
+    return props.practices.filter(p => p.day >= start && p.day <= end)
+})
+
+const upcomingDays = computed(() =>
+    props.practices.filter(p => !p.is_today && !p.completed && p.day > props.currentDay).slice(0, 3)
 )
 
-const donePercent = computed(() =>
-    Math.round((props.completed / props.totalDays) * 100)
-)
+const currentBlock = computed(() => todayPractice.value?.theme ?? '')
 
-// Regroupement par thème pour la timeline.
 const blocks = computed(() => {
     const out = []
     for (const p of props.practices) {
@@ -44,138 +50,128 @@ const blocks = computed(() => {
     <CandidateLayout>
         <Head title="Le Cap — 60 jours de management" />
 
-        <div class="max-w-3xl mx-auto">
+        <div class="pl-shell">
 
-            <!-- En-tête -->
-            <div class="mb-6">
-                <p style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary);">
-                    Parcours · Manager de proximité
-                </p>
-                <h1 style="font-family: var(--font-display); font-size: 2.2rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.02em; line-height: 1.1;">
-                    Le Cap
-                </h1>
-                <p class="mt-2" style="font-family: var(--font-body); font-size: 0.95rem; color: var(--text-secondary);">
-                    Une bonne pratique de management par jour, pendant 60 jours.
-                    Chaque pratique se débloque un jour après la précédente — et te rapporte des Éclats.
-                </p>
-            </div>
-
-            <!-- Tableau de bord -->
-            <div class="mb-6 grid grid-cols-3 gap-3">
-                <div class="pt-zn-stat">
-                    <i class="ti ti-calendar-event" style="font-size:1.25rem;color:var(--color-primary);display:block;margin-bottom:0.4rem;" aria-hidden="true"></i>
-                    <div style="font-family:var(--font-data);font-size:1.65rem;font-weight:700;color:var(--text-primary);line-height:1;">
-                        {{ currentDay }}<span style="font-size:0.82rem;color:var(--text-muted);font-weight:400;">/{{ totalDays }}</span>
+            <div class="pl-topbar">
+                <div class="pl-topbar-left">
+                    <div class="pl-app-name">Le Cap</div>
+                    <div class="pl-app-sub">Management - 60 jours</div>
+                </div>
+                <div class="pl-topbar-right">
+                    <div v-if="streak > 0" class="pl-streak-pill">
+                        <i class="ti ti-flame" aria-hidden="true"></i>
+                        {{ streak }} jour{{ streak > 1 ? 's' : '' }}
                     </div>
-                    <div class="pt-zn-stat-label">Jour du parcours</div>
-                </div>
-                <div class="pt-zn-stat">
-                    <i class="ti ti-circle-check" style="font-size:1.25rem;color:var(--color-primary);display:block;margin-bottom:0.4rem;" aria-hidden="true"></i>
-                    <div style="font-family:var(--font-data);font-size:1.65rem;font-weight:700;color:var(--text-primary);line-height:1;">
-                        {{ completed }}
-                    </div>
-                    <div class="pt-zn-stat-label">Pratiques faites</div>
-                </div>
-                <div class="pt-zn-stat" :style="{ borderTopColor: streak >= 3 ? '#D97706' : 'var(--color-primary)' }">
-                    <i class="ti ti-flame" :style="{ fontSize:'1.25rem', color: streak >= 3 ? '#D97706' : 'var(--color-primary)', display:'block', marginBottom:'0.4rem' }" aria-hidden="true"></i>
-                    <div :style="{ fontFamily:'var(--font-data)', fontSize:'1.65rem', fontWeight:700, color: streak >= 3 ? '#D97706' : 'var(--text-primary)', lineHeight:1 }">
-                        {{ streak }}
-                    </div>
-                    <div class="pt-zn-stat-label">Jours d'affilée</div>
+                    <div class="pl-progress-pill">{{ donePercent }} %</div>
                 </div>
             </div>
 
-            <!-- Barre de progression globale -->
-            <div class="mb-6" style="display:flex;align-items:center;gap:0.75rem;">
-                <div style="flex:1;height:5px;background:var(--bg-elevated);border-radius:999px;overflow:hidden;">
-                    <div :style="{ width: donePercent + '%', height:'100%', background:'var(--color-primary)', transition:'width .4s' }"></div>
-                </div>
-                <span style="font-family:var(--font-data);font-size:0.7rem;color:var(--text-muted);white-space:nowrap;flex-shrink:0;">{{ donePercent }}%</span>
+            <div class="pl-prog-track">
+                <div class="pl-prog-fill" :style="{ width: donePercent + '%' }"></div>
+            </div>
+            <div class="pl-prog-meta">
+                <span>{{ completed }} pratique{{ completed > 1 ? 's' : '' }} integree{{ completed > 1 ? 's' : '' }}</span>
+                <span>Jour {{ currentDay }} / {{ totalDays }}</span>
             </div>
 
-            <!-- Calendrier des 60 jours -->
-            <div class="mb-8">
-                <JourneyCalendar :items="practices" :total-days="totalDays" label="Calendrier — 60 jours de management" />
+            <div class="pl-day-strip">
+                <div
+                    v-for="p in dayStrip" :key="p.day"
+                    class="pl-strip-item"
+                    :class="{
+                        'is-done':   p.completed && !p.is_today,
+                        'is-today':  p.is_today,
+                        'is-locked': !p.unlocked && !p.completed,
+                    }"
+                >
+                    <div class="pl-strip-lbl">J{{ p.day }}</div>
+                    <div class="pl-strip-dot"></div>
+                </div>
             </div>
 
-            <!-- Carte « pratique du jour » -->
-            <Link
-                v-if="todayPractice && todayPractice.unlocked"
-                :href="route('praxilead.show', todayPractice.day)"
-                class="block mb-10"
-                style="text-decoration: none;"
-            >
-                <div style="background: linear-gradient(135deg, var(--primary, #A67520), #8a5f17); border-radius: var(--r-md, 14px); padding: 1.5rem 1.6rem; color: #fff; box-shadow: 0 8px 24px rgba(166,117,32,.25);">
-                    <p style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: .85;">
-                        Aujourd'hui · Jour {{ todayPractice.day }} · {{ todayPractice.theme }}
-                    </p>
-                    <h2 class="mt-1" style="font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; line-height: 1.15;">
-                        {{ iconFor(todayPractice.icon) }} {{ todayPractice.title }}
-                    </h2>
-                    <p class="mt-2" style="font-size: 0.95rem; opacity: .92;">{{ todayPractice.summary }}</p>
-                    <span class="mt-4" style="display: inline-block; background: rgba(255,255,255,.18); padding: 0.5rem 1rem; border-radius: 999px; font-weight: 600; font-size: 0.9rem;">
-                        {{ todayPractice.completed ? '✓ Pratique du jour — revoir' : "Découvrir la pratique du jour →" }}
-                    </span>
-                </div>
-            </Link>
+            <div v-if="currentBlock" class="pl-bloc-badge">
+                <i class="ti" :class="iconFor(todayPractice?.icon)" aria-hidden="true"></i>
+                {{ currentBlock }}
+            </div>
 
-            <!-- Timeline par bloc thématique -->
-            <div v-for="block in blocks" :key="block.theme" class="mb-8">
-                <h3 style="font-family: var(--font-display); font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); margin-bottom: 0.75rem;">
-                    {{ block.theme }}
-                </h3>
-
-                <div class="space-y-2">
-                    <component
-                        :is="p.unlocked ? 'Link' : 'div'"
-                        v-for="p in block.items"
-                        :key="p.day"
-                        :href="p.unlocked ? route('praxilead.show', p.day) : undefined"
-                        class="block"
-                        style="text-decoration: none;"
-                    >
-                        <div
-                            :style="{
-                                display: 'flex', gap: '0.9rem', alignItems: 'center',
-                                padding: '0.8rem 1rem',
-                                background: p.is_today ? 'rgba(166,117,32,.08)' : 'var(--bg-elevated)',
-                                border: p.is_today ? '1px solid var(--color-primary)' : '1px solid var(--glass-border)',
-                                borderRadius: 'var(--r-md, 12px)',
-                                opacity: p.unlocked ? 1 : 0.55,
-                                cursor: p.unlocked ? 'pointer' : 'default',
-                            }"
-                        >
-                            <!-- Pastille jour -->
-                            <div :style="{
-                                flexShrink: 0, width: '38px', height: '38px', borderRadius: '50%',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '0.85rem',
-                                background: p.completed ? '#10B981' : (p.unlocked ? 'var(--color-primary)' : 'rgba(166,117,32,0.15)'),
-                                color: p.completed || p.unlocked ? '#fff' : 'var(--text-muted)',
-                            }">
-                                <span v-if="p.completed">✓</span>
-                                <span v-else-if="!p.unlocked">🔒</span>
-                                <span v-else>{{ p.day }}</span>
-                            </div>
-
-                            <div style="flex: 1; min-width: 0;">
-                                <div class="flex items-center gap-2">
-                                    <span style="font-size: 1.05rem;">{{ iconFor(p.icon) }}</span>
-                                    <h4 style="font-family: var(--font-display); font-weight: 700; font-size: 0.98rem; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                        {{ p.title }}
-                                    </h4>
-                                </div>
-                                <p v-if="p.unlocked" class="mt-0.5" style="font-size: 0.82rem; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                    {{ p.summary }}
-                                </p>
-                                <p v-else class="mt-0.5" style="font-size: 0.8rem; font-weight: 600; color: var(--primary, #A67520);">
-                                    🔒 Se débloque dans {{ p.days_left }} jour{{ p.days_left > 1 ? 's' : '' }}
-                                </p>
-                            </div>
-
-                            <span v-if="p.is_today" style="flex-shrink: 0; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; color: var(--primary, #A67520);">Aujourd'hui</span>
+            <div v-if="todayPractice">
+                <div class="pl-section-label">Pratique du jour</div>
+                <Link
+                    :href="todayPractice.unlocked ? route('praxilead.show', todayPractice.day) : '#'"
+                    class="pl-today-card"
+                    :class="{ 'is-completed': todayPractice.completed, 'is-locked': !todayPractice.unlocked }"
+                    style="text-decoration:none;"
+                >
+                    <div class="pl-today-card-top">
+                        <div class="pl-today-icon">
+                            <i class="ti" :class="iconFor(todayPractice.icon)" aria-hidden="true"></i>
                         </div>
-                    </component>
+                        <div class="pl-today-body">
+                            <div class="pl-today-eyebrow">Jour {{ todayPractice.day }} - {{ todayPractice.duration_min }} min</div>
+                            <div class="pl-today-title">{{ todayPractice.title }}</div>
+                            <div class="pl-today-desc">{{ todayPractice.summary }}</div>
+                        </div>
+                    </div>
+                    <div class="pl-today-footer">
+                        <span v-if="todayPractice.completed" class="pl-tag pl-tag-done">
+                            <i class="ti ti-check" aria-hidden="true"></i> Pratique integree
+                        </span>
+                        <span v-else-if="todayPractice.unlocked" class="pl-tag pl-tag-go">
+                            Commencer la pratique
+                        </span>
+                        <span v-else class="pl-tag pl-tag-locked">
+                            <i class="ti ti-lock" aria-hidden="true"></i> Debloque demain
+                        </span>
+                        <span class="pl-tag pl-tag-xp">+ {{ todayPractice.eclats ?? 15 }} Eclats</span>
+                    </div>
+                </Link>
+            </div>
+
+            <div v-if="upcomingDays.length">
+                <div class="pl-section-label">Cette semaine - a venir</div>
+                <div class="pl-upcoming">
+                    <div v-for="p in upcomingDays" :key="p.day" class="pl-upcoming-item">
+                        <div class="pl-upcoming-num">{{ p.day }}</div>
+                        <div class="pl-upcoming-title">{{ p.title }}</div>
+                        <i class="ti ti-lock pl-upcoming-lock" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pl-section-label pl-section-label--mt">Tous les jours</div>
+            <div v-for="block in blocks" :key="block.theme" class="pl-block">
+                <div class="pl-block-header">
+                    <div
+                        class="pl-block-dot"
+                        :class="{
+                            'all-done':  block.items.every(i => i.completed),
+                            'has-today': block.items.some(i => i.is_today),
+                        }"
+                    ></div>
+                    <span class="pl-block-title">{{ block.theme }}</span>
+                    <span class="pl-block-count">{{ block.items.filter(i => i.completed).length }}/{{ block.items.length }}</span>
+                </div>
+                <div class="pl-block-days">
+                    <Link
+                        v-for="p in block.items.filter(i => i.unlocked)"
+                        :key="'u' + p.day"
+                        :href="route('praxilead.show', p.day)"
+                        class="pl-block-day"
+                        :class="{ 'is-done': p.completed, 'is-today': p.is_today }"
+                        style="text-decoration:none;"
+                        :title="p.title"
+                    >
+                        <i v-if="p.completed" class="ti ti-check" aria-hidden="true"></i>
+                        <span v-else>{{ p.day }}</span>
+                    </Link>
+                    <div
+                        v-for="p in block.items.filter(i => !i.unlocked)"
+                        :key="'l' + p.day"
+                        class="pl-block-day is-locked"
+                        :title="p.title"
+                    >
+                        <i class="ti ti-lock" aria-hidden="true"></i>
+                    </div>
                 </div>
             </div>
 
@@ -184,20 +180,59 @@ const blocks = computed(() => {
 </template>
 
 <style scoped>
-.pt-zn-stat {
-    background: var(--bg-elevated);
-    border: 1px solid var(--glass-border);
-    border-top: 2px solid var(--color-primary);
-    border-radius: 10px;
-    padding: 0.9rem 0.75rem;
-    text-align: center;
-}
-.pt-zn-stat-label {
-    font-size: 0.65rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--text-muted);
-    margin-top: 0.35rem;
-    font-family: var(--font-data);
-}
+.pl-shell { max-width: 680px; margin: 0 auto; padding: 0 0 3rem; }
+.pl-topbar { display: flex; align-items: flex-start; justify-content: space-between; padding: 1.5rem 0 1rem; }
+.pl-app-name { font-size: 1.4rem; font-weight: 500; color: var(--text-primary); font-family: var(--font-display); }
+.pl-app-sub { font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
+.pl-topbar-right { display: flex; align-items: center; gap: 0.5rem; margin-top: 4px; }
+.pl-streak-pill { display: flex; align-items: center; gap: 4px; background: rgba(184,122,26,0.12); color: #7D5010; border-radius: 999px; padding: 4px 10px; font-size: 0.78rem; font-weight: 500; }
+.pl-progress-pill { background: var(--bg-elevated, #eee); color: var(--text-secondary); border-radius: 999px; padding: 4px 10px; font-size: 0.78rem; font-weight: 500; font-family: var(--font-data); }
+.pl-prog-track { height: 4px; background: var(--bg-elevated, #eee); border-radius: 999px; overflow: hidden; margin-bottom: 6px; }
+.pl-prog-fill { height: 100%; background: var(--color-primary, #B87A1A); border-radius: 999px; transition: width 0.4s; }
+.pl-prog-meta { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--text-muted, #888); margin-bottom: 1.25rem; }
+.pl-day-strip { display: flex; border: 1px solid var(--glass-border, #e5e7eb); border-radius: 10px; overflow: hidden; margin-bottom: 1.25rem; }
+.pl-strip-item { flex: 1; padding: 10px 0; text-align: center; border-right: 1px solid var(--glass-border, #e5e7eb); position: relative; }
+.pl-strip-item:last-child { border-right: none; }
+.pl-strip-lbl { font-size: 0.65rem; color: var(--text-muted, #aaa); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+.pl-strip-dot { width: 6px; height: 6px; border-radius: 50%; margin: 0 auto; background: var(--bg-elevated, #e5e7eb); }
+.pl-strip-item.is-done .pl-strip-dot { background: var(--color-primary, #B87A1A); opacity: 0.7; }
+.pl-strip-item.is-today { background: var(--bg-elevated, #f5f0e8); }
+.pl-strip-item.is-today .pl-strip-lbl { color: var(--color-primary, #B87A1A); font-weight: 600; }
+.pl-strip-item.is-today .pl-strip-dot { background: var(--color-primary, #B87A1A); }
+.pl-bloc-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem; color: var(--color-primary-dark, #7D5010); background: rgba(184,122,26,0.1); border-radius: 999px; padding: 3px 10px; margin-bottom: 0.75rem; font-weight: 500; }
+.pl-section-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted, #aaa); margin-bottom: 0.6rem; }
+.pl-section-label--mt { margin-top: 1.5rem; }
+.pl-today-card { display: block; border: 1px solid var(--color-primary, #B87A1A); border-radius: 12px; padding: 1rem 1.1rem; background: rgba(184,122,26,0.04); margin-bottom: 1.25rem; cursor: pointer; }
+.pl-today-card:hover { background: rgba(184,122,26,0.08); }
+.pl-today-card.is-completed { border-color: var(--color-success, #10B981); background: rgba(16,185,129,0.04); }
+.pl-today-card.is-locked { border-color: var(--glass-border, #e5e7eb); background: transparent; opacity: 0.6; cursor: default; }
+.pl-today-card-top { display: flex; gap: 0.9rem; align-items: flex-start; margin-bottom: 0.9rem; }
+.pl-today-icon { width: 42px; height: 42px; border-radius: 10px; background: rgba(184,122,26,0.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.2rem; color: var(--color-primary, #B87A1A); }
+.pl-today-body { flex: 1; }
+.pl-today-eyebrow { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-primary, #B87A1A); margin-bottom: 4px; }
+.pl-today-title { font-size: 1rem; font-weight: 600; color: var(--text-primary); font-family: var(--font-display); margin-bottom: 4px; line-height: 1.3; }
+.pl-today-desc { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.5; }
+.pl-today-footer { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.pl-tag { font-size: 0.72rem; padding: 3px 9px; border-radius: 999px; display: inline-flex; align-items: center; gap: 4px; font-weight: 500; }
+.pl-tag-go { background: var(--color-primary, #B87A1A); color: #fff; }
+.pl-tag-done { background: rgba(16,185,129,0.12); color: #065F46; }
+.pl-tag-locked { background: var(--bg-elevated, #eee); color: var(--text-muted, #aaa); }
+.pl-tag-xp { background: rgba(184,122,26,0.1); color: var(--color-primary-dark, #7D5010); }
+.pl-upcoming { display: flex; flex-direction: column; gap: 6px; margin-bottom: 1.25rem; }
+.pl-upcoming-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.65rem 0.9rem; border: 1px solid var(--glass-border, #e5e7eb); border-radius: 10px; background: var(--bg-elevated, #f9f9f9); }
+.pl-upcoming-num { width: 28px; height: 28px; border-radius: 6px; background: var(--bg-surface, #eee); display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 600; color: var(--text-muted); flex-shrink: 0; font-family: var(--font-data); }
+.pl-upcoming-title { flex: 1; font-size: 0.85rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pl-upcoming-lock { font-size: 0.75rem; color: var(--text-muted); }
+.pl-block { margin-bottom: 1rem; }
+.pl-block-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.pl-block-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bg-elevated, #ddd); flex-shrink: 0; }
+.pl-block-dot.all-done { background: var(--color-primary, #B87A1A); }
+.pl-block-dot.has-today { background: var(--color-primary, #B87A1A); opacity: 0.6; }
+.pl-block-title { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); font-weight: 600; flex: 1; }
+.pl-block-count { font-size: 0.68rem; color: var(--text-muted); font-family: var(--font-data); }
+.pl-block-days { display: flex; gap: 5px; flex-wrap: wrap; padding-left: 16px; }
+.pl-block-day { width: 32px; height: 32px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 600; font-family: var(--font-data); border: 1px solid var(--glass-border, #e5e7eb); background: var(--bg-elevated); color: var(--text-secondary); cursor: pointer; }
+.pl-block-day.is-done { background: rgba(184,122,26,0.15); border-color: rgba(184,122,26,0.3); color: var(--color-primary-dark, #7D5010); }
+.pl-block-day.is-today { background: var(--color-primary, #B87A1A); border-color: var(--color-primary, #B87A1A); color: #fff; }
+.pl-block-day.is-locked { opacity: 0.4; cursor: default; font-size: 0.65rem; }
 </style>

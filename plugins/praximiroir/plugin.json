@@ -1,0 +1,24 @@
+{
+  "slug": "praximiroir",
+  "name": "La Forge de l'Identité — 30 jours",
+  "version": "1.0.0",
+  "author": "Praxis Accompagnement",
+  "type": "mini-app",
+  "description": "Un parcours de 30 jours pour construire une identité professionnelle solide : valeurs, forces, angles morts, narratif de carrière, confiance en soi. Un exercice d'introspection guidé par jour, ancré sur les résultats de tes tests. Chaque exercice complété rapporte des Éclats.",
+  "namespace": "Praxis\\Plugins\\PraxiMiroir",
+  "service_provider": "Praxis\\Plugins\\PraxiMiroir\\PluginServiceProvider",
+  "permissions": [
+    "read:profiles"
+  ],
+  "requires": {
+    "praxiquest": ">=1.0.0",
+    "php": ">=8.2"
+  },
+  "reward": {
+    "threshold_eclats": 800,
+    "entry_route": "praximiroir.index",
+    "icon": "ti-mirror",
+    "purpose": "Identité & confiance professionnelle",
+    "teaser": "La Forge de l'Identité : 30 exercices d'introspection guidés pour savoir qui tu es, ce qui compte pour toi, et où tu vas. Le socle avant toute reconversion."
+  }
+}

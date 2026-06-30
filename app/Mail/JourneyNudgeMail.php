@@ -23,35 +23,47 @@ class JourneyNudgeMail extends Mailable
 
     public function __construct(
         public User   $user,
-        public string $plugin,       // 'praxilead' | 'praxizenith'
+        public string $plugin,         // 'praxilead' | 'praxiself' | …
         public int    $day,
-        public string $actionTitle,  // titre de l'action du jour
-        public string $pluginLabel,  // libellé humain du parcours
-        public string $actionRoute,  // route nommée vers l'action du jour
+        public string $actionTitle,    // titre de l'action du jour
+        public string $pluginLabel,    // libellé humain du parcours
+        public string $actionRoute,    // route nommée vers l'action du jour
+        public bool   $routeHasDay = true, // false pour les routes .index sans paramètre
+        public int    $streak = 0,     // jours consécutifs complétés (0 = pas de streak actif)
+        public int    $totalDays = 60, // durée totale du parcours
     ) {
         $this->unsubscribeUrl = URL::signedRoute('email.unsubscribe', ['user' => $this->user->id]);
     }
 
     public function build(): self
     {
-        $beliefUrl  = route('beliefs.show', [
+        $beliefUrl = route('beliefs.show', [
             'plugin' => $this->plugin,
             'day'    => $this->day,
         ]);
 
-        $actionUrl = route($this->actionRoute, $this->day);
+        $actionUrl = $this->routeHasDay
+            ? route($this->actionRoute, $this->day)
+            : route($this->actionRoute);
 
         $firstName = explode(' ', $this->user->name)[0];
 
+        // Subject : aversion à la perte sur le streak si présent
+        $subject = $this->streak >= 2
+            ? "🔥 Ton streak de {$this->streak} jours se ferme ce soir"
+            : "Jour {$this->day} sur {$this->totalDays} t'attend — ferme ce soir";
+
         return $this
-            ->subject("Jour {$this->day} t'attend encore — 2 minutes suffisent 🌱")
+            ->subject($subject)
             ->view('mail.journey_nudge', [
                 'firstName'      => $firstName,
                 'day'            => $this->day,
+                'totalDays'      => $this->totalDays,
+                'streak'         => $this->streak,
                 'pluginLabel'    => $this->pluginLabel,
                 'actionTitle'    => $this->actionTitle,
                 'beliefUrl'      => $beliefUrl,
-                'actionUrl'      => $this->actionUrl($actionUrl),
+                'actionUrl'      => $actionUrl,
                 'unsubscribeUrl' => $this->unsubscribeUrl,
             ]);
     }

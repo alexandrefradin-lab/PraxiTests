@@ -386,31 +386,20 @@ TXT;
     public function profileSynthesis(TestAttempt $attempt): array
     {
         // Eager-load manquants pour éviter N+1 (ARC-M6).
-        $attempt->loadMissing(['test', 'result', 'user']);
-        $user    = $attempt->user;
-        $profile = $user?->profile;
-        $test    = $attempt->test;
-        $result  = $attempt->result;
+        $attempt->loadMissing(['test', 'result']);
+        $test   = $attempt->test;
+        $result = $attempt->result;
 
         $system = <<<TXT
 Tu es un consultant en orientation professionnelle senior, formé aux approches RIASEC, MBTI et Big Five.
-Ton rôle : produire une synthèse de profil claire, bienveillante, actionnable, en français.
+Ton rôle : produire une synthèse des résultats du test passé, claire, bienveillante, actionnable, en français.
+Tu analyses UNIQUEMENT les résultats de CE test — sans référence au parcours, au statut ou au CV de la personne.
 Style : chaleureux, professionnel, sans jargon, sans flatterie creuse. Phrases courtes. Pas de bullet points dans la synthèse, paragraphes.
 Tu ne donnes JAMAIS de conseils médicaux, juridiques ou financiers.
 Tu n'inventes pas de scores qu'on ne t'a pas donnés.
 TXT;
 
         $context = [
-            'profil' => [
-                'statut'          => $profile?->status,
-                'depuis'          => $profile?->status_since?->format('Y-m'),
-                'rôle'            => $profile?->current_role,
-                'industrie'       => $profile?->industry,
-                'secteur_emploi'  => $this->workSectorLabel($profile?->work_sector),
-                'hobbies_loisirs' => $this->hobbiesContext($profile?->hobbies),
-                'problématique'   => $this->safeProfileText($profile?->problematique),
-                'cv_extrait'      => $this->safeCvStructured($profile?->cv_structured),
-            ],
             'test' => [
                 'nom'  => $test->name,
                 'type' => $test->type,
@@ -421,13 +410,14 @@ TXT;
             'résultats' => $this->enrichScoringForPrompt($result?->scoring),
         ];
 
-        $user_msg = "Voici les données du candidat :\n\n"
+        $user_msg = "Voici les résultats du test :\n\n"
             . json_encode($context, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
             . "\n\nGénère une synthèse de 250-400 mots en 3 paragraphes : "
             . "(1) traits dominants et forces en t'appuyant sur les dimensions 'Très développé' "
             . "et 'Au-dessus de la moyenne', (2) zones de développement (dimensions 'En développement' "
-            . "ou 'Peu présent'), (3) levier principal pour transformer ce profil en valeur ajoutée concrète. "
-            . "Ne cite jamais de chiffres ni de percentiles — utilise les labels qualitatifs.";
+            . "ou 'Peu présent'), (3) levier principal pour progresser à partir de ce profil. "
+            . "Ne cite jamais de chiffres ni de percentiles — utilise les labels qualitatifs. "
+            . "Ne fais aucune recommandation de métier ni référence au parcours professionnel : c'est le rôle du Grimoire.";
 
         return [
             ['role' => 'system', 'content' => $system],

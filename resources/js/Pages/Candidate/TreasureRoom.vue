@@ -6,10 +6,14 @@ import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 const props = defineProps({
     treasure: {
         type: Object,
-        default: () => ({ total: 0, unlocked_count: 0, total_count: 0, items: [] }),
+        default: () => ({ total: 0, unlocked_count: 0, total_count: 0, has_profile: false, items: [] }),
     },
     profile_complete: { type: Boolean, default: false },
 })
+
+const recommendedCount = computed(() =>
+    props.treasure.items?.filter(i => i.recommended).length ?? 0
+)
 
 const unlockedPct = computed(() => {
     const total = props.treasure.total_count || 0
@@ -73,6 +77,24 @@ const unlockedPct = computed(() => {
             </p>
         </div>
 
+        <!-- ── Bandeau recommandations personnalisées ── -->
+        <div v-if="treasure.has_profile && recommendedCount > 0" class="trs-reco mb-8">
+            <i class="ti ti-sparkles text-lg shrink-0" style="color:var(--color-primary);"></i>
+            <p class="text-sm leading-relaxed" style="color:var(--text-secondary); font-family:'Inter',sans-serif; margin:0;">
+                D'après ton Grimoire,
+                <strong style="color:var(--text-primary);">{{ recommendedCount }} module{{ recommendedCount > 1 ? 's correspondent' : ' correspond' }} à ton profil</strong>
+                — ils apparaissent en premier, signalés par une étoile.
+            </p>
+        </div>
+
+        <div v-else-if="!treasure.has_profile" class="trs-reco trs-reco--muted mb-8">
+            <i class="ti ti-wand text-lg shrink-0" style="color:var(--text-muted);"></i>
+            <p class="text-sm leading-relaxed" style="color:var(--text-secondary); font-family:'Inter',sans-serif; margin:0;">
+                Passe davantage d'épreuves pour que ton Grimoire se forge —
+                <strong style="color:var(--text-primary);">les modules te seront ensuite recommandés selon ton profil</strong>.
+            </p>
+        </div>
+
         <!-- ── Explication fonctionnement mini-apps ── -->
         <div class="trs-explainer mb-8">
             <i class="ti ti-info-circle text-lg shrink-0" style="color:var(--text-muted); margin-top:1px;"></i>
@@ -114,10 +136,22 @@ const unlockedPct = computed(() => {
                 v-for="item in treasure.items"
                 :key="item.plugin_slug"
                 class="pt-card trs-card p-6 flex flex-col group"
-                :class="{ 'trs-card--locked': !item.unlocked }"
+                :class="{
+                    'trs-card--locked': !item.unlocked,
+                    'trs-card--recommended': item.recommended,
+                }"
             >
+                <!-- Badge recommandé (sur toute la largeur, en haut) -->
+                <div
+                    v-if="item.recommended"
+                    class="trs-reco-banner mb-3 -mx-6 -mt-6 px-4 py-2 flex items-center gap-2"
+                >
+                    <i class="ti ti-star-filled text-xs"></i>
+                    <span>Recommandé pour ton profil</span>
+                </div>
+
                 <!-- Badge statut + emblème -->
-                <div class="flex items-start justify-between mb-3 gap-3">
+                <div class="flex items-start justify-between mb-3 gap-3" :class="{ 'mt-0': item.recommended }">
                     <span
                         v-if="item.unlocked"
                         class="trs-badge mt-1"
@@ -159,6 +193,16 @@ const unlockedPct = computed(() => {
                     style="font-family:'Inter',sans-serif; color:var(--text-secondary); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;"
                 >
                     {{ item.unlocked ? item.description : item.teaser }}
+                </p>
+
+                <!-- Raison du matching (si recommandé) -->
+                <p
+                    v-if="item.recommended && item.match_reason"
+                    class="mt-2 text-[12px] leading-snug"
+                    style="font-family:'Inter',sans-serif; color:var(--color-primary-dark); font-style:italic;"
+                >
+                    <i class="ti ti-sparkles not-italic" style="font-style:normal;"></i>
+                    {{ item.match_reason }}
                 </p>
 
                 <!-- Progression (verrouillé) -->
@@ -286,5 +330,39 @@ const unlockedPct = computed(() => {
 .group:hover .trs-emblem {
     border-color: var(--color-primary);
     transform: rotate(-4deg) scale(1.05);
+}
+
+/* ── Bandeau recommandations globales ── */
+.trs-reco {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    background: rgba(166, 117, 32, 0.06);
+    border: 1px solid rgba(166, 117, 32, 0.30);
+    border-radius: var(--r-lg);
+    padding: 0.9rem 1.25rem;
+}
+.trs-reco--muted {
+    background: transparent;
+    border-color: var(--glass-border);
+}
+
+/* ── Carte recommandée : bordure or renforcée ── */
+.trs-card--recommended {
+    border-top-width: 3px;
+    box-shadow: 0 0 0 1px rgba(166, 117, 32, 0.18);
+}
+
+/* ── Bannière "Recommandé" en haut de carte ── */
+.trs-reco-banner {
+    background: rgba(166, 117, 32, 0.10);
+    border-bottom: 1px solid rgba(166, 117, 32, 0.25);
+    border-radius: var(--r-lg) var(--r-lg) 0 0;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-primary);
+    font-weight: 700;
 }
 </style>

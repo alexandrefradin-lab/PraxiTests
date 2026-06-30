@@ -37,7 +37,7 @@ class SendJourneyNudges extends Command
      * action_route    — route nommée show(day) pour l'action
      * title_source    — closure(day): string → titre de l'action du jour
      */
-    private const PLUGINS = [
+    private const DEDICATED_PLUGINS = [
         'praxilead' => [
             'journey_table'   => 'mgmt_journeys',
             'progress_table'  => 'mgmt_practice_progress',
@@ -67,14 +67,27 @@ class SendJourneyNudges extends Command
         ],
     ];
 
+    /**
+     * Plugins utilisant la table partagée journey_progress (plugin_slug discriminant).
+     * Ces plugins n'ont pas de table de parcours dédiée : "actif" = au moins 1 complétion.
+     * Le CTA pointe vers l'index du plugin (liste des exercices du jour).
+     */
+    private const SHARED_PLUGINS = [
+        'praxiself'  => ['label' => 'La Forge du Soi',       'route' => 'praxiself.index'],
+        'praxilink'  => ['label' => "L'Art des Liens",        'route' => 'praxilink.index'],
+        'praxiflow'  => ['label' => 'Le Maître du Temps',     'route' => 'praxiflow.index'],
+        'praxizen'   => ['label' => 'Le Refuge Intérieur',    'route' => 'praxizen.index'],
+        'praxispeak' => ['label' => 'La Voix du Héros',       'route' => 'praxispeak.index'],
+    ];
+
     public function handle(): int
     {
         $today   = Carbon::today()->toDateString();
         $dryRun  = $this->option('dry-run');
         $total   = 0;
 
-        foreach (self::PLUGINS as $plugin => $cfg) {
-            // Vérifie que les tables existent (plugin peut ne pas être installé)
+        // ── Plugins avec tables dédiées (praxilead, praxizenith, praxivision) ─
+        foreach (self::DEDICATED_PLUGINS as $plugin => $cfg) {
             if (! Schema::hasTable($cfg['journey_table'])
                 || ! Schema::hasTable($cfg['progress_table'])) {
                 $this->line("  [skip] {$plugin} — tables manquantes");
@@ -82,6 +95,13 @@ class SendJourneyNudges extends Command
             }
 
             $total += $this->processPlugin($plugin, $cfg, $today, $dryRun);
+        }
+
+        // ── Plugins sur table partagée journey_progress ──────────────────────
+        if (Schema::hasTable('journey_progress')) {
+            foreach (self::SHARED_PLUGINS as $plugin => $cfg) {
+                $total += $this->processSharedPlugin($plugin, $cfg, $today, $dryRun);
+            }
         }
 
         $this->info("✓ Nudge journey : {$total} email(s) " . ($dryRun ? 'simulé(s)' : 'envoyé(s)'));
@@ -143,8 +163,17 @@ class SendJourneyNudges extends Command
             // Titre de l'action du jour
             $actionTitle = $this->resolveTitle($cfg, $currentDay);
 
+            // Streak : jours consécutifs complétés dans la progress_table dédiée
+            $streak = $this->streakFromTable(
+                $cfg['progress_table'],
+                $cfg['day_column'],
+                $cfg['completed_col'],
+                $journey->user_id,
+                $currentDay
+            );
+
             if ($dryRun) {
-                $this->line("  [dry-run] {$plugin} J{$currentDay} → {$user->email} — {$actionTitle}");
+                $this->line("  [dry-run] {$plugin} J{$currentDay} streak={$streak} → {$user->email} — {$actionTitle}");
             } else {
                 Mail::to($user->email)->queue(new JourneyNudgeMail(
                     user:        $user,
@@ -153,6 +182,8 @@ class SendJourneyNudges extends Command
                     actionTitle: $actionTitle,
                     pluginLabel: $cfg['label'],
                     actionRoute: $cfg['action_route'],
+                    routeHasDay: true,
+                    streak:      $streak,
                 ));
 
                 // Log anti-doublon
@@ -170,6 +201,179 @@ class SendJourneyNudges extends Command
         }
 
         return $sent;
+    }
+
+    /**
+     * Relance pour les plugins utilisant la table partagée journey_progress.
+     * "Actif" = a complété au moins 1 exercice pour ce plugin.
+     * "Pas fait aujourd'hui" = aucune complétion avec completed_at >= aujourd'hui 00:00.
+     */
+    private function processSharedPlugin(string $plugin, array $cfg, string $today, bool $dryRun): int
+    {
+        $todayStart = Carbon::today();
+
+        // Utilisateurs ayant au moins 1 complétion pour ce plugin (= parcours démarré)
+        $userIds = DB::table('journey_progress')
+            ->where('plugin_slug', $plugin)
+            ->whereNotNull('completed_at')
+            ->pluck('user_id')
+            ->unique();
+
+        $sent = 0;
+
+        foreach ($userIds as $userId) {
+            // A-t-il fait quelque chose AUJOURD'HUI ?
+            $doneToday = DB::table('journey_progress')
+                ->where('user_id', $userId)
+                ->where('plugin_slug', $plugin)
+                ->whereNotNull('completed_at')
+                ->where('completed_at', '>=', $todayStart)
+                ->exists();
+
+            if ($doneToday) {
+                continue;
+            }
+
+            // Déjà relancé aujourd'hui ?
+            $alreadyNudged = DB::table('journey_nudge_logs')
+                ->where('user_id', $userId)
+                ->where('plugin', $plugin)
+                ->where('nudged_on', $today)
+                ->exists();
+
+            if ($alreadyNudged) {
+                continue;
+            }
+
+            $user = User::find($userId);
+            if (! $user || ! $user->email) {
+                continue;
+            }
+
+            // Filtre désabonnement marketing (RGPD)
+            if ($user->profile && $user->profile->marketing_unsubscribed_at !== null) {
+                continue;
+            }
+
+            // Jour actuel du parcours (= dernier jour complété + 1)
+            $currentDay = DB::table('journey_progress')
+                ->where('user_id', $userId)
+                ->where('plugin_slug', $plugin)
+                ->whereNotNull('completed_at')
+                ->max('day') ?? 0;
+            $currentDay = min(60, $currentDay + 1);
+
+            $actionTitle = "Exercice du jour {$currentDay}";
+
+            // Streak via la table journey_progress partagée
+            $streak = DB::table('journey_progress')
+                ->where('user_id', $userId)
+                ->where('plugin_slug', $plugin)
+                ->whereNotNull('completed_at')
+                ->orderByDesc('completed_at')
+                ->pluck('completed_at')
+                ->pipe(fn ($dates) => $this->computeStreakFromDates($dates));
+
+            if ($dryRun) {
+                $this->line("  [dry-run] {$plugin} J{$currentDay} streak={$streak} → {$user->email}");
+            } else {
+                Mail::to($user->email)->queue(new JourneyNudgeMail(
+                    user:         $user,
+                    plugin:       $plugin,
+                    day:          $currentDay,
+                    actionTitle:  $actionTitle,
+                    pluginLabel:  $cfg['label'],
+                    actionRoute:  $cfg['route'],
+                    routeHasDay:  false,
+                    streak:       $streak,
+                ));
+
+                DB::table('journey_nudge_logs')->insert([
+                    'user_id'    => $user->id,
+                    'plugin'     => $plugin,
+                    'day'        => $currentDay,
+                    'nudged_on'  => $today,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+
+            $sent++;
+        }
+
+        return $sent;
+    }
+
+    /**
+     * Calcule le streak depuis une progress table dédiée (praxilead, zenith, vision).
+     * Compte les jours consécutifs complétés en remontant depuis currentDay-1.
+     */
+    private function streakFromTable(
+        string $table,
+        string $dayCol,
+        string $completedCol,
+        int    $userId,
+        int    $currentDay
+    ): int {
+        if ($currentDay <= 1) {
+            return 0;
+        }
+
+        $completedDays = DB::table($table)
+            ->where('user_id', $userId)
+            ->whereNotNull($completedCol)
+            ->orderByDesc($dayCol)
+            ->pluck($dayCol)
+            ->map(fn ($d) => (int) $d)
+            ->toArray();
+
+        $streak  = 0;
+        $expected = $currentDay - 1;
+
+        foreach ($completedDays as $day) {
+            if ($day === $expected) {
+                $streak++;
+                $expected--;
+            } else {
+                break;
+            }
+        }
+
+        return $streak;
+    }
+
+    /**
+     * Calcule le streak depuis une collection de timestamps (journey_progress partagée).
+     * Deux complétions sont "consécutives" si elles sont à ≤ 1 jour d'intervalle.
+     */
+    private function computeStreakFromDates(\Illuminate\Support\Collection $dates): int
+    {
+        if ($dates->isEmpty()) {
+            return 0;
+        }
+
+        $today    = Carbon::today();
+        $lastDate = Carbon::parse($dates->first())->startOfDay();
+
+        // Si la dernière complétion date d'avant-hier → streak rompu
+        if ($lastDate->diffInDays($today) > 1) {
+            return 0;
+        }
+
+        $streak  = 1;
+        $current = $lastDate;
+
+        foreach ($dates->skip(1) as $ts) {
+            $date = Carbon::parse($ts)->startOfDay();
+            if ($current->diffInDays($date) <= 1) {
+                $streak++;
+                $current = $date;
+            } else {
+                break;
+            }
+        }
+
+        return $streak;
     }
 
     /**
