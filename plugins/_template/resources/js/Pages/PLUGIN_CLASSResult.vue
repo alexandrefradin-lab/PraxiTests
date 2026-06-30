@@ -17,6 +17,7 @@ import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import ScoreGauge from '@/Components/ScoreGauge.vue'
 import SynthesisCard from '@/Components/SynthesisCard.vue'
 import JobCard from '@/Components/JobCard.vue'
+import RestitutionHeader from '@/Components/RestitutionHeader.vue'
 
 const props = defineProps({
     attempt: Object,
@@ -53,16 +54,14 @@ const barWidth = (dimKey) => {
         <div style="max-width:780px;margin:0 auto">
 
             <!-- En-tête -->
-            <div style="text-align:center;margin-bottom:2.5rem">
-                <span class="pt-badge" style="margin-bottom:.75rem">PLUGIN_NAME</span>
-                <h1 style="font-size:28px;margin-top:6px">Votre profil</h1>
-                <p style="font-size:14px;color:var(--pt-text-muted);margin-top:6px;line-height:1.5">
-                    Résultats basés sur votre profil et analysés par notre IA.
-                </p>
-            </div>
+            <RestitutionHeader
+                kicker="PLUGIN_NAME"
+                title="Votre profil"
+                subtitle="Résultats basés sur votre profil et analysés par notre IA."
+            />
 
             <!-- Score global (optionnel — supprimer si non pertinent) -->
-            <div v-if="global_score !== null" class="pt-card"
+            <div v-if="global_score !== null" class="pt-card ac-card-ornate"
                 style="padding:1.5rem;margin-bottom:1rem;display:flex;align-items:center;gap:1.5rem">
                 <div style="flex-shrink:0">
                     <ScoreGauge :score="global_score" :size="140" />

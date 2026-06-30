@@ -14,6 +14,7 @@ import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import ScoreGauge from '@/Components/ScoreGauge.vue'
 import SynthesisCard from '@/Components/SynthesisCard.vue'
 import Disclaimer from '@/Components/Disclaimer.vue'
+import RestitutionHeader from '@/Components/RestitutionHeader.vue'
 
 const props = defineProps({
     attempt:      Object,
@@ -56,16 +57,14 @@ const gaugeColor = computed(() => 'var(--pt-gold)')
             </Disclaimer>
 
             <!-- En-tête -->
-            <div style="text-align:center;margin-bottom:2.5rem">
-                <span class="pt-badge" style="margin-bottom:.75rem">La Boussole de l'Attention</span>
-                <h1 style="font-size:28px;margin-top:6px">Tes repères d'attention</h1>
-                <p style="font-size:14px;color:var(--pt-text-muted);margin-top:6px;line-height:1.5">
-                    Repérage basé sur l'échelle ASRS-v1.1 (18 items) — outil de dépistage, non un diagnostic.
-                </p>
-            </div>
+            <RestitutionHeader
+                kicker="La Boussole de l'Attention"
+                title="Tes repères d'attention"
+                subtitle="Repérage basé sur l'échelle ASRS-v1.1 (18 items) — outil de dépistage, non un diagnostic."
+            />
 
             <!-- Résultat du screener (Partie A) -->
-            <div v-if="screener" class="pt-card"
+            <div v-if="screener" class="pt-card ac-card-ornate"
                 style="padding:1.5rem;margin-bottom:1rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap">
                 <div style="flex-shrink:0">
                     <ScoreGauge :score="screener.score" :max="screener.max" :color="gaugeColor" :size="140" :show-max="true" />

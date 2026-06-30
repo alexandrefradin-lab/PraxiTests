@@ -3,6 +3,8 @@ import { computed, reactive, onMounted } from 'vue'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import RadarChart from '@/Components/RadarChart.vue'
 import MarkdownText from '@/Components/MarkdownText.vue'
+import RestitutionHeader from '@/Components/RestitutionHeader.vue'
+import ResultPanel from '@/Components/ResultPanel.vue'
 
 const props = defineProps({
     attempt:      Object,
@@ -86,11 +88,11 @@ const niveauColor = {
         <Head title="Tes résultats — PraxiMum" />
 
         <div class="max-w-4xl mx-auto">
-            <div class="text-center mb-12 pq-reveal" style="animation-delay:0.05s">
-                <span class="pt-badge">PraxiMum · Big Five OCEAN</span>
-                <h1 class="text-4xl font-semibold tracking-tight mt-4">Ta personnalité en 5 dimensions</h1>
-                <p class="text-slate-600 mt-2 text-sm">Scores T normés (50 = moyenne). 30 facettes détaillées.</p>
-            </div>
+            <RestitutionHeader
+                kicker="PraxiMum · Big Five OCEAN"
+                title="Ta personnalité en 5 dimensions"
+                subtitle="Scores T normés (50 = moyenne). 30 facettes détaillées."
+            />
 
             <!-- Archétype principal -->
             <section v-if="archetype" class="pt-card overflow-hidden mb-8 pq-reveal" style="animation-delay:0.2s" :style="{ background: `linear-gradient(135deg, ${archetype.couleur1}, ${archetype.couleur2})` }">
@@ -124,13 +126,11 @@ const niveauColor = {
             </section>
 
             <!-- Toile d'araignée OCEAN -->
-            <section class="pt-card p-8 mb-8 pq-reveal" style="animation-delay:0.4s">
-                <h2 class="text-xl font-semibold mb-1">Ton profil en un coup d'œil</h2>
-                <p class="text-sm text-slate-500 mb-6">Tes 5 dimensions OCEAN sur une même toile.</p>
+            <ResultPanel label="Ton profil en un coup d'œil" class="mb-8 pq-reveal" style="animation-delay:0.4s">
                 <div class="flex justify-center">
-                    <RadarChart :axes="radarAxes" />
+                    <RadarChart :axes="radarAxes" dark />
                 </div>
-            </section>
+            </ResultPanel>
 
             <!-- 5 dimensions OCEAN -->
             <section class="pt-card p-8 mb-8 pq-reveal" style="animation-delay:0.55s">

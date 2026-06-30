@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import SynthesisCard from '@/Components/SynthesisCard.vue'
+import RestitutionHeader from '@/Components/RestitutionHeader.vue'
 
 const props = defineProps({
     attempt:      Object,
@@ -82,14 +83,14 @@ const soutienPct = computed(() => {
         <Head title="Tes résultats — PraxiCare" />
 
         <div class="max-w-3xl mx-auto">
-            <div class="text-center mb-12">
-                <span class="pt-badge">PraxiCare · Karasek + MBI</span>
-                <h1 class="text-4xl font-semibold tracking-tight mt-4">Ce que ton travail te coûte aujourd'hui.</h1>
-                <p class="text-slate-600 mt-2 max-w-xl mx-auto text-sm">Outil d'aide à la prise de conscience. Ne remplace pas un accompagnement humain ni un diagnostic médical.</p>
-            </div>
+            <RestitutionHeader
+                kicker="PraxiCare · Karasek + MBI"
+                title="Ce que ton travail te coûte aujourd'hui."
+                subtitle="Outil d'aide à la prise de conscience. Ne remplace pas un accompagnement humain ni un diagnostic médical."
+            />
 
             <!-- Profil Karasek -->
-            <section class="pt-card p-8 mb-8 border-l-4" :style="{ borderColor: meta.color }">
+            <section class="pt-card ac-card-ornate p-8 mb-8 border-l-4" :style="{ borderColor: meta.color }">
                 <p class="text-xs uppercase tracking-wide text-slate-400">Profil Karasek</p>
                 <h2 class="text-2xl font-semibold mt-1" :style="{ color: meta.color }">{{ scoring.profile_label }}</h2>
                 <p class="text-sm text-slate-700 mt-2">{{ meta.desc }}</p>

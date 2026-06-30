@@ -5,18 +5,16 @@
       <!-- ══════════════════════════════════════════════
            EN-TÊTE RÉSULTAT
       ══════════════════════════════════════════════ -->
-      <header class="pt-result-header">
-        <div class="pt-result-header__icon" aria-hidden="true">💬</div>
-        <h1 class="pt-result-header__title">Vos résultats de communication</h1>
-        <p class="pt-result-header__subtitle">
-          {{ attempt?.test?.name ?? 'PraxiLink — Communication assertive' }}
-        </p>
-      </header>
+      <RestitutionHeader
+        kicker="PraxiLink — Communication assertive"
+        title="Vos résultats de communication"
+        :subtitle="attempt?.test?.name ?? 'PraxiLink — Communication assertive'"
+      />
 
       <!-- ══════════════════════════════════════════════
            SCORE GLOBAL
       ══════════════════════════════════════════════ -->
-      <section class="pt-card pt-global-score" aria-labelledby="global-score-heading">
+      <section class="pt-card ac-card-ornate pt-global-score" aria-labelledby="global-score-heading">
         <h2 id="global-score-heading" class="pt-section-title">Score de communication global</h2>
 
         <div class="pt-global-score__gauge-row">
@@ -36,15 +34,11 @@
       <!-- ══════════════════════════════════════════════
            RADAR — VUE D'ENSEMBLE
       ══════════════════════════════════════════════ -->
-      <section class="pt-card pt-radar" aria-labelledby="radar-heading">
-        <h2 id="radar-heading" class="pt-section-title">Ton profil en un coup d'œil</h2>
-        <p class="pt-radar__subtitle">
-          Vos cinq dimensions de communication, sur une seule toile.
-        </p>
+      <ResultPanel label="Ton profil en un coup d'œil" class="mb-8">
         <div class="flex justify-center">
-          <RadarChart :axes="radarAxes" />
+          <RadarChart :axes="radarAxes" dark />
         </div>
-      </section>
+      </ResultPanel>
 
       <!-- ══════════════════════════════════════════════
            PROFIL COMMUNICANT — 5 DIMENSIONS
@@ -358,6 +352,8 @@ import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import ScoreGauge from '@/Components/ScoreGauge.vue'
 import RadarChart from '@/Components/RadarChart.vue'
 import MarkdownText from '@/Components/MarkdownText.vue'
+import RestitutionHeader from '@/Components/RestitutionHeader.vue'
+import ResultPanel from '@/Components/ResultPanel.vue'
 
 // ─────────────────────────────────────────────
 // Props

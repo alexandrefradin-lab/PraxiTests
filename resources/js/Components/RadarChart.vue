@@ -30,9 +30,32 @@ const props = defineProps({
     max:        { type: Number, default: 100 },
     accent:     { type: String, default: '#A67520' },
     showValues: { type: Boolean, default: true },
+    dark:       { type: Boolean, default: false },   // rendu sur panneau sombre (constellation)
 })
 
 const DEFAULT_COLOR = '#A67520'
+// Palette adaptée au fond (clair = parchemin / sombre = encre)
+const pal = computed(() => props.dark ? {
+    line:        '#C99030',
+    area:        'rgba(201,144,48,0.20)',
+    defaultPt:   '#C99030',
+    pointBorder: 'rgba(18,12,4,0.85)',
+    grid:        'rgba(201,144,48,0.18)',
+    angle:       'rgba(201,144,48,0.22)',
+    tick:        'rgba(240,232,212,0.50)',
+    backdrop:    'transparent',
+    labelStroke: 'rgba(18,12,4,0.85)',
+} : {
+    line:        props.accent,
+    area:        'rgba(166,117,32,0.11)',
+    defaultPt:   '#A67520',
+    pointBorder: 'rgba(234,226,210,0.95)',
+    grid:        'rgba(80,60,20,0.09)',
+    angle:       'rgba(80,60,20,0.11)',
+    tick:        'rgba(90,70,20,0.50)',
+    backdrop:    'rgba(234,226,210,0.70)',
+    labelStroke: 'rgba(234,226,210,0.9)',
+})
 
 // Plugin inline : affiche la valeur numérique au bout de chaque point
 const valueLabelsPlugin = {
@@ -55,10 +78,10 @@ const valueLabelsPlugin = {
             ctx.font           = 'bold 10.5px monospace'
             ctx.textAlign      = 'center'
             ctx.textBaseline   = 'middle'
-            ctx.strokeStyle    = 'rgba(234,226,210,0.9)'
+            ctx.strokeStyle    = pal.value.labelStroke
             ctx.lineWidth      = 3
             ctx.strokeText(val, nx, ny)
-            ctx.fillStyle      = ax.color || DEFAULT_COLOR
+            ctx.fillStyle      = ax.color || pal.value.defaultPt
             ctx.fillText(val, nx, ny)
             ctx.restore()
         })
@@ -69,12 +92,12 @@ const chartData = computed(() => ({
     labels: props.axes.map(a => a.label),
     datasets: [{
         data:                 props.axes.map(a => a.value ?? 0),
-        backgroundColor:      'rgba(166,117,32,0.11)',
-        borderColor:          props.accent,
+        backgroundColor:      pal.value.area,
+        borderColor:          pal.value.line,
         borderWidth:          2.5,
         borderJoinStyle:      'round',
-        pointBackgroundColor: props.axes.map(a => a.color || DEFAULT_COLOR),
-        pointBorderColor:     'rgba(234,226,210,0.95)',
+        pointBackgroundColor: props.axes.map(a => a.color || pal.value.defaultPt),
+        pointBorderColor:     pal.value.pointBorder,
         pointBorderWidth:     2,
         pointRadius:          5,
         pointHoverRadius:     7,
@@ -91,16 +114,16 @@ const chartOptions = computed(() => ({
             ticks: {
                 stepSize:      props.max / 4,
                 font:          { size: 9 },
-                color:         'rgba(90,70,20,0.50)',
-                backdropColor: 'rgba(234,226,210,0.70)',
+                color:         pal.value.tick,
+                backdropColor: pal.value.backdrop,
             },
             pointLabels: {
                 font:    { size: 13, weight: '600', family: "'Space Grotesk','Inter',system-ui,sans-serif" },
-                color:   props.axes.map(a => a.color || DEFAULT_COLOR),
+                color:   props.axes.map(a => a.color || pal.value.defaultPt),
                 padding: 8,
             },
-            grid:       { color: 'rgba(80,60,20,0.09)' },
-            angleLines: { color: 'rgba(80,60,20,0.11)' },
+            grid:       { color: pal.value.grid },
+            angleLines: { color: pal.value.angle },
         },
     },
     plugins: {
@@ -117,7 +140,35 @@ const plugins = [valueLabelsPlugin]
 </script>
 
 <template>
-    <div style="position:relative;width:100%;max-width:480px;margin:0 auto">
+    <div class="rc-wrap">
+        <div class="rc-constellation" aria-hidden="true"></div>
         <Radar :data="chartData" :options="chartOptions" :plugins="plugins" />
     </div>
 </template>
+
+<style scoped>
+.rc-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+}
+/* Fond « constellation » : halo or central + fines étoiles dorées */
+.rc-constellation {
+    position: absolute;
+    inset: -4%;
+    pointer-events: none;
+    z-index: 0;
+    background:
+        radial-gradient(2px 2px at 20% 26%, rgba(201,144,48,0.55), transparent),
+        radial-gradient(1.5px 1.5px at 78% 30%, rgba(201,144,48,0.45), transparent),
+        radial-gradient(2px 2px at 66% 76%, rgba(201,144,48,0.45), transparent),
+        radial-gradient(1.5px 1.5px at 30% 74%, rgba(201,144,48,0.40), transparent),
+        radial-gradient(1.5px 1.5px at 50% 12%, rgba(201,144,48,0.40), transparent),
+        radial-gradient(circle at 50% 46%, rgba(166,117,32,0.10), transparent 62%);
+}
+.rc-wrap :deep(canvas) {
+    position: relative;
+    z-index: 1;
+}
+</style>

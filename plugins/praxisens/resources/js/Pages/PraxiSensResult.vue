@@ -13,6 +13,8 @@ import RadarChart from '@/Components/RadarChart.vue'
 import SynthesisCard from '@/Components/SynthesisCard.vue'
 import JobCard from '@/Components/JobCard.vue'
 import Disclaimer from '@/Components/Disclaimer.vue'
+import RestitutionHeader from '@/Components/RestitutionHeader.vue'
+import ResultPanel from '@/Components/ResultPanel.vue'
 
 const props = defineProps({
     attempt:      Object,
@@ -58,16 +60,14 @@ const radarAxes = computed(() =>
         <div style="max-width:780px;margin:0 auto">
 
             <!-- En-tête -->
-            <div style="text-align:center;margin-bottom:2.5rem">
-                <span class="pt-badge" style="margin-bottom:.75rem">Le Radar des Sens — Hypersensibilité</span>
-                <h1 style="font-size:28px;margin-top:6px">Votre profil de sensibilité</h1>
-                <p style="font-size:14px;color:var(--pt-text-muted);margin-top:6px;line-height:1.5">
-                    D'après le modèle de la sensibilité de traitement sensoriel (E. Aron). Outil d'auto-réflexion, pas un diagnostic.
-                </p>
-            </div>
+            <RestitutionHeader
+                kicker="Le Radar des Sens — Hypersensibilité"
+                title="Votre profil de sensibilité"
+                subtitle="D'après le modèle de la sensibilité de traitement sensoriel (E. Aron). Outil d'auto-réflexion, pas un diagnostic."
+            />
 
             <!-- Score global + palier -->
-            <div v-if="globalScore !== null" class="pt-card"
+            <div v-if="globalScore !== null" class="pt-card ac-card-ornate"
                 style="padding:1.5rem;margin-bottom:1rem;display:flex;align-items:center;gap:1.5rem">
                 <div style="flex-shrink:0">
                     <ScoreGauge :score="globalScore" :size="140" />
@@ -88,15 +88,11 @@ const radarAxes = computed(() =>
             </div>
 
             <!-- Profil en un coup d'œil — toile d'araignée -->
-            <div v-if="radarAxes.length >= 3" class="pt-card" style="padding:1.5rem;margin-bottom:1rem">
-                <h2 style="font-size:16px;font-weight:500;margin-bottom:2px">Ton profil en un coup d'œil</h2>
-                <p style="font-size:13px;color:var(--pt-text-muted);margin-bottom:1rem">
-                    Vos 3 sous-dimensions de sensibilité, d'un seul regard.
-                </p>
+            <ResultPanel v-if="radarAxes.length >= 3" label="Ton profil en un coup d'œil" class="mb-8">
                 <div style="display:flex;justify-content:center">
-                    <RadarChart :axes="radarAxes" />
+                    <RadarChart :axes="radarAxes" dark />
                 </div>
-            </div>
+            </ResultPanel>
 
             <!-- Sous-dimensions -->
             <div class="pt-card" style="padding:1.5rem;margin-bottom:1rem">

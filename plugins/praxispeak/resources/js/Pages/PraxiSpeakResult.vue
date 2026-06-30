@@ -4,6 +4,8 @@ import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import ScoreGauge from '@/Components/ScoreGauge.vue'
 import RadarChart from '@/Components/RadarChart.vue'
 import MarkdownText from '@/Components/MarkdownText.vue'
+import RestitutionHeader from '@/Components/RestitutionHeader.vue'
+import ResultPanel from '@/Components/ResultPanel.vue'
 
 const props = defineProps({
     attempt:              Object,
@@ -155,18 +157,14 @@ const gridRows = computed(() => {
         <div class="max-w-4xl mx-auto">
 
             <!-- En-tête ───────────────────────────────────────────────── -->
-            <div class="text-center mb-12">
-                <span class="pt-badge">PraxiSpeak · Prise de parole en public</span>
-                <h1 class="text-4xl font-semibold tracking-tight mt-4" style="color: var(--pt-navy)">
-                    Ton profil d'orateur
-                </h1>
-                <p class="mt-2" style="color: var(--pt-text-muted)">
-                    {{ scoring.phrase_orateur }}
-                </p>
-            </div>
+            <RestitutionHeader
+                kicker="PraxiSpeak · Prise de parole en public"
+                title="Ton profil d'orateur"
+                :subtitle="scoring.phrase_orateur"
+            />
 
             <!-- Score global de l'orateur ─────────────────────────────── -->
-            <section class="pt-card p-8 mb-8">
+            <section class="pt-card ac-card-ornate p-8 mb-8">
                 <div class="flex flex-col md:flex-row items-center gap-8">
 
                     <!-- Jauge circulaire SVG -->
@@ -195,17 +193,11 @@ const gridRows = computed(() => {
             </section>
 
             <!-- Profil en un coup d'œil — toile d'araignée ─────────────── -->
-            <section v-if="radarAxes.length >= 3" class="pt-card p-8 mb-8">
-                <h2 class="text-xl font-semibold mb-1" style="color: var(--pt-navy)">
-                    Ton profil en un coup d'œil
-                </h2>
-                <p class="text-sm mb-4" style="color: var(--pt-text-muted)">
-                    Tes 5 dimensions d'orateur, sur une échelle de 0 à 100.
-                </p>
+            <ResultPanel v-if="radarAxes.length >= 3" label="Ton profil en un coup d'œil" class="mb-8">
                 <div class="flex justify-center">
-                    <RadarChart :axes="radarAxes" />
+                    <RadarChart :axes="radarAxes" dark />
                 </div>
-            </section>
+            </ResultPanel>
 
             <!-- Jauges par dimension ──────────────────────────────────── -->
             <section class="pt-card p-8 mb-8">

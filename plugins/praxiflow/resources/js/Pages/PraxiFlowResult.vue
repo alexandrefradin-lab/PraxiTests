@@ -4,6 +4,8 @@ import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import ScoreGauge from '@/Components/ScoreGauge.vue'
 import RadarChart from '@/Components/RadarChart.vue'
 import MarkdownText from '@/Components/MarkdownText.vue'
+import RestitutionHeader from '@/Components/RestitutionHeader.vue'
+import ResultPanel from '@/Components/ResultPanel.vue'
 
 const props = defineProps({ attempt: Object, result: Object })
 const scoring   = computed(() => props.result?.scoring ?? {})
@@ -118,20 +120,16 @@ const allExercises = computed(() => {
             <!-- ══════════════════════════════════════════════════
                  EN-TÊTE
             ══════════════════════════════════════════════════ -->
-            <div style="text-align: center; margin-bottom: 2.5rem;">
-                <span class="pt-badge">PraxiFlow · Gestion du temps</span>
-                <h1 style="font-size: 2.25rem; font-weight: 600; letter-spacing: -0.025em; margin-top: 1rem; color: var(--pt-navy);">
-                    Ta productivité, analysée
-                </h1>
-                <p style="margin-top: 0.5rem; font-size: 0.875rem; max-width: 36rem; margin-left: auto; margin-right: auto; color: var(--pt-text-muted);">
-                    {{ phrase }}
-                </p>
-            </div>
+            <RestitutionHeader
+                kicker="PraxiFlow · Gestion du temps"
+                title="Ta productivité, analysée"
+                :subtitle="phrase"
+            />
 
             <!-- ══════════════════════════════════════════════════
                  SCORE GLOBAL
             ══════════════════════════════════════════════════ -->
-            <section class="pt-card" style="padding: 2rem; margin-bottom: 2rem; text-align: center;">
+            <section class="pt-card ac-card-ornate" style="padding: 2rem; margin-bottom: 2rem; text-align: center;">
                 <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; color: var(--pt-text-muted);">
                     Score de productivité global
                 </p>
@@ -174,13 +172,11 @@ const allExercises = computed(() => {
             <div v-show="activeTab === 'resultats'">
 
                 <!-- Profil en un coup d'œil — toile d'araignée -->
-                <section v-if="radarAxes.length >= 3" class="pt-card" style="padding: 2rem; margin-bottom: 1.5rem;">
-                    <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.25rem; color: var(--pt-navy);">Ton profil en un coup d'œil</h2>
-                    <p style="font-size: 0.875rem; margin-bottom: 1rem; color: var(--pt-text-muted);">Tes 5 dimensions de productivité, sur une échelle de 0 à 100.</p>
+                <ResultPanel v-if="radarAxes.length >= 3" label="Ton profil en un coup d'œil" class="mb-8">
                     <div style="display: flex; justify-content: center;">
-                        <RadarChart :axes="radarAxes" />
+                        <RadarChart :axes="radarAxes" dark />
                     </div>
-                </section>
+                </ResultPanel>
 
                 <!-- 5 Jauges dimensions -->
                 <section class="pt-card" style="padding: 2rem; margin-bottom: 1.5rem;">

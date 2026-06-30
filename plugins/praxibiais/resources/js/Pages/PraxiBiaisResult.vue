@@ -9,6 +9,7 @@
 import { computed, ref } from 'vue'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import SynthesisCard from '@/Components/SynthesisCard.vue'
+import RestitutionHeader from '@/Components/RestitutionHeader.vue'
 
 const props = defineProps({
     attempt: Object,
@@ -78,23 +79,22 @@ const profileEmoji = computed(() => ({
         <div style="max-width:800px;margin:0 auto">
 
             <!-- ── OUVERTURE CHOC ───────────────────────────────────────────── -->
-            <div style="text-align:center;padding:2rem 1rem 1.75rem">
-                <span class="pt-badge" style="margin-bottom:1rem;display:inline-block">
-                    Le Cartographe Mental
-                </span>
-                <h1 style="font-size:24px;font-weight:700;color:var(--pt-text);line-height:1.4;margin-bottom:.875rem">
+            <RestitutionHeader
+                kicker="Le Cartographe Mental"
+                title="Votre cartographie cognitive"
+                subtitle="Voici la cartographie de vos freins cognitifs — les mécanismes silencieux qui influencent vos décisions professionnelles à votre insu."
+            />
+
+            <div style="text-align:center;padding:0 1rem 1.75rem">
+                <h2 style="font-size:24px;font-weight:700;color:var(--pt-text);line-height:1.4">
                     En 40 questions, vous venez d'identifier<br>
                     <span style="color:var(--pt-gold)">pourquoi vous n'avancez pas aussi vite<br>
                     que vous le pourriez.</span>
-                </h1>
-                <p style="font-size:14px;color:var(--pt-text-muted);max-width:520px;margin:0 auto;line-height:1.65">
-                    Voici la cartographie de vos freins cognitifs — les mécanismes
-                    silencieux qui influencent vos décisions professionnelles à votre insu.
-                </p>
+                </h2>
             </div>
 
             <!-- ── PROFIL DOMINANT (révélation) ───────────────────────────── -->
-            <div class="pt-card" style="padding:2rem;margin-bottom:2rem;position:relative;overflow:hidden">
+            <div class="pt-card ac-card-ornate" style="padding:2rem;margin-bottom:2rem;position:relative;overflow:hidden">
                 <!-- bandeau gradient en haut -->
                 <div style="position:absolute;top:0;left:0;right:0;height:4px;
                             background:linear-gradient(90deg,var(--pt-gold),#ea580c)"></div>

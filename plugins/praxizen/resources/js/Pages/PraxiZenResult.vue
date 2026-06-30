@@ -5,6 +5,8 @@ import ScoreGauge from '@/Components/ScoreGauge.vue'
 import RadarChart from '@/Components/RadarChart.vue'
 import SynthesisCard from '@/Components/SynthesisCard.vue'
 import Disclaimer from '@/Components/Disclaimer.vue'
+import RestitutionHeader from '@/Components/RestitutionHeader.vue'
+import ResultPanel from '@/Components/ResultPanel.vue'
 
 const props = defineProps({
     attempt:         Object,
@@ -152,15 +154,11 @@ const phaseLabel = (key) => PHASES[key]?.label ?? key
         <div class="max-w-4xl mx-auto px-4 py-8">
 
             <!-- ── En-tête ──────────────────────────────────────────────── -->
-            <div class="text-center mb-10">
-                <span class="pt-badge">Gestion du stress · PraxiZen</span>
-                <h1 class="text-4xl font-semibold tracking-tight mt-4" style="color: var(--pt-navy)">
-                    Ton bilan bien-être
-                </h1>
-                <p class="mt-3 text-base" style="color: var(--pt-text-muted)">
-                    Voici une carte complète de tes ressources face au stress professionnel.
-                </p>
-            </div>
+            <RestitutionHeader
+                kicker="Gestion du stress · PraxiZen"
+                title="Ton bilan bien-être"
+                subtitle="Voici une carte complète de tes ressources face au stress professionnel."
+            />
 
             <Disclaimer>
                 <strong>Ceci n'est pas un avis médical.</strong> Ce bilan est un outil
@@ -169,7 +167,7 @@ const phaseLabel = (key) => PHASES[key]?.label ?? key
             </Disclaimer>
 
             <!-- ── Jauge circulaire + score global ─────────────────────── -->
-            <div class="pt-card p-8 mb-8 flex flex-col md:flex-row items-center gap-10">
+            <div class="pt-card ac-card-ornate p-8 mb-8 flex flex-col md:flex-row items-center gap-10">
 
                 <!-- Jauge de score partagée -->
                 <div class="relative flex-shrink-0">
@@ -205,15 +203,11 @@ const phaseLabel = (key) => PHASES[key]?.label ?? key
             </div>
 
             <!-- ── Profil en un coup d'œil — toile d'araignée ───────────── -->
-            <section v-if="radarAxes.length >= 3" class="pt-card p-8 mb-8">
-                <h2 class="text-xl font-semibold mb-1" style="color: var(--pt-navy)">Ton profil en un coup d'œil</h2>
-                <p class="text-sm mb-6" style="color: var(--pt-text-muted)">
-                    Tes 5 dimensions de bien-être, d'un seul regard.
-                </p>
+            <ResultPanel v-if="radarAxes.length >= 3" label="Ton profil en un coup d'œil" class="mb-8">
                 <div class="flex justify-center">
-                    <RadarChart :axes="radarAxes" />
+                    <RadarChart :axes="radarAxes" dark />
                 </div>
-            </section>
+            </ResultPanel>
 
             <!-- ── 5 jauges par dimension ───────────────────────────────── -->
             <section class="pt-card p-8 mb-8">

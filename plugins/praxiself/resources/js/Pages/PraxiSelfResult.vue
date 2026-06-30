@@ -4,6 +4,8 @@ import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import ScoreGauge from '@/Components/ScoreGauge.vue'
 import RadarChart from '@/Components/RadarChart.vue'
 import SynthesisCard from '@/Components/SynthesisCard.vue'
+import RestitutionHeader from '@/Components/RestitutionHeader.vue'
+import ResultPanel from '@/Components/ResultPanel.vue'
 
 const props = defineProps({
     attempt:        Object,
@@ -134,18 +136,13 @@ const globalProgress = computed(() => Math.round((props.journeyDays.length / 60)
             <!-- ══════════════════════════════════════════════
                  SECTION 1 — EN-TÊTE & SCORE GLOBAL
             ══════════════════════════════════════════════ -->
-            <header class="text-center mb-12 pt-8">
-                <span class="pt-badge">PraxiSelf · Affirmation de soi</span>
+            <RestitutionHeader
+                kicker="PraxiSelf · Affirmation de soi"
+                title="Ton profil d'assertivité"
+                subtitle="Basé sur 5 dimensions — Communication Non-Violente · Bandura · Alberti & Emmons"
+            />
 
-                <h1 class="text-4xl font-semibold tracking-tight mt-4"
-                    style="color: var(--pt-navy)">
-                    Ton profil d'assertivité
-                </h1>
-
-                <p class="mt-2 text-sm" style="color: var(--pt-text-muted)">
-                    Basé sur 5 dimensions — Communication Non-Violente · Bandura · Alberti &amp; Emmons
-                </p>
-
+            <header class="text-center mb-12">
                 <!-- Score global circulaire (SVG) -->
                 <div class="flex flex-col items-center mt-8">
                     <ScoreGauge :score="globalScore" :color="scoreColor(globalScore)" :size="140" />
@@ -180,17 +177,11 @@ const globalProgress = computed(() => Math.round((props.journeyDays.length / 60)
             <!-- ══════════════════════════════════════════════
                  PROFIL EN UN COUP D'ŒIL — TOILE D'ARAIGNÉE
             ══════════════════════════════════════════════ -->
-            <section v-if="radarAxes.length >= 3" class="pt-card p-8 mb-8">
-                <h2 class="text-xl font-semibold mb-1" style="color: var(--pt-navy)">
-                    Ton profil en un coup d'œil
-                </h2>
-                <p class="text-sm mb-4" style="color: var(--pt-text-muted)">
-                    Tes 5 dimensions d'assertivité, sur une échelle de 0 à 100.
-                </p>
+            <ResultPanel v-if="radarAxes.length >= 3" label="Ton profil en un coup d'œil" class="mb-8">
                 <div class="flex justify-center">
-                    <RadarChart :axes="radarAxes" />
+                    <RadarChart :axes="radarAxes" dark />
                 </div>
-            </section>
+            </ResultPanel>
 
             <!-- ══════════════════════════════════════════════
                  SECTION 2 — RADAR DES 5 DIMENSIONS (barres)

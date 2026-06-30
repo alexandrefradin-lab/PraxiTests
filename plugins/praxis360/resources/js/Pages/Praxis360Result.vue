@@ -15,6 +15,8 @@ import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import RadarChart      from '@/Components/RadarChart.vue'
 import SynthesisCard from '@/Components/SynthesisCard.vue'
 import JobCard       from '@/Components/JobCard.vue'
+import RestitutionHeader from '@/Components/RestitutionHeader.vue'
+import ResultPanel from '@/Components/ResultPanel.vue'
 
 const props = defineProps({
     attempt:      Object,
@@ -67,13 +69,11 @@ const barWidth = (dimKey) => {
         <div style="max-width:780px;margin:0 auto">
 
             <!-- En-tête -->
-            <div style="text-align:center;margin-bottom:2.5rem">
-                <span class="pt-badge" style="margin-bottom:.75rem">Praxis 360 — Soft skills</span>
-                <h1 style="font-size:28px;margin-top:6px">Votre profil soft skills</h1>
-                <p style="font-size:14px;color:var(--pt-text-muted);margin-top:6px;line-height:1.5">
-                    Auto-évaluation sur 6 dimensions, analysée par notre IA.
-                </p>
-            </div>
+            <RestitutionHeader
+                kicker="Praxis 360 — Soft skills"
+                title="Votre profil soft skills"
+                subtitle="Auto-évaluation sur 6 dimensions, analysée par notre IA."
+            />
 
             <!-- Score global -->
             <div v-if="global_score !== null" class="pt-card"
@@ -104,15 +104,11 @@ const barWidth = (dimKey) => {
             </div>
 
             <!-- Profil en un coup d'œil — toile d'araignée -->
-            <div v-if="radarAxes.length >= 3" class="pt-card" style="padding:1.5rem;margin-bottom:1rem">
-                <h2 style="font-size:16px;font-weight:500;margin-bottom:2px">Ton profil en un coup d'œil</h2>
-                <p style="font-size:13px;color:var(--pt-text-muted);margin-bottom:1rem">
-                    Vos 6 dimensions soft skills, d'un seul regard.
-                </p>
+            <ResultPanel v-if="radarAxes.length >= 3" label="Ton profil en un coup d'œil" class="mb-8">
                 <div style="display:flex;justify-content:center">
-                    <RadarChart :axes="radarAxes" />
+                    <RadarChart :axes="radarAxes" dark />
                 </div>
-            </div>
+            </ResultPanel>
 
             <!-- Dimensions avec étalonnage -->
             <div class="pt-card" style="padding:1.5rem;margin-bottom:1rem">

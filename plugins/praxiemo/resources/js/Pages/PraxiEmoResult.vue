@@ -3,6 +3,8 @@ import { computed } from 'vue'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import RadarChart from '@/Components/RadarChart.vue'
 import MarkdownText from '@/Components/MarkdownText.vue'
+import RestitutionHeader from '@/Components/RestitutionHeader.vue'
+import ResultPanel from '@/Components/ResultPanel.vue'
 
 const props = defineProps({
     attempt:      Object,
@@ -56,11 +58,11 @@ const dimLabel = (score) => {
         <Head title="Tes résultats — PraxiEmo" />
 
         <div class="max-w-4xl mx-auto">
-            <div class="text-center mb-12">
-                <span class="pt-badge">PraxiEmo · 16 dimensions</span>
-                <h1 class="text-4xl font-semibold tracking-tight mt-4">Ton intelligence émotionnelle</h1>
-                <p class="text-slate-600 mt-2">{{ scoring.phrase_qe }}</p>
-            </div>
+            <RestitutionHeader
+                kicker="PraxiEmo · 16 dimensions"
+                title="Ton intelligence émotionnelle"
+                :subtitle="scoring.phrase_qe"
+            />
 
             <!-- Score global -->
             <section class="pt-card p-8 mb-8 text-center">
@@ -76,13 +78,11 @@ const dimLabel = (score) => {
             </section>
 
             <!-- Radar — vue d'ensemble par famille -->
-            <section class="pt-card p-8 mb-8 text-center">
-                <h2 class="text-xl font-semibold mb-1">Ton profil en un coup d'œil</h2>
-                <p class="text-sm text-slate-500 mb-6">Tes 4 grands domaines d'intelligence émotionnelle, sur une seule toile.</p>
+            <ResultPanel label="Ton profil en un coup d'œil" class="mb-8">
                 <div class="flex justify-center">
-                    <RadarChart :axes="radarAxes" />
+                    <RadarChart :axes="radarAxes" dark />
                 </div>
-            </section>
+            </ResultPanel>
 
             <!-- 4 familles -->
             <section v-for="(famQuestions, famId) in byFamily" :key="famId" class="pt-card p-8 mb-6">

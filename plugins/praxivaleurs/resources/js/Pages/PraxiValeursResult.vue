@@ -3,6 +3,8 @@ import { computed } from 'vue'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import RadarChart from '@/Components/RadarChart.vue'
 import MarkdownText from '@/Components/MarkdownText.vue'
+import RestitutionHeader from '@/Components/RestitutionHeader.vue'
+import ResultPanel from '@/Components/ResultPanel.vue'
 
 const props = defineProps({
     attempt:      Object,
@@ -30,14 +32,14 @@ const radarAxes = computed(() =>
         <Head title="Tes valeurs prioritaires" />
 
         <div class="max-w-3xl mx-auto">
-            <div class="text-center mb-12">
-                <span class="pt-badge">Schwartz · 10 valeurs universelles</span>
-                <h1 class="text-4xl font-semibold tracking-tight mt-4">Voici ce qui te porte.</h1>
-                <p class="text-slate-600 mt-2">Tes 5 valeurs prioritaires, classées de la plus à la moins importante pour toi.</p>
-            </div>
+            <RestitutionHeader
+                kicker="Schwartz · 10 valeurs universelles"
+                title="Voici ce qui te porte."
+                subtitle="Tes 5 valeurs prioritaires, classées de la plus à la moins importante pour toi."
+            />
 
             <!-- Top 5 -->
-            <section class="pt-card p-8 mb-8">
+            <section class="pt-card ac-card-ornate p-8 mb-8">
                 <h2 class="text-xl font-semibold mb-6">Ton top 5</h2>
                 <ol class="space-y-4">
                     <li v-for="([key, score], i) in top5" :key="key" class="flex items-center gap-4 p-4 rounded-xl border border-slate-100">
@@ -52,13 +54,11 @@ const radarAxes = computed(() =>
             </section>
 
             <!-- Toile d'araignée Schwartz -->
-            <section class="pt-card p-8 mb-8">
-                <h2 class="text-xl font-semibold mb-1">Ton profil en un coup d'œil</h2>
-                <p class="text-sm text-slate-500 mb-6">Tes 10 valeurs disposées en circumplex de Schwartz.</p>
+            <ResultPanel label="Ton profil en un coup d'œil" class="mb-8">
                 <div class="flex justify-center">
-                    <RadarChart :axes="radarAxes" />
+                    <RadarChart :axes="radarAxes" dark />
                 </div>
-            </section>
+            </ResultPanel>
 
             <!-- Toutes les dimensions -->
             <section class="pt-card p-8 mb-8">

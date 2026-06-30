@@ -4,6 +4,8 @@ import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import SynthesisCard from '@/Components/SynthesisCard.vue'
 import RadarChart from '@/Components/RadarChart.vue'
 import JobCard from '@/Components/JobCard.vue'
+import RestitutionHeader from '@/Components/RestitutionHeader.vue'
+import ResultPanel from '@/Components/ResultPanel.vue'
 
 const props = defineProps({
     attempt:      Object,
@@ -33,28 +35,27 @@ const radarAxes = computed(() =>
         <Head title="Tes résultats RIASEC" />
 
         <div class="max-w-4xl mx-auto">
-            <div class="text-center mb-12">
-                <span class="pt-badge">Test RIASEC · Modèle Holland</span>
-                <h1 class="text-4xl font-semibold tracking-tight mt-4">Ton code RIASEC</h1>
-                <div class="flex items-center justify-center gap-3 mt-6">
-                    <span v-for="(letter, i) in codeLetters" :key="i" class="h-16 w-16 rounded-2xl flex items-center justify-center text-3xl font-bold text-white shadow-md" :style="{ backgroundColor: meta[letter]?.color ?? '#4F46E5' }">
-                        {{ letter }}
-                    </span>
-                </div>
-                <p class="text-slate-600 mt-4">{{ scoring.profile_label }}</p>
+            <RestitutionHeader
+                kicker="Test RIASEC · Modèle Holland"
+                title="Ton code RIASEC"
+                :subtitle="scoring.profile_label"
+            />
+
+            <div class="flex items-center justify-center gap-3 mb-10">
+                <span v-for="(letter, i) in codeLetters" :key="i" class="h-16 w-16 rounded-2xl flex items-center justify-center text-3xl font-bold shadow-md" style="color:var(--bg-base)" :style="{ backgroundColor: meta[letter]?.color ?? 'var(--color-primary)' }">
+                    {{ letter }}
+                </span>
             </div>
 
             <!-- Synthèse IA si dispo -->
             <SynthesisCard :source="attempt.result?.ai_synthesis" title="Ta synthèse" />
 
-            <!-- Hexagone RIASEC -->
-            <section class="pt-card p-8 mb-8">
-                <h2 class="text-xl font-semibold mb-1">Ton hexagone RIASEC</h2>
-                <p class="text-sm text-slate-500 mb-6">Tes 6 dimensions Holland d'un seul coup d'œil.</p>
+            <!-- Hexagone RIASEC — panneau constellation -->
+            <ResultPanel label="Ton hexagone RIASEC" class="mb-8">
                 <div class="flex justify-center">
-                    <RadarChart :axes="radarAxes" />
+                    <RadarChart :axes="radarAxes" dark />
                 </div>
-            </section>
+            </ResultPanel>
 
             <!-- 6 types RIASEC -->
             <section class="pt-card p-8 mb-8">
