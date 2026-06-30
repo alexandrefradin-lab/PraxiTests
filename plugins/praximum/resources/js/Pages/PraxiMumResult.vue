@@ -115,6 +115,11 @@ const niveauColor = {
     tres_bas: '#dc2626', bas: '#ea580c', moyen: '#64748b',
     haut: '#0ea5e9',     tres_haut: '#16a34a',
 }
+// Variantes éclaircies pour fond sombre (panneau constellation)
+const niveauColorDark = {
+    tres_bas: '#f87171', bas: '#fb923c', moyen: '#cbb88f',
+    haut: '#38bdf8',     tres_haut: '#4ade80',
+}
 </script>
 
 <template>
@@ -171,41 +176,41 @@ const niveauColor = {
             </ResultPanel>
 
             <!-- 5 dimensions OCEAN -->
-            <section class="pt-card p-8 mb-8 pq-reveal" style="animation-delay:0.55s">
-                <h2 class="text-xl font-semibold mb-6">Tes 5 dimensions OCEAN</h2>
+            <ResultPanel class="mb-8 pq-reveal" style="animation-delay:0.55s">
+                <h2 class="mum-sec-title">Tes 5 dimensions OCEAN</h2>
                 <div class="space-y-5">
                     <div v-for="(d, key) in dims" :key="key">
                         <div class="flex justify-between items-baseline mb-1">
                             <div>
                                 <span class="font-semibold" :style="{ color: metaDim[key]?.color }">{{ d.label }}</span>
-                                <span class="text-xs text-slate-500 ml-2">{{ metaDim[key]?.court }}</span>
+                                <span class="mum-sub ml-2">{{ metaDim[key]?.court }}</span>
                             </div>
-                            <span class="text-xs font-medium" :style="{ color: niveauColor[d.niveau] }">{{ niveauLabel[d.niveau] }} · T={{ d.T }}</span>
+                            <span class="text-xs font-medium" :style="{ color: niveauColorDark[d.niveau] }">{{ niveauLabel[d.niveau] }} · T={{ d.T }}</span>
                         </div>
-                        <div class="pt-progress-track">
+                        <div class="mum-track">
                             <div class="h-full rounded-full" :style="{ width: (animatedDims[key] ?? 0) + '%', backgroundColor: metaDim[key]?.color }"></div>
                         </div>
                     </div>
                 </div>
-            </section>
+            </ResultPanel>
 
             <!-- Facettes par dimension -->
-            <section v-for="(facs, dimKey, di) in facettesByDim" :key="dimKey" class="pt-card p-8 mb-6 pq-reveal" :style="{ animationDelay: (0.65 + di * 0.12) + 's' }">
-                <h2 class="text-xl font-semibold mb-1" :style="{ color: metaDim[dimKey]?.color }">{{ metaDim[dimKey]?.label }}</h2>
-                <p class="text-sm text-slate-500 mb-6">{{ metaDim[dimKey]?.court }}</p>
+            <ResultPanel v-for="(facs, dimKey, di) in facettesByDim" :key="dimKey" class="mb-6 pq-reveal" :style="{ animationDelay: (0.65 + di * 0.12) + 's' }">
+                <h2 class="mum-sec-title" style="margin-bottom:0.25rem" :style="{ color: metaDim[dimKey]?.color }">{{ metaDim[dimKey]?.label }}</h2>
+                <p class="mum-sub" style="margin-bottom:1.5rem">{{ metaDim[dimKey]?.court }}</p>
                 <div class="grid md:grid-cols-2 gap-4">
-                    <div v-for="f in facs" :key="f.key" class="border border-slate-100 rounded-xl p-4">
+                    <div v-for="f in facs" :key="f.key" class="mum-fac">
                         <div class="flex justify-between items-baseline mb-2">
-                            <span class="font-medium text-sm">{{ f.label }}</span>
-                            <span class="text-xs" :style="{ color: niveauColor[f.niveau] }">T={{ f.T }} · {{ niveauLabel[f.niveau] }}</span>
+                            <span class="mum-fac-name">{{ f.label }}</span>
+                            <span class="text-xs" :style="{ color: niveauColorDark[f.niveau] }">T={{ f.T }} · {{ niveauLabel[f.niveau] }}</span>
                         </div>
-                        <div class="pt-progress-track">
+                        <div class="mum-track">
                             <div class="h-full rounded-full" :style="{ width: (animatedFacs[f.key] ?? 0) + '%', backgroundColor: metaDim[dimKey]?.color }"></div>
                         </div>
-                        <p v-if="f.court" class="text-xs mt-2" style="color:var(--text-muted); line-height:1.45">{{ f.court }}</p>
+                        <p v-if="f.court" class="mum-fac-def">{{ f.court }}</p>
                     </div>
                 </div>
-            </section>
+            </ResultPanel>
 
             <div v-if="result?.ai_synthesis" class="mt-6 pt-4 border-t border-amber-200">
                 <h3 class="font-semibold mb-2">Synthèse personnalisée</h3>
@@ -279,6 +284,20 @@ const niveauColor = {
 .mum-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .mum-chips span { font-family: var(--font-data); font-size: 10.5px; color: var(--color-primary-light); background: rgba(230,190,90,0.10); border: 1px solid rgba(230,190,90,0.35); padding: 3px 11px; border-radius: 20px; }
 .mum-near { font-size: 11px; color: rgba(240,232,212,0.45); margin-top: 0.9rem; }
+
+/* ── Contenu des sections sur panneau sombre (dimensions / facettes) ── */
+.mum-sec-title { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; color: #F4ECD8; margin-bottom: 1.5rem; }
+.mum-sub { font-size: 0.78rem; color: rgba(240,232,212,0.55); }
+.mum-track { height: 6px; border-radius: 99px; background: rgba(240,232,212,0.10); overflow: hidden; }
+.mum-track > div { transition: width 0.7s ease; }
+.mum-fac {
+    border: 1px solid rgba(230,190,90,0.20);
+    border-radius: 12px;
+    padding: 1rem;
+    background: rgba(0,0,0,0.18);
+}
+.mum-fac-name { font-weight: 600; font-size: 0.875rem; color: #F0E8D4; }
+.mum-fac-def { font-size: 0.75rem; margin-top: 0.55rem; line-height: 1.45; color: rgba(240,232,212,0.6); }
 @keyframes pqReveal {
     from { opacity: 0; transform: translateY(20px); }
     to   { opacity: 1; transform: none; }
