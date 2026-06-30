@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import SynthesisCard from '@/Components/SynthesisCard.vue'
 import RestitutionHeader from '@/Components/RestitutionHeader.vue'
+import ResultPdfButton from '@/Components/ResultPdfButton.vue'
 
 const props = defineProps({
     attempt:      Object,
@@ -208,10 +209,7 @@ const soutienPct = computed(() => {
             <!-- Synthèse IA -->
             <SynthesisCard :source="attempt.result?.ai_synthesis" title="Ta synthèse" />
 
-            <div class="text-center mt-12">
-
-                <a :href="route('results.pdf', attempt.id)" class="pt-btn-ghost">Télécharger en PDF</a>
-            </div>
+            <ResultPdfButton :attempt-id="attempt.id" />
         </div>
     </CandidateLayout>
 </template>

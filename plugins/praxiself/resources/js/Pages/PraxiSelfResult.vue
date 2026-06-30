@@ -6,6 +6,7 @@ import RadarChart from '@/Components/RadarChart.vue'
 import SynthesisCard from '@/Components/SynthesisCard.vue'
 import RestitutionHeader from '@/Components/RestitutionHeader.vue'
 import ResultPanel from '@/Components/ResultPanel.vue'
+import ResultPdfButton from '@/Components/ResultPdfButton.vue'
 
 const props = defineProps({
     attempt:        Object,
@@ -546,9 +547,7 @@ const globalProgress = computed(() => Math.round((props.journeyDays.length / 60)
                  ACTIONS
             ══════════════════════════════════════════════ -->
             <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
-                <a :href="route('results.pdf', attempt.id)" class="pt-btn-primary">
-                    Télécharger mes résultats PDF
-                </a>
+                <ResultPdfButton :attempt-id="attempt.id" />
                 <a :href="route('tests.index')"
                    class="text-sm font-medium"
                    style="color: var(--pt-navy)">

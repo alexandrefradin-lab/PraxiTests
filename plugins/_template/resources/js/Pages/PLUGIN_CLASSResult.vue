@@ -18,6 +18,7 @@ import ScoreGauge from '@/Components/ScoreGauge.vue'
 import SynthesisCard from '@/Components/SynthesisCard.vue'
 import JobCard from '@/Components/JobCard.vue'
 import RestitutionHeader from '@/Components/RestitutionHeader.vue'
+import ResultPdfButton from '@/Components/ResultPdfButton.vue'
 
 const props = defineProps({
     attempt: Object,
@@ -138,9 +139,7 @@ const barWidth = (dimKey) => {
 
             <!-- Actions -->
             <div style="display:flex;gap:.75rem;justify-content:center;margin-top:2rem;flex-wrap:wrap">
-                <a :href="route('results.pdf', attempt.id)" class="pt-btn-ghost">
-                    Télécharger en PDF
-                </a>
+                <ResultPdfButton :attempt-id="attempt.id" />
                 <Link :href="route('tests.index')" class="pt-btn-ghost">
                     Voir les autres tests
                 </Link>

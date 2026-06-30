@@ -6,6 +6,7 @@ import RadarChart from '@/Components/RadarChart.vue'
 import MarkdownText from '@/Components/MarkdownText.vue'
 import RestitutionHeader from '@/Components/RestitutionHeader.vue'
 import ResultPanel from '@/Components/ResultPanel.vue'
+import ResultPdfButton from '@/Components/ResultPdfButton.vue'
 
 const props = defineProps({
     attempt:              Object,
@@ -532,12 +533,7 @@ const gridRows = computed(() => {
 
             <!-- Actions ──────────────────────────────────────────────── -->
             <div class="flex flex-wrap gap-4 justify-center mt-8 mb-12">
-                <a
-                    :href="route('results.pdf', attempt.id)"
-                    class="pt-btn-primary"
-                >
-                    Télécharger mon bilan PDF
-                </a>
+                <ResultPdfButton :attempt-id="attempt.id" />
             </div>
 
         </div>

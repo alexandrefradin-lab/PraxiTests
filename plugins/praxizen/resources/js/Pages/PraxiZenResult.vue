@@ -7,6 +7,7 @@ import SynthesisCard from '@/Components/SynthesisCard.vue'
 import Disclaimer from '@/Components/Disclaimer.vue'
 import RestitutionHeader from '@/Components/RestitutionHeader.vue'
 import ResultPanel from '@/Components/ResultPanel.vue'
+import ResultPdfButton from '@/Components/ResultPdfButton.vue'
 
 const props = defineProps({
     attempt:         Object,
@@ -615,9 +616,7 @@ const phaseLabel = (key) => PHASES[key]?.label ?? key
 
             <!-- ── Actions ─────────────────────────────────────────────── -->
             <div class="flex flex-wrap gap-4 justify-center mt-10">
-                <a :href="route('results.pdf', attempt.id)" class="pt-btn-primary">
-                    Télécharger mon bilan PDF
-                </a>
+                <ResultPdfButton :attempt-id="attempt.id" />
             </div>
 
         </div>

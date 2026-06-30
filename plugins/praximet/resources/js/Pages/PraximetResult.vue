@@ -6,6 +6,7 @@ import RadarChart from '@/Components/RadarChart.vue'
 import JobCard from '@/Components/JobCard.vue'
 import RestitutionHeader from '@/Components/RestitutionHeader.vue'
 import ResultPanel from '@/Components/ResultPanel.vue'
+import ResultPdfButton from '@/Components/ResultPdfButton.vue'
 
 const props = defineProps({
     attempt:      Object,
@@ -90,9 +91,7 @@ const radarAxes = computed(() =>
                 </div>
             </section>
 
-            <div class="text-center mt-12">
-                <a :href="route('results.pdf', attempt.id)" class="pt-btn-ghost">Télécharger en PDF</a>
-            </div>
+            <ResultPdfButton :attempt-id="attempt.id" />
         </div>
     </CandidateLayout>
 </template>

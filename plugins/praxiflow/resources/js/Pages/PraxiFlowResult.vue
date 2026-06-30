@@ -6,6 +6,7 @@ import RadarChart from '@/Components/RadarChart.vue'
 import MarkdownText from '@/Components/MarkdownText.vue'
 import RestitutionHeader from '@/Components/RestitutionHeader.vue'
 import ResultPanel from '@/Components/ResultPanel.vue'
+import ResultPdfButton from '@/Components/ResultPdfButton.vue'
 
 const props = defineProps({ attempt: Object, result: Object })
 const scoring   = computed(() => props.result?.scoring ?? {})
@@ -514,11 +515,7 @@ const allExercises = computed(() => {
             <!-- ══════════════════════════════════════════════════
                  FOOTER
             ══════════════════════════════════════════════════ -->
-            <div style="text-align: center; margin-top: 3rem; padding-bottom: 2rem;">
-                <a :href="route('results.pdf', attempt.id)" class="pt-btn-ghost">
-                    Télécharger en PDF
-                </a>
-            </div>
+            <ResultPdfButton :attempt-id="attempt.id" />
 
         </div>
     </CandidateLayout>

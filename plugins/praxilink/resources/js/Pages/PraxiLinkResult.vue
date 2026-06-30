@@ -333,9 +333,7 @@
         <button class="pt-btn-primary" @click="retakeTest">
           Refaire le test
         </button>
-        <a :href="route('results.pdf', attempt.id)" class="pt-btn-secondary">
-          Télécharger en PDF
-        </a>
+        <ResultPdfButton :attempt-id="attempt.id" />
         <button class="pt-btn-secondary" @click="goToDashboard">
           Retour au tableau de bord
         </button>
@@ -354,6 +352,7 @@ import RadarChart from '@/Components/RadarChart.vue'
 import MarkdownText from '@/Components/MarkdownText.vue'
 import RestitutionHeader from '@/Components/RestitutionHeader.vue'
 import ResultPanel from '@/Components/ResultPanel.vue'
+import ResultPdfButton from '@/Components/ResultPdfButton.vue'
 
 // ─────────────────────────────────────────────
 // Props

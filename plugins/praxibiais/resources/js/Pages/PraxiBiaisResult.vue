@@ -10,6 +10,7 @@ import { computed, ref } from 'vue'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import SynthesisCard from '@/Components/SynthesisCard.vue'
 import RestitutionHeader from '@/Components/RestitutionHeader.vue'
+import ResultPdfButton from '@/Components/ResultPdfButton.vue'
 
 const props = defineProps({
     attempt: Object,
@@ -383,6 +384,8 @@ const profileEmoji = computed(() => ({
 
             <!-- ── SYNTHÈSE IA ──────────────────────────────────────────────── -->
             <SynthesisCard :attempt="attempt" :result="result" />
+
+            <ResultPdfButton :attempt-id="attempt.id" />
 
         </div>
     </CandidateLayout>
