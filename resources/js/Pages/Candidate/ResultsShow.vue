@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, onMounted, onBeforeUnmount, watch } from 'vue'
+import { ref, reactive, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { Head } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import MarkdownText from '@/Components/MarkdownText.vue'
@@ -78,6 +78,41 @@ function dimDef(key) {
     return dimMeta(key)?.description
         || "Cette dimension mesure une facette de ton profil. Plus la barre est remplie, plus elle te caractérise."
 }
+
+// ── Radar « Constellation des Talents » ─────────────────────────────────
+// Construit les coordonnées SVG des dimensions. Réactif sur animatedDims :
+// l'aire grandit pendant le count-up. Affiché seulement à partir de 3 axes.
+const radar = computed(() => {
+    const dims = props.result?.scoring?.dimensions
+    if (!dims) return null
+    const keys = Object.keys(dims)
+    const n = keys.length
+    if (n < 3) return null
+    const cx = 130, cy = 130, R = 88
+    const axes = keys.map((key, i) => {
+        const ang = -Math.PI / 2 + i * (2 * Math.PI / n)
+        const val = Math.max(0, Math.min(100, animatedDims[key] ?? 0)) / 100
+        const cos = Math.cos(ang), sin = Math.sin(ang)
+        return {
+            key,
+            label: dimLabel(key),
+            ax: cx + cos * R, ay: cy + sin * R,
+            vx: +(cx + cos * R * val).toFixed(1), vy: +(cy + sin * R * val).toFixed(1),
+            lx: +(cx + cos * (R + 16)).toFixed(1), ly: +(cy + sin * (R + 16) + 3).toFixed(1),
+            anchor: Math.abs(cos) < 0.3 ? 'middle' : (cos > 0 ? 'start' : 'end'),
+        }
+    })
+    const ring = (f) => keys.map((key, i) => {
+        const ang = -Math.PI / 2 + i * (2 * Math.PI / n)
+        return `${(cx + Math.cos(ang) * R * f).toFixed(1)},${(cy + Math.sin(ang) * R * f).toFixed(1)}`
+    }).join(' ')
+    return {
+        cx, cy,
+        axes,
+        rings: [0.33, 0.66, 1].map(ring),
+        areaPoints: axes.map(a => `${a.vx},${a.vy}`).join(' '),
+    }
+})
 
 // Watch réactif : déclenche le reveal dès que ai_synthesis arrive (SPA + polling).
 watch(() => props.result?.ai_synthesis, (val) => {
@@ -209,6 +244,28 @@ onMounted(() => {
                 <section v-if="result.scoring?.dimensions" class="ac-card ac-reveal-item" style="animation-delay: 0.45s">
                     <h2 class="ac-card-title">Tes Dimensions</h2>
                     <p class="ac-card-hint">Clique sur une dimension pour découvrir ce qu'elle mesure.</p>
+
+                    <!-- Radar « Constellation des Talents » -->
+                    <div v-if="radar" class="ac-radar-wrap">
+                        <svg viewBox="0 0 260 260" class="ac-radar" role="img" aria-label="Radar de tes dimensions">
+                            <!-- toiles concentriques -->
+                            <polygon v-for="(r, ri) in radar.rings" :key="'r' + ri" :points="r"
+                                     fill="none" stroke="var(--color-primary)" stroke-opacity="0.16" />
+                            <!-- rayons -->
+                            <line v-for="a in radar.axes" :key="'l' + a.key" :x1="radar.cx" :y1="radar.cy" :x2="a.ax" :y2="a.ay"
+                                  stroke="var(--color-primary)" stroke-opacity="0.13" />
+                            <!-- aire des scores -->
+                            <polygon :points="radar.areaPoints" fill="var(--color-primary)" fill-opacity="0.20"
+                                     stroke="var(--color-primary)" stroke-width="2" stroke-linejoin="round" />
+                            <!-- étoiles aux sommets -->
+                            <circle v-for="a in radar.axes" :key="'c' + a.key" :cx="a.vx" :cy="a.vy" r="3"
+                                    fill="var(--color-primary-light)" />
+                            <!-- libellés -->
+                            <text v-for="a in radar.axes" :key="'t' + a.key" :x="a.lx" :y="a.ly"
+                                  :text-anchor="a.anchor" class="ac-radar-label">{{ a.label }}</text>
+                        </svg>
+                    </div>
+
                     <div class="ac-dimensions">
                         <div
                             v-for="(dimValue, key, index) in result.scoring.dimensions"
@@ -263,6 +320,7 @@ onMounted(() => {
     --bg-elevated:       #D8CEB5;
     --color-primary:     #A67520;
     --color-primary-dark:#7D5510;
+    --color-primary-light:#C99030;
     --color-secondary:   #7B1515;
     --color-accent:      #1C1408;
     --color-success:     #3A6B48;
@@ -536,6 +594,27 @@ onMounted(() => {
     color: var(--text-secondary);
     margin: -1rem 0 1.25rem;
     letter-spacing: 0.02em;
+}
+
+/* ── Radar Constellation ── */
+.ac-radar-wrap {
+    display: flex;
+    justify-content: center;
+    margin: 0.25rem 0 1.75rem;
+}
+.ac-radar {
+    width: 100%;
+    max-width: 320px;
+    height: auto;
+    overflow: visible;
+}
+.ac-radar polygon[fill^="var(--color-primary)"] {
+    transition: all 0.3s ease;
+}
+.ac-radar-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 8.5px;
+    fill: var(--text-secondary);
 }
 
 .ac-dimension-row {}

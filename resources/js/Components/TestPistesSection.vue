@@ -171,6 +171,20 @@ const ptp        = computed(() => props.pistes.filter(p => p.tier === 'ptp'))
     gap: 1rem;
 }
 
+/* Révélation séquencée des cartes-trésor */
+.tps-grid > * { animation: tps-rise .5s ease-out both; }
+.tps-grid > *:nth-child(1) { animation-delay: .04s; }
+.tps-grid > *:nth-child(2) { animation-delay: .10s; }
+.tps-grid > *:nth-child(3) { animation-delay: .16s; }
+.tps-grid > *:nth-child(4) { animation-delay: .22s; }
+.tps-grid > *:nth-child(5) { animation-delay: .28s; }
+.tps-grid > *:nth-child(6) { animation-delay: .34s; }
+.tps-grid > *:nth-child(n+7) { animation-delay: .40s; }
+@keyframes tps-rise {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
 /* ── Disclaimer ──────────────────────────── */
 .tps-disclaimer {
     font-family: 'Inter', sans-serif;

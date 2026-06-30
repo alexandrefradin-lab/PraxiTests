@@ -107,6 +107,24 @@ watch(mobileOpen, (open) => {
 const user = computed(() => page.props.auth?.user)
 const branding = computed(() => page.props.branding ?? { name: 'PraxiQuest', tagline: 'Évaluer. Orienter. Transformer.' })
 const xpProgress = computed(() => page.props.gamification?.xp_progress ?? 0)
+const xpTotal = computed(() => page.props.gamification?.xp_total ?? 0)
+const level = computed(() => page.props.gamification?.level ?? 1)
+const levelName = computed(() => page.props.gamification?.level_name ?? `Niveau ${level.value}`)
+
+// ─── Animation « +N ✦ » quand l'XP total augmente ──────────────────────────
+const xpGain = ref(0)
+const showXpGain = ref(false)
+let xpGainTimeout = null
+let prevXp = null
+watch(xpTotal, (val) => {
+    if (prevXp !== null && val > prevXp) {
+        xpGain.value = val - prevXp
+        showXpGain.value = true
+        clearTimeout(xpGainTimeout)
+        xpGainTimeout = setTimeout(() => { showXpGain.value = false }, 2200)
+    }
+    if (val != null) prevXp = val
+}, { immediate: true })
 
 function isActive(path) {
     return page.url === path || page.url.startsWith(path + '/')
@@ -243,6 +261,21 @@ watch(() => page.props.gamification?.level, (newLevel) => {
                         <span v-if="hasNewTreasure && !isActive('/treasure')" class="tresor-dot" aria-label="Nouveau trésor débloqué"></span>
                     </Link>
 
+                    <!-- Écu de rang du héros -->
+                    <div class="cand-rank" :title="`${levelName} · Niveau ${level} · ${xpTotal} éclats`">
+                        <div class="cand-rank-shield">
+                            <svg width="32" height="32" viewBox="0 0 30 30" aria-hidden="true">
+                                <polygon points="15,2 26,8.5 26,21.5 15,28 4,21.5 4,8.5" fill="var(--color-accent)" stroke="var(--color-primary)" stroke-width="1"/>
+                                <polygon points="15,5 23,9.5 23,20.5 15,25 7,20.5 7,9.5" fill="none" stroke="var(--color-primary)" stroke-width="0.4" opacity="0.4"/>
+                            </svg>
+                            <span class="cand-rank-lvl">{{ level }}</span>
+                        </div>
+                        <div class="cand-rank-txt">
+                            <span class="cand-rank-name">{{ levelName }}</span>
+                            <span class="cand-rank-sub">{{ xpTotal }} ✦</span>
+                        </div>
+                    </div>
+
                     <div style="width: 1px; height: 20px; background: var(--border-mid); margin: 0 8px"></div>
 
                     <!-- User zone -->
@@ -277,7 +310,7 @@ watch(() => page.props.gamification?.level, (newLevel) => {
                                 <div v-if="userMenuOpen" class="cand-user-menu" role="menu">
                                     <div class="cand-user-menu-header">
                                         <div style="font-size: 12px; font-weight: 600; color: var(--text-primary); font-family: var(--font-display);">{{ user.name }}</div>
-                                        <div style="font-size: 10px; color: var(--color-primary); font-family: var(--font-data); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 2px;">Héros de la Quête</div>
+                                        <div style="font-size: 10px; color: var(--color-primary); font-family: var(--font-data); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 2px;">Niv. {{ level }} · {{ levelName }}</div>
                                     </div>
                                     <div class="cand-user-menu-divider"></div>
                                     <Link :href="route('profile.edit')" class="cand-user-menu-item" role="menuitem" @click="closeUserMenu">
@@ -320,8 +353,11 @@ watch(() => page.props.gamification?.level, (newLevel) => {
         </header>
 
         <!-- Barre XP (fine, sans label) -->
-        <div v-if="user" class="xp-bar">
+        <div v-if="user" class="xp-bar" style="position: relative">
             <div class="xp-bar__fill" :style="{ width: xpProgress + '%' }"></div>
+            <Transition name="pt-xpgain">
+                <span v-if="showXpGain" class="xp-gain">+{{ xpGain }} ✦</span>
+            </Transition>
         </div>
 
         <!-- Body -->
@@ -417,7 +453,7 @@ watch(() => page.props.gamification?.level, (newLevel) => {
                             </div>
                             <div>
                                 <div style="font-size:14px;font-weight:600;color:var(--text-primary);font-family:var(--font-display);line-height:1.2;">{{ user.name }}</div>
-                                <div style="font-size:10px;color:var(--color-primary);font-family:var(--font-data);letter-spacing:0.1em;text-transform:uppercase;margin-top:2px;">Héros de la Quête</div>
+                                <div style="font-size:10px;color:var(--color-primary);font-family:var(--font-data);letter-spacing:0.1em;text-transform:uppercase;margin-top:2px;">Niv. {{ level }} · {{ levelName }}</div>
                             </div>
                         </div>
                         <button class="cand-drawer-close" @click="mobileOpen = false" aria-label="Fermer le menu">
@@ -631,6 +667,89 @@ watch(() => page.props.gamification?.level, (newLevel) => {
     display: flex;
     align-items: center;
     gap: 4px;
+}
+
+/* ── Écu de rang ── */
+.cand-rank {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 3px 12px 3px 4px;
+    border: 1px solid var(--border-mid);
+    border-radius: 999px;
+    background: rgba(166, 117, 32, 0.06);
+    margin-left: 4px;
+}
+.cand-rank-shield {
+    position: relative;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+}
+.cand-rank-lvl {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-data);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--color-primary);
+    line-height: 1;
+    user-select: none;
+}
+.cand-rank-txt {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.15;
+}
+.cand-rank-name {
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+}
+.cand-rank-sub {
+    font-family: var(--font-data);
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    color: var(--color-primary);
+}
+
+/* ── Gain d'XP flottant ── */
+.xp-gain {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: var(--font-data);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--color-primary-dark);
+    text-shadow: 0 1px 2px rgba(240, 232, 212, 0.8);
+    pointer-events: none;
+    white-space: nowrap;
+}
+.pt-xpgain-enter-active {
+    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.pt-xpgain-leave-active {
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.pt-xpgain-enter-from {
+    opacity: 0;
+    transform: translateY(2px) scale(0.85);
+}
+.pt-xpgain-leave-to {
+    opacity: 0;
+    transform: translateY(-14px);
+}
+
+/* Masquer l'écu de rang sur petits écrans étroits (avant le burger) */
+@media (max-width: 960px) {
+    .cand-rank-txt { display: none; }
 }
 
 /* ── Burger ── */

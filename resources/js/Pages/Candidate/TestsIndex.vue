@@ -132,7 +132,7 @@ function emblem(slug) {
             <div
                 v-for="test in tests"
                 :key="test.id"
-                class="pt-card p-6 flex flex-col transition-all duration-200 group"
+                class="pt-card ac-card-ornate p-6 flex flex-col transition-all duration-200 group"
                 :style="{ cursor: profile_complete ? 'pointer' : 'default' }"
                 @click="goToTest(test)"
             >

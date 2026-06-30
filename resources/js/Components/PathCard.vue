@@ -105,13 +105,35 @@ const salary = computed(() => {
 
 <style scoped>
 .path-card {
-    border: .5px solid var(--pt-border, rgba(166,117,32,0.2));
+    position: relative;
+    border: 1px solid var(--pt-border, rgba(166,117,32,0.2));
     border-radius: 12px;
-    padding: 1rem 1.1rem;
-    background: var(--pt-surface, #fff);
+    padding: 1.1rem 1.15rem;
     display: flex;
     flex-direction: column;
     gap: .7rem;
+    background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14'%3E%3Cpath d='M1 5V1h4' stroke='%23A67520' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14'%3E%3Cpath d='M9 1h4v4' stroke='%23A67520' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14'%3E%3Cpath d='M1 9v4h4' stroke='%23A67520' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14'%3E%3Cpath d='M13 9v4h-4' stroke='%23A67520' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"),
+        linear-gradient(180deg, var(--bg-base, #F0E8D4), var(--pt-surface, #E5DAC2));
+    background-position: 7px 7px, right 7px top 7px, left 7px bottom 7px, right 7px bottom 7px, center;
+    background-size: 13px 13px, 13px 13px, 13px 13px, 13px 13px, cover;
+    background-repeat: no-repeat;
+    box-shadow:
+        0 2px 4px rgba(42,30,8,0.06),
+        0 8px 18px rgba(42,30,8,0.09),
+        inset 0 1px 0 rgba(255,255,255,0.4);
+    transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+}
+.path-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--pt-gold-border, rgba(166,117,32,0.5));
+    box-shadow:
+        0 4px 8px rgba(42,30,8,0.08),
+        0 16px 30px rgba(166,117,32,0.18),
+        inset 0 1px 0 rgba(255,255,255,0.45);
 }
 .path-card__head { display: flex; align-items: flex-start; justify-content: space-between; gap: .75rem; }
 .path-card__title { font-size: 15px; font-weight: 600; color: var(--pt-navy, #2A1E08); margin: 0; }
