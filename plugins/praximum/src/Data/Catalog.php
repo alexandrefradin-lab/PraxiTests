@@ -54,7 +54,7 @@ class Catalog
             'A6_SEN' => ['label' => 'Sensibilité',            'dim' => 'A', 'court' => "Compassion, attention aux besoins des autres."],
             'N1_ANX' => ['label' => 'Anxiété',                'dim' => 'N', 'court' => "Tendance à l'inquiétude et à la nervosité."],
             'N2_HOS' => ['label' => 'Hostilité',              'dim' => 'N', 'court' => "Propension à la colère et à la frustration."],
-            'N3_DEP' => ['label' => 'Dépression',             'dim' => 'N', 'court' => "Tendance au découragement et à la tristesse."],
+            'N3_DEP' => ['label' => 'Mélancolie',             'dim' => 'N', 'court' => "Tendance au découragement et à la tristesse."],
             'N4_CON' => ['label' => 'Conscience de soi',      'dim' => 'N', 'court' => "Gêne sociale, sensibilité au jugement."],
             'N5_IMP' => ['label' => 'Impulsivité',            'dim' => 'N', 'court' => "Difficulté à résister aux envies immédiates."],
             'N6_VUL' => ['label' => 'Vulnérabilité',          'dim' => 'N', 'court' => "Sensibilité au stress sous pression."],

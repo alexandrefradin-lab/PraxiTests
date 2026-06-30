@@ -98,11 +98,17 @@ const FACET_DEF = {
     N6_VUL: "Sensibilité au stress sous pression.",
 }
 
+// Surcharge de libellés (formulations plus douces) — s'applique aussi aux
+// résultats déjà stockés avec l'ancien label.
+const FACET_LABEL = {
+    N3_DEP: 'Mélancolie',
+}
+
 const facettesByDim = computed(() => {
     const out = {}
     Object.entries(metaFac.value).forEach(([fk, info]) => {
         if (!out[info.dim]) out[info.dim] = []
-        out[info.dim].push({ key: fk, label: info.label, court: info.court ?? FACET_DEF[fk] ?? '', ...(facettes.value[fk] ?? {}) })
+        out[info.dim].push({ key: fk, label: FACET_LABEL[fk] ?? info.label, court: info.court ?? FACET_DEF[fk] ?? '', ...(facettes.value[fk] ?? {}) })
     })
     return out
 })
