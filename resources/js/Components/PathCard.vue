@@ -2,11 +2,13 @@
 /**
  * PathCard — carte d'une piste métier dynamique (PTP).
  *
- * Affiche le fit (tests), le bloc marché (indicatif), l'écart de formation et
- * l'action de déblocage. Données fournies par PtpPathService (back).
+ * Affiche le fit (tests), le bloc marché (indicatif), l'écart de formation,
+ * l'action de déblocage ET le plan d'action IA (accordéon via PathPlanPanel).
+ * Données fournies par PtpPathService (back).
  * Voir PLAN-PISTES-DYNAMIQUES-PTP.md.
  */
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import PathPlanPanel from '@/Components/PathPlanPanel.vue'
 
 const props = defineProps({
     // Objet « piste » = ProfilePathMatch fusionné avec son CareerPath.
@@ -14,6 +16,9 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['unlock'])
+
+// Accordéon plan d'action
+const planOpen = ref(false)
 
 const demandLabel = {
     faible: 'Peu de tension',
@@ -82,6 +87,19 @@ const salary = computed(() => {
             </button>
             <span v-else-if="path.unlocked" class="path-card__unlocked">✓ Acquis déclaré</span>
         </footer>
+
+        <!-- Bouton plan d'action -->
+        <button type="button" class="path-card__plan-btn" @click="planOpen = !planOpen">
+            <span>{{ planOpen ? '▲' : '▼' }}</span>
+            {{ planOpen ? 'Masquer le plan' : 'Mon plan d\'action' }}
+        </button>
+
+        <!-- Panel plan d'action (accordéon) -->
+        <PathPlanPanel
+            :career-path-slug="path.slug"
+            :career-path-id="path.id ?? null"
+            :open="planOpen"
+        />
     </article>
 </template>
 
@@ -128,4 +146,25 @@ const salary = computed(() => {
 }
 .path-card__unlock:hover { background: var(--pt-gold-pale, #F5E6C8); }
 .path-card__unlocked { font-size: 12px; font-weight: 500; color: #3A6B48; }
+
+/* Bouton plan d'action */
+.path-card__plan-btn {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--pt-navy, #2A1E08);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    width: fit-content;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-color: var(--pt-gold-border, rgba(166,117,32,0.4));
+    transition: color .15s;
+}
+.path-card__plan-btn:hover { color: var(--pt-gold-hover, #A67520); }
+.path-card__plan-btn span { font-size: 10px; }
 </style>

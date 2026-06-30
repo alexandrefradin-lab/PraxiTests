@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Candidate\AttemptController;
+use App\Http\Controllers\Candidate\PathPlanController;
 use App\Http\Controllers\Candidate\DailyTipController;
 use App\Http\Controllers\Candidate\GrimoireController;
 use App\Http\Controllers\Candidate\JourneyController;
@@ -76,6 +77,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Déclaration d'une formation visée/acquise pour une piste (déblocage déclaratif PTP)
     Route::post('/grimoire/piste/{pathMatch}/declare', [GrimoireController::class, 'declarePiste'])
         ->middleware('throttle:30,1')->name('grimoire.piste.declare');
+
+    // Plans d'action IA par piste métier (Haiku, throttlé — coût IA)
+    Route::get('/career-path/{careerPath:slug}/plan',  [PathPlanController::class, 'show'])->name('path-plan.show');
+    Route::post('/career-path/{careerPath:slug}/plan', [PathPlanController::class, 'generate'])
+        ->middleware('throttle:5,1')->name('path-plan.generate');
 
     // L'Oracle — chat IA d'orientation (widget flottant). Envoi rate-limité (coût IA).
     Route::get('/oracle/messages',       [OracleController::class, 'history'])->name('oracle.history');

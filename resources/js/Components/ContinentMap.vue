@@ -18,36 +18,36 @@ const NODES = [
     { slug: 'praxilink',           x: 552, y: 160, label: 'Liens' },
     { slug: 'praxizen',            x: 348, y: 160, label: 'Refuge' },
     { slug: 'praxitempo',          x: 348, y: 96,  label: 'Maître du Temps' },
-    { slug: 'praxiflow',           x: 450, y: 122, label: 'Flux · Cœur' },
+    { slug: 'praxiflow',           x: 450, y: 122, label: 'Flux · Cœur', center: true },
     { slug: 'praxiboost',          x: 450, y: 183, label: 'Éclat' },
 ]
 
 const EDGES = [
-    ['orientation-express', 'praximet'],
-    ['praximet',  'praximum'],
-    ['praximum',  'praxis360'],
-    ['praxis360', 'praxiemo'],
-    ['praxiemo',  'praxicare'],
-    ['praxicare', 'praxiself'],
-    ['praxiself', 'praxispeak'],
+    ['orientation-express','praximet'],
+    ['praximet','praximum'],
+    ['praximum','praxis360'],
+    ['praxis360','praxiemo'],
+    ['praxiemo','praxicare'],
+    ['praxicare','praxiself'],
+    ['praxiself','praxispeak'],
     ['praxispeak','orientation-express'],
-    ['orientation-express', 'praxivaleurs'],
-    ['praximet',   'praxivaleurs'],
-    ['praximum',   'praxilink'],
-    ['praxis360',  'praxilink'],
-    ['praxiemo',   'praxiboost'],
-    ['praxicare',  'praxiboost'],
-    ['praxiself',  'praxizen'],
-    ['praxispeak', 'praxitempo'],
+    ['orientation-express','praxivaleurs'],
+    ['praximet','praxivaleurs'],
+    ['praximum','praxilink'],
+    ['praxis360','praxilink'],
+    ['praxiemo','praxiboost'],
+    ['praxicare','praxiboost'],
+    ['praxiself','praxizen'],
+    ['praxispeak','praxitempo'],
     ['praxivaleurs','praxilink'],
-    ['praxizen',    'praxiboost'],
-    ['praxitempo',  'praxizen'],
-    ['praxiflow', 'praxivaleurs'],
-    ['praxiflow', 'praxitempo'],
-    ['praxiflow', 'praxilink'],
-    ['praxiflow', 'praxizen'],
-    ['praxiflow', 'praxiboost'],
-    ['praxiflow', 'orientation-express'],
+    ['praxizen','praxiboost'],
+    ['praxitempo','praxizen'],
+    ['praxiflow','praxivaleurs'],
+    ['praxiflow','praxitempo'],
+    ['praxiflow','praxilink'],
+    ['praxiflow','praxizen'],
+    ['praxiflow','praxiboost'],
+    ['praxiflow','orientation-express'],
 ]
 
 const ICONS = {
@@ -68,6 +68,7 @@ const ICONS = {
 }
 const FALLBACK = '<path d="M12 3l7 3v5c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V6z"/>'
 
+// ── Computed maps ─────────────────────────────────────────────────────────────
 const testMap = computed(() => {
     const m = {}
     props.tests.forEach(t => { m[t.slug] = t })
@@ -79,37 +80,55 @@ const nodeMap = computed(() => {
     return m
 })
 
-// Seuls les nœuds ayant un test actif sont affichés
-const visibleNodes = computed(() => NODES.filter(n => testMap.value[n.slug]))
-
-function isCompleted(slug) {
+const isCompleted = (slug) => {
     const t = testMap.value[slug]
     return !!(t && (t.completed_at || t.completed))
 }
+const isActive = (slug) => !!testMap.value[slug]
 
+// Nœuds avec leurs propriétés de rendu précalculées
+const displayNodes = computed(() =>
+    NODES
+        .filter(n => isActive(n.slug))
+        .map(n => ({
+            ...n,
+            done:   isCompleted(n.slug),
+            r:      n.center ? 20 : 17,
+            rPulse: n.center ? 27 : 24,
+        }))
+)
+
+// Arêtes entre nœuds actifs uniquement
+const displayEdges = computed(() =>
+    EDGES
+        .filter(([a, b]) => isActive(a) && isActive(b))
+        .map(([a, b]) => ({
+            x1: nodeMap.value[a].x, y1: nodeMap.value[a].y,
+            x2: nodeMap.value[b].x, y2: nodeMap.value[b].y,
+            done: isCompleted(a) && isCompleted(b),
+        }))
+)
+
+// Progression
 const completedCount = computed(() =>
     props.tests.filter(t => t.completed_at || t.completed).length
 )
-const explorationPct = computed(() => {
-    if (!props.tests.length) return 0
-    return Math.round(completedCount.value / props.tests.length * 100)
-})
+const explorationPct = computed(() =>
+    props.tests.length ? Math.round(completedCount.value / props.tests.length * 100) : 0
+)
 
 // Tooltip
-const tooltip = ref(null) // { x, y, label, done }
-function showTip(node) {
-    const done = isCompleted(node.slug)
-    tooltip.value = { x: node.x, y: node.y - 32, label: node.label, done }
-}
-function hideTip() { tooltip.value = null }
+const hovered = ref(null)
 </script>
 
 <template>
     <div class="cm-wrap">
-        <!-- Header -->
+
+        <!-- ── Header ── -->
         <div class="cm-header">
             <div class="cm-title">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" aria-hidden="true">
                     <circle cx="12" cy="12" r="9"/>
                     <polygon points="12,6 14,12 12,18 10,12" fill="currentColor"/>
                 </svg>
@@ -117,268 +136,318 @@ function hideTip() { tooltip.value = null }
             </div>
             <div class="cm-right">
                 <span class="cm-count">{{ completedCount }}/{{ tests.length }} épreuves</span>
-                <div class="cm-bar"><div class="cm-fill" :style="{ width: explorationPct + '%' }"></div></div>
+                <div class="cm-bar">
+                    <div class="cm-fill" :style="{ width: explorationPct + '%' }"></div>
+                </div>
                 <span class="cm-pct">{{ explorationPct }}%</span>
             </div>
         </div>
 
-        <!-- Map -->
+        <!-- ── SVG Map ── -->
         <div class="cm-body">
-            <svg viewBox="0 0 900 250" xmlns="http://www.w3.org/2000/svg" class="cm-svg"
-                 role="img" aria-label="Carte de tes épreuves et de ta progression">
+            <svg viewBox="0 0 900 250" xmlns="http://www.w3.org/2000/svg"
+                 class="cm-svg" role="img" aria-label="Carte de tes épreuves">
 
                 <defs>
-                    <!-- Dot-grid parchemin -->
-                    <pattern id="cmgrid" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
-                        <circle cx="15" cy="15" r="0.7" fill="#8B6914" opacity="0.1"/>
+                    <!-- Grille de points parchemin -->
+                    <pattern id="cmpx" x="0" y="0" width="30" height="30"
+                             patternUnits="userSpaceOnUse">
+                        <circle cx="15" cy="15" r="0.65" fill="#8B6914" opacity="0.09"/>
                     </pattern>
-                    <!-- Topographic faint lines -->
-                    <pattern id="cmtopo" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse">
-                        <ellipse cx="40" cy="40" rx="35" ry="20" fill="none" stroke="#8B6914" stroke-width="0.4" opacity="0.06"/>
-                        <ellipse cx="40" cy="40" rx="22" ry="12" fill="none" stroke="#8B6914" stroke-width="0.4" opacity="0.06"/>
+                    <!-- Lignes topographiques subtiles -->
+                    <pattern id="cmtopo" x="0" y="0" width="90" height="60"
+                             patternUnits="userSpaceOnUse">
+                        <ellipse cx="45" cy="30" rx="40" ry="24"
+                                 fill="none" stroke="#8B6914" stroke-width="0.35" opacity="0.055"/>
+                        <ellipse cx="45" cy="30" rx="25" ry="14"
+                                 fill="none" stroke="#8B6914" stroke-width="0.35" opacity="0.055"/>
                     </pattern>
-                    <!-- Glow filter pour nœuds accomplis -->
-                    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-                        <feGaussianBlur stdDeviation="3" result="blur"/>
-                        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                    <!-- Filtre glow pour nœuds accomplis -->
+                    <filter id="cmglow" x="-60%" y="-60%" width="220%" height="220%">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur"/>
+                        <feMerge>
+                            <feMergeNode in="blur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
                     </filter>
-                    <!-- Vignette bord seulement -->
+                    <!-- Vignette douce sur les bords uniquement -->
                     <radialGradient id="cmvign" cx="50%" cy="50%" r="50%">
-                        <stop offset="70%" stop-color="transparent" stop-opacity="0"/>
-                        <stop offset="100%" stop-color="#E8DFC0" stop-opacity="0.5"/>
+                        <stop offset="62%" stop-color="transparent" stop-opacity="0"/>
+                        <stop offset="100%" stop-color="#DDD4A8" stop-opacity="0.4"/>
                     </radialGradient>
                 </defs>
 
                 <!-- Fond parchemin -->
                 <rect width="900" height="250" fill="#FAF6EB"/>
                 <rect width="900" height="250" fill="url(#cmtopo)"/>
-                <rect width="900" height="250" fill="url(#cmgrid)"/>
+                <rect width="900" height="250" fill="url(#cmpx)"/>
 
-                <!-- Anneaux orbitaux légers -->
-                <ellipse cx="450" cy="126" rx="220" ry="102" fill="none" stroke="#8B6914" stroke-width="0.5" opacity="0.12" stroke-dasharray="8 16"/>
-                <ellipse cx="450" cy="126" rx="122"  ry="57"  fill="none" stroke="#8B6914" stroke-width="0.4" opacity="0.09" stroke-dasharray="6 12"/>
-                <circle  cx="450" cy="126" r="42"    fill="none" stroke="#8B6914" stroke-width="0.5" opacity="0.16"/>
+                <!-- Anneaux orbitaux -->
+                <ellipse cx="450" cy="126" rx="222" ry="103"
+                         fill="none" stroke="#8B6914" stroke-width="0.5"
+                         opacity="0.11" stroke-dasharray="9 18"/>
+                <ellipse cx="450" cy="126" rx="123" ry="58"
+                         fill="none" stroke="#8B6914" stroke-width="0.45"
+                         opacity="0.09" stroke-dasharray="6 12"/>
+                <circle  cx="450" cy="126" r="43"
+                         fill="none" stroke="#8B6914" stroke-width="0.5" opacity="0.16"/>
 
-                <!-- Arêtes -->
+                <!-- ── Arêtes ── -->
                 <g>
-                    <template v-for="([a, b], i) in EDGES" :key="i">
-                        <!-- Arête animée si les deux nœuds sont accomplis -->
-                        <line v-if="isCompleted(a) && isCompleted(b)"
-                              :x1="nodeMap[a]?.x" :y1="nodeMap[a]?.y"
-                              :x2="nodeMap[b]?.x" :y2="nodeMap[b]?.y"
-                              stroke="#C4860A" stroke-width="1.4" opacity="0.45"
-                              stroke-dasharray="5 6"
-                              class="edge-flow"/>
-                        <!-- Arête statique sinon (si les deux nœuds sont visibles) -->
-                        <line v-else-if="testMap[a] && testMap[b]"
-                              :x1="nodeMap[a]?.x" :y1="nodeMap[a]?.y"
-                              :x2="nodeMap[b]?.x" :y2="nodeMap[b]?.y"
-                              stroke="#8B6914" stroke-width="0.8" opacity="0.2"
-                              stroke-dasharray="4 7"/>
-                    </template>
+                    <line
+                        v-for="(edge, i) in displayEdges"
+                        :key="i"
+                        :x1="edge.x1" :y1="edge.y1"
+                        :x2="edge.x2" :y2="edge.y2"
+                        :stroke="edge.done ? '#C4860A' : '#8B6914'"
+                        :stroke-width="edge.done ? 1.3 : 0.75"
+                        :opacity="edge.done ? 0.42 : 0.18"
+                        stroke-dasharray="5 7"
+                        :class="edge.done ? 'edge-flow' : ''"
+                    />
                 </g>
 
-                <!-- Nœuds visibles (seulement les tests actifs) -->
-                <g v-for="node in visibleNodes" :key="node.slug"
-                   class="cm-node"
-                   @mouseenter="showTip(node)"
-                   @mouseleave="hideTip">
+                <!-- ── Nœuds ── -->
+                <g
+                    v-for="node in displayNodes"
+                    :key="node.slug"
+                    class="cm-node"
+                    @mouseenter="hovered = node"
+                    @mouseleave="hovered = null"
+                >
+                    <!-- Halo accompli (statique) -->
+                    <circle
+                        v-if="node.done"
+                        :cx="node.x" :cy="node.y"
+                        :r="node.r + 9"
+                        fill="#C4860A" opacity="0.07"
+                    />
 
-                    <!-- ACCOMPLI -->
-                    <template v-if="isCompleted(node.slug)">
-                        <!-- Halo statique -->
-                        <circle :cx="node.x" :cy="node.y" r="26"
-                                fill="#C4860A" opacity="0.09"/>
-                        <!-- Cercle -->
-                        <circle :cx="node.x" :cy="node.y"
-                                :r="node.slug === 'praxiflow' ? 20 : 17"
-                                fill="#FAF6EB" stroke="#C4860A"
-                                :stroke-width="node.slug === 'praxiflow' ? 2.2 : 1.9"
-                                filter="url(#glow)"/>
-                        <!-- Icône -->
-                        <svg :x="node.x-8" :y="node.y-8" width="16" height="16"
-                             viewBox="0 0 24 24" fill="none" stroke="#C4860A"
-                             stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
-                             overflow="visible">
-                            <g v-html="ICONS[node.slug] || FALLBACK"></g>
-                        </svg>
-                        <!-- Badge vert -->
-                        <circle :cx="node.x+12" :cy="node.y-12" r="5"
-                                fill="#10B981" stroke="#FAF6EB" stroke-width="1.2"/>
-                        <!-- Label -->
-                        <text :x="node.x" :y="node.y+30" text-anchor="middle"
-                              font-size="8" fill="#6B4C1A" opacity="0.9"
-                              font-family="'Space Mono',monospace" letter-spacing="0.02em">
-                            {{ node.label }}
-                        </text>
-                    </template>
+                    <!-- Anneau pulsé pour les nœuds à explorer -->
+                    <circle
+                        v-if="!node.done"
+                        :cx="node.x" :cy="node.y"
+                        :r="node.rPulse"
+                        fill="none" stroke="#8B6914" stroke-width="0.9"
+                        class="node-pulse"
+                    />
 
-                    <!-- À EXPLORER — pulse doux -->
-                    <template v-else>
-                        <!-- Halo pulsé -->
-                        <circle :cx="node.x" :cy="node.y"
-                                :r="node.slug === 'praxiflow' ? 26 : 23"
-                                fill="none" stroke="#8B6914" stroke-width="1"
-                                opacity="0" class="node-pulse"/>
-                        <!-- Cercle principal -->
-                        <circle :cx="node.x" :cy="node.y"
-                                :r="node.slug === 'praxiflow' ? 20 : 17"
-                                fill="#F5EDD8" stroke="#8B6914"
-                                stroke-width="1.2" opacity="0.75"/>
-                        <!-- Icône -->
-                        <svg :x="node.x-8" :y="node.y-8" width="16" height="16"
-                             viewBox="0 0 24 24" fill="none" stroke="#8B6914"
-                             stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
-                             opacity="0.5" overflow="visible">
-                            <g v-html="ICONS[node.slug] || FALLBACK"></g>
-                        </svg>
-                        <!-- Label -->
-                        <text :x="node.x" :y="node.y+30" text-anchor="middle"
-                              font-size="8" fill="#8B6914" opacity="0.5"
-                              font-family="'Space Mono',monospace" letter-spacing="0.02em">
-                            {{ node.label }}
-                        </text>
-                    </template>
+                    <!-- Cercle principal -->
+                    <circle
+                        :cx="node.x" :cy="node.y"
+                        :r="node.r"
+                        :fill="node.done ? '#FAF6EB' : '#F4EDD6'"
+                        :stroke="node.done ? '#C4860A' : '#8B6914'"
+                        :stroke-width="node.done ? (node.center ? 2.2 : 1.9) : 1.1"
+                        :opacity="node.done ? 1 : 0.72"
+                        :filter="node.done ? 'url(#cmglow)' : ''"
+                    />
+
+                    <!-- Icône SVG imbriquée -->
+                    <svg
+                        :x="node.x - 8" :y="node.y - 8"
+                        width="16" height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        :stroke="node.done ? '#C4860A' : '#8B6914'"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        :opacity="node.done ? 1 : 0.45"
+                        overflow="visible"
+                    >
+                        <g v-html="ICONS[node.slug] || FALLBACK"/>
+                    </svg>
+
+                    <!-- Badge vert accompli -->
+                    <circle
+                        v-if="node.done"
+                        :cx="node.x + node.r - 4"
+                        :cy="node.y - node.r + 4"
+                        r="5"
+                        fill="#10B981"
+                        stroke="#FAF6EB"
+                        stroke-width="1.2"
+                    />
+
+                    <!-- Label -->
+                    <text
+                        :x="node.x"
+                        :y="node.y + node.r + 13"
+                        text-anchor="middle"
+                        font-size="7.5"
+                        :fill="node.done ? '#6B4C1A' : '#8B6914'"
+                        :opacity="node.done ? 0.88 : 0.48"
+                        font-family="'Space Mono',monospace"
+                        letter-spacing="0.025em"
+                    >{{ node.label }}</text>
                 </g>
 
-                <!-- Tooltip -->
-                <g v-if="tooltip">
-                    <rect :x="tooltip.x - 42" :y="tooltip.y - 14"
-                          width="84" height="20" rx="4"
-                          fill="#3D2B0A" opacity="0.88"/>
-                    <text :x="tooltip.x" :y="tooltip.y + 0" text-anchor="middle"
-                          font-size="8.5" fill="#FAF6EB"
-                          font-family="'Space Mono',monospace">
-                        {{ tooltip.label }} {{ tooltip.done ? '✓' : '' }}
-                    </text>
+                <!-- ── Tooltip au survol ── -->
+                <g v-if="hovered" style="pointer-events:none">
+                    <rect
+                        :x="hovered.x - 46"
+                        :y="hovered.y - hovered.r - 26"
+                        width="92" height="18" rx="4"
+                        fill="#3D2B0A" opacity="0.85"
+                    />
+                    <text
+                        :x="hovered.x"
+                        :y="hovered.y - hovered.r - 12"
+                        text-anchor="middle"
+                        font-size="8"
+                        fill="#FAF6EB"
+                        font-family="'Space Mono',monospace"
+                    >{{ hovered.label }}{{ hovered.done ? ' ✓' : '' }}</text>
                 </g>
 
                 <!-- Vignette bord -->
-                <rect width="900" height="250" fill="url(#cmvign)" pointer-events="none"/>
+                <rect width="900" height="250" fill="url(#cmvign)"
+                      pointer-events="none"/>
 
                 <!-- Rose des vents -->
-                <g transform="translate(862,28)" opacity="0.22">
-                    <circle cx="0" cy="0" r="16" fill="none" stroke="#8B6914" stroke-width="0.8"/>
+                <g transform="translate(862,28)" opacity="0.2">
+                    <circle cx="0" cy="0" r="16" fill="none"
+                            stroke="#8B6914" stroke-width="0.8"/>
                     <path d="M0,-11 L2,4 L0,2 L-2,4Z" fill="#C4860A" opacity="0.85"/>
-                    <path d="M0,11 L2,-4 L0,-2 L-2,-4Z" fill="#8B6914" opacity="0.4"/>
-                    <text x="0" y="-17" text-anchor="middle" font-size="5.5" fill="#8B6914" font-family="'Space Mono',monospace">N</text>
+                    <path d="M0,11 L2,-4 L0,-2 L-2,-4Z"
+                          fill="#8B6914" opacity="0.4"/>
+                    <text x="0" y="-17" text-anchor="middle"
+                          font-size="5.5" fill="#8B6914"
+                          font-family="'Space Mono',monospace">N</text>
                 </g>
 
                 <!-- Watermark -->
-                <text x="38" y="244" font-size="7" fill="#8B6914" opacity="0.09"
-                      font-family="'Space Mono',monospace" letter-spacing="0.14em">
-                    TERRA INCOGNITA · CARTOGRAPHIA INTERIOR
-                </text>
+                <text x="38" y="244" font-size="6.5" fill="#8B6914" opacity="0.08"
+                      font-family="'Space Mono',monospace"
+                      letter-spacing="0.15em">TERRA INCOGNITA · CARTOGRAPHIA INTERIOR</text>
 
             </svg>
         </div>
 
-        <!-- Légende -->
+        <!-- ── Légende ── -->
         <div class="cm-legend">
-            <div class="cm-leg-item"><span class="cm-dot cm-dot-gold"></span>Accomplie</div>
-            <div class="cm-leg-item"><span class="cm-dot cm-dot-dim"></span>À explorer</div>
+            <div class="cm-leg-item">
+                <span class="cm-dot cm-dot-done"></span>Accomplie
+            </div>
+            <div class="cm-leg-item">
+                <span class="cm-dot cm-dot-todo"></span>À explorer
+            </div>
         </div>
+
     </div>
 </template>
 
 <style scoped>
+/* ── Conteneur ─────────────────────────────────────────────── */
 .cm-wrap {
     border-radius: 12px;
-    border: 1px solid rgba(139, 105, 20, 0.22);
+    border: 1px solid rgba(139, 105, 20, 0.2);
     overflow: hidden;
     background: #FAF6EB;
     margin-bottom: 1.75rem;
     max-width: 860px;
 }
+
+/* ── Header ────────────────────────────────────────────────── */
 .cm-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.5rem 1rem;
-    border-bottom: 1px solid rgba(139, 105, 20, 0.13);
+    padding: 0.48rem 1rem;
+    border-bottom: 1px solid rgba(139, 105, 20, 0.12);
     background: rgba(139, 105, 20, 0.03);
 }
 .cm-title {
     display: flex;
     align-items: center;
     gap: 0.4rem;
-    font-size: 9.5px;
-    font-weight: 600;
-    letter-spacing: 0.12em;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.13em;
     text-transform: uppercase;
     color: #6B4C1A;
     font-family: 'Space Mono', monospace;
 }
-.cm-right { display: flex; align-items: center; gap: 0.5rem; }
-.cm-count {
-    font-size: 9px;
+.cm-right   { display: flex; align-items: center; gap: 0.5rem; }
+.cm-count   {
+    font-size: 8.5px;
     font-family: 'Space Mono', monospace;
-    color: rgba(107, 76, 26, 0.5);
+    color: rgba(107, 76, 26, 0.45);
     white-space: nowrap;
 }
 .cm-bar {
-    width: 80px;
+    width: 72px;
     height: 3px;
     border-radius: 99px;
-    background: rgba(139, 105, 20, 0.15);
+    background: rgba(139, 105, 20, 0.14);
     overflow: hidden;
 }
 .cm-fill {
     height: 100%;
     border-radius: 99px;
-    background: linear-gradient(90deg, #8B6914, #C4860A);
-    transition: width 0.6s ease;
+    background: linear-gradient(90deg, #8B6914 0%, #C4860A 100%);
+    transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .cm-pct {
-    font-size: 9px;
+    font-size: 8.5px;
     font-family: 'Space Mono', monospace;
-    color: rgba(107, 76, 26, 0.55);
+    color: rgba(107, 76, 26, 0.5);
     white-space: nowrap;
 }
+
+/* ── Map body ──────────────────────────────────────────────── */
 .cm-body { padding: 0; }
 .cm-svg  { width: 100%; height: auto; display: block; }
 
-/* Nœud — curseur pointer + transition scale */
-.cm-node { cursor: pointer; }
-.cm-node:hover circle { opacity: 1 !important; }
+/* ── Nœud interactif ───────────────────────────────────────── */
+.cm-node {
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+.cm-node:hover { opacity: 0.85; }
 
-/* Flux animé sur les arêtes accomplies */
-@keyframes edge-flow {
-    from { stroke-dashoffset: 0; }
-    to   { stroke-dashoffset: -44; }
+/* ── Arête animée (nœuds accomplis) ───────────────────────── */
+@keyframes edge-march {
+    to { stroke-dashoffset: -48; }
 }
 .edge-flow {
-    animation: edge-flow 3s linear infinite;
+    animation: edge-march 3s linear infinite;
 }
 
-/* Pulse sur les nœuds à explorer */
-@keyframes node-pulse {
-    0%   { opacity: 0;    transform: scale(0.8); }
-    50%  { opacity: 0.35; transform: scale(1.15); }
-    100% { opacity: 0;    transform: scale(1.4); }
+/* ── Halo pulsé (nœuds à explorer) ────────────────────────── */
+@keyframes pulse-ring {
+    0%   { opacity: 0.4; transform: scale(0.88); }
+    60%  { opacity: 0.0; transform: scale(1.22); }
+    100% { opacity: 0.0; transform: scale(1.22); }
 }
 .node-pulse {
     transform-box: fill-box;
     transform-origin: center;
-    animation: node-pulse 2.8s ease-out infinite;
+    animation: pulse-ring 2.6s ease-out infinite;
 }
 
+/* ── Légende ───────────────────────────────────────────────── */
 .cm-legend {
     display: flex;
     gap: 1rem;
     justify-content: flex-end;
-    padding: 0.35rem 1rem;
-    border-top: 1px solid rgba(139, 105, 20, 0.1);
+    padding: 0.32rem 1rem;
+    border-top: 1px solid rgba(139, 105, 20, 0.09);
 }
 .cm-leg-item {
     display: flex;
     align-items: center;
     gap: 5px;
-    font-size: 9px;
-    color: rgba(107, 76, 26, 0.45);
+    font-size: 8.5px;
+    color: rgba(107, 76, 26, 0.4);
     font-family: 'Space Mono', monospace;
 }
-.cm-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; }
-.cm-dot-gold  { background: #C4860A; }
-.cm-dot-dim   { background: transparent; border: 1px solid #8B6914; opacity: 0.5; }
+.cm-dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+}
+.cm-dot-done { background: #C4860A; }
+.cm-dot-todo { background: transparent; border: 1px solid #8B6914; opacity: 0.45; }
 </style>

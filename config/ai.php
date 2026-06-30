@@ -95,6 +95,10 @@ return [
             'driver' => 'anthropic_haiku',
             'system_prompt_view' => 'ai.prompts.email-system',
         ],
+        // Plan d'action par piste métier → Haiku (structuré, compact, ~0,01€/plan).
+        'path_plan' => [
+            'driver' => 'anthropic_haiku',
+        ],
         // Oracle conversationnel → Sonnet (qualité), mais on réduit l'historique rejoué
         // (20→10) pour diviser par ~2 les tokens d'entrée sur les conversations longues.
         'oracle_chat' => [

@@ -297,7 +297,7 @@ const profileEmoji = computed(() => ({
                               critical: '≥80 · Blocage majeur',
                               high:     '≥65 · Frein significatif',
                               moderate: '≥35 · Tendance active',
-                              low:      '<35 · Angle mort',
+                              low:      '≤35 · Angle mort',
                           }"
                           :key="slug"
                           style="font-size:11px;padding:3px 9px;border-radius:999px"
