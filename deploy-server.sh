@@ -56,10 +56,13 @@ php artisan praxiquest:plugins:discover --sync
 ok "Plugins découverts"
 
 msg "Reconstruction des caches..."
-php artisan optimize:clear
+php artisan cache:clear
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear 2>/dev/null || true   # certains plugins n'ont pas de resources/views/
 php artisan config:cache
 php artisan route:cache
-php artisan view:cache
+php artisan view:cache  2>/dev/null || true   # idem
 ok "Caches OK"
 
 msg "Permissions..."
