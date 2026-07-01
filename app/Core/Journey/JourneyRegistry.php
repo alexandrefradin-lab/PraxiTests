@@ -53,10 +53,26 @@ class JourneyRegistry
         return array_keys(static::$journeys);
     }
 
+    /**
+     * Jours normalisés d'un parcours. `days` peut être un tableau OU un callable
+     * (résolution paresseuse : on ne mappe pas 60 entrées à chaque requête).
+     */
+    public static function days(string $slug): array
+    {
+        $cfg = static::$journeys[$slug] ?? null;
+        if (! $cfg) {
+            return [];
+        }
+
+        $days = $cfg['days'] ?? [];
+
+        return is_callable($days) ? $days() : $days;
+    }
+
     /** Retrouve un jour précis dans le contenu d'un parcours. */
     public static function day(string $slug, int $day): ?array
     {
-        foreach (static::$journeys[$slug]['days'] ?? [] as $entry) {
+        foreach (static::days($slug) as $entry) {
             if ((int) ($entry['day'] ?? 0) === $day) {
                 return $entry;
             }

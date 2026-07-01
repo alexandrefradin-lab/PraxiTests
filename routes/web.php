@@ -92,6 +92,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/journey/complete', [JourneyController::class, 'completeDay'])->name('journey.complete');
     Route::get('/journey/today',     [JourneyController::class, 'todayData'])->name('journey.today');
 
+    // Tableau de bord de parcours 60 jours (mutualisé — JourneyRegistry).
+    Route::get('/parcours/{plugin}',              [\App\Http\Controllers\Candidate\JourneyDashboardController::class, 'index'])->name('journey.index');
+    Route::get('/parcours/{plugin}/jour/{day}',   [\App\Http\Controllers\Candidate\JourneyDashboardController::class, 'show'])->whereNumber('day')->name('journey.show');
+    Route::post('/parcours/{plugin}/jour/{day}',  [\App\Http\Controllers\Candidate\JourneyDashboardController::class, 'complete'])->whereNumber('day')->name('journey.complete.day');
+
     // ─── Tip du jour mini-apps (Salle du Trésor) ─────────────────────────────
     // {plugin} = slug de la mini-app (praxizen, praxispeak, praxiflow…)
     // L'app doit être débloquée (gating RewardCatalog dans DailyTipController).

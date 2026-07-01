@@ -32,7 +32,7 @@ class JourneyDashboardController extends Controller
         $current   = $this->engine->currentDay($userId, $plugin);
         $completed = JourneyProgress::completedDays($userId, $plugin);
 
-        $practices = collect($config['days'] ?? [])->map(function ($d) use ($userId, $plugin, $current, $completed) {
+        $practices = collect(JourneyRegistry::days($plugin))->map(function ($d) use ($userId, $plugin, $current, $completed) {
             $day = (int) ($d['day'] ?? 0);
 
             return [
