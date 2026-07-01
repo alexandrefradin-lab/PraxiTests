@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
             AdminUserSeeder::class,
             BadgeSeeder::class,
             DemoTestSeeder::class,
+            EntrepreneurTestSeeder::class,
             TestNormsSeeder::class,
             CareerPathsSeeder::class,
         ]);

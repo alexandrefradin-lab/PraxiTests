@@ -56,6 +56,15 @@ const DIM_META = {
     self_awareness:   { label: 'Conscience de soi',       description: "Connaître tes forces, tes limites et ce qui te met en mouvement." },
     change_readiness: { label: 'Ouverture au changement', description: "Ton aisance à sortir de ta zone de confort et à t'adapter à la nouveauté." },
 
+    // L'Étoffe du Bâtisseur — compétences entrepreneuriales
+    proactivite:      { label: 'Proactivité',              description: "Prendre les devants, agir avant d'y être contraint et saisir les occasions." },
+    prise_risque:     { label: 'Prise de risque',          description: "Accepter l'incertitude et engager des ressources sans garantie de résultat." },
+    opportunites:     { label: "Repérage d'opportunités",  description: "Détecter des besoins non satisfaits et imaginer des solutions nouvelles." },
+    resilience:       { label: 'Résilience',               description: "Rebondir après un échec et persévérer face aux obstacles." },
+    leadership:       { label: 'Leadership',               description: "Fédérer, convaincre et entraîner les autres autour d'un projet." },
+    sens_commercial:  { label: 'Sens commercial',          description: "Comprendre le marché et le client, et créer de la valeur vendable." },
+    autonomie:        { label: 'Autonomie & confiance',    description: "Décider seul, s'auto-diriger et croire en sa capacité à réussir." },
+
     // Compétences relationnelles (PraxiLink)
     ecoute_active:          { label: 'Écoute active',          description: "Ta capacité à écouter vraiment : reformuler, clarifier et montrer à l'autre qu'il est compris." },
     expression_assertive:   { label: 'Expression assertive',   description: "Dire ce que tu penses avec clarté et respect, sans agressivité ni effacement." },

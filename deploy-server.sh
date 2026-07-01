@@ -55,6 +55,10 @@ ok "Référentiel des pistes métiers (PTP) OK"
 php artisan db:seed --class=DemoTestSeeder --force --no-interaction
 ok "Test Orientation Express (RIASEC) OK"
 
+# L'Étoffe du Bâtisseur — compétences entrepreneuriales (idempotent).
+php artisan db:seed --class=EntrepreneurTestSeeder --force --no-interaction
+ok "Test Compétences entrepreneuriales OK"
+
 msg "Découverte et activation des nouveaux plugins..."
 php artisan praxiquest:plugins:discover --sync
 ok "Plugins découverts"
