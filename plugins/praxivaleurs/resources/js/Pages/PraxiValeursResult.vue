@@ -40,7 +40,7 @@ const radarAxes = computed(() =>
             />
 
             <!-- Top 5 -->
-            <section class="pt-card ac-card-ornate p-8 mb-8">
+            <section class="pt-card ac-card-ornate ac-card-dark p-8 mb-8">
                 <h2 class="text-xl font-semibold mb-6">Ton top 5</h2>
                 <ol class="space-y-4">
                     <li v-for="([key, score], i) in top5" :key="key" class="flex items-center gap-4 p-4 rounded-xl border border-slate-100">
@@ -79,7 +79,7 @@ const radarAxes = computed(() =>
             </ResultPanel>
 
             <!-- Définitions -->
-            <section class="pt-card p-8 mb-8">
+            <section class="pt-card ac-card-dark p-8 mb-8">
                 <h2 class="text-xl font-semibold mb-6">Comprendre tes valeurs</h2>
                 <div class="space-y-5">
                     <div v-for="([key]) in top5" :key="key" class="border-l-4 pl-4 py-1" :style="{ borderColor: meta[key]?.color }">
