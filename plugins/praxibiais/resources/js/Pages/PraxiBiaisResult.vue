@@ -424,7 +424,11 @@ const profileEmoji = computed(() => ({
             </div>
 
             <!-- ── SYNTHÈSE IA ──────────────────────────────────────────────── -->
-            <SynthesisCard :attempt="attempt" :result="result" />
+            <SynthesisCard v-if="result?.ai_synthesis" :source="result.ai_synthesis" title="Ta synthèse" />
+            <div v-else class="pt-card ac-card-dark" style="padding:3rem;text-align:center;margin-bottom:1rem">
+                <div style="width:36px;height:36px;border-radius:50%;border:3px solid var(--pt-cream-dark);border-top-color:var(--pt-gold);animation:spin 1s linear infinite;margin:0 auto"></div>
+                <p style="margin-top:1rem;color:var(--pt-text-muted)">Analyse en cours… (1 à 2 minutes)</p>
+            </div>
 
             <ResultPdfButton :attempt-id="attempt.id" />
 
@@ -433,6 +437,7 @@ const profileEmoji = computed(() => ({
 </template>
 
 <style scoped>
+@keyframes spin { to { transform: rotate(360deg) } }
 .fade-enter-active,
 .fade-leave-active { transition: opacity .2s, transform .2s; }
 .fade-enter-from,
