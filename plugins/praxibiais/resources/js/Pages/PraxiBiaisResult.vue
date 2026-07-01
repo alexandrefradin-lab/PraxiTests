@@ -126,7 +126,7 @@ const profileEmoji = computed(() => ({
             </div>
 
             <!-- ── PROFIL DOMINANT (révélation) ───────────────────────────── -->
-            <div class="pt-card ac-card-ornate" style="padding:2rem;margin-bottom:2rem;position:relative;overflow:hidden">
+            <div class="pt-card ac-card-ornate biais-dark" style="padding:2rem;margin-bottom:2rem;position:relative;overflow:hidden">
                 <!-- bandeau gradient en haut -->
                 <div style="position:absolute;top:0;left:0;right:0;height:4px;
                             background:linear-gradient(90deg,var(--pt-gold),#ea580c)"></div>
@@ -176,7 +176,7 @@ const profileEmoji = computed(() => ({
                 <div
                     v-for="(biais, i) in top3WithDetails"
                     :key="biais.slug"
-                    class="pt-card"
+                    class="pt-card biais-dark"
                     style="padding:1.5rem;cursor:pointer;
                            border-left:4px solid transparent;transition:border-color .2s"
                     :style="{ borderLeftColor: levelColor(biais.level?.slug) }"
@@ -300,7 +300,7 @@ const profileEmoji = computed(() => ({
                 Cartographie de vos 10 biais
             </h2>
 
-            <div class="pt-card" style="padding:1.5rem;margin-bottom:2rem">
+            <div class="pt-card biais-dark" style="padding:1.5rem;margin-bottom:2rem">
                 <div style="display:flex;flex-direction:column;gap:1rem">
                     <div v-for="biais in allBiais" :key="'map-' + biais.slug">
                         <div style="display:flex;align-items:center;
@@ -437,4 +437,19 @@ const profileEmoji = computed(() => ({
 .fade-leave-active { transition: opacity .2s, transform .2s; }
 .fade-enter-from,
 .fade-leave-to     { opacity: 0; transform: translateY(-4px); }
+
+/* ── Cartes en mode sombre « constellation » (bascule les tokens --pt-* pour
+   tout le contenu inline, sans réécrire chaque style) ── */
+.biais-dark {
+    background: radial-gradient(ellipse at 50% 0%, #241a0e 0%, var(--color-accent) 62%, #120c04 100%);
+    border: 1px solid var(--color-primary-dark);
+    box-shadow: 0 10px 26px rgba(42,30,8,0.28), inset 0 1px 0 rgba(166,117,32,0.20);
+    /* Redéfinition locale des tokens : tout le texte inline devient clair */
+    --pt-text:       #F4ECD8;
+    --pt-text-muted: rgba(240,232,212,0.72);
+    --pt-text-light: rgba(240,232,212,0.55);
+    --pt-surface:    rgba(0,0,0,0.20);
+    --pt-surface-2:  rgba(240,232,212,0.14);
+    --pt-border:     rgba(230,190,90,0.22);
+}
 </style>
