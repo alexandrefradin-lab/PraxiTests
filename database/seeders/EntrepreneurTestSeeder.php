@@ -25,7 +25,7 @@ class EntrepreneurTestSeeder extends Seeder
             ['slug' => 'competences-entrepreneuriales'],
             [
                 'name'        => "L'Étoffe du Bâtisseur — Compétences entrepreneuriales",
-                'description' => "Un auto-positionnement en 28 énoncés sur 7 compétences clés de l'entrepreneur : proactivité, prise de risque, repérage d'opportunités, résilience, leadership, sens commercial et autonomie.",
+                'description' => "Un auto-positionnement en 32 énoncés sur 8 compétences clés de l'entrepreneur (référentiel EntreComp) : repérage d'opportunités, créativité & vision, prise d'initiative, tolérance au risque, persévérance, mobilisation, auto-efficacité et gestion des ressources.",
                 'type'        => 'questionnaire',
                 'scoring_engine' => 'default',
                 'estimated_minutes' => 10,
@@ -42,49 +42,57 @@ class EntrepreneurTestSeeder extends Seeder
             ]
         );
 
-        // 4 énoncés par compétence (clé = dimension du scoring).
+        // 4 énoncés par compétence (clé = dimension du scoring). Formulations
+        // adoucies (moins de désirabilité sociale, pas de double-barrel ni
+        // d'extrêmes) — validation psychométrique via le référentiel EntreComp.
         $competences = [
+            'opportunites' => [
+                "Je repère des besoins que d'autres n'ont pas encore vus.",
+                "Dans une situation banale, il m'arrive de voir une occasion à saisir.",
+                "Je m'intéresse aux évolutions du marché et aux nouvelles tendances.",
+                "Face à un problème courant, j'imagine des façons d'y répondre autrement.",
+            ],
+            'vision' => [
+                "J'aime imaginer ce qu'un projet pourrait devenir à long terme.",
+                "Je génère assez facilement des idées nouvelles.",
+                "Je me projette volontiers dans un objectif ambitieux.",
+                "Je transforme une idée floue en un projet plus concret.",
+            ],
             'proactivite' => [
-                "Je prends les devants au lieu d'attendre qu'on me dise quoi faire.",
-                "Quand je repère un problème, j'agis sans attendre qu'il s'aggrave.",
-                "Je lance des projets de ma propre initiative.",
-                "Je cherche activement de nouvelles occasions plutôt que de subir les événements.",
+                "Je préfère agir plutôt qu'attendre que les choses se décantent.",
+                "Quand un sujet me tient à cœur, je lance moi-même les premières étapes.",
+                "Je vais chercher l'information ou les contacts dont j'ai besoin.",
+                "Je propose des choses plutôt que d'attendre qu'on me le demande.",
             ],
             'prise_risque' => [
-                "Je suis prêt·e à engager du temps ou de l'argent sans certitude de retour.",
-                "L'incertitude ne m'empêche pas de me lancer.",
-                "Je préfère tenter et apprendre plutôt que de tout sécuriser à l'avance.",
-                "J'accepte de sortir de ma zone de confort pour saisir une opportunité.",
-            ],
-            'opportunites' => [
-                "Je remarque des besoins que les autres ne voient pas encore.",
-                "J'imagine facilement de nouvelles idées de produits ou de services.",
-                "Je transforme les contraintes en occasions de faire différemment.",
-                "Je suis attentif·ve aux tendances qui pourraient créer des opportunités.",
+                "Je peux avancer sans connaître toutes les réponses à l'avance.",
+                "Investir du temps ou de l'argent sans garantie ne me bloque pas.",
+                "Je reste à l'aise quand une situation demeure floue un moment.",
+                "Je préfère un pari qui peut beaucoup rapporter à une option sûre mais limitée.",
             ],
             'resilience' => [
-                "Après un échec, je rebondis rapidement.",
-                "Les obstacles me motivent plus qu'ils ne me découragent.",
-                "Je persévère même quand les résultats tardent à venir.",
-                "Je garde mon énergie face aux difficultés répétées.",
+                "Après un revers, je retrouve assez vite de l'élan.",
+                "Je continue d'avancer même quand les résultats se font attendre.",
+                "Les difficultés répétées entament peu ma détermination.",
+                "Quand je crois en un projet, j'ai du mal à l'abandonner.",
             ],
             'leadership' => [
-                "Je sais convaincre les autres de me suivre sur un projet.",
-                "J'aime fédérer une équipe autour d'un objectif commun.",
-                "Je prends naturellement des décisions pour le groupe.",
-                "Je donne de l'élan et de la confiance à ceux qui m'entourent.",
+                "J'arrive à donner envie aux autres de participer à un projet.",
+                "Je fédère assez facilement des personnes autour d'un objectif.",
+                "On me suit plutôt naturellement quand je propose une direction.",
+                "Je sais aller chercher les bonnes personnes pour m'entourer.",
             ],
-            'sens_commercial' => [
-                "Je comprends vite ce qui a de la valeur pour un client.",
-                "Je pense au marché et à la demande quand j'ai une idée.",
-                "Je suis à l'aise pour vendre une idée ou un produit.",
-                "Je cherche comment rendre une idée rentable, pas seulement séduisante.",
-            ],
-            'autonomie' => [
+            'auto_efficacite' => [
                 "Je me sens capable de mener un projet du début à la fin.",
-                "Je décide seul·e sans avoir besoin d'une validation constante.",
-                "Je m'organise et je m'auto-discipline sans supervision.",
-                "Je crois en ma capacité à réussir ce que j'entreprends.",
+                "Face à une tâche nouvelle, je pars du principe que je vais y arriver.",
+                "Je me fais confiance pour les décisions importantes d'un projet.",
+                "Même sans expérience préalable, je m'estime capable d'apprendre ce qu'il faut.",
+            ],
+            'gestion' => [
+                "J'organise mes actions en étapes concrètes pour atteindre un objectif.",
+                "Je garde un œil sur les moyens (temps, argent) que demande un projet.",
+                "Je trouve des solutions pour faire avec des ressources limitées.",
+                "J'anticipe ce dont j'aurai besoin avant de me lancer.",
             ],
         ];
 

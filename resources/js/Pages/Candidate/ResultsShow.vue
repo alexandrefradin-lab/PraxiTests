@@ -56,14 +56,15 @@ const DIM_META = {
     self_awareness:   { label: 'Conscience de soi',       description: "Connaître tes forces, tes limites et ce qui te met en mouvement." },
     change_readiness: { label: 'Ouverture au changement', description: "Ton aisance à sortir de ta zone de confort et à t'adapter à la nouveauté." },
 
-    // L'Étoffe du Bâtisseur — compétences entrepreneuriales
-    proactivite:      { label: 'Proactivité',              description: "Prendre les devants, agir avant d'y être contraint et saisir les occasions." },
-    prise_risque:     { label: 'Prise de risque',          description: "Accepter l'incertitude et engager des ressources sans garantie de résultat." },
-    opportunites:     { label: "Repérage d'opportunités",  description: "Détecter des besoins non satisfaits et imaginer des solutions nouvelles." },
-    resilience:       { label: 'Résilience',               description: "Rebondir après un échec et persévérer face aux obstacles." },
-    leadership:       { label: 'Leadership',               description: "Fédérer, convaincre et entraîner les autres autour d'un projet." },
-    sens_commercial:  { label: 'Sens commercial',          description: "Comprendre le marché et le client, et créer de la valeur vendable." },
-    autonomie:        { label: 'Autonomie & confiance',    description: "Décider seul, s'auto-diriger et croire en sa capacité à réussir." },
+    // L'Étoffe du Bâtisseur — compétences entrepreneuriales (référentiel EntreComp)
+    opportunites:     { label: "Repérage d'opportunités",   description: "Détecter des besoins non satisfaits et des occasions à saisir." },
+    vision:           { label: 'Créativité & vision',       description: "Générer des idées et projeter ce qu'un projet pourrait devenir." },
+    proactivite:      { label: "Prise d'initiative",        description: "Prendre les devants et lancer les choses soi-même." },
+    prise_risque:     { label: 'Tolérance au risque',       description: "Avancer dans l'incertitude et engager sans garantie de résultat." },
+    resilience:       { label: 'Persévérance & résilience', description: "Rebondir après un revers et tenir dans la durée." },
+    leadership:       { label: 'Mobilisation & leadership', description: "Fédérer, convaincre et s'entourer autour d'un projet." },
+    auto_efficacite:  { label: 'Auto-efficacité',           description: "Croire en sa capacité à mener un projet et à apprendre." },
+    gestion:          { label: 'Ressources & gestion',      description: "Planifier, organiser et gérer les moyens (temps, argent)." },
 
     // Compétences relationnelles (PraxiLink)
     ecoute_active:          { label: 'Écoute active',          description: "Ta capacité à écouter vraiment : reformuler, clarifier et montrer à l'autre qu'il est compris." },
