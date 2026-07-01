@@ -814,18 +814,18 @@ function startJourneyExercise() {
   flex: 1;
   font-weight: 600;
   font-size: 0.92rem;
-  color: var(--pt-navy);
+  color: #F4ECD8;
 }
 
 .pt-dim-row__score {
   font-weight: 700;
   font-size: 1rem;
-  color: var(--pt-navy);
+  color: #F4ECD8;
 }
 
 .pt-dim-row__score-max {
   font-size: 0.75rem;
-  color: var(--pt-text-muted);
+  color: rgba(240,232,212,0.6);
   font-weight: 400;
 }
 

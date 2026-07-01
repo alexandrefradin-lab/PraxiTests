@@ -38,6 +38,18 @@ defineProps({
     background: radial-gradient(ellipse at 50% 18%, #241a0e 0%, var(--color-accent) 60%, #120c04 100%);
     border: 1px solid var(--color-primary-dark);
     box-shadow: 0 10px 26px rgba(42,30,8,0.28), inset 0 1px 0 rgba(166,117,32,0.25);
+    /* Panneau sombre : bascule les tokens texte en clair (comme .ac-card-dark)
+       pour que tout contenu en var(--pt-navy)/var(--pt-text) reste lisible. */
+    color: #F4ECD8;
+    --pt-navy:        #F4ECD8;
+    --pt-navy-mid:    rgba(240,232,212,0.85);
+    --pt-navy-light:  rgba(240,232,212,0.72);
+    --pt-text:        #F4ECD8;
+    --pt-text-muted:  rgba(240,232,212,0.72);
+    --pt-text-light:  rgba(240,232,212,0.55);
+    --text-primary:   #F4ECD8;
+    --text-secondary: rgba(240,232,212,0.72);
+    --text-muted:     rgba(240,232,212,0.55);
 }
 .rp--light {
     background: linear-gradient(180deg, var(--bg-base), var(--bg-surface));
