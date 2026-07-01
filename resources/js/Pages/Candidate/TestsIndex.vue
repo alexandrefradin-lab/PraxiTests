@@ -45,6 +45,14 @@ const ICONS = {
     'praxilink': '<rect x="3" y="9" width="11" height="6" rx="3"/><rect x="10" y="9" width="11" height="6" rx="3"/>',
     // PraxiBoost → étincelle / éclat
     'praxiboost': '<path d="M12 2.5l1.8 6.7 6.7 1.8-6.7 1.8L12 19.5l-1.8-6.7L3.5 11l6.7-1.8z" fill="currentColor" stroke="currentColor"/>',
+    // PraxiFocus — Boussole de l'Attention (TDAH) → cible / mire (focus)
+    'praxifocus': '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><path d="M12 1.5V4M12 20v2.5M1.5 12H4M20 12h2.5"/>',
+    // PraxiBiais — Cartographe Mental (biais cognitifs) → loupe sur une pensée
+    'praxibiais': '<circle cx="10" cy="10" r="6"/><path d="M14.5 14.5L20 20"/><path d="M7.5 10.4c0-1.4 1.1-1.9 2.3-1.1 1.2.8 2.4.3 2.4-1.1"/>',
+    // PraxiSens — Radar des Sens (hypersensibilité) → ondes radar
+    'praxisens': '<circle cx="12" cy="18" r="1.2" fill="currentColor" stroke="none"/><path d="M8.5 14.5a5 5 0 0 1 7 0"/><path d="M6 12a8.5 8.5 0 0 1 12 0"/><path d="M3.5 9.5a12 12 0 0 1 17 0"/>',
+    // L'Étoffe du Bâtisseur — compétences entrepreneuriales → fusée (élan / lancement)
+    'competences-entrepreneuriales': '<path d="M12 2.5c2.4 2 3.8 4.8 3.8 7.7 0 2-.8 3.6-1.8 4.8H10c-1-1.2-1.8-2.8-1.8-4.8 0-2.9 1.4-5.7 3.8-7.7z"/><circle cx="12" cy="9" r="1.4"/><path d="M10 15l-2.5 2.5.5 3M14 15l2.5 2.5-.5 3"/><path d="M11 18.5c.4 1 .4 2 1 3 .6-1 .6-2 1-3"/>',
 }
 // Fallback : écu
 const DEFAULT_ICON = '<path d="M12 3l7 3v5c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V6z"/>'
