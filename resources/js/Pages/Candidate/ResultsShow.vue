@@ -222,26 +222,8 @@ onMounted(() => {
                     <p class="ac-results-subtitle">Grimoire de Synthèse personnalisé par l'IA</p>
                 </header>
 
-                <!-- ── GRIMOIRE DE SYNTHÈSE ──────────────────────── -->
-                <section class="ac-card ac-synthesis-card ac-reveal-item" style="animation-delay: 0.25s">
-                    <h2 class="ac-card-title">Ton Grimoire de Synthèse</h2>
-
-                    <!-- Synthèse IA rendue en Markdown (source unique) -->
-                    <MarkdownText
-                        v-if="result.ai_synthesis"
-                        :source="result.ai_synthesis"
-                        class="ac-synthesis-full"
-                    />
-
-                    <p v-if="result.ai_synthesis" class="ac-legal-note">
-                        <strong>Outil d'auto-évaluation et de développement personnel.</strong>
-                        Cette synthèse est générée par IA, à titre informatif. Elle ne constitue pas
-                        un avis professionnel et ne remplace pas un psychologue, un médecin ou un coach.
-                    </p>
-                </section>
-
                 <!-- ── DIMENSIONS SCORING ─────────────────────────── -->
-                <section v-if="result.scoring?.dimensions" class="ac-card ac-card-dark ac-reveal-item" style="animation-delay: 0.45s">
+                <section v-if="result.scoring?.dimensions" class="ac-card ac-card-dark ac-reveal-item" style="animation-delay: 0.25s">
                     <h2 class="ac-card-title">Tes Dimensions</h2>
                     <p class="ac-card-hint">Clique sur une dimension pour découvrir ce qu'elle mesure.</p>
 
@@ -296,6 +278,24 @@ onMounted(() => {
                             </transition>
                         </div>
                     </div>
+                </section>
+
+                <!-- ── GRIMOIRE DE SYNTHÈSE (après les graphiques, mode sombre) ── -->
+                <section class="ac-card ac-card-dark ac-synthesis-card ac-reveal-item" style="animation-delay: 0.45s">
+                    <h2 class="ac-card-title">Ton Grimoire de Synthèse</h2>
+
+                    <!-- Synthèse IA rendue en Markdown (source unique) -->
+                    <MarkdownText
+                        v-if="result.ai_synthesis"
+                        :source="result.ai_synthesis"
+                        class="ac-synthesis-full"
+                    />
+
+                    <p v-if="result.ai_synthesis" class="ac-legal-note">
+                        <strong>Outil d'auto-évaluation et de développement personnel.</strong>
+                        Cette synthèse est générée par IA, à titre informatif. Elle ne constitue pas
+                        un avis professionnel et ne remplace pas un psychologue, un médecin ou un coach.
+                    </p>
                 </section>
 
                 <!-- ── CTA PDF (disponible dès le reveal) ─────────────── -->
