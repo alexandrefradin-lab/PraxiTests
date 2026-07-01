@@ -45,6 +45,17 @@ const DIM_META = {
     c:            { label: 'Conventionnel', description: "Organisation, rigueur et méthode : structurer, classer et gérer avec précision." },
     conventionnel:{ label: 'Conventionnel', description: "Organisation, rigueur et méthode : structurer, classer et gérer avec précision." },
 
+    // RIASEC — clés anglaises (moteur de scoring « default », Orientation Express)
+    realistic:     { label: 'Réaliste',      description: "Goût du concret, du manuel et du technique : agir sur des objets, des outils ou des machines." },
+    investigative: { label: 'Investigateur', description: "Curiosité et analyse : comprendre, observer, expérimenter et résoudre des problèmes." },
+    artistic:      { label: 'Artistique',    description: "Créativité et expression : imaginer, créer et sortir des sentiers battus." },
+    enterprising:  { label: 'Entreprenant',  description: "Persuasion et initiative : convaincre, décider, entreprendre et diriger." },
+    conventional:  { label: 'Conventionnel', description: "Organisation et méthode : structurer, classer et gérer avec rigueur." },
+
+    // Orientation Express — dimensions transverses
+    self_awareness:   { label: 'Conscience de soi',       description: "Connaître tes forces, tes limites et ce qui te met en mouvement." },
+    change_readiness: { label: 'Ouverture au changement', description: "Ton aisance à sortir de ta zone de confort et à t'adapter à la nouveauté." },
+
     // Compétences relationnelles (PraxiLink)
     ecoute_active:          { label: 'Écoute active',          description: "Ta capacité à écouter vraiment : reformuler, clarifier et montrer à l'autre qu'il est compris." },
     expression_assertive:   { label: 'Expression assertive',   description: "Dire ce que tu penses avec clarté et respect, sans agressivité ni effacement." },
@@ -225,7 +236,6 @@ onMounted(() => {
                 <!-- ── DIMENSIONS SCORING ─────────────────────────── -->
                 <section v-if="result.scoring?.dimensions" class="ac-card ac-card-dark ac-reveal-item" style="animation-delay: 0.25s">
                     <h2 class="ac-card-title">Tes Dimensions</h2>
-                    <p class="ac-card-hint">Clique sur une dimension pour découvrir ce qu'elle mesure.</p>
 
                     <!-- Radar « Constellation des Talents » -->
                     <div v-if="radar" class="ac-radar-wrap">
@@ -256,26 +266,14 @@ onMounted(() => {
                             :class="{ 'is-open': openDim === key }"
                             :style="{ animationDelay: (0.55 + index * 0.12) + 's' }"
                         >
-                            <button
-                                type="button"
-                                class="ac-dimension-header"
-                                @click="toggleDim(key)"
-                                :aria-expanded="openDim === key"
-                            >
-                                <span class="ac-dimension-name">
-                                    {{ dimLabel(key) }}
-                                    <span class="ac-dimension-info" aria-hidden="true">i</span>
-                                </span>
+                            <div class="ac-dimension-header">
+                                <span class="ac-dimension-name">{{ dimLabel(key) }}</span>
                                 <span class="ac-dimension-score">{{ animatedDims[key] ?? dimValue }}/100</span>
-                            </button>
+                            </div>
                             <div class="ac-progress-track">
                                 <div class="ac-progress-fill" :style="{ width: (animatedDims[key] ?? 0) + '%' }"></div>
                             </div>
-                            <transition name="ac-def">
-                                <p v-if="openDim === key" class="ac-dimension-def">
-                                    {{ dimDef(key) }}
-                                </p>
-                            </transition>
+                            <p class="ac-dimension-def-static">{{ dimDef(key) }}</p>
                         </div>
                     </div>
                 </section>
@@ -684,6 +682,15 @@ onMounted(() => {
     background: var(--glass-bg);
     border-left: 2px solid var(--color-primary);
     border-radius: 0 6px 6px 0;
+}
+
+/* Petite ligne explicative permanente sous chaque dimension (carte sombre) */
+.ac-dimension-def-static {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    line-height: 1.5;
+    color: rgba(240,232,212,0.62);
+    margin: 0.5rem 0 0;
 }
 
 .ac-def-enter-active,
