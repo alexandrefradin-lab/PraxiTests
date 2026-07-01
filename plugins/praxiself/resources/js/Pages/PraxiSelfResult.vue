@@ -544,7 +544,7 @@ const globalProgress = computed(() => Math.round((props.journeyDays.length / 60)
             <!-- ══════════════════════════════════════════════
                  SYNTHÈSE IA — après les graphiques
             ══════════════════════════════════════════════ -->
-            <SynthesisCard :source="attempt.result?.ai_synthesis" title="Synthèse personnalisée" />
+            <SynthesisCard :source="result?.ai_synthesis" title="Synthèse personnalisée" />
 
             <!-- ══════════════════════════════════════════════
                  ACTIONS

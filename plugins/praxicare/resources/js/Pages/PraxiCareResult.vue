@@ -234,7 +234,7 @@ const soutienPct = computed(() => Math.round(karPct('soutien')))
             </ResultPanel>
 
             <!-- Synthèse IA -->
-            <SynthesisCard :source="attempt.result?.ai_synthesis" title="Ta synthèse" />
+            <SynthesisCard :source="result?.ai_synthesis" title="Ta synthèse" />
 
             <ResultPdfButton :attempt-id="attempt.id" />
         </div>

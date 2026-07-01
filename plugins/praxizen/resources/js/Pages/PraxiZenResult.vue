@@ -410,7 +410,7 @@ const phaseLabel = (key) => PHASES[key]?.label ?? key
             </section>
 
             <!-- ── Synthèse IA si disponible ───────────────────────────── -->
-            <SynthesisCard :source="attempt.result?.ai_synthesis" title="Analyse personnalisée" />
+            <SynthesisCard :source="result?.ai_synthesis" title="Analyse personnalisée" />
 
             <!-- ── Parcours 60 jours ───────────────────────────────────── -->
             <section class="pt-card pt-8 pb-8 pl-8 pr-8 mb-8">
