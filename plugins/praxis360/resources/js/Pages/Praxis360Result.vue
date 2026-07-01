@@ -80,7 +80,7 @@ const barWidth = (dimKey) => {
 
             <!-- En-tête -->
             <RestitutionHeader
-                kicker="Praxis 360 — Soft skills"
+                kicker="La Constellation des Talents — Feedback 360°"
                 title="Votre profil soft skills"
                 subtitle="Auto-évaluation sur 6 dimensions, analysée par notre IA."
             />

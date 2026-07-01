@@ -145,7 +145,7 @@ const globalProgress = computed(() => Math.round((props.journeyDays.length / 60)
                  SECTION 1 — EN-TÊTE & SCORE GLOBAL
             ══════════════════════════════════════════════ -->
             <RestitutionHeader
-                kicker="PraxiSelf · Affirmation de soi"
+                kicker="La Forge du Soi · Affirmation de soi"
                 title="Ton profil d'assertivité"
                 subtitle="Basé sur 5 dimensions — Communication Non-Violente · Bandura · Alberti & Emmons"
             />

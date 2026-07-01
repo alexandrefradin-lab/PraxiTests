@@ -34,7 +34,7 @@ const radarAxes = computed(() =>
 
         <div class="max-w-3xl mx-auto">
             <RestitutionHeader
-                kicker="Schwartz · 10 valeurs universelles"
+                kicker="La Source des Valeurs · Schwartz"
                 title="Voici ce qui te porte."
                 subtitle="Tes 5 valeurs prioritaires, classées de la plus à la moins importante pour toi."
             />

@@ -87,7 +87,7 @@ const dimLabel = (score) => {
 
         <div class="max-w-4xl mx-auto">
             <RestitutionHeader
-                kicker="PraxiEmo · 16 dimensions"
+                kicker="La Boussole des Émotions · 16 dimensions"
                 title="Ton intelligence émotionnelle"
                 :subtitle="scoring.phrase_qe"
             />

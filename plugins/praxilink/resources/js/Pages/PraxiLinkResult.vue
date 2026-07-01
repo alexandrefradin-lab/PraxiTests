@@ -6,9 +6,9 @@
            EN-TÊTE RÉSULTAT
       ══════════════════════════════════════════════ -->
       <RestitutionHeader
-        kicker="PraxiLink — Communication assertive"
+        kicker="L'Art des Liens — Communication assertive"
         title="Vos résultats de communication"
-        :subtitle="attempt?.test?.name ?? 'PraxiLink — Communication assertive'"
+        subtitle="Ta façon de t'affirmer et d'entrer en relation, sans t'effacer ni écraser."
       />
 
       <!-- ══════════════════════════════════════════════

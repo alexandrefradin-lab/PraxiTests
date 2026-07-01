@@ -135,7 +135,7 @@ const niveauColorDark = {
 
         <div class="max-w-4xl mx-auto">
             <RestitutionHeader
-                kicker="PraxiMum · Big Five OCEAN"
+                kicker="La Grande Cartographie · Big Five OCEAN"
                 title="Ta personnalité en 5 dimensions"
                 subtitle="Scores T normés (50 = moyenne). 30 facettes détaillées."
             />

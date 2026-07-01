@@ -156,7 +156,7 @@ const phaseLabel = (key) => PHASES[key]?.label ?? key
 
             <!-- ── En-tête ──────────────────────────────────────────────── -->
             <RestitutionHeader
-                kicker="Gestion du stress · PraxiZen"
+                kicker="Le Refuge Intérieur · Gestion du stress"
                 title="Ton bilan bien-être"
                 subtitle="Voici une carte complète de tes ressources face au stress professionnel."
             />

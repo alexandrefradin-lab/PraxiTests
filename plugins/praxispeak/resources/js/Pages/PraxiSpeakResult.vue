@@ -167,7 +167,7 @@ const gridRows = computed(() => {
 
             <!-- En-tête ───────────────────────────────────────────────── -->
             <RestitutionHeader
-                kicker="PraxiSpeak · Prise de parole en public"
+                kicker="La Voix du Héros · Prise de parole en public"
                 title="Ton profil d'orateur"
                 :subtitle="scoring.phrase_orateur"
             />

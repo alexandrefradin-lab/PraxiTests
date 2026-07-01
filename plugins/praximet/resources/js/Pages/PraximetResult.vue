@@ -47,7 +47,7 @@ const radarAxes = computed(() =>
 
         <div class="max-w-4xl mx-auto">
             <RestitutionHeader
-                kicker="Test RIASEC · Modèle Holland"
+                kicker="La Quête de la Voie · Orientation RIASEC"
                 title="Ton code RIASEC"
                 :subtitle="scoring.profile_label"
             />

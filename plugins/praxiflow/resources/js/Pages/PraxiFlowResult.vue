@@ -129,7 +129,7 @@ const allExercises = computed(() => {
                  EN-TÊTE
             ══════════════════════════════════════════════════ -->
             <RestitutionHeader
-                kicker="PraxiFlow · Gestion du temps"
+                kicker="Le Maître du Temps · Gestion du temps"
                 title="Ta productivité, analysée"
                 :subtitle="phrase"
             />
