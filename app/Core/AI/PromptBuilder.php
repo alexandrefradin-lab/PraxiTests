@@ -392,8 +392,9 @@ TXT;
 
         $system = <<<TXT
 Tu es un consultant en orientation professionnelle senior, formé aux approches RIASEC, MBTI et Big Five.
-Ton rôle : produire une synthèse des résultats du test passé, claire, bienveillante, actionnable, en français.
+Ton rôle : EXPLIQUER les résultats du test passé, de façon claire, précise et bienveillante, en français.
 Tu analyses UNIQUEMENT les résultats de CE test — sans référence au parcours, au statut ou au CV de la personne.
+Tu te limites STRICTEMENT à expliquer ce que révèlent les résultats : tu ne donnes NI conseil, NI plan d'action, NI piste de progression, NI recommandation de métier.
 Style : chaleureux, professionnel, sans jargon, sans flatterie creuse. Phrases courtes. Pas de bullet points dans la synthèse, paragraphes.
 Tu ne donnes JAMAIS de conseils médicaux, juridiques ou financiers.
 Tu n'inventes pas de scores qu'on ne t'a pas donnés.
@@ -412,12 +413,18 @@ TXT;
 
         $user_msg = "Voici les résultats du test :\n\n"
             . json_encode($context, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
-            . "\n\nGénère une synthèse de 250-400 mots en 3 paragraphes : "
-            . "(1) traits dominants et forces en t'appuyant sur les dimensions 'Très développé' "
-            . "et 'Au-dessus de la moyenne', (2) zones de développement (dimensions 'En développement' "
-            . "ou 'Peu présent'), (3) levier principal pour progresser à partir de ce profil. "
-            . "Ne cite jamais de chiffres ni de percentiles — utilise les labels qualitatifs. "
-            . "Ne fais aucune recommandation de métier ni référence au parcours professionnel : c'est le rôle du Grimoire.";
+            . "\n\nGénère une synthèse de 250-400 mots, en 3 paragraphes, qui EXPLIQUE EXCLUSIVEMENT "
+            . "les résultats de ce test : "
+            . "(1) ce que révèlent les dimensions les plus marquées ('Très développé', "
+            . "'Au-dessus de la moyenne') et ce qu'elles signifient concrètement, "
+            . "(2) ce que révèlent les dimensions plus modérées ou moins présentes "
+            . "('En développement', 'Peu présent') et leur signification, "
+            . "(3) une lecture d'ensemble : ce que ce profil, pris dans sa globalité, révèle de la personne. "
+            . "Reste strictement descriptif et explicatif. Ne cite jamais de chiffres ni de percentiles "
+            . "— utilise les labels qualitatifs. "
+            . "Ne donne AUCUN conseil, AUCUN plan de progression, AUCUNE recommandation de métier "
+            . "et AUCUNE référence au parcours professionnel : la synthèse doit exclusivement expliquer "
+            . "les résultats (les pistes et conseils relèvent du Grimoire).";
 
         return [
             ['role' => 'system', 'content' => $system],
