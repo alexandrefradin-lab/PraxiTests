@@ -69,6 +69,14 @@ const radarAxes = computed(() =>
 
         <div style="max-width:780px;margin:0 auto">
 
+            <!-- ⚠️ Avertissement (toujours visible, en tête) -->
+            <Disclaimer>
+                <strong>Ceci n'est pas un diagnostic.</strong> Cet outil explore ton profil de sensibilité
+                à partir du modèle de la sensibilité de traitement sensoriel (E. Aron). La haute sensibilité
+                est un trait de tempérament, pas un trouble ni une maladie. Ces résultats sont une invitation
+                à mieux te connaître — ils ne remplacent pas l'avis d'un professionnel si tu traverses une difficulté.
+            </Disclaimer>
+
             <!-- En-tête -->
             <RestitutionHeader
                 kicker="Le Radar des Sens — Hypersensibilité"
