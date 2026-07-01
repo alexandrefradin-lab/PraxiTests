@@ -24,9 +24,7 @@
 
           <div class="pt-global-score__info">
             <p class="pt-global-score__interpretation">{{ interpretation }}</p>
-            <div class="pt-badge" :style="{ backgroundColor: badgeColor }">
-              {{ dominantStyleLabel }}
-            </div>
+            <div class="pt-global-score__style-chip">Style dominant · {{ dominantStyleLabel }}</div>
           </div>
         </div>
       </section>
@@ -705,12 +703,13 @@ function startJourneyExercise() {
    SECTION TITLE
 ══════════════════════════════════════════════ */
 .pt-section-title {
-  font-size: 1.1rem;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
   font-weight: 700;
-  color: var(--pt-navy);
+  color: #F4ECD8;
   margin: 0 0 1.25rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid var(--pt-cream);
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(230,190,90,0.22);
 }
 
 /* ══════════════════════════════════════════════
@@ -774,7 +773,21 @@ function startJourneyExercise() {
   color: var(--pt-navy);
   font-size: 0.95rem;
   line-height: 1.6;
-  margin: 0 0 0.75rem;
+  margin: 0;
+}
+
+.pt-global-score__style-chip {
+  display: inline-block;
+  margin-top: 0.85rem;
+  padding: 0.3rem 0.85rem;
+  font-family: var(--font-data);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #f2d894;
+  background: rgba(230,190,90,0.12);
+  border: 1px solid rgba(230,190,90,0.38);
+  border-radius: 999px;
 }
 
 /* ══════════════════════════════════════════════
@@ -835,9 +848,18 @@ function startJourneyExercise() {
 }
 
 .pt-style-card__avatar {
-  font-size: 2.8rem;
+  width: 66px;
+  height: 66px;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
   line-height: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 32%, rgba(230,190,90,0.20), rgba(0,0,0,0.28));
+  border: 1px solid rgba(230,190,90,0.38);
+  box-shadow: inset 0 1px 0 rgba(230,190,90,0.25), 0 4px 14px rgba(0,0,0,0.25);
 }
 
 .pt-style-card__content {
@@ -846,9 +868,10 @@ function startJourneyExercise() {
 }
 
 .pt-style-card__name {
-  font-size: 1.15rem;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
   font-weight: 700;
-  color: var(--pt-navy);
+  color: #F4ECD8;
   margin: 0 0 0.5rem;
 }
 
@@ -875,16 +898,26 @@ function startJourneyExercise() {
   margin-right: 0.25rem;
 }
 
+.pt-badge--strength,
+.pt-badge--growth {
+  display: inline-block;
+  padding: 0.26rem 0.72rem;
+  border-radius: 999px;
+  font-family: var(--font-data);
+  font-size: 0.76rem;
+  letter-spacing: 0.02em;
+}
+
 .pt-badge--strength {
-  background: rgba(var(--pt-gold-rgb, 212, 175, 55), 0.15);
-  color: var(--pt-navy);
-  border: 1px solid var(--pt-gold);
+  background: rgba(230,190,90,0.14);
+  color: #f2d894;
+  border: 1px solid rgba(230,190,90,0.42);
 }
 
 .pt-badge--growth {
-  background: rgba(244, 67, 54, 0.08);
-  color: var(--pt-navy);
-  border: 1px solid #f44336;
+  background: rgba(240,232,212,0.06);
+  color: rgba(240,232,212,0.82);
+  border: 1px solid rgba(240,232,212,0.24);
 }
 
 /* ══════════════════════════════════════════════
