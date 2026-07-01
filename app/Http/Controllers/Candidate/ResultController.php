@@ -25,7 +25,7 @@ class ResultController extends Controller
         $defaultAllowed = [
             'Candidate/ResultsShow',
             'PraximetResult', 'PraxiCareResult', 'PraxiEmoResult', 'PraxiMumResult', 'PraxiValeursResult',
-            'Praxis360Result', 'PraxiFocusResult', 'PraxiSensResult',
+            'Praxis360Result', 'PraxiFocusResult', 'PraxiSensResult', 'PraxiBiaisResult',
             // Mini-apps
             'PraxiZenResult', 'PraxiSelfResult', 'PraxiSpeakResult', 'PraxiFlowResult', 'PraxiLinkResult',
         ];
