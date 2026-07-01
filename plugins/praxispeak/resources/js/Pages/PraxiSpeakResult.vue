@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import ScoreGauge from '@/Components/ScoreGauge.vue'
 import RadarChart from '@/Components/RadarChart.vue'
-import MarkdownText from '@/Components/MarkdownText.vue'
+import SynthesisCard from '@/Components/SynthesisCard.vue'
 import RestitutionHeader from '@/Components/RestitutionHeader.vue'
 import ResultPanel from '@/Components/ResultPanel.vue'
 import ResultPdfButton from '@/Components/ResultPdfButton.vue'
@@ -525,15 +525,7 @@ const gridRows = computed(() => {
             </section>
 
             <!-- Synthèse IA ──────────────────────────────────────────── -->
-            <div v-if="result?.ai_synthesis" class="mt-6 pt-4 border-t border-amber-200">
-                <h3 class="font-semibold mb-2">Synthèse personnalisée</h3>
-                <MarkdownText :source="result.ai_synthesis" />
-                <p style="margin-top:0.85rem;padding-top:0.7rem;border-top:1px solid rgba(217,119,6,0.25);font-size:11.5px;line-height:1.55;color:#9a8866">
-                    <strong style="font-weight:600;color:#57534e">Outil d'auto-évaluation et de développement personnel.</strong>
-                    Cette synthèse est générée par IA, à titre informatif. Elle ne constitue pas un avis
-                    professionnel et ne remplace pas un psychologue, un médecin ou un coach.
-                </p>
-            </div>
+            <SynthesisCard v-if="result?.ai_synthesis" :source="result.ai_synthesis" title="Synthèse personnalisée" />
 
             <!-- Actions ──────────────────────────────────────────────── -->
             <div class="flex flex-wrap gap-4 justify-center mt-8 mb-12">
