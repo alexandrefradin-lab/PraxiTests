@@ -153,18 +153,7 @@ const globalProgress = computed(() => Math.round((props.journeyDays.length / 60)
             <header class="text-center mb-12">
                 <!-- Score global circulaire (SVG) -->
                 <div class="flex flex-col items-center mt-8">
-                    <ScoreGauge :score="globalScore" :color="scoreColor(globalScore)" :size="140" />
-
-                    <!-- Niveau en étoiles -->
-                    <div class="flex gap-1 mt-3">
-                        <span v-for="(filled, i) in progressStars" :key="i"
-                              class="text-xl"
-                              :style="{ opacity: filled ? 1 : 0.25 }">
-                            ★
-                        </span>
-                    </div>
-
-                    <!-- Label du profil -->
+                    <!-- Label du profil (archétype qualitatif — mini-app, sans notation) -->
                     <div v-if="profile.label" class="mt-4">
                         <span class="text-2xl mr-2">{{ profile.emoji }}</span>
                         <span class="text-xl font-semibold" style="color: var(--pt-navy)">
@@ -177,74 +166,6 @@ const globalProgress = computed(() => Math.round((props.journeyDays.length / 60)
                 </div>
             </header>
 
-            <!-- ══════════════════════════════════════════════
-                 PROFIL EN UN COUP D'ŒIL — TOILE D'ARAIGNÉE
-            ══════════════════════════════════════════════ -->
-            <ResultPanel v-if="radarAxes.length >= 3" label="Ton profil en un coup d'œil" class="mb-8">
-                <div class="flex justify-center">
-                    <RadarChart :axes="radarAxes" dark />
-                </div>
-            </ResultPanel>
-
-            <!-- ══════════════════════════════════════════════
-                 SECTION 2 — RADAR DES 5 DIMENSIONS (barres)
-            ══════════════════════════════════════════════ -->
-            <ResultPanel class="mb-8">
-                <h2 class="ac-panel-title mb-6">
-                    Profil radar — 5 dimensions
-                </h2>
-
-                <div class="space-y-6">
-                    <div v-for="(score, key) in dimensions" :key="key">
-                        <div class="flex items-center justify-between mb-1 gap-4">
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-base">{{ dimensionsMeta[key]?.icon ?? '•' }}</span>
-                                    <span class="ac-dark-name truncate"
-                                          :style="{ color: dimensionsMeta[key]?.color ?? '#F0E8D4' }">
-                                        {{ dimensionsMeta[key]?.label ?? key }}
-                                    </span>
-                                    <span v-if="key === weakestDimension"
-                                          class="text-xs px-2 py-0.5 rounded-full"
-                                          style="background:rgba(248,113,113,0.15);color:#f87171;white-space:nowrap">
-                                        À renforcer
-                                    </span>
-                                </div>
-                                <p class="ac-dark-def truncate" style="margin-top: 0.125rem;">
-                                    {{ dimensionsMeta[key]?.desc }}
-                                </p>
-                            </div>
-                            <span class="text-sm font-bold flex-shrink-0 w-12 text-right"
-                                  :style="{ color: scoreColorDark(score) }">
-                                {{ score }}%
-                            </span>
-                        </div>
-
-                        <!-- Barre de progression -->
-                        <div class="ac-dark-track">
-                            <div :style="{
-                                     width: barWidth(score),
-                                     backgroundColor: dimensionsMeta[key]?.color ?? 'var(--color-primary)'
-                                 }">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Légende des zones -->
-                <div class="flex flex-wrap gap-4 mt-6 pt-4"
-                     style="border-top: 1px solid rgba(230,190,90,0.20)">
-                    <div v-for="item in [
-                        { color: '#38bdf8', label: '≥ 75 — Solide' },
-                        { color: '#cbb88f', label: '50–74 — En progression' },
-                        { color: '#f87171', label: '< 50 — À travailler' }
-                    ]" :key="item.label" class="ac-dark-muted flex items-center gap-1.5 text-xs">
-                        <span class="inline-block w-3 h-3 rounded-full flex-shrink-0"
-                              :style="{ backgroundColor: item.color }"></span>
-                        {{ item.label }}
-                    </div>
-                </div>
-            </ResultPanel>
 
             <!-- ══════════════════════════════════════════════
                  SECTION 3 — EXERCICES RECOMMANDÉS

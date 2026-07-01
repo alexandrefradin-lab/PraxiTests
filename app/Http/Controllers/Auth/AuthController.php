@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Profile;
 use App\Models\TestInvitation;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
@@ -69,13 +70,16 @@ class AuthController extends Controller
         }
 
         $data = $request->validate([
-            'name'     => ['required', 'string', 'max:120'],
-            'email'    => ['required', 'email', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'terms'    => ['required', 'accepted'],
+            'name'        => ['required', 'string', 'max:120'],
+            'email'       => ['required', 'email', 'unique:users,email'],
+            'password'    => ['required', 'string', 'min:8', 'confirmed'],
+            'terms'       => ['required', 'accepted'],
+            'quest_title' => ['required', 'in:architecte,explorateur,passeur'],
         ], [
-            'terms.required' => 'Vous devez accepter les Conditions Générales d\'Utilisation.',
-            'terms.accepted' => 'Vous devez accepter les Conditions Générales d\'Utilisation.',
+            'terms.required'        => 'Vous devez accepter les Conditions Générales d\'Utilisation.',
+            'terms.accepted'        => 'Vous devez accepter les Conditions Générales d\'Utilisation.',
+            'quest_title.required'  => 'Choisis ton titre de Héros pour commencer la Quête.',
+            'quest_title.in'        => 'Titre de Héros invalide.',
         ]);
 
         $user = User::create([
@@ -84,6 +88,13 @@ class AuthController extends Controller
             'password'          => Hash::make($data['password']),
             'terms_accepted_at' => now(),
             'terms_version'     => self::CGU_VERSION,
+        ]);
+
+        // Crée le profil minimal avec le titre de Héros choisi à l'inscription.
+        // L'onboarding complètera les autres champs (statut, CV…) via updateOrCreate.
+        Profile::create([
+            'user_id'     => $user->id,
+            'quest_title' => $data['quest_title'],
         ]);
 
         // L'événement Registered déclenche l'envoi du mail de vérification (queue sync).

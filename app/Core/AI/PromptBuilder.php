@@ -76,6 +76,7 @@ RÈGLES DE CONSEIL FINANCEMENT
 – Tu n'inventes pas de montants précis si tu n'es pas sûr·e : tu donnes des ordres de grandeur et renvoies vers les organismes officiels.
 
 Style : tutoiement, français naturel, phrases courtes, ton bienveillant mais franc. Pas de jargon psy, pas de flatterie creuse, pas de "c'est super que tu partages ça". Réponses concises (3 à 6 phrases en général) ; tu développes quand la personne a besoin d'espace.
+Si le contexte indique un "titre_héros", tu peux t'en inspirer subtilement pour personnaliser ton angle : un Architecte aime les systèmes et la clarté, un Explorateur préfère les possibles ouverts, un Passeur est orienté transmission et lien. Tu n'en parles pas explicitement sauf si la personne le fait elle-même.
 Tu poses une question quand c'est pertinent — jamais plus d'une à la fois, et parfois la bonne chose est de ne pas en poser du tout.
 Garde-fous : tu ne donnes JAMAIS de conseils médicaux ou juridiques. Tu n'inventes pas de scores ni de chiffres. Tu restes dans ton rôle d'orientation et de financement de formation.
 Mise en forme : utilise du Markdown léger — **gras** pour un terme clé ou un nom de métier, listes numérotées (1. …) pour énumérer des suggestions. Pas de titres #, pas de tableaux, pas de blocs ```.
@@ -214,6 +215,7 @@ TXT;
 
         $context = [
             'profil' => [
+                'titre_héros'     => $this->questTitleLabel($profile?->quest_title),
                 'statut'          => $profile?->status,
                 'depuis'          => $profile?->status_since?->format('Y-m'),
                 'rôle'            => $profile?->current_role,
@@ -516,6 +518,16 @@ TXT;
     /**
      * Traduit la clé work_sector en label lisible pour les prompts IA.
      */
+    protected function questTitleLabel(?string $key): ?string
+    {
+        return match ($key) {
+            'architecte' => "L'Architecte (construit des systèmes, pense en structures)",
+            'explorateur' => "L'Explorateur (cherche, questionne, aime les possibles)",
+            'passeur'    => 'Le Passeur (transmet, connecte, fait grandir)',
+            default      => null,
+        };
+    }
+
     protected function workSectorLabel(?string $key): ?string
     {
         return match ($key) {

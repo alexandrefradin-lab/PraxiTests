@@ -13,6 +13,7 @@ class Profile extends Model
     // #3 — $guarded=[] remplacé par $fillable explicite (protection mass assignment)
     protected $fillable = [
         'user_id',
+        'quest_title',
         'status',
         'status_since',
         'status_months',
