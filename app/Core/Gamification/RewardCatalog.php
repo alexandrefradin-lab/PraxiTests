@@ -8,6 +8,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
+use Praxis\Core\Journey\JourneyRegistry;
 use Praxis\Core\Plugins\PluginRegistry;
 
 /**
@@ -54,8 +55,8 @@ class RewardCatalog
                     'teaser'            => $reward['teaser'] ?? ($manifest['description'] ?? ''),
                     'icon'              => $reward['icon'] ?? 'ti-gift',
                     'threshold'         => (int) $reward['threshold_eclats'],
-                    'estimated_minutes' => $test['estimated_minutes'] ?? null,
-                    'entry'             => $this->resolveEntry($test, $reward),
+                    'estimated_minutes' => JourneyRegistry::has($plugin->slug) ? null : ($test['estimated_minutes'] ?? null),
+                    'entry'             => $this->resolveEntry($plugin->slug, $test, $reward),
                     '_profile_match'    => $manifest['profile_match'] ?? null,
                 ];
             })
@@ -67,8 +68,18 @@ class RewardCatalog
         return $this->cached;
     }
 
-    protected function resolveEntry(?array $test, array $reward): array
+    protected function resolveEntry(string $slug, ?array $test, array $reward): array
     {
+        // Un plugin enregistré comme parcours 60 jours pointe vers son tableau
+        // de bord (prioritaire sur l'ancien questionnaire/test).
+        if (JourneyRegistry::has($slug)) {
+            return [
+                'type' => 'journey',
+                'slug' => $slug,
+                'url'  => Route::has('journey.index') ? route('journey.index', ['plugin' => $slug]) : null,
+            ];
+        }
+
         if (! empty($test['slug'])) {
             return [
                 'type' => 'test',
