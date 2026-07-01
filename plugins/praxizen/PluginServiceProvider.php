@@ -2,6 +2,8 @@
 
 namespace Praxis\Plugins\PraxiZen;
 
+use Praxis\Core\Journey\JourneyRegistry;
+use Praxis\Core\Journey\WeeklyPhaseAdapter;
 use Praxis\Core\Library\ExerciseLibrary;
 use Praxis\Core\Plugins\AbstractPlugin;
 use Praxis\Core\TestEngine\TestEngine;
@@ -31,6 +33,14 @@ class PluginServiceProvider extends AbstractPlugin
                 $attempt->test->scoring_engine === 'praxizen-stress'
                     ? 'PraxiZenResult'
                     : $page,
+        ]);
+
+        // Parcours 60 jours (moteur mutualisé).
+        JourneyRegistry::register('praxizen', [
+            'title'    => 'Le Refuge Intérieur',
+            'subtitle' => 'Gestion du stress - 60 jours',
+            'color'    => '#B87A1A',
+            'days'     => fn () => WeeklyPhaseAdapter::adapt(Data\Journey::all()),
         ]);
 
         // Salle du Trésor : bibliothèque d'exercices (plus de test à l'entrée).

@@ -1,22 +1,31 @@
 <?php
 
-namespace Praxis\Plugins\PraxiFlow\Data;
+namespace Praxis\Core\Journey;
 
 /**
- * Adapte le contenu du parcours PraxiFlow (Journey::days) à la forme normalisée
- * attendue par le moteur mutualisé (JourneyRegistry / JourneyDashboardController).
+ * Adaptateur mutualisé pour les parcours structurés par jour / semaine / phase
+ * (PraxiFlow, PraxiLink, PraxiSelf, PraxiSpeak, PraxiZen partagent cette forme).
+ *
+ * Entrée : liste de jours à clés
+ *   day, week, phase, title, exercise_ref, duration_minutes,
+ *   anchor, intention, micro_habit, reward, weekly_theme, tip_science
+ *
+ * Sortie : forme normalisée attendue par le tableau de bord générique.
  */
-class JourneyAdapter
+class WeeklyPhaseAdapter
 {
     private const PHASE_ICON = [
-        'decouverte'   => 'map',
+        'decouverte'   => 'compass',
         'installation' => 'anchor',
         'renforcement' => 'shield',
         'maitrise'     => 'target',
     ];
 
-    /** @return array<int,array> */
-    public static function days(): array
+    /**
+     * @param  array<int,array>  $days
+     * @return array<int,array>
+     */
+    public static function adapt(array $days): array
     {
         return array_map(static function (array $d): array {
             return [
@@ -27,9 +36,9 @@ class JourneyAdapter
                 'body'            => self::body($d),
                 'micro_challenge' => $d['micro_habit'] ?? '',
                 'duration_min'    => (int) ($d['duration_minutes'] ?? 5),
-                'icon'            => self::PHASE_ICON[$d['phase'] ?? ''] ?? 'clock',
+                'icon'            => self::PHASE_ICON[$d['phase'] ?? ''] ?? 'seedling',
             ];
-        }, Journey::days());
+        }, $days);
     }
 
     private static function body(array $d): string

@@ -2,6 +2,8 @@
 
 namespace Praxis\Plugins\PraxiLink;
 
+use Praxis\Core\Journey\JourneyRegistry;
+use Praxis\Core\Journey\WeeklyPhaseAdapter;
 use Praxis\Core\Library\ExerciseLibrary;
 use Praxis\Core\Plugins\AbstractPlugin;
 use Praxis\Core\TestEngine\TestEngine;
@@ -35,6 +37,14 @@ class PluginServiceProvider extends AbstractPlugin
                 $attempt->test->scoring_engine === 'praxilink-scoring'
                     ? 'PraxiLinkResult'
                     : $page,
+        ]);
+
+        // Parcours 60 jours (moteur mutualisé).
+        JourneyRegistry::register('praxilink', [
+            'title'    => 'L\'Art des Liens',
+            'subtitle' => 'Communication assertive - 60 jours',
+            'color'    => '#B87A1A',
+            'days'     => fn () => WeeklyPhaseAdapter::adapt(Data\Journey::all()),
         ]);
 
         // Salle du Trésor : bibliothèque d'exercices (plus de test à l'entrée).

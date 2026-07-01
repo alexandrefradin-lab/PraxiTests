@@ -29,7 +29,7 @@ class PluginServiceProvider extends AbstractPlugin
             'title'    => 'Le Maître du Temps',
             'subtitle' => 'Gestion du temps - 60 jours',
             'color'    => '#B87A1A',
-            'days'     => fn () => Data\JourneyAdapter::days(),
+            'days'     => fn () => \Praxis\Core\Journey\WeeklyPhaseAdapter::adapt(Data\Journey::days()),
         ]);
 
         // Salle du Trésor : bibliothèque d'exercices (plus de test à l'entrée).

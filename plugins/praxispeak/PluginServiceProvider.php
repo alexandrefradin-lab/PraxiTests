@@ -2,6 +2,8 @@
 
 namespace Praxis\Plugins\PraxiSpeak;
 
+use Praxis\Core\Journey\JourneyRegistry;
+use Praxis\Core\Journey\WeeklyPhaseAdapter;
 use Praxis\Core\Library\ExerciseLibrary;
 use Praxis\Core\Plugins\AbstractPlugin;
 use Praxis\Core\TestEngine\TestEngine;
@@ -22,6 +24,14 @@ class PluginServiceProvider extends AbstractPlugin
         $this->registerFilters([
             'results.inertia_page' => fn (string $page, $attempt) =>
                 $attempt->test->scoring_engine === 'praxispeak-scoring' ? 'PraxiSpeakResult' : $page,
+        ]);
+
+        // Parcours 60 jours (moteur mutualisé).
+        JourneyRegistry::register('praxispeak', [
+            'title'    => 'La Voix du Héros',
+            'subtitle' => 'Prise de parole en public - 60 jours',
+            'color'    => '#B87A1A',
+            'days'     => fn () => WeeklyPhaseAdapter::adapt(Data\Journey::days()),
         ]);
 
         // Salle du Trésor : bibliothèque d'exercices (plus de test à l'entrée).

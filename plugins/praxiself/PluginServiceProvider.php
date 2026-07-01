@@ -2,6 +2,8 @@
 
 namespace Praxis\Plugins\PraxiSelf;
 
+use Praxis\Core\Journey\JourneyRegistry;
+use Praxis\Core\Journey\WeeklyPhaseAdapter;
 use Praxis\Core\Library\ExerciseLibrary;
 use Praxis\Core\Plugins\AbstractPlugin;
 use Praxis\Core\TestEngine\TestEngine;
@@ -32,6 +34,14 @@ class PluginServiceProvider extends AbstractPlugin
         $this->registerFilters([
             'results.inertia_page' => fn (string $page, $attempt) =>
                 $attempt->test->scoring_engine === 'praxiself-scoring' ? 'PraxiSelfResult' : $page,
+        ]);
+
+        // Parcours 60 jours (moteur mutualisé).
+        JourneyRegistry::register('praxiself', [
+            'title'    => 'La Forge du Soi',
+            'subtitle' => 'Affirmation de soi - 60 jours',
+            'color'    => '#B87A1A',
+            'days'     => fn () => WeeklyPhaseAdapter::adapt(Data\Journey::all()),
         ]);
 
         // Salle du Trésor : bibliothèque d'exercices (plus de test à l'entrée).
