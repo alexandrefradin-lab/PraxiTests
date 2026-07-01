@@ -178,11 +178,6 @@ const globalProgress = computed(() => Math.round((props.journeyDays.length / 60)
             </header>
 
             <!-- ══════════════════════════════════════════════
-                 SYNTHÈSE IA (si disponible)
-            ══════════════════════════════════════════════ -->
-            <SynthesisCard :source="attempt.result?.ai_synthesis" title="Synthèse personnalisée" />
-
-            <!-- ══════════════════════════════════════════════
                  PROFIL EN UN COUP D'ŒIL — TOILE D'ARAIGNÉE
             ══════════════════════════════════════════════ -->
             <ResultPanel v-if="radarAxes.length >= 3" label="Ton profil en un coup d'œil" class="mb-8">
@@ -545,6 +540,11 @@ const globalProgress = computed(() => Math.round((props.journeyDays.length / 60)
                 </div>
 
             </section>
+
+            <!-- ══════════════════════════════════════════════
+                 SYNTHÈSE IA — après les graphiques
+            ══════════════════════════════════════════════ -->
+            <SynthesisCard :source="attempt.result?.ai_synthesis" title="Synthèse personnalisée" />
 
             <!-- ══════════════════════════════════════════════
                  ACTIONS

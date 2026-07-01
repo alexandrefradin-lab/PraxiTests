@@ -58,9 +58,6 @@ const radarAxes = computed(() =>
                 </span>
             </div>
 
-            <!-- Synthèse IA si dispo -->
-            <SynthesisCard :source="attempt.result?.ai_synthesis" title="Ta synthèse" />
-
             <!-- Hexagone RIASEC — panneau constellation -->
             <ResultPanel label="Ton hexagone RIASEC" class="mb-8">
                 <div class="flex justify-center">
@@ -101,6 +98,9 @@ const radarAxes = computed(() =>
                     </div>
                 </div>
             </ResultPanel>
+
+            <!-- Synthèse IA — après les graphiques -->
+            <SynthesisCard :source="attempt.result?.ai_synthesis" title="Ta synthèse" />
 
             <ResultPdfButton :attempt-id="attempt.id" />
         </div>

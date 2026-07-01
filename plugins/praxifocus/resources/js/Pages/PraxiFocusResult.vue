@@ -95,13 +95,6 @@ const gaugeColor = computed(() => 'var(--pt-gold)')
                 </div>
             </div>
 
-            <!-- Synthèse IA -->
-            <SynthesisCard v-if="result?.ai_synthesis" :source="result.ai_synthesis" title="Ta synthèse" />
-            <div v-else class="pt-card ac-card-dark" style="padding:3rem;text-align:center;margin-bottom:1rem">
-                <div style="width:36px;height:36px;border-radius:50%;border:3px solid var(--pt-cream-dark);border-top-color:var(--pt-gold);animation:spin 1s linear infinite;margin:0 auto"></div>
-                <p style="margin-top:1rem;color:var(--pt-text-muted)">Analyse en cours… (1 à 2 minutes)</p>
-            </div>
-
             <!-- Visualisation constellation : 2 sous-dimensions ASRS -->
             <ResultPanel label="Tes deux axes d'attention" class="mb-8" style="margin-bottom:1rem">
                 <div class="ac-dark-bar-row" v-for="ax in barAxes" :key="ax.key">
@@ -189,6 +182,13 @@ const gaugeColor = computed(() => 'var(--pt-gold)')
                     Lui seul peut, après un entretien approfondi, confirmer ou écarter un TDAH
                     et te proposer un accompagnement adapté.
                 </p>
+            </div>
+
+            <!-- Synthèse IA — après les graphiques -->
+            <SynthesisCard v-if="result?.ai_synthesis" :source="result.ai_synthesis" title="Ta synthèse" />
+            <div v-else class="pt-card ac-card-dark" style="padding:3rem;text-align:center;margin-bottom:1rem">
+                <div style="width:36px;height:36px;border-radius:50%;border:3px solid var(--pt-cream-dark);border-top-color:var(--pt-gold);animation:spin 1s linear infinite;margin:0 auto"></div>
+                <p style="margin-top:1rem;color:var(--pt-text-muted)">Analyse en cours… (1 à 2 minutes)</p>
             </div>
 
             <!-- Avertissement médical (rappel en pied) -->
