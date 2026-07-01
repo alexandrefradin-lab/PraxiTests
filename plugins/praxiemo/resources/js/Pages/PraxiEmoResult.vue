@@ -45,12 +45,16 @@ const byFamily = computed(() => {
     return groups
 })
 
-// Toile d'araignée sur les 4 familles (les 15 dimensions = trop d'axes).
+// Normalisation d'un score de dimension : échelle réelle [5, 20] → [0, 100].
+// (5 items × 1–4 : le minimum est 5, pas 0 — sinon le graphe part de 25 %.)
+const dimPct = (score) => Math.max(0, Math.min(100, ((Number(score ?? 5) - 5) / 15) * 100))
+
+// Toile d'araignée sur les 4 familles (les 16 dimensions = trop d'axes).
 // Valeur 0-100 par famille = moyenne des dimensions membres, chacune
-// normalisée depuis son score brut /20 (même base que les barres de la page).
+// normalisée sur [5,20] (même base que les barres de la page).
 const radarAxes = computed(() =>
     Object.entries(byFamily.value).map(([famId, famDims]) => {
-        const pcts = famDims.map((d) => ((d.score ?? 0) / 20) * 100)
+        const pcts = famDims.map((d) => dimPct(d.score))
         const avg = pcts.length ? pcts.reduce((a, b) => a + b, 0) / pcts.length : 0
         return {
             label: fams.value[famId]?.label ?? '',
@@ -123,7 +127,7 @@ const dimLabel = (score) => {
                         </div>
                         <div class="flex items-center gap-3">
                             <div class="ac-dark-track flex-1">
-                                <div :style="{ width: ((d.score / 20) * 100) + '%', backgroundColor: dimColorDark(d.score) }"></div>
+                                <div :style="{ width: dimPct(d.score) + '%', backgroundColor: dimColorDark(d.score) }"></div>
                             </div>
                             <span class="text-sm font-semibold w-12 text-right ac-dark-name">{{ d.score }}/20</span>
                         </div>
