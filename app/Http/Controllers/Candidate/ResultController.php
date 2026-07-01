@@ -36,6 +36,11 @@ class ResultController extends Controller
             $page = 'Candidate/ResultsShow';
         }
 
+        // Test core « Compétences entrepreneuriales » : restitution dédiée (archétype).
+        if (($attempt->test->slug ?? '') === 'competences-entrepreneuriales') {
+            $page = 'Candidate/EntrepreneurResult';
+        }
+
         // Injecter les props journey pour les mini-apps
         $miniAppSlugs = ['praxizen', 'praxiself', 'praxispeak', 'praxiflow', 'praxilink'];
         $testSlug     = $attempt->test->plugin_slug ?? $attempt->test->slug ?? '';
