@@ -14,9 +14,7 @@
       <!-- ══════════════════════════════════════════════
            SCORE GLOBAL
       ══════════════════════════════════════════════ -->
-      <section class="pt-card ac-card-dark ac-card-ornate pt-global-score" aria-labelledby="global-score-heading">
-        <h2 id="global-score-heading" class="pt-section-title">Score de communication global</h2>
-
+      <ResultPanel label="Score de communication global" class="mb-8">
         <div class="pt-global-score__gauge-row">
           <div class="pt-global-score__ring">
             <ScoreGauge :score="globalScore" :color="gaugeColor" :size="150" />
@@ -27,7 +25,7 @@
             <div class="pt-global-score__style-chip">Style dominant · {{ dominantStyleLabel }}</div>
           </div>
         </div>
-      </section>
+      </ResultPanel>
 
       <!-- ══════════════════════════════════════════════
            RADAR — VUE D'ENSEMBLE
@@ -83,9 +81,7 @@
       <!-- ══════════════════════════════════════════════
            STYLE COMMUNICANT DOMINANT
       ══════════════════════════════════════════════ -->
-      <section class="pt-card ac-card-dark pt-style-card" aria-labelledby="style-heading">
-        <h2 id="style-heading" class="pt-section-title">Votre style communicant dominant</h2>
-
+      <ResultPanel label="Votre style communicant dominant" class="mb-8">
         <div class="pt-style-card__body">
           <div class="pt-style-card__avatar" aria-hidden="true">
             {{ dominantStyleData.emoji }}
@@ -113,7 +109,7 @@
             </div>
           </div>
         </div>
-      </section>
+      </ResultPanel>
 
       <!-- ══════════════════════════════════════════════
            EXERCICE DU JOUR
