@@ -51,6 +51,10 @@ msg "Seeders idempotents (référentiels)..."
 php artisan db:seed --class=CareerPathsSeeder --force --no-interaction
 ok "Référentiel des pistes métiers (PTP) OK"
 
+# Orientation Express — instrument RIASEC (upsert par section/order, idempotent).
+php artisan db:seed --class=DemoTestSeeder --force --no-interaction
+ok "Test Orientation Express (RIASEC) OK"
+
 msg "Découverte et activation des nouveaux plugins..."
 php artisan praxiquest:plugins:discover --sync
 ok "Plugins découverts"

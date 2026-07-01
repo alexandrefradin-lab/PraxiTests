@@ -28,7 +28,7 @@ const prefersReducedMotion = typeof window !== 'undefined'
 const DIM_META = {
     // Dimensions génériques (écran actuel)
     role:    { label: 'Posture & Rôle',   description: "Ta capacité à prendre ta place et à assumer un rôle clair : te positionner, porter des responsabilités et agir avec légitimité dans un groupe ou un projet." },
-    social:  { label: 'Aisance sociale',  description: "Ton aisance relationnelle : aller vers les autres, coopérer, écouter et créer du lien. Plus le score est élevé, plus tu es à l'aise dans les interactions humaines." },
+    social:  { label: 'Social',           description: "Aime travailler avec et pour les autres : écouter, conseiller, accompagner, transmettre. Profil empathique et coopératif." },
     values:  { label: 'Valeurs',          description: "L'alignement avec tes valeurs profondes — ce qui compte vraiment pour toi et oriente tes choix. Un score élevé signale une boussole intérieure forte et cohérente." },
     context: { label: 'Lecture du contexte', description: "Ta capacité à capter les enjeux d'une situation, à t'adapter à ton environnement et à ajuster ton comportement selon les circonstances." },
 
