@@ -211,52 +211,50 @@ const phaseLabel = (key) => PHASES[key]?.label ?? key
             </ResultPanel>
 
             <!-- ── 5 jauges par dimension ───────────────────────────────── -->
-            <section class="pt-card p-8 mb-8">
-                <h2 class="text-xl font-semibold mb-6" style="color: var(--pt-navy)">Tes 5 dimensions</h2>
+            <ResultPanel class="mb-8">
+                <h2 class="ac-panel-title mb-6">Tes 5 dimensions</h2>
                 <div class="space-y-6">
                     <div v-for="(score, key) in dimensions" :key="key">
                         <div class="flex items-start justify-between gap-4 mb-2">
                             <div class="flex-1">
                                 <div class="flex items-center gap-2">
                                     <span class="text-lg">{{ meta[key]?.icon ?? '' }}</span>
-                                    <span class="font-semibold" :style="{ color: meta[key]?.color ?? 'var(--pt-navy)' }">
+                                    <span class="ac-dark-name" :style="{ color: meta[key]?.color ?? '#F0E8D4' }">
                                         {{ meta[key]?.label ?? key }}
                                     </span>
                                     <!-- Badge point faible -->
                                     <span v-if="weakDims.includes(key)"
                                           class="text-xs px-2 py-0.5 rounded-full font-medium"
-                                          style="background: #FFF7ED; color: #EA580C">
+                                          style="background: rgba(251,146,60,0.15); color: #fb923c">
                                         À renforcer
                                     </span>
                                 </div>
-                                <p class="text-xs mt-1" style="color: var(--pt-text-muted)">
+                                <p class="ac-dark-def" style="margin-top: 0.25rem;">
                                     {{ meta[key]?.description ?? '' }}
                                 </p>
                             </div>
-                            <span class="text-lg font-bold flex-shrink-0" :style="{ color: meta[key]?.color ?? 'var(--pt-navy)' }">
+                            <span class="text-lg font-bold flex-shrink-0" :style="{ color: meta[key]?.color ?? '#F0E8D4' }">
                                 {{ score }}%
                             </span>
                         </div>
 
                         <!-- Barre de progression animée -->
-                        <div class="w-full rounded-full h-3" style="background: #E5E7EB">
+                        <div class="ac-dark-track">
                             <div
-                                class="h-3 rounded-full"
                                 :style="{
                                     width: score + '%',
-                                    backgroundColor: meta[key]?.color ?? 'var(--pt-navy)',
-                                    transition: 'width 1s ease',
+                                    backgroundColor: meta[key]?.color ?? 'var(--color-primary)',
                                 }"
                             ></div>
                         </div>
 
                         <!-- Conseil si dimension faible -->
-                        <p v-if="weakDims.includes(key)" class="text-xs mt-2 italic" style="color: var(--pt-text-muted)">
+                        <p v-if="weakDims.includes(key)" class="ac-dark-muted text-xs mt-2 italic">
                             {{ meta[key]?.low_advice ?? '' }}
                         </p>
                     </div>
                 </div>
-            </section>
+            </ResultPanel>
 
             <!-- ── Exercice du jour ─────────────────────────────────────── -->
             <section v-if="exerciceduJour" class="mb-8">

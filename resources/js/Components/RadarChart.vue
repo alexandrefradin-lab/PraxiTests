@@ -107,6 +107,8 @@ const chartData = computed(() => ({
 const chartOptions = computed(() => ({
     responsive:          true,
     maintainAspectRatio: true,
+    // Marge intérieure pour que les libellés d'axes ne soient pas rognés au bord du canvas
+    layout: { padding: 26 },
     scales: {
         r: {
             min: 0,
@@ -118,9 +120,18 @@ const chartOptions = computed(() => ({
                 backdropColor: pal.value.backdrop,
             },
             pointLabels: {
-                font:    { size: 13, weight: '600', family: "'Space Grotesk','Inter',system-ui,sans-serif" },
+                font:    { size: 11.5, weight: '600', family: "'Space Grotesk','Inter',system-ui,sans-serif" },
                 color:   props.axes.map(a => a.color || pal.value.defaultPt),
-                padding: 8,
+                padding: 6,
+                // Découpe les libellés longs sur 2 lignes (Chart.js accepte un tableau)
+                callback: (label) => {
+                    const s = String(label)
+                    if (s.length <= 14) return s
+                    const words = s.split(' ')
+                    if (words.length < 2) return s
+                    const mid = Math.ceil(words.length / 2)
+                    return [words.slice(0, mid).join(' '), words.slice(mid).join(' ')]
+                },
             },
             grid:       { color: pal.value.grid },
             angleLines: { color: pal.value.angle },

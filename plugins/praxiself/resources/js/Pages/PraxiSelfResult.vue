@@ -36,6 +36,13 @@ const scoreColor = (score) => {
     return '#ef4444'
 }
 
+/** Variante éclaircie pour affichage sur fond sombre (panneau constellation) */
+const scoreColorDark = (score) => {
+    if (score >= 75) return '#38bdf8'
+    if (score >= 50) return '#cbb88f'
+    return '#f87171'
+}
+
 /** Libellé de difficulté */
 const difficultyLabel = (level) => {
     const map = { 1: 'Débutant', 2: 'Intermédiaire', 3: 'Avancé' }
@@ -187,8 +194,8 @@ const globalProgress = computed(() => Math.round((props.journeyDays.length / 60)
             <!-- ══════════════════════════════════════════════
                  SECTION 2 — RADAR DES 5 DIMENSIONS (barres)
             ══════════════════════════════════════════════ -->
-            <section class="pt-card p-8 mb-8">
-                <h2 class="text-xl font-semibold mb-6" style="color: var(--pt-navy)">
+            <ResultPanel class="mb-8">
+                <h2 class="ac-panel-title mb-6">
                     Profil radar — 5 dimensions
                 </h2>
 
@@ -198,34 +205,31 @@ const globalProgress = computed(() => Math.round((props.journeyDays.length / 60)
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center gap-2">
                                     <span class="text-base">{{ dimensionsMeta[key]?.icon ?? '•' }}</span>
-                                    <span class="font-semibold text-sm truncate"
-                                          :style="{ color: dimensionsMeta[key]?.color ?? 'var(--pt-navy)' }">
+                                    <span class="ac-dark-name truncate"
+                                          :style="{ color: dimensionsMeta[key]?.color ?? '#F0E8D4' }">
                                         {{ dimensionsMeta[key]?.label ?? key }}
                                     </span>
                                     <span v-if="key === weakestDimension"
                                           class="text-xs px-2 py-0.5 rounded-full"
-                                          style="background:rgba(239,68,68,0.1);color:#ef4444;white-space:nowrap">
+                                          style="background:rgba(248,113,113,0.15);color:#f87171;white-space:nowrap">
                                         À renforcer
                                     </span>
                                 </div>
-                                <p class="text-xs mt-0.5 truncate"
-                                   style="color: var(--pt-text-muted)">
+                                <p class="ac-dark-def truncate" style="margin-top: 0.125rem;">
                                     {{ dimensionsMeta[key]?.desc }}
                                 </p>
                             </div>
                             <span class="text-sm font-bold flex-shrink-0 w-12 text-right"
-                                  :style="{ color: scoreColor(score) }">
+                                  :style="{ color: scoreColorDark(score) }">
                                 {{ score }}%
                             </span>
                         </div>
 
                         <!-- Barre de progression -->
-                        <div class="h-2.5 rounded-full overflow-hidden"
-                             style="background: var(--pt-cream)">
-                            <div class="h-full rounded-full transition-all duration-700"
-                                 :style="{
+                        <div class="ac-dark-track">
+                            <div :style="{
                                      width: barWidth(score),
-                                     backgroundColor: dimensionsMeta[key]?.color ?? 'var(--pt-navy)'
+                                     backgroundColor: dimensionsMeta[key]?.color ?? 'var(--color-primary)'
                                  }">
                             </div>
                         </div>
@@ -234,19 +238,18 @@ const globalProgress = computed(() => Math.round((props.journeyDays.length / 60)
 
                 <!-- Légende des zones -->
                 <div class="flex flex-wrap gap-4 mt-6 pt-4"
-                     style="border-top: 1px solid var(--pt-cream)">
+                     style="border-top: 1px solid rgba(230,190,90,0.20)">
                     <div v-for="item in [
-                        { color: 'var(--pt-navy)', label: '≥ 75 — Solide' },
-                        { color: 'var(--pt-gold)',  label: '50–74 — En progression' },
-                        { color: '#ef4444',          label: '< 50 — À travailler' }
-                    ]" :key="item.label" class="flex items-center gap-1.5 text-xs"
-                        style="color: var(--pt-text-muted)">
+                        { color: '#38bdf8', label: '≥ 75 — Solide' },
+                        { color: '#cbb88f', label: '50–74 — En progression' },
+                        { color: '#f87171', label: '< 50 — À travailler' }
+                    ]" :key="item.label" class="ac-dark-muted flex items-center gap-1.5 text-xs">
                         <span class="inline-block w-3 h-3 rounded-full flex-shrink-0"
                               :style="{ backgroundColor: item.color }"></span>
                         {{ item.label }}
                     </div>
                 </div>
-            </section>
+            </ResultPanel>
 
             <!-- ══════════════════════════════════════════════
                  SECTION 3 — EXERCICES RECOMMANDÉS

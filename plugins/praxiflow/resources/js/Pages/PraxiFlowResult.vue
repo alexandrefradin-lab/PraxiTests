@@ -53,6 +53,13 @@ const scoreLabel = (score) => {
     if (score < 70) return 'Solide'
     return 'Point fort'
 }
+// Variantes éclaircies pour pastilles sur fond sombre (panneau constellation)
+const scoreColorDark = (score) => {
+    if (score < 30) return '#f87171'
+    if (score < 50) return '#fb923c'
+    if (score < 70) return '#38bdf8'
+    return '#4ade80'
+}
 const dimColor = (dimKey) => dimensions.value[dimKey]?.color ?? 'var(--pt-navy)'
 const stars    = (n) => '★'.repeat(n) + '☆'.repeat(3 - n)
 
@@ -180,42 +187,41 @@ const allExercises = computed(() => {
                 </ResultPanel>
 
                 <!-- 5 Jauges dimensions -->
-                <section class="pt-card" style="padding: 2rem; margin-bottom: 1.5rem;">
-                    <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem; color: var(--pt-navy);">Tes 5 dimensions</h2>
+                <ResultPanel class="mb-8">
+                    <h2 class="ac-panel-title mb-6">Tes 5 dimensions</h2>
                     <div style="display: flex; flex-direction: column; gap: 1.5rem;">
                         <div v-for="(dimInfo, dimKey) in dimensions" :key="dimKey">
                             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
                                 <div>
-                                    <span style="font-weight: 500; color: var(--pt-navy);">{{ dimInfo.label }}</span>
-                                    <p style="font-size: 0.75rem; margin-top: 0.125rem; color: var(--pt-text-muted);">{{ dimInfo.description }}</p>
+                                    <span class="ac-dark-name">{{ dimInfo.label }}</span>
+                                    <p class="ac-dark-def" style="margin-top: 0.125rem;">{{ dimInfo.description }}</p>
                                 </div>
                                 <span
                                     style="font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 9999px; font-weight: 500; white-space: nowrap; margin-left: 1rem;"
                                     :style="{
-                                        backgroundColor: scoreColor(normScores[dimKey] ?? 0) + '18',
-                                        color: scoreColor(normScores[dimKey] ?? 0)
+                                        backgroundColor: scoreColorDark(normScores[dimKey] ?? 0) + '22',
+                                        color: scoreColorDark(normScores[dimKey] ?? 0)
                                     }"
                                 >
                                     {{ scoreLabel(normScores[dimKey] ?? 0) }}
                                 </span>
                             </div>
                             <div style="display: flex; align-items: center; gap: 0.75rem;">
-                                <div style="flex: 1; border-radius: 9999px; overflow: hidden; height: 10px; background: var(--pt-cream, #F3F4F6);">
+                                <div class="ac-dark-track" style="flex: 1;">
                                     <div
-                                        style="height: 100%; border-radius: 9999px; transition: width 0.8s ease;"
                                         :style="{
                                             width: (normScores[dimKey] ?? 0) + '%',
                                             backgroundColor: dimColor(dimKey)
                                         }"
                                     ></div>
                                 </div>
-                                <span style="font-size: 0.875rem; font-weight: 600; width: 2.5rem; text-align: right;" :style="{ color: dimColor(dimKey) }">
+                                <span class="ac-dark-name" style="font-size: 0.875rem; width: 2.5rem; text-align: right;" :style="{ color: dimColor(dimKey) }">
                                     {{ normScores[dimKey] ?? 0 }}
                                 </span>
                             </div>
                         </div>
                     </div>
-                </section>
+                </ResultPanel>
 
                 <!-- Forces & axes de développement -->
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
