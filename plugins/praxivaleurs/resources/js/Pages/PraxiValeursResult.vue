@@ -13,7 +13,11 @@ const props = defineProps({
 })
 
 const scoring = computed(() => props.result?.scoring ?? {})
-const top5 = computed(() => Object.entries(scoring.value.top5 ?? {}))
+// Trié du score le plus élevé au plus faible (le plus important d'abord).
+const top5 = computed(() =>
+    Object.entries(scoring.value.top5 ?? {})
+        .sort((a, b) => Number(b[1]) - Number(a[1]))
+)
 const all = computed(() => Object.entries(scoring.value.dimensions ?? {}))
 const meta = computed(() => scoring.value.meta ?? {})
 
