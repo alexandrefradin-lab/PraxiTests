@@ -152,12 +152,6 @@ const radarAxes = computed(() =>
                 </div>
             </ResultPanel>
 
-            <Disclaimer>
-                <strong>Des pistes, pas un verdict.</strong> Les métiers proposés sont générés
-                par IA à partir de ton profil, à titre indicatif. À explorer et à affiner avec
-                un conseiller en évolution professionnelle.
-            </Disclaimer>
-
             <!-- Synthèse IA — après les graphiques -->
             <SynthesisCard v-if="result?.ai_synthesis" :source="result.ai_synthesis" title="Votre synthèse" />
             <div v-else class="pt-card ac-card-dark" style="padding:3rem;text-align:center;margin-bottom:1rem">
