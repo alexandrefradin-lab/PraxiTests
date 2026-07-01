@@ -135,9 +135,11 @@ const soutienPct = computed(() => {
                         <!-- Cadre + axes -->
                         <rect :x="QX0" :y="QY0" :width="QW" :height="QH" fill="none" stroke="rgba(230,190,90,0.30)" stroke-width="1" />
 
-                        <!-- Point candidat (halo + cœur) -->
-                        <circle :cx="ptX" :cy="ptY" r="13" :fill="meta.color" opacity="0.28" />
-                        <circle :cx="ptX" :cy="ptY" r="7" :fill="meta.color" stroke="#F0E8D4" stroke-width="2" />
+                        <!-- Point candidat (halo doux + cœur fin) -->
+                        <circle :cx="ptX" :cy="ptY" r="12" :fill="meta.color" opacity="0.18" />
+                        <circle :cx="ptX" :cy="ptY" r="6.5" :fill="meta.color" opacity="0.32" />
+                        <circle :cx="ptX" :cy="ptY" r="4" :fill="meta.color" stroke="#F0E8D4" stroke-width="1.5" />
+                        <circle :cx="ptX" :cy="ptY" r="1.4" fill="#F0E8D4" />
 
                         <!-- Labels d'axes -->
                         <text :x="QX0 + QW / 2" y="384" text-anchor="middle"
@@ -187,25 +189,26 @@ const soutienPct = computed(() => {
                             <span class="text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap" :style="severityChipStyle[item.sev]">{{ severityLabel[item.sev] }}</span>
                         </div>
 
-                        <svg viewBox="0 0 300 40" class="w-full" role="img" :aria-label="`${item.label} : ${item.val} sur ${item.max}`">
+                        <svg viewBox="0 0 300 26" class="w-full" role="img" :aria-label="`${item.label} : ${item.val} sur ${item.max}`">
                             <defs>
                                 <clipPath :id="'mbi-' + item.key">
-                                    <rect x="0" y="14" width="300" height="12" rx="6" />
+                                    <rect x="0" y="12" width="300" height="5" rx="2.5" />
                                 </clipPath>
                             </defs>
-                            <!-- Zones (extrémités arrondies via clip) -->
+                            <!-- Zones douces (extrémités arrondies via clip) -->
                             <g :clip-path="`url(#mbi-${item.key})`">
-                                <rect x="0"        y="14" :width="item.z1"            height="12" fill="rgba(74,222,128,0.22)" />
-                                <rect :x="item.z1" y="14" :width="item.z2 - item.z1"  height="12" fill="rgba(251,191,36,0.24)" />
-                                <rect :x="item.z2" y="14" :width="item.full - item.z2" height="12" fill="rgba(248,113,113,0.24)" />
+                                <rect x="0"        y="12" :width="item.z1"            height="5" fill="rgba(74,222,128,0.32)" />
+                                <rect :x="item.z1" y="12" :width="item.z2 - item.z1"  height="5" fill="rgba(251,191,36,0.34)" />
+                                <rect :x="item.z2" y="12" :width="item.full - item.z2" height="5" fill="rgba(248,113,113,0.34)" />
                             </g>
-                            <!-- séparateurs de seuils -->
-                            <line :x1="item.z1" y1="11" :x2="item.z1" y2="29" stroke="#241a0e" stroke-width="1.5" />
-                            <line :x1="item.z2" y1="11" :x2="item.z2" y2="29" stroke="#241a0e" stroke-width="1.5" />
+                            <!-- séparateurs de seuils (fins) -->
+                            <line :x1="item.z1" y1="10.5" :x2="item.z1" y2="18.5" stroke="rgba(16,11,4,0.5)" stroke-width="1" />
+                            <line :x1="item.z2" y1="10.5" :x2="item.z2" y2="18.5" stroke="rgba(16,11,4,0.5)" stroke-width="1" />
 
-                            <!-- Marqueur du score -->
-                            <line :x1="item.markX" y1="8" :x2="item.markX" y2="32" :stroke="item.color" stroke-width="2.5" stroke-linecap="round" />
-                            <circle :cx="item.markX" cy="8" r="4.5" :fill="item.color" stroke="#241a0e" stroke-width="1.5" />
+                            <!-- Marqueur du score (fin + halo discret) -->
+                            <circle :cx="item.markX" cy="14.5" r="7" :fill="item.color" opacity="0.14" />
+                            <line :x1="item.markX" y1="6" :x2="item.markX" y2="23" :stroke="item.color" stroke-width="1.5" stroke-linecap="round" />
+                            <circle :cx="item.markX" cy="6" r="3.1" :fill="item.color" stroke="#1b1206" stroke-width="1.25" />
                         </svg>
 
                         <div class="flex justify-between items-baseline mt-1">
