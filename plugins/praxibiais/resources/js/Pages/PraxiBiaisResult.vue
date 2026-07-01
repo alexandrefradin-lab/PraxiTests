@@ -358,7 +358,7 @@ const profileEmoji = computed(() => ({
             <div style="display:flex;flex-direction:column;gap:.5rem;margin-bottom:2.5rem">
                 <div v-for="biais in rest"
                      :key="'det-' + biais.slug"
-                     class="pt-card"
+                     class="pt-card biais-dark"
                      style="padding:1rem 1.25rem;cursor:pointer"
                      @click="toggle('det-' + biais.slug)">
 
@@ -441,9 +441,9 @@ const profileEmoji = computed(() => ({
 /* ── Cartes en mode sombre « constellation » (bascule les tokens --pt-* pour
    tout le contenu inline, sans réécrire chaque style) ── */
 .biais-dark {
-    background: radial-gradient(ellipse at 50% 0%, #241a0e 0%, var(--color-accent) 62%, #120c04 100%);
-    border: 1px solid var(--color-primary-dark);
-    box-shadow: 0 10px 26px rgba(42,30,8,0.28), inset 0 1px 0 rgba(166,117,32,0.20);
+    background: radial-gradient(ellipse at 50% 0%, #241a0e 0%, var(--color-accent) 62%, #120c04 100%) !important;
+    border: 1px solid var(--color-primary-dark) !important;
+    box-shadow: 0 10px 26px rgba(42,30,8,0.28), inset 0 1px 0 rgba(166,117,32,0.20) !important;
     /* Redéfinition locale des tokens : tout le texte inline devient clair */
     --pt-text:       #F4ECD8;
     --pt-text-muted: rgba(240,232,212,0.72);
