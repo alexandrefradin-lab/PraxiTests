@@ -98,7 +98,7 @@ const soutienPct = computed(() => {
 
         <div class="max-w-3xl mx-auto">
             <RestitutionHeader
-                kicker="PraxiCare · Karasek + MBI"
+                kicker="La Sentinelle Intérieure · Karasek + MBI"
                 title="Ce que ton travail te coûte aujourd'hui."
                 subtitle="Outil d'aide à la prise de conscience. Ne remplace pas un accompagnement humain ni un diagnostic médical."
             />
