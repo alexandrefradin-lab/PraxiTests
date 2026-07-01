@@ -250,11 +250,15 @@ class BiaisScoringEngine implements ScoringEngineContract
             ['idx' => 39, 'biais' => 'sous_estimation',     'type' => 'scenario'],
         ];
 
-        // Accumulateurs
+        // Accumulateurs (brut, min et max réels). Chaque item a un plancher > 0
+        // (échelle 1–5 ⇒ 1 ; scénario ×1.5 ⇒ 1.5). On retranche ce min pour ne pas
+        // afficher ~20 % au minimum et fausser les bandes d'interprétation.
         $brut = [];
+        $min  = [];
         $max  = [];
         foreach (array_keys(self::BIAIS) as $slug) {
             $brut[$slug] = 0.0;
+            $min[$slug]  = 0.0;
             $max[$slug]  = 0.0;
         }
 
@@ -263,17 +267,18 @@ class BiaisScoringEngine implements ScoringEngineContract
             $slug = $item['biais'];
 
             match ($item['type']) {
-                'direct'   => [$brut[$slug] += $val,       $max[$slug] += 5.0],
-                'inverse'  => [$brut[$slug] += (6.0 - $val), $max[$slug] += 5.0],
-                'scenario' => [$brut[$slug] += $val * 1.5, $max[$slug] += 7.5],
+                'direct'   => [$brut[$slug] += $val,         $min[$slug] += 1.0, $max[$slug] += 5.0],
+                'inverse'  => [$brut[$slug] += (6.0 - $val), $min[$slug] += 1.0, $max[$slug] += 5.0],
+                'scenario' => [$brut[$slug] += $val * 1.5,   $min[$slug] += 1.5, $max[$slug] += 7.5],
                 default    => null,
             };
         }
 
         $scores = [];
         foreach (self::BIAIS as $slug => $info) {
-            $normalized = $max[$slug] > 0
-                ? (int) round(($brut[$slug] / $max[$slug]) * 100)
+            $span = $max[$slug] - $min[$slug];
+            $normalized = $span > 0
+                ? (int) round((($brut[$slug] - $min[$slug]) / $span) * 100)
                 : 0;
 
             $scores[$slug] = [

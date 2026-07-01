@@ -71,9 +71,11 @@ class KarasekMbiScoringEngine implements ScoringEngineContract
         return [
             'engine'        => $this->key(),
             'karasek'       => [
-                'demandes' => $demandes, 'demandes_max' => 36,
-                'latitude' => $latitude, 'latitude_max' => 36,
-                'soutien'  => $soutien,  'soutien_max'  => $hasSuperior ? 32 : 16,
+                // _min = nb d'items (échelle 1–4, le minimum n'est jamais 0) : sert
+                // à normaliser l'affichage sur [min..max] et non [0..max].
+                'demandes' => $demandes, 'demandes_min' => 9,                  'demandes_max' => 36,
+                'latitude' => $latitude, 'latitude_min' => 9,                  'latitude_max' => 36,
+                'soutien'  => $soutien,  'soutien_min'  => $hasSuperior ? 8 : 4, 'soutien_max'  => $hasSuperior ? 32 : 16,
                 'has_superior' => $hasSuperior,
             ],
             'mbi'           => [

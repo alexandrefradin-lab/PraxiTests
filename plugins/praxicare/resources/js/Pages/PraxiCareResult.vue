@@ -32,11 +32,13 @@ const severityChipStyle = {
  * Seuils du moteur de scoring : demandes ≥ 22 = élevé · latitude > 21 = élevé.
  * Repère tracé sur une grille 0..36. */
 const QX0 = 64, QY0 = 36, QW = 312, QH = 300   // zone de tracé
-const SCALE = 36
+// Les axes vivent sur [9,36] (9 items × 1–4), pas [0,36] : sinon le quart
+// bas-gauche est inatteignable et le point est repoussé vers le centre/haut.
+const SCALE_MIN = 9, SCALE_MAX = 36
 const TH_DEM = 22, TH_LAT = 21
 
-const qx = v => QX0 + (Math.max(0, Math.min(SCALE, v)) / SCALE) * QW
-const qy = v => QY0 + QH - (Math.max(0, Math.min(SCALE, v)) / SCALE) * QH
+const qx = v => QX0 + ((Math.max(SCALE_MIN, Math.min(SCALE_MAX, v)) - SCALE_MIN) / (SCALE_MAX - SCALE_MIN)) * QW
+const qy = v => QY0 + QH - ((Math.max(SCALE_MIN, Math.min(SCALE_MAX, v)) - SCALE_MIN) / (SCALE_MAX - SCALE_MIN)) * QH
 
 const thX = computed(() => qx(TH_LAT))
 const thY = computed(() => qy(TH_DEM))
@@ -85,11 +87,19 @@ const karasekDef = {
     soutien:  "Appui reçu des collègues et de la hiérarchie.",
 }
 
+/* ─── Normalisation d'une dimension Karasek sur [min..max] (barres + %). ──
+ * Échelle 1–4 : le minimum est nb d'items (≠ 0). On normalise (v-min)/(max-min)
+ * pour que le plancher s'affiche à 0 % et non à 25 %. */
+const karPct = (key) => {
+    const v  = Number(karasek.value[key] ?? 0)
+    const mx = Number(karasek.value[key + '_max'] ?? 1)
+    // _min fourni par le moteur ; repli échelle 1–4 ⇒ min = max/4 (anciens résultats).
+    const mn = Number(karasek.value[key + '_min'] ?? mx / 4)
+    return mx > mn ? Math.max(0, Math.min(100, ((v - mn) / (mx - mn)) * 100)) : 0
+}
+
 /* ─── Soutien social ── */
-const soutienPct = computed(() => {
-    const m = karasek.value.soutien_max || 1
-    return Math.round(((karasek.value.soutien ?? 0) / m) * 100)
-})
+const soutienPct = computed(() => Math.round(karPct('soutien')))
 </script>
 
 <template>
@@ -163,7 +173,7 @@ const soutienPct = computed(() => {
                             <span class="ac-dark-muted text-sm">/ {{ karasek[key + '_max'] }}</span>
                         </div>
                         <div class="ac-dark-track mt-2">
-                            <div :style="{ width: ((karasek[key] / karasek[key + '_max']) * 100) + '%', background: 'var(--color-primary)' }"></div>
+                            <div :style="{ width: karPct(key) + '%', background: 'var(--color-primary)' }"></div>
                         </div>
                         <p class="ac-dark-def">{{ karasekDef[key] }}</p>
                     </div>
