@@ -77,7 +77,7 @@ const radarAxes = computed(() =>
             />
 
             <!-- Score global + palier -->
-            <div v-if="globalScore !== null" class="pt-card ac-card-ornate"
+            <div v-if="globalScore !== null" class="pt-card ac-card-dark ac-card-ornate"
                 style="padding:1.5rem;margin-bottom:1rem;display:flex;align-items:center;gap:1.5rem">
                 <div style="flex-shrink:0">
                     <ScoreGauge :score="globalScore" :size="140" />
@@ -92,7 +92,7 @@ const radarAxes = computed(() =>
 
             <!-- Synthèse IA -->
             <SynthesisCard v-if="result?.ai_synthesis" :source="result.ai_synthesis" title="Votre synthèse" />
-            <div v-else class="pt-card" style="padding:3rem;text-align:center;margin-bottom:1rem">
+            <div v-else class="pt-card ac-card-dark" style="padding:3rem;text-align:center;margin-bottom:1rem">
                 <div style="width:36px;height:36px;border-radius:50%;border:3px solid var(--pt-cream-dark);border-top-color:var(--pt-gold);animation:spin 1s linear infinite;margin:0 auto"></div>
                 <p style="margin-top:1rem;color:var(--pt-text-muted)">Analyse en cours… (1 à 2 minutes)</p>
             </div>

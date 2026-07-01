@@ -104,7 +104,7 @@ const soutienPct = computed(() => {
             />
 
             <!-- Profil Karasek -->
-            <section class="pt-card ac-card-ornate p-8 mb-8 border-l-4" :style="{ borderColor: meta.color }">
+            <section class="pt-card ac-card-ornate ac-card-dark p-8 mb-8 border-l-4" :style="{ borderColor: meta.color }">
                 <p class="text-xs uppercase tracking-wide text-slate-400">Profil Karasek</p>
                 <h2 class="text-2xl font-semibold mt-1" :style="{ color: meta.color }">{{ scoring.profile_label }}</h2>
                 <p class="text-sm text-slate-700 mt-2">{{ meta.desc }}</p>

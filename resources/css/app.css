@@ -465,6 +465,9 @@ h1, h2, h3, h4, .font-display {
         --pt-text-muted:  rgba(240,232,212,0.72);
         --pt-text-light:  rgba(240,232,212,0.55);
         --pt-text-ghost:  rgba(240,232,212,0.40);
+        --pt-navy:        #F4ECD8;
+        --pt-navy-mid:    rgba(240,232,212,0.85);
+        --pt-navy-light:  rgba(240,232,212,0.72);
         --pt-surface:     rgba(0,0,0,0.20);
         --pt-surface-2:   rgba(240,232,212,0.14);
         --pt-border:      rgba(230,190,90,0.22);
@@ -486,6 +489,13 @@ h1, h2, h3, h4, .font-display {
     .ac-card-dark .border-slate-300 { border-color: rgba(230,190,90,0.20) !important; }
     .ac-card-dark .bg-slate-50,
     .ac-card-dark .bg-slate-100 { background-color: rgba(0,0,0,0.20) !important; }
+    /* Bandeaux d'alerte amber lisibles sur fond sombre */
+    .ac-card-dark .text-amber-900,
+    .ac-card-dark .text-amber-800,
+    .ac-card-dark .text-amber-700 { color: #fcd34d !important; }
+    .ac-card-dark .bg-amber-50 { background-color: rgba(0,0,0,0.20) !important; }
+    .ac-card-dark .border-amber-400,
+    .ac-card-dark .border-amber-200 { border-color: rgba(230,190,90,0.5) !important; }
 
     /* ── Cases à cocher / radios (accent or) ── */
     .ac-checkbox, .ac-radio {

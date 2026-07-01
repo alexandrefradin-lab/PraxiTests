@@ -168,7 +168,7 @@ const phaseLabel = (key) => PHASES[key]?.label ?? key
             </Disclaimer>
 
             <!-- ── Jauge circulaire + score global ─────────────────────── -->
-            <div class="pt-card ac-card-ornate p-8 mb-8 flex flex-col md:flex-row items-center gap-10">
+            <div class="pt-card ac-card-dark ac-card-ornate p-8 mb-8 flex flex-col md:flex-row items-center gap-10">
 
                 <!-- Jauge de score partagée -->
                 <div class="relative flex-shrink-0">
@@ -187,13 +187,13 @@ const phaseLabel = (key) => PHASES[key]?.label ?? key
 
                     <!-- Points forts / axes de travail -->
                     <div class="grid grid-cols-2 gap-3">
-                        <div v-if="strongDims.length" class="rounded-xl p-3" style="background: var(--pt-cream)">
+                        <div v-if="strongDims.length" class="rounded-xl p-3" style="background: rgba(0,0,0,0.18)">
                             <p class="text-xs font-semibold uppercase tracking-wide mb-1" style="color: var(--pt-text-muted)">Tes points forts</p>
                             <p v-for="dim in strongDims" :key="dim" class="text-sm font-medium" style="color: var(--pt-navy)">
                                 {{ meta[dim]?.icon ?? '✓' }} {{ meta[dim]?.label ?? dim }}
                             </p>
                         </div>
-                        <div v-if="weakDims.length" class="rounded-xl p-3" style="background: #FFF7ED">
+                        <div v-if="weakDims.length" class="rounded-xl p-3" style="background: rgba(0,0,0,0.18)">
                             <p class="text-xs font-semibold uppercase tracking-wide mb-1" style="color: var(--pt-text-muted)">À renforcer</p>
                             <p v-for="dim in weakDims" :key="dim" class="text-sm font-medium" style="color: #EA580C">
                                 {{ meta[dim]?.icon ?? '→' }} {{ meta[dim]?.label ?? dim }}
@@ -258,7 +258,7 @@ const phaseLabel = (key) => PHASES[key]?.label ?? key
 
             <!-- ── Exercice du jour ─────────────────────────────────────── -->
             <section v-if="exerciceduJour" class="mb-8">
-                <div class="pt-card p-8 border-l-4" :style="{ borderLeftColor: 'var(--pt-gold)' }">
+                <div class="pt-card ac-card-dark p-8 border-l-4" :style="{ borderLeftColor: 'var(--pt-gold)' }">
                     <div class="flex items-center gap-3 mb-4">
                         <span class="text-2xl">{{ categoryIcon(exerciceduJour.category) }}</span>
                         <div>
@@ -275,7 +275,7 @@ const phaseLabel = (key) => PHASES[key]?.label ?? key
                                 ⏱ {{ exerciceduJour.duration_minutes }} min
                             </span>
                             <span class="text-xs px-2 py-1 rounded-full font-medium"
-                                  :style="{ backgroundColor: '#F3F4F6', color: difficultyColor(exerciceduJour.difficulty) }">
+                                  :style="{ backgroundColor: 'rgba(0,0,0,0.18)', color: difficultyColor(exerciceduJour.difficulty) }">
                                 {{ difficultyLabel(exerciceduJour.difficulty) }}
                             </span>
                         </div>
@@ -313,13 +313,13 @@ const phaseLabel = (key) => PHASES[key]?.label ?? key
                     <div
                         v-for="(ex, idx) in recommended.slice(1)"
                         :key="ex.id"
-                        class="pt-card overflow-hidden"
+                        class="pt-card ac-card-dark overflow-hidden"
                     >
                         <!-- En-tête accordéon -->
                         <button
                             class="w-full flex items-center gap-4 p-6 text-left transition-colors"
                             style="background: transparent"
-                            @mouseover="$event.currentTarget.style.background='var(--pt-cream)'"
+                            @mouseover="$event.currentTarget.style.background='rgba(240,232,212,0.10)'"
                             @mouseleave="$event.currentTarget.style.background='transparent'"
                             @click="toggleExercise(ex.id)"
                             :aria-expanded="openExercise === ex.id"
@@ -361,7 +361,7 @@ const phaseLabel = (key) => PHASES[key]?.label ?? key
                                 <li v-for="(step, i) in ex.instructions" :key="i" class="flex gap-3 items-start">
                                     <span
                                         class="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white"
-                                        style="background: var(--pt-navy)"
+                                        style="background: var(--pt-gold)"
                                     >{{ i + 1 }}</span>
                                     <p class="text-sm leading-relaxed pt-0.5" style="color: var(--pt-navy)">{{ step }}</p>
                                 </li>
@@ -372,7 +372,7 @@ const phaseLabel = (key) => PHASES[key]?.label ?? key
             </section>
 
             <!-- ── Badge de progression ────────────────────────────────── -->
-            <section class="pt-card p-8 mb-8">
+            <section class="pt-card ac-card-dark p-8 mb-8">
                 <div class="flex items-center gap-6">
                     <!-- Badge SVG -->
                     <div class="flex-shrink-0">

@@ -76,7 +76,7 @@ const gaugeColor = computed(() => 'var(--pt-gold)')
             />
 
             <!-- Résultat du screener (Partie A) -->
-            <div v-if="screener" class="pt-card ac-card-ornate"
+            <div v-if="screener" class="pt-card ac-card-ornate ac-card-dark"
                 style="padding:1.5rem;margin-bottom:1rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap">
                 <div style="flex-shrink:0">
                     <ScoreGauge :score="screener.score" :max="screener.max" :color="gaugeColor" :size="140" :show-max="true" />
@@ -97,7 +97,7 @@ const gaugeColor = computed(() => 'var(--pt-gold)')
 
             <!-- Synthèse IA -->
             <SynthesisCard v-if="result?.ai_synthesis" :source="result.ai_synthesis" title="Ta synthèse" />
-            <div v-else class="pt-card" style="padding:3rem;text-align:center;margin-bottom:1rem">
+            <div v-else class="pt-card ac-card-dark" style="padding:3rem;text-align:center;margin-bottom:1rem">
                 <div style="width:36px;height:36px;border-radius:50%;border:3px solid var(--pt-cream-dark);border-top-color:var(--pt-gold);animation:spin 1s linear infinite;margin:0 auto"></div>
                 <p style="margin-top:1rem;color:var(--pt-text-muted)">Analyse en cours… (1 à 2 minutes)</p>
             </div>
@@ -119,7 +119,7 @@ const gaugeColor = computed(() => 'var(--pt-gold)')
             </ResultPanel>
 
             <!-- Profil par dimension -->
-            <div class="pt-card" style="padding:1.5rem;margin-bottom:1rem">
+            <div class="pt-card ac-card-dark" style="padding:1.5rem;margin-bottom:1rem">
                 <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1.25rem">
                     <h2 style="font-size:16px;font-weight:500">Ton profil de symptômes</h2>
                     <span style="font-size:11px;color:var(--pt-text-light);font-style:italic">
@@ -180,7 +180,7 @@ const gaugeColor = computed(() => 'var(--pt-gold)')
             </div>
 
             <!-- Que faire maintenant -->
-            <div class="pt-card" style="padding:1.5rem;margin-bottom:1rem;border-left:4px solid var(--pt-navy)">
+            <div class="pt-card ac-card-dark" style="padding:1.5rem;margin-bottom:1rem;border-left:4px solid var(--pt-navy)">
                 <h2 style="font-size:16px;font-weight:500;margin-bottom:.75rem">Et maintenant ?</h2>
                 <p style="font-size:14px;line-height:1.7;color:var(--pt-text);margin:0">
                     Ce repérage est un point de départ, pas une conclusion. Si tu te reconnais

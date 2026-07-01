@@ -274,7 +274,7 @@ const globalProgress = computed(() => Math.round((props.journeyDays.length / 60)
 
                 <div class="grid md:grid-cols-3 gap-5">
                     <article v-for="ex in recommended" :key="ex.id"
-                             class="pt-card p-5 flex flex-col gap-3 hover:shadow-md transition-shadow">
+                             class="pt-card ac-card-dark p-5 flex flex-col gap-3 hover:shadow-md transition-shadow">
 
                         <!-- Catégorie + difficulté -->
                         <div class="flex items-center justify-between">
@@ -324,7 +324,7 @@ const globalProgress = computed(() => Math.round((props.journeyDays.length / 60)
             <!-- ══════════════════════════════════════════════
                  SECTION 4 — MESSAGE DE PROGRESSION
             ══════════════════════════════════════════════ -->
-            <section class="pt-card p-8 mb-8 text-center"
+            <section class="pt-card ac-card-dark p-8 mb-8 text-center"
                      style="background: linear-gradient(135deg, var(--pt-navy) 0%, #1e3a5f 100%);">
                 <div class="text-4xl mb-4">{{ profile.emoji ?? '🌱' }}</div>
                 <h2 class="text-xl font-semibold text-white mb-3">

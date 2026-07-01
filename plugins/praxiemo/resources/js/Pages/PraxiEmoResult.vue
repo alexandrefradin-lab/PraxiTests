@@ -93,14 +93,14 @@ const dimLabel = (score) => {
             />
 
             <!-- Score global -->
-            <section class="pt-card p-8 mb-8 text-center">
+            <section class="pt-card ac-card-dark p-8 mb-8 text-center">
                 <p class="text-xs uppercase tracking-wide text-slate-400">Score global</p>
                 <p class="text-6xl font-semibold mt-2 bg-gradient-to-r from-indigo-600 to-emerald-600 bg-clip-text text-transparent">{{ scoring.score_global }}</p>
                 <p class="text-sm text-slate-500 mt-1">/ {{ scoring.score_max }} — {{ scoring.niveau_qe }}</p>
             </section>
 
             <!-- Alerte désirabilité -->
-            <section v-if="scoring.desirabilite?.alerte" class="pt-card p-6 mb-8 border-l-4 border-amber-400 bg-amber-50">
+            <section v-if="scoring.desirabilite?.alerte" class="pt-card ac-card-dark p-6 mb-8 border-l-4 border-amber-400 bg-amber-50">
                 <p class="font-semibold text-amber-900">{{ scoring.desirabilite.niveau }}</p>
                 <p class="text-sm text-amber-800 mt-1">{{ scoring.desirabilite.message }}</p>
             </section>
@@ -134,7 +134,7 @@ const dimLabel = (score) => {
 
             <!-- Top forces / dev -->
             <div class="grid md:grid-cols-2 gap-6 mb-8">
-                <section class="pt-card p-6">
+                <section class="pt-card ac-card-dark p-6">
                     <h2 class="font-semibold mb-3">Tes 3 forces</h2>
                     <ol class="space-y-2 text-sm">
                         <li v-for="(id, i) in scoring.top_forces" :key="id" class="flex justify-between border-b border-slate-100 pb-2 last:border-0">
@@ -143,7 +143,7 @@ const dimLabel = (score) => {
                         </li>
                     </ol>
                 </section>
-                <section v-if="scoring.top_dev?.length" class="pt-card p-6">
+                <section v-if="scoring.top_dev?.length" class="pt-card ac-card-dark p-6">
                     <h2 class="font-semibold mb-3">Axes de progression</h2>
                     <ol class="space-y-2 text-sm">
                         <li v-for="(id, i) in scoring.top_dev" :key="id" class="flex justify-between border-b border-slate-100 pb-2 last:border-0">

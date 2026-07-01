@@ -14,7 +14,7 @@
       <!-- ══════════════════════════════════════════════
            SCORE GLOBAL
       ══════════════════════════════════════════════ -->
-      <section class="pt-card ac-card-ornate pt-global-score" aria-labelledby="global-score-heading">
+      <section class="pt-card ac-card-dark ac-card-ornate pt-global-score" aria-labelledby="global-score-heading">
         <h2 id="global-score-heading" class="pt-section-title">Score de communication global</h2>
 
         <div class="pt-global-score__gauge-row">
@@ -85,7 +85,7 @@
       <!-- ══════════════════════════════════════════════
            STYLE COMMUNICANT DOMINANT
       ══════════════════════════════════════════════ -->
-      <section class="pt-card pt-style-card" aria-labelledby="style-heading">
+      <section class="pt-card ac-card-dark pt-style-card" aria-labelledby="style-heading">
         <h2 id="style-heading" class="pt-section-title">Votre style communicant dominant</h2>
 
         <div class="pt-style-card__body">
@@ -120,7 +120,7 @@
       <!-- ══════════════════════════════════════════════
            EXERCICE DU JOUR
       ══════════════════════════════════════════════ -->
-      <section class="pt-card pt-exercise-card" aria-labelledby="exercise-heading">
+      <section class="pt-card ac-card-dark pt-exercise-card" aria-labelledby="exercise-heading">
         <h2 id="exercise-heading" class="pt-section-title">
           <span aria-hidden="true">📅 </span>Votre scénario du jour
         </h2>

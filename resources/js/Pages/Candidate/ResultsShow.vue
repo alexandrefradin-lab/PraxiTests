@@ -241,7 +241,7 @@ onMounted(() => {
                 </section>
 
                 <!-- ── DIMENSIONS SCORING ─────────────────────────── -->
-                <section v-if="result.scoring?.dimensions" class="ac-card ac-reveal-item" style="animation-delay: 0.45s">
+                <section v-if="result.scoring?.dimensions" class="ac-card ac-card-dark ac-reveal-item" style="animation-delay: 0.45s">
                     <h2 class="ac-card-title">Tes Dimensions</h2>
                     <p class="ac-card-hint">Clique sur une dimension pour découvrir ce qu'elle mesure.</p>
 
@@ -851,6 +851,22 @@ onMounted(() => {
 
 .ac-btn-primary:active {
     transform: translateY(0);
+}
+
+/* ── Carte Dimensions en mode sombre (ac-card-dark) ──────────────
+   La classe globale rebascule les tokens texte mais pas glass-bg : on corrige
+   ici la boîte de définition et son liseré pour rester lisibles sur fond
+   sombre, sans toucher au radar ni à la logique de reveal. */
+.ac-card.ac-card-dark .ac-dimension-def {
+    background: rgba(0,0,0,0.18);
+    border-left-color: var(--color-primary-light, #C99030);
+    color: rgba(240,232,212,0.72);
+}
+.ac-card.ac-card-dark .ac-card-title {
+    border-bottom-color: rgba(230,190,90,0.22);
+}
+.ac-card.ac-card-dark .ac-dimension-info {
+    border-color: rgba(230,190,90,0.22);
 }
 
 /* ── Accessibilité : réduire les animations si l'utilisateur le demande ── */

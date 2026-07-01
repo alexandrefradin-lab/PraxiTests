@@ -173,7 +173,7 @@ const gridRows = computed(() => {
             />
 
             <!-- Score global de l'orateur ─────────────────────────────── -->
-            <section class="pt-card ac-card-ornate p-8 mb-8">
+            <section class="pt-card ac-card-dark ac-card-ornate p-8 mb-8">
                 <div class="flex flex-col md:flex-row items-center gap-8">
 
                     <!-- Jauge circulaire SVG -->
@@ -271,7 +271,7 @@ const gridRows = computed(() => {
             </ResultPanel>
 
             <!-- Exercice recommandé du jour ───────────────────────────── -->
-            <section v-if="recommended" class="pt-card p-8 mb-8" style="border-left: 4px solid var(--pt-gold, #f59e0b)">
+            <section v-if="recommended" class="pt-card ac-card-dark p-8 mb-8" style="border-left: 4px solid var(--pt-gold, #f59e0b)">
                 <div class="flex items-start gap-4">
                     <div
                         class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center font-bold" style="color: var(--pt-cream, #fffbf5); background: var(--pt-gold, #f59e0b)"
@@ -306,7 +306,7 @@ const gridRows = computed(() => {
             </section>
 
             <!-- Citation inspirante ───────────────────────────────────── -->
-            <section v-if="quote" class="pt-card p-8 mb-8 text-center">
+            <section v-if="quote" class="pt-card ac-card-dark p-8 mb-8 text-center">
                 <div
                     class="text-5xl font-serif leading-none mb-4"
                     style="color: var(--pt-gold, #f59e0b)"

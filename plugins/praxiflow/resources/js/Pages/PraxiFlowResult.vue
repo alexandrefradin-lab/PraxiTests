@@ -137,7 +137,7 @@ const allExercises = computed(() => {
             <!-- ══════════════════════════════════════════════════
                  SCORE GLOBAL
             ══════════════════════════════════════════════════ -->
-            <section class="pt-card ac-card-ornate" style="padding: 2rem; margin-bottom: 2rem; text-align: center;">
+            <section class="pt-card ac-card-dark ac-card-ornate" style="padding: 2rem; margin-bottom: 2rem; text-align: center;">
                 <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; color: var(--pt-text-muted);">
                     Score de productivité global
                 </p>
@@ -225,7 +225,7 @@ const allExercises = computed(() => {
 
                 <!-- Forces & axes de développement -->
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
-                    <section class="pt-card" style="padding: 1.5rem;">
+                    <section class="pt-card ac-card-dark" style="padding: 1.5rem;">
                         <h2 style="font-weight: 600; margin-bottom: 1rem; color: var(--pt-navy);">Tes points forts</h2>
                         <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.75rem;">
                             <li v-for="(dimKey, i) in topForces" :key="dimKey" style="display: flex; align-items: center; gap: 0.75rem;">
@@ -241,7 +241,7 @@ const allExercises = computed(() => {
                         </ul>
                     </section>
 
-                    <section class="pt-card" style="padding: 1.5rem;" v-if="topDev.length">
+                    <section class="pt-card ac-card-dark" style="padding: 1.5rem;" v-if="topDev.length">
                         <h2 style="font-weight: 600; margin-bottom: 1rem; color: var(--pt-navy);">Priorités de développement</h2>
                         <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.75rem;">
                             <li v-for="(dimKey, i) in topDev" :key="dimKey" style="display: flex; align-items: center; gap: 0.75rem;">
@@ -265,15 +265,15 @@ const allExercises = computed(() => {
 
                 <!-- Bandeau stats parcours -->
                 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
-                    <section class="pt-card" style="padding: 1.25rem; text-align: center;">
+                    <section class="pt-card ac-card-dark" style="padding: 1.25rem; text-align: center;">
                         <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--pt-text-muted); margin-bottom: 0.25rem;">Jour actuel</p>
                         <p style="font-size: 2rem; font-weight: 700; color: var(--pt-navy);">{{ currentDay }}<span style="font-size: 1rem; font-weight: 400; color: var(--pt-text-muted);">/60</span></p>
                     </section>
-                    <section class="pt-card" style="padding: 1.25rem; text-align: center;">
+                    <section class="pt-card ac-card-dark" style="padding: 1.25rem; text-align: center;">
                         <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--pt-text-muted); margin-bottom: 0.25rem;">Streak</p>
                         <p style="font-size: 2rem; font-weight: 700; color: var(--pt-warning, #D97706);">{{ streak }}<span style="font-size: 1rem; font-weight: 400; color: var(--pt-text-muted);"> j.</span></p>
                     </section>
-                    <section class="pt-card" style="padding: 1.25rem; text-align: center;">
+                    <section class="pt-card ac-card-dark" style="padding: 1.25rem; text-align: center;">
                         <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--pt-text-muted); margin-bottom: 0.25rem;">Progression</p>
                         <p style="font-size: 2rem; font-weight: 700; color: var(--pt-success, #16A34A);">{{ completionRate }}<span style="font-size: 1rem; font-weight: 400; color: var(--pt-text-muted);">%</span></p>
                     </section>
@@ -282,7 +282,7 @@ const allExercises = computed(() => {
                 <!-- Exercice du jour -->
                 <section
                     v-if="todayEntry"
-                    class="pt-card"
+                    class="pt-card ac-card-dark"
                     style="padding: 1.5rem; margin-bottom: 1.5rem; border-left: 4px solid var(--pt-gold, #B45309);"
                 >
                     <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
@@ -309,7 +309,7 @@ const allExercises = computed(() => {
                     </div>
 
                     <!-- Anchor habit -->
-                    <div style="background: var(--pt-cream, #F8F7F4); border-radius: 0.5rem; padding: 0.75rem 1rem; margin-bottom: 0.75rem;">
+                    <div style="background: rgba(0,0,0,0.18); border-radius: 0.5rem; padding: 0.75rem 1rem; margin-bottom: 0.75rem;">
                         <p style="font-size: 0.75rem; font-weight: 600; color: var(--pt-navy); margin-bottom: 0.2rem;">Anchor habit</p>
                         <p style="font-size: 0.875rem; color: var(--pt-text-muted);">{{ todayEntry.anchor }}</p>
                     </div>
@@ -348,7 +348,7 @@ const allExercises = computed(() => {
                 </div>
 
                 <!-- Grille 60 cases (10×6) -->
-                <section class="pt-card" style="padding: 1.5rem; margin-bottom: 1.5rem;">
+                <section class="pt-card ac-card-dark" style="padding: 1.5rem; margin-bottom: 1.5rem;">
                     <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 1.25rem; color: var(--pt-navy);">Vue d'ensemble — 60 jours</h3>
 
                     <!-- Légende phases -->
@@ -408,8 +408,8 @@ const allExercises = computed(() => {
                 <!-- Récompense du jour -->
                 <div
                     v-if="todayEntry"
-                    class="pt-card"
-                    style="padding: 1.25rem; background: color-mix(in srgb, var(--pt-success, #16A34A) 6%, white);"
+                    class="pt-card ac-card-dark"
+                    style="padding: 1.25rem; background: color-mix(in srgb, var(--pt-success, #16A34A) 12%, rgba(0,0,0,0.18));"
                 >
                     <p style="font-size: 0.75rem; font-weight: 600; color: var(--pt-success, #16A34A); margin-bottom: 0.25rem;">Votre récompense du jour</p>
                     <p style="font-size: 0.875rem; color: var(--pt-navy); font-style: italic;">« {{ todayEntry.reward }} »</p>
@@ -425,7 +425,7 @@ const allExercises = computed(() => {
                 </p>
 
                 <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                    <div v-for="ex in allExercises" :key="ex.id" class="pt-card" style="overflow: hidden;">
+                    <div v-for="ex in allExercises" :key="ex.id" class="pt-card ac-card-dark" style="overflow: hidden;">
                         <button
                             style="width: 100%; text-align: left; padding: 1.25rem 1.5rem; display: flex; align-items: flex-start; gap: 1rem; background: none; border: none; cursor: pointer;"
                             @click="toggleExercise(ex.id)"
@@ -450,7 +450,7 @@ const allExercises = computed(() => {
                         </button>
 
                         <div v-show="openExercise === ex.id" :id="'flow-exercise-panel-' + ex.id" style="padding: 0 1.5rem 1.5rem; border-top: 1px solid var(--pt-cream, #F3F4F6);">
-                            <div style="margin-top: 1rem; margin-bottom: 1rem; padding: 1rem; border-radius: 0.5rem; font-size: 0.875rem; background: var(--pt-cream, #F8F7F4); color: var(--pt-text-muted);">
+                            <div style="margin-top: 1rem; margin-bottom: 1rem; padding: 1rem; border-radius: 0.5rem; font-size: 0.875rem; background: rgba(0,0,0,0.18); color: var(--pt-text-muted);">
                                 <p style="font-weight: 500; margin-bottom: 0.25rem; color: var(--pt-navy);">Base scientifique</p>
                                 <p>{{ ex.scientific_basis }}</p>
                             </div>
@@ -473,7 +473,7 @@ const allExercises = computed(() => {
                  ONGLET : PLAN 7 JOURS
             ══════════════════════════════════════════════════ -->
             <div v-show="activeTab === 'plan'">
-                <div class="pt-card" style="padding: 1.5rem; margin-bottom: 1.5rem; border-left: 4px solid var(--pt-gold, #B45309);">
+                <div class="pt-card ac-card-dark" style="padding: 1.5rem; margin-bottom: 1.5rem; border-left: 4px solid var(--pt-gold, #B45309);">
                     <p style="font-weight: 600; color: var(--pt-navy);">Ton plan d'action personnalisé — 7 jours</p>
                     <p style="font-size: 0.875rem; margin-top: 0.25rem; color: var(--pt-text-muted);">
                         Conçu à partir de tes scores. Chaque journée représente 5 à 10 minutes d'exercice ciblé. La régularité prime sur l'intensité.
@@ -481,7 +481,7 @@ const allExercises = computed(() => {
                 </div>
 
                 <div style="display: flex; flex-direction: column; gap: 1rem;">
-                    <div v-for="(day, dayKey) in weekPlan" :key="dayKey" class="pt-card" style="padding: 1.5rem;">
+                    <div v-for="(day, dayKey) in weekPlan" :key="dayKey" class="pt-card ac-card-dark" style="padding: 1.5rem;">
                         <div style="display: flex; align-items: flex-start; gap: 1rem;">
                             <div style="flex-shrink: 0; width: 2.5rem; height: 2.5rem; border-radius: 9999px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.875rem; color: white; background: var(--pt-navy);">
                                 {{ dayKey.replace('jour_', 'J') }}
@@ -493,7 +493,7 @@ const allExercises = computed(() => {
                                     <span
                                         v-for="ex in day.exercices"
                                         :key="ex.id"
-                                        style="font-size: 0.75rem; padding: 0.375rem 0.75rem; border-radius: 9999px; font-weight: 500; cursor: pointer; background: var(--pt-cream, #F3F4F6); color: var(--pt-navy);"
+                                        style="font-size: 0.75rem; padding: 0.375rem 0.75rem; border-radius: 9999px; font-weight: 500; cursor: pointer; background: rgba(240,232,212,0.14); color: var(--pt-navy);"
                                         @click="activeTab = 'programme'; openExercise = ex.id"
                                     >
                                         {{ ex.title }} · {{ ex.duration_minutes }} min

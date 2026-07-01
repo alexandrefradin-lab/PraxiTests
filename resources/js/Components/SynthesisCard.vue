@@ -19,7 +19,7 @@ defineProps({
 </script>
 
 <template>
-    <section v-if="source" class="pt-card synthesis-card">
+    <section v-if="source" class="pt-card ac-card-dark synthesis-card">
         <h2 class="synthesis-card__title">{{ title }}</h2>
         <MarkdownText :source="source" />
         <p class="synthesis-card__disclaimer">

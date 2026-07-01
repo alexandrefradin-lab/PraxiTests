@@ -86,7 +86,7 @@ const barWidth = (dimKey) => {
             />
 
             <!-- Score global -->
-            <div v-if="global_score !== null" class="pt-card"
+            <div v-if="global_score !== null" class="pt-card ac-card-dark"
                 style="padding:1.5rem;margin-bottom:1rem;display:flex;align-items:center;gap:1.5rem">
                 <div style="text-align:center;flex-shrink:0">
                     <div style="font-family:'Playfair Display',serif;font-size:52px;font-weight:600;color:var(--pt-gold);line-height:1">
@@ -108,7 +108,7 @@ const barWidth = (dimKey) => {
             <SynthesisCard v-if="result?.ai_synthesis" :source="result.ai_synthesis" title="Votre synthèse" />
 
             <!-- En attente IA -->
-            <div v-else class="pt-card" style="padding:3rem;text-align:center;margin-bottom:1rem">
+            <div v-else class="pt-card ac-card-dark" style="padding:3rem;text-align:center;margin-bottom:1rem">
                 <div style="width:36px;height:36px;border-radius:50%;border:3px solid var(--pt-cream-dark);border-top-color:var(--pt-gold);animation:spin 1s linear infinite;margin:0 auto"></div>
                 <p style="margin-top:1rem;color:var(--pt-text-muted)">Analyse en cours… (1 à 2 minutes)</p>
             </div>
@@ -174,7 +174,7 @@ const barWidth = (dimKey) => {
             <!-- Forces & axes de progrès -->
             <div v-if="strengths.length || improvements.length"
                 style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-bottom:1rem">
-                <div v-if="strengths.length" class="pt-card" style="padding:1.5rem">
+                <div v-if="strengths.length" class="pt-card ac-card-dark" style="padding:1.5rem">
                     <h2 style="font-size:16px;font-weight:500;margin-bottom:1rem">Vos forces</h2>
                     <div style="display:flex;flex-direction:column;gap:.5rem">
                         <span v-for="k in strengths" :key="k"
@@ -183,7 +183,7 @@ const barWidth = (dimKey) => {
                         </span>
                     </div>
                 </div>
-                <div v-if="improvements.length" class="pt-card" style="padding:1.5rem">
+                <div v-if="improvements.length" class="pt-card ac-card-dark" style="padding:1.5rem">
                     <h2 style="font-size:16px;font-weight:500;margin-bottom:1rem">Axes de progrès</h2>
                     <div style="display:flex;flex-direction:column;gap:.5rem">
                         <span v-for="k in improvements" :key="k"
@@ -195,7 +195,7 @@ const barWidth = (dimKey) => {
             </div>
 
             <!-- ════════ FEEDBACK 360° — regards croisés ════════ -->
-            <div v-if="panel360" class="pt-card" style="padding:1.5rem;margin-bottom:1rem;border:1px solid var(--pt-gold-border)">
+            <div v-if="panel360" class="pt-card ac-card-dark" style="padding:1.5rem;margin-bottom:1rem;border:1px solid var(--pt-gold-border)">
                 <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px">
                     <h2 style="font-size:16px;font-weight:500">Le regard des autres — 360°</h2>
                     <a :href="panel360.manage_url" class="pt-btn-ghost text-sm">

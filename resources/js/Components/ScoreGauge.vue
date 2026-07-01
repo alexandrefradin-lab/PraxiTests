@@ -13,7 +13,7 @@ const props = defineProps({
     max:        { type: Number, default: 100 },          // borne haute
     color:      { type: String, default: '#A67520' },    // teinte de l'arc (or par défaut)
     size:       { type: Number, default: 180 },          // px
-    trackColor: { type: String, default: 'rgba(42,30,8,0.12)' }, // sillon de fond
+    trackColor: { type: String, default: 'var(--pt-surface-2, rgba(42,30,8,0.12))' }, // sillon (s'éclaircit dans .ac-card-dark)
     showMax:    { type: Boolean, default: true },        // afficher « / max »
 })
 
