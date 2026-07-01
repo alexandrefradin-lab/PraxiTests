@@ -280,12 +280,6 @@ const barWidth = (dimKey) => {
             <div style="display:flex;gap:.75rem;justify-content:center;margin-top:2rem;flex-wrap:wrap">
 
                 <ResultPdfButton :attempt-id="attempt.id" />
-                <Link :href="route('tests.index')" class="pt-btn-ghost">
-                    Voir les autres tests
-                </Link>
-                <Link :href="route('history')" class="pt-btn-primary">
-                    Mon historique →
-                </Link>
             </div>
 
         </div>
