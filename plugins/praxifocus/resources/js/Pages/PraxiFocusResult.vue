@@ -123,7 +123,7 @@ const gaugeColor = computed(() => 'var(--pt-gold)')
                 <div style="display:flex;flex-direction:column;gap:1.25rem">
                     <div v-for="(score, dimKey) in dims" :key="dimKey">
                         <div style="display:flex;align-items:center;gap:12px">
-                            <span style="font-size:13px;font-weight:500;min-width:170px">
+                            <span style="font-size:13px;font-weight:500;min-width:170px;color:var(--pt-text)">
                                 {{ meta[dimKey]?.label ?? dimKey }}
                             </span>
                             <svg viewBox="0 0 300 28" preserveAspectRatio="none" style="flex:1;height:28px" role="img"

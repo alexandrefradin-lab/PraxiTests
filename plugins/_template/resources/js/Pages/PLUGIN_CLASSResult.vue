@@ -98,7 +98,7 @@ const barWidth = (dimKey) => {
                     <div v-for="(score, dimKey) in dims" :key="dimKey">
                         <div style="display:flex;align-items:center;gap:12px">
                             <!-- Nom de la dimension -->
-                            <span style="font-size:13px;font-weight:500;min-width:150px">
+                            <span style="font-size:13px;font-weight:500;min-width:150px;color:var(--pt-text)">
                                 {{ meta[dimKey]?.label ?? dimKey }}
                             </span>
 

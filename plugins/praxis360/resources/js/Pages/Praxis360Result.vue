@@ -219,7 +219,7 @@ const barWidth = (dimKey) => {
                     <div style="display:flex;flex-direction:column;gap:.9rem;margin-bottom:1.25rem">
                         <div v-for="(label, dimKey) in agg.meta" :key="dimKey">
                             <div style="display:flex;align-items:center;gap:12px">
-                                <span style="font-size:13px;font-weight:500;min-width:180px">{{ label.label || dimKey }}</span>
+                                <span style="font-size:13px;font-weight:500;min-width:180px;color:var(--pt-text)">{{ label.label || dimKey }}</span>
                                 <div class="pt-progress-track" style="flex:1;position:relative">
                                     <div class="pt-progress-fill" :style="{ width: (agg.others[dimKey] ?? 0) + '%' }"></div>
                                     <!-- marqueur auto-évaluation -->
