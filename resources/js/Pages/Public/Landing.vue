@@ -26,13 +26,13 @@ onMounted(() => {
 <template>
 <!-- SEO (cf. audit MK-6) : titre, description et cartes de partage Open Graph/Twitter. -->
 <Head title="PraxiQuest — Test d'orientation et de reconversion professionnelle">
-  <meta name="description" content="PraxiQuest : 15 épreuves fondées sur des modèles reconnus (Big Five, RIASEC, valeurs de Schwartz, MBI…), une relecture globale par IA, l'impact de l'IA sur votre métier, jusqu'à 50 pistes de métiers réalistes et 10 modules d'entraînement offerts. Idéal pour la reconversion et l'évolution professionnelle." />
+  <meta name="description" content="PraxiQuest : 15 épreuves fondées sur des modèles reconnus (Big Five, RIASEC, valeurs de Schwartz, MBI…), une relecture globale par IA, l'impact de l'IA sur votre métier, jusqu'à 50 horizons métiers réalistes et 10 modules d'entraînement offerts. Idéal pour la reconversion et l'évolution professionnelle." />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="PraxiQuest — Découvrez votre potentiel professionnel" />
-  <meta property="og:description" content="Tests d'orientation augmentés par l'IA : relecture globale de votre profil, votre métier face à l'IA, jusqu'à 50 pistes de métiers réalistes et des modules d'entraînement offerts." />
+  <meta property="og:description" content="Tests d'orientation augmentés par l'IA : relecture globale de votre profil, votre métier face à l'IA, jusqu'à 50 horizons métiers réalistes et des modules d'entraînement offerts." />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="PraxiQuest — Découvrez votre potentiel professionnel" />
-  <meta name="twitter:description" content="Tests d'orientation augmentés par l'IA : relecture globale, votre métier face à l'IA et jusqu'à 50 pistes de métiers réalistes." />
+  <meta name="twitter:description" content="Tests d'orientation augmentés par l'IA : relecture globale, votre métier face à l'IA et jusqu'à 50 horizons métiers réalistes." />
 </Head>
 <div style="font-family:var(--font-body,Inter,sans-serif);background:var(--bg-base,#F0E8D4);min-height:100vh;color:var(--text-primary,#2A1E08);overflow-x:hidden">
 
@@ -116,7 +116,7 @@ onMounted(() => {
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><polygon points="12,2 22,7 22,17 12,22 2,17 2,7" stroke="#A67520" stroke-width=".8" opacity=".4"/><text x="12" y="16" text-anchor="middle" font-family="monospace" font-size="7" fill="#A67520" font-weight="600">IA</text></svg>
       <div>
         <div id="lp-stat-pistes" class="lp-stat-num" style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:22px;font-weight:700;color:var(--color-primary,#A67520);letter-spacing:-0.02em">50</div>
-        <div style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;color:var(--text-secondary,#6B5A3E);letter-spacing:.06em;text-transform:uppercase">Pistes metiers max</div>
+        <div style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;color:var(--text-secondary,#6B5A3E);letter-spacing:.06em;text-transform:uppercase">Horizons max</div>
       </div>
     </div>
     <div class="lp-stats-divider" style="width:1px;height:28px;background:rgba(166,117,32,0.2)"></div>
@@ -188,7 +188,7 @@ onMounted(() => {
           {roman:'I', title:'L\'ancrage', text:'Tu poses le contexte. La ou tu en es. D\'ou tu viens. L\'IA t\'ecoute avant de te parler.'},
           {roman:'II', title:'L\'exploration', text:'15 epreuves fondees sur des modeles reconnus : RIASEC, Big Five, valeurs, stress, soft skills 360...'},
           {roman:'III', title:'La revelation', text:'Le Grimoire croise toutes tes epreuves : synthese profonde, et l\'impact de l\'IA sur ton metier.'},
-          {roman:'IV', title:'L\'horizon', text:'Jusqu\'a 50 pistes metiers, a reordonner selon tes priorites. Pas des verdicts. Des chemins.'},
+          {roman:'IV', title:'L\'horizon', text:'Jusqu\'a 50 horizons metiers, a reordonner selon tes priorites. Pas des verdicts. Des chemins.'},
         ]" :key="i" class="lp-journey-item" style="padding:0 1.2rem;text-align:center;position:relative">
           <div class="lp-journey-circle" style="width:56px;height:56px;margin:0 auto 1.2rem;background:var(--bg-surface,#E5DAC2);border:1px solid rgba(166,117,32,0.35);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:1">
             <span class="lp-journey-num" style="font-family:var(--font-data,'Space Mono',monospace);font-size:14px;font-weight:400;color:var(--color-primary,#A67520)">{{ step.roman }}</span>
@@ -249,7 +249,7 @@ onMounted(() => {
         <div class="lp-univers-card" style="background:var(--bg-base,#F0E8D4);border:1px solid rgba(166,117,32,0.25);border-top:2px solid var(--color-primary,#A67520);border-radius:12px;padding:2rem 1.7rem">
           <p style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--color-primary,#A67520);margin-bottom:.7rem">02 &middot; La relecture</p>
           <div style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:17px;font-weight:600;color:var(--text-primary,#2A1E08);margin-bottom:.7rem;letter-spacing:-0.01em">Le Grimoire</div>
-          <p style="font-family:var(--font-body,'Inter',sans-serif);font-size:13px;color:var(--text-secondary,#6B5A3E);line-height:1.75">L'oracle croise l'ensemble de tes epreuves : un fil conducteur, une analyse de l'impact de l'IA sur ton metier, et jusqu'a 50 pistes metiers que tu reordonnes en direct selon tes priorites — remuneration, sens, autonomie, stabilite.</p>
+          <p style="font-family:var(--font-body,'Inter',sans-serif);font-size:13px;color:var(--text-secondary,#6B5A3E);line-height:1.75">L'oracle croise l'ensemble de tes epreuves : un fil conducteur, une analyse de l'impact de l'IA sur ton metier, et jusqu'a 50 horizons metiers que tu reordonnes en direct selon tes priorites — remuneration, sens, autonomie, stabilite.</p>
         </div>
         <div class="lp-univers-card" style="background:var(--bg-base,#F0E8D4);border:1px solid rgba(166,117,32,0.25);border-top:2px solid var(--color-primary,#A67520);border-radius:12px;padding:2rem 1.7rem">
           <p style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--color-primary,#A67520);margin-bottom:.7rem">03 &middot; L'entrainement</p>
@@ -284,7 +284,7 @@ onMounted(() => {
       </div>
       <h2 style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:clamp(28px,4vw,44px);font-weight:700;color:var(--text-primary,#2A1E08);line-height:1.15;letter-spacing:-0.03em;margin-bottom:.4rem">Ta terra incognita</h2>
       <h2 style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:clamp(28px,4vw,44px);font-weight:400;color:var(--color-primary,#A67520);line-height:1.15;letter-spacing:-0.03em;margin-bottom:1.2rem">t'attend.</h2>
-      <p style="font-family:var(--font-body,'Inter',sans-serif);font-size:14px;color:var(--text-secondary,#6B5A3E);margin:0 auto 2.4rem;max-width:340px;line-height:1.75">Une expedition interieure. Jusqu'a 50 pistes metiers, et des modules d'entrainement pour avancer vraiment.</p>
+      <p style="font-family:var(--font-body,'Inter',sans-serif);font-size:14px;color:var(--text-secondary,#6B5A3E);margin:0 auto 2.4rem;max-width:340px;line-height:1.75">Une expedition interieure. Jusqu'a 50 horizons metiers, et des modules d'entrainement pour avancer vraiment.</p>
       <Link href="/register" class="lp-btn-primary" style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:13px;font-weight:600;letter-spacing:-0.01em;color:var(--bg-base,#F0E8D4);background:var(--color-accent,#1C1408);border:none;padding:16px 44px;cursor:pointer;border-radius:8px;text-decoration:none;display:inline-block;margin-bottom:1.4rem;box-shadow:0 4px 16px rgba(42,30,8,0.2)">Commencer l'expedition</Link>
       <p style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;color:var(--text-muted,#8C7A5E);letter-spacing:.1em;text-transform:uppercase">Gratuit &middot; Sans engagement &middot; Donnees chiffrees</p>
     </div>
