@@ -341,6 +341,7 @@ function fitClass(score) {
                             <article v-for="t in tests" :key="t.attempt_id" class="grim-test-card">
                                 <div class="grim-test-main">
                                     <h3 class="grim-test-name">{{ t.name }}</h3>
+                                    <p v-if="t.mesure" class="grim-test-measures">{{ t.mesure }}</p>
                                     <p v-if="t.summary" class="grim-test-summary">{{ t.summary }}</p>
                                     <p v-else class="grim-test-summary grim-test-pending">
                                         Synthèse en cours de génération…
@@ -1034,6 +1035,7 @@ function fitClass(score) {
 }
 .grim-test-card:hover { box-shadow: var(--shadow-card, 0 2px 12px rgba(42,30,8,0.10)); }
 .grim-test-main { flex: 1 1 320px; min-width: 0; }
+.grim-test-measures { font-family: var(--font-body, 'Inter', sans-serif); font-size: .82rem; line-height: 1.45; color: var(--color-primary-dark, #7D5010); margin: .15rem 0 .55rem; }
 .grim-test-summary { font-family: var(--font-body, 'Inter', sans-serif); font-size: .98rem; line-height: 1.6; color: var(--text-secondary, #6B5A3E); }
 .grim-test-pending { font-style: italic; color: var(--text-muted, #8C7A5E); }
 .grim-test-actions { display: flex; flex-direction: column; gap: .5rem; flex: 0 0 auto; align-items: stretch; }

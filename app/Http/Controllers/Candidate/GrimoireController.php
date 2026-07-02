@@ -141,6 +141,7 @@ class GrimoireController extends Controller
             'tests' => $attempts->map(fn ($a) => [
                 'attempt_id'   => $a->id,
                 'name'         => $a->test?->name,
+                'mesure'       => $this->testMeasures($a->test?->slug, $a->test?->description),
                 'summary'      => $this->testSummary($a->result?->ai_synthesis),
                 'completed_at' => $a->completed_at?->toIso8601String(),
                 'results_url'  => route('results.show', $a->id),
@@ -150,6 +151,47 @@ class GrimoireController extends Controller
             'voies_pending' => $voiesPending,
             'is_empty'     => false,
         ]);
+    }
+
+    /**
+     * Rappel court de ce qu'évalue un test, affiché sous son titre dans le Grimoire.
+     * Map curée par slug (vrais slugs DB) ; repli sur la 1re phrase de la description.
+     */
+    private function testMeasures(?string $slug, ?string $description): ?string
+    {
+        $map = [
+            'praximet-riasec'               => "Tes intérêts professionnels selon le modèle RIASEC (Holland).",
+            'orientation-express'           => "Un repérage rapide de tes affinités professionnelles (RIASEC).",
+            'praxiemo'                      => "Ton intelligence émotionnelle, sur 16 dimensions.",
+            'praximum'                      => "Ta personnalité selon le modèle Big Five (OCEAN).",
+            'praxicare'                     => "Ton rapport au stress et à l'épuisement au travail (Karasek + MBI).",
+            'praxis360'                     => "Tes soft skills, vues par toi et par ton entourage (360°).",
+            'praxifocus'                    => "Un repérage des symptômes d'attention et d'hyperactivité (ASRS-v1.1).",
+            'praxisens'                     => "Ton profil de sensibilité (haute sensibilité, modèle d'E. Aron).",
+            'praxibiais'                    => "Les biais cognitifs qui influencent tes décisions professionnelles.",
+            'praxivaleurs'                  => "Tes valeurs professionnelles prioritaires (modèle de Schwartz).",
+            'praxitempo'                    => "Ta gestion du temps, sur 4 dimensions.",
+            'competences-entrepreneuriales' => "Tes compétences entrepreneuriales, sur 8 dimensions (EntreComp).",
+            // Mini-apps (si passées comme test avant leur bascule en parcours)
+            'praxizen-stress'               => "Ta gestion du stress, sur 5 dimensions.",
+            'praxiself-affirmation'         => "Ton affirmation de soi, sur 5 dimensions.",
+            'praxispeak'                    => "Ton profil d'orateur et ta prise de parole en public.",
+            'praxiflow-productivite'        => "Ta gestion du temps au quotidien.",
+            'praxilink-assertivite'         => "Ta communication assertive, sur 5 dimensions.",
+        ];
+
+        if ($slug && isset($map[$slug])) {
+            return $map[$slug];
+        }
+
+        // Repli : 1re phrase de la description (souvent « Ce que ce test mesure : … »).
+        $desc = trim((string) $description);
+        if ($desc === '') {
+            return null;
+        }
+        $first = preg_split('/(?<=[.!?])\s+/', $desc)[0] ?? $desc;
+
+        return mb_strlen($first) > 160 ? (mb_substr($first, 0, 157) . '…') : $first;
     }
 
     /**
