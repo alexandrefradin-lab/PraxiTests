@@ -334,7 +334,7 @@ function fitClass(score) {
                         <div class="grim-section-head">
                             <h2 class="grim-section-title">Tes épreuves relues</h2>
                             <p class="grim-voies-intro">
-                                Le résumé de chacune de tes épreuves. Télécharge le détail complet en PDF.
+                                Ce que chaque épreuve te révèle. Ouvre le détail ou télécharge-le en PDF.
                             </p>
                         </div>
                         <div class="grim-tests-list">
@@ -342,12 +342,8 @@ function fitClass(score) {
                                 <div class="grim-test-main">
                                     <h3 class="grim-test-name">{{ t.name }}</h3>
                                     <p v-if="t.mesure" class="grim-test-measures">{{ t.mesure }}</p>
-                                    <p v-if="t.summary" class="grim-test-summary">{{ t.summary }}</p>
-                                    <p v-else class="grim-test-summary grim-test-pending">
-                                        Synthèse en cours de génération…
-                                    </p>
                                     <p v-if="t.detail_preview" class="grim-test-preview">
-                                        <span class="grim-test-preview-icon" aria-hidden="true">&#10022;</span>
+                                        <span class="grim-test-preview-label">Dans le détail</span>
                                         {{ t.detail_preview }}
                                     </p>
                                 </div>
@@ -1040,19 +1036,22 @@ function fitClass(score) {
 .grim-test-card:hover { box-shadow: var(--shadow-card, 0 2px 12px rgba(42,30,8,0.10)); }
 .grim-test-main { flex: 1 1 320px; min-width: 0; }
 .grim-test-measures { font-family: var(--font-body, 'Inter', sans-serif); font-size: .82rem; line-height: 1.45; color: var(--color-primary-dark, #7D5010); margin: .15rem 0 .55rem; }
-.grim-test-summary { font-family: var(--font-body, 'Inter', sans-serif); font-size: .98rem; line-height: 1.6; color: var(--text-secondary, #6B5A3E); }
-.grim-test-pending { font-style: italic; color: var(--text-muted, #8C7A5E); }
 .grim-test-preview {
     font-family: var(--font-body, 'Inter', sans-serif);
-    font-size: .85rem;
-    line-height: 1.5;
-    font-style: italic;
-    color: var(--grim-gold-dark);
-    margin-top: .6rem;
-    padding-top: .6rem;
-    border-top: 1px dashed rgba(166,117,32,0.30);
+    font-size: .98rem;
+    line-height: 1.6;
+    color: var(--text-secondary, #6B5A3E);
+    margin-top: .35rem;
 }
-.grim-test-preview-icon { color: var(--grim-gold); margin-right: .35rem; font-style: normal; }
+.grim-test-preview-label {
+    display: block;
+    font-family: var(--font-data, monospace);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--grim-red);
+    margin-bottom: .3rem;
+}
 .grim-test-actions { display: flex; flex-direction: column; gap: .5rem; flex: 0 0 auto; align-items: stretch; }
 .grim-test-link {
     font-family: var(--font-display, sans-serif);

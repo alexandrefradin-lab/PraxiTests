@@ -142,7 +142,6 @@ class GrimoireController extends Controller
                 'attempt_id'   => $a->id,
                 'name'         => $a->test?->name,
                 'mesure'       => $this->testMeasures($a->test?->slug, $a->test?->description),
-                'summary'      => $this->testSummary($a->result?->ai_synthesis),
                 'detail_preview' => $this->testDetailPreview($a->test?->slug),
                 'completed_at' => $a->completed_at?->toIso8601String(),
                 'results_url'  => route('results.show', $a->id),
@@ -196,65 +195,34 @@ class GrimoireController extends Controller
     }
 
     /**
-     * Annonce ce que la page de résultats détaillés révèle au clic sur
-     * « Voir le détail » : radar/scores par dimension + analyse complète.
+     * Ce que la page de résultats révèle, affiché sous le libellé « Dans le
+     * détail » de chaque carte : radar/scores par dimension + analyse complète.
      * Map curée par slug (mêmes slugs que testMeasures) ; repli générique.
      */
     private function testDetailPreview(?string $slug): string
     {
         $map = [
-            'praximet-riasec'               => "En cliquant sur « Voir le détail » : tes scores sur les 6 types RIASEC, le radar de ton profil d'intérêts et l'analyse complète avec les familles de métiers qui te correspondent.",
-            'orientation-express'           => "En cliquant sur « Voir le détail » : tes affinités professionnelles dominantes, dimension par dimension, et la lecture complète de ton profil d'orientation.",
-            'praxiemo'                      => "En cliquant sur « Voir le détail » : tes 16 dimensions émotionnelles notées sur 100, tes points forts et axes de progression, et l'analyse complète de ton intelligence émotionnelle.",
-            'praximum'                      => "En cliquant sur « Voir le détail » : tes 5 traits de personnalité (OCEAN) notés sur 100, avec la définition de chacun et l'analyse complète de ton profil.",
-            'praxicare'                     => "En cliquant sur « Voir le détail » : tes niveaux de demande, d'autonomie et de soutien au travail, tes signaux d'épuisement, et l'analyse complète de ta situation.",
-            'praxis360'                     => "En cliquant sur « Voir le détail » : le radar de tes soft skills croisant ton auto-évaluation et le regard de ton entourage, et l'analyse complète des écarts.",
-            'praxifocus'                    => "En cliquant sur « Voir le détail » : tes scores d'attention et d'hyperactivité dimension par dimension, et une lecture nuancée de ce qu'ils suggèrent.",
-            'praxisens'                     => "En cliquant sur « Voir le détail » : ton niveau de sensibilité sur chaque facette du modèle, et l'analyse complète de ce que cela implique au travail.",
-            'praxibiais'                    => "En cliquant sur « Voir le détail » : les biais cognitifs les plus actifs chez toi, notés un par un, et des pistes concrètes pour mieux décider.",
-            'praxivaleurs'                  => "En cliquant sur « Voir le détail » : la hiérarchie de tes valeurs professionnelles (Schwartz), le radar de ton profil et l'analyse de ce qui doit nourrir ton travail.",
-            'praxitempo'                    => "En cliquant sur « Voir le détail » : tes 4 dimensions de gestion du temps notées sur 100, et l'analyse complète de ton organisation.",
-            'competences-entrepreneuriales' => "En cliquant sur « Voir le détail » : tes 8 compétences entrepreneuriales (EntreComp) notées sur 100, le radar de ton profil et l'analyse complète de ton potentiel.",
-            'praxizen-stress'               => "En cliquant sur « Voir le détail » : tes 5 dimensions de gestion du stress notées sur 100, et l'analyse complète de tes ressources et points de vigilance.",
-            'praxiself-affirmation'         => "En cliquant sur « Voir le détail » : tes 5 dimensions d'affirmation de soi notées sur 100, et l'analyse complète de ta posture relationnelle.",
-            'praxispeak'                    => "En cliquant sur « Voir le détail » : ton profil d'orateur dimension par dimension, et l'analyse complète de ta prise de parole en public.",
-            'praxiflow-productivite'        => "En cliquant sur « Voir le détail » : tes scores de productivité au quotidien, dimension par dimension, et l'analyse complète de ton organisation.",
-            'praxilink-assertivite'         => "En cliquant sur « Voir le détail » : tes 5 dimensions de communication assertive notées sur 100, et l'analyse complète de ton style relationnel.",
+            'praximet-riasec'               => "Tes scores sur les 6 types RIASEC, le radar de ton profil d'intérêts et les familles de métiers qui te correspondent.",
+            'orientation-express'           => "Tes affinités professionnelles dominantes, dimension par dimension, et la lecture complète de ton profil d'orientation.",
+            'praxiemo'                      => "Tes 16 dimensions émotionnelles notées sur 100, tes points forts, tes axes de progression et l'analyse complète de ton intelligence émotionnelle.",
+            'praximum'                      => "Tes 5 traits de personnalité (OCEAN) notés sur 100, la définition de chacun et l'analyse complète de ton profil.",
+            'praxicare'                     => "Tes niveaux de demande, d'autonomie et de soutien au travail, tes signaux d'épuisement et l'analyse complète de ta situation.",
+            'praxis360'                     => "Le radar de tes soft skills croisant ton auto-évaluation et le regard de ton entourage, et l'analyse complète des écarts.",
+            'praxifocus'                    => "Tes scores d'attention et d'hyperactivité dimension par dimension, et une lecture nuancée de ce qu'ils suggèrent.",
+            'praxisens'                     => "Ton niveau de sensibilité sur chaque facette du modèle, et ce que cela implique dans ton travail.",
+            'praxibiais'                    => "Les biais cognitifs les plus actifs chez toi, notés un par un, et des pistes concrètes pour mieux décider.",
+            'praxivaleurs'                  => "La hiérarchie de tes valeurs professionnelles (Schwartz), le radar de ton profil et ce qui doit nourrir ton travail pour avoir du sens.",
+            'praxitempo'                    => "Tes 4 dimensions de gestion du temps notées sur 100 et l'analyse complète de ton organisation.",
+            'competences-entrepreneuriales' => "Tes 8 compétences entrepreneuriales (EntreComp) notées sur 100, le radar de ton profil et l'analyse complète de ton potentiel.",
+            'praxizen-stress'               => "Tes 5 dimensions de gestion du stress notées sur 100, tes ressources et tes points de vigilance.",
+            'praxiself-affirmation'         => "Tes 5 dimensions d'affirmation de soi notées sur 100 et l'analyse complète de ta posture relationnelle.",
+            'praxispeak'                    => "Ton profil d'orateur dimension par dimension et l'analyse complète de ta prise de parole en public.",
+            'praxiflow-productivite'        => "Tes scores de productivité au quotidien, dimension par dimension, et l'analyse complète de ton organisation.",
+            'praxilink-assertivite'         => "Tes 5 dimensions de communication assertive notées sur 100 et l'analyse complète de ton style relationnel.",
         ];
 
         return $map[$slug ?? '']
-            ?? "En cliquant sur « Voir le détail » : tes scores dimension par dimension et l'analyse complète de ton profil.";
-    }
-
-    /**
-     * Résumé court d'un test pour la liste du Grimoire : premier paragraphe
-     * de la synthèse IA, tronqué proprement. Null si la synthèse n'est pas prête.
-     */
-    private function testSummary(?string $synthesis): ?string
-    {
-        $synthesis = trim((string) $synthesis);
-        if ($synthesis === '') {
-            return null;
-        }
-
-        // Premier VRAI paragraphe de prose : on ignore les titres Markdown
-        // (« # Synthèse de profil — … »), les règles horizontales et les lignes
-        // vides, sinon le résumé de chaque test affiche juste le titre commun.
-        $first = collect(preg_split('/\n+/', $synthesis))
-            ->map(fn ($p) => trim($p))
-            ->first(function ($p) {
-                if ($p === '') return false;
-                if (preg_match('/^#{1,6}\s/', $p)) return false;   // titre Markdown
-                if (preg_match('/^[-*_=]{3,}$/', $p)) return false; // règle horizontale
-                return true;
-            }) ?? $synthesis;
-
-        // Nettoyage du balisage Markdown inline pour un teaser en texte brut.
-        $first = preg_replace('/^#{1,6}\s+/', '', $first);          // titre résiduel
-        $first = preg_replace('/(\*\*|__|\*|_|`)/', '', $first);    // gras / italique / code
-        $first = trim(preg_replace('/\s+/', ' ', $first));
-
-        return \Illuminate\Support\Str::limit($first, 280);
+            ?? "Tes scores dimension par dimension et l'analyse complète de ton profil.";
     }
 
     /** Polling léger pour la page (équivalent de results.status). */
