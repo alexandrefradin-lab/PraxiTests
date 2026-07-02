@@ -34,7 +34,9 @@ class RewardCatalog
             return $this->cached = collect();
         }
 
-        $this->cached = Cache::remember('reward_catalog_v1', 300, function () {
+        // v2 : URLs relatives (cf. resolveEntry) — bump de clé pour invalider
+        // les anciens caches contenant des URLs absolues.
+        $this->cached = Cache::remember('reward_catalog_v2', 300, function () {
             $enabled = PluginModel::where('enabled', true)->get();
 
             return $enabled->map(function (PluginModel $plugin) {
@@ -70,13 +72,19 @@ class RewardCatalog
 
     protected function resolveEntry(string $slug, ?array $test, array $reward): array
     {
+        // IMPORTANT : URLs RELATIVES (absolute: false). Le catalogue est mis en
+        // cache 5 min pour TOUS les utilisateurs : une URL absolue figerait
+        // l'hôte de la requête qui a rempli le cache (praxiquest.fr vs
+        // www.praxiquest.fr) et casserait la navigation Inertia (cross-origin
+        // silencieux) pour les visiteurs de l'autre domaine.
+
         // Un plugin enregistré comme parcours 60 jours pointe vers son tableau
         // de bord (prioritaire sur l'ancien questionnaire/test).
         if (JourneyRegistry::has($slug)) {
             return [
                 'type' => 'journey',
                 'slug' => $slug,
-                'url'  => Route::has('journey.index') ? route('journey.index', ['plugin' => $slug]) : null,
+                'url'  => Route::has('journey.index') ? route('journey.index', ['plugin' => $slug], false) : null,
             ];
         }
 
@@ -84,7 +92,7 @@ class RewardCatalog
             return [
                 'type' => 'test',
                 'slug' => $test['slug'],
-                'url'  => Route::has('tests.show') ? route('tests.show', $test['slug']) : null,
+                'url'  => Route::has('tests.show') ? route('tests.show', $test['slug'], false) : null,
             ];
         }
 
@@ -94,7 +102,7 @@ class RewardCatalog
             return [
                 'type' => 'route',
                 'name' => $name,
-                'url'  => Route::has($name) ? route($name) : null,
+                'url'  => Route::has($name) ? route($name, [], false) : null,
             ];
         }
 
