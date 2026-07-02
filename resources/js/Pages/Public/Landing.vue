@@ -444,11 +444,6 @@ onMounted(() => {
               box-shadow 0.22s ease,
               border-color 0.22s ease;
 }
-.lp-univers-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 32px rgba(42,30,8,0.14);
-  border-color: var(--color-primary, #A67520) !important;
-}
 
 /* ── 5. PILLAR CARDS — hover elevation ── */
 .lp-pillar-card {
@@ -456,20 +451,8 @@ onMounted(() => {
               transform 0.22s cubic-bezier(0.34, 1.2, 0.64, 1),
               box-shadow 0.22s ease;
 }
-.lp-pillar-card:hover {
-  background: var(--bg-elevated, #D8CEB5) !important;
-  transform: translateY(-5px) scale(1.01);
-  box-shadow: 0 12px 32px rgba(42,30,8,0.14);
-  position: relative;
-  z-index: 2;
-  border-radius: 4px;
-}
 .lp-pillar-icon {
   transition: border-color 0.2s ease, background 0.2s ease;
-}
-.lp-pillar-card:hover .lp-pillar-icon {
-  border-color: rgba(166,117,32,0.6) !important;
-  background: rgba(166,117,32,0.12) !important;
 }
 
 /* ── 6. JOURNEY CIRCLES — hover doré ── */
@@ -479,17 +462,42 @@ onMounted(() => {
               transform 0.2s cubic-bezier(0.34, 1.2, 0.64, 1),
               box-shadow 0.2s ease;
 }
-.lp-journey-item:hover .lp-journey-circle {
-  background: var(--color-primary, #A67520) !important;
-  border-color: var(--color-primary-dark, #7D5510) !important;
-  transform: scale(1.14);
-  box-shadow: 0 6px 18px rgba(166,117,32,0.38);
-}
 .lp-journey-num {
   transition: color 0.18s ease;
 }
-.lp-journey-item:hover .lp-journey-num {
-  color: var(--bg-base, #F0E8D4) !important;
+
+/*
+ * Effets de survol réservés aux appareils AVEC pointeur (souris/trackpad).
+ * Sur mobile, :hover « colle » après le tap : les chiffres romains restaient
+ * bloqués en doré/agrandi. hover:hover exclut les écrans tactiles.
+ */
+@media (hover: hover) and (pointer: fine) {
+  .lp-univers-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 32px rgba(42,30,8,0.14);
+    border-color: var(--color-primary, #A67520) !important;
+  }
+  .lp-pillar-card:hover {
+    background: var(--bg-elevated, #D8CEB5) !important;
+    transform: translateY(-5px) scale(1.01);
+    box-shadow: 0 12px 32px rgba(42,30,8,0.14);
+    position: relative;
+    z-index: 2;
+    border-radius: 4px;
+  }
+  .lp-pillar-card:hover .lp-pillar-icon {
+    border-color: rgba(166,117,32,0.6) !important;
+    background: rgba(166,117,32,0.12) !important;
+  }
+  .lp-journey-item:hover .lp-journey-circle {
+    background: var(--color-primary, #A67520) !important;
+    border-color: var(--color-primary-dark, #7D5510) !important;
+    transform: scale(1.14);
+    box-shadow: 0 6px 18px rgba(166,117,32,0.38);
+  }
+  .lp-journey-item:hover .lp-journey-num {
+    color: var(--bg-base, #F0E8D4) !important;
+  }
 }
 
 /* ── 7. BOUSSOLE — aiguille oscillante ── */
