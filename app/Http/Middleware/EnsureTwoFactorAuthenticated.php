@@ -33,8 +33,10 @@ class EnsureTwoFactorAuthenticated
             return $next($request);
         }
 
-        // SEC-M5 : Admin sans 2FA configuré → forcer l'activation
-        if ($user->hasRole('admin') && !$user->hasTwoFactorEnabled()) {
+        // SEC-M5 : Admin sans 2FA configuré → forcer l'activation.
+        // Débrayable via PRAXIQUEST_ADMIN_2FA_REQUIRED=false (config praxiquest.security).
+        if (config('praxiquest.security.admin_2fa_required', true)
+            && $user->hasRole('admin') && !$user->hasTwoFactorEnabled()) {
             // Ne pas boucler si on est déjà sur la page d'activation
             if (!$request->routeIs('account.two-factor', 'account.two-factor.enable', 'logout')) {
                 if ($request->expectsJson()) {

@@ -58,6 +58,10 @@ return [
     */
     'security' => [
         'require_email_verification' => env('REQUIRE_EMAIL_VERIFICATION', true),
+        // 2FA obligatoire pour les admins (SEC-M5). Passer
+        // PRAXIQUEST_ADMIN_2FA_REQUIRED=false dans .env pour lever l'obligation
+        // (le 2FA volontaire reste fonctionnel pour qui l'a activé).
+        'admin_2fa_required' => env('PRAXIQUEST_ADMIN_2FA_REQUIRED', true),
         'captcha' => [
             'enabled'    => env('TURNSTILE_ENABLED', false),
             'site_key'   => env('TURNSTILE_SITE_KEY'),
