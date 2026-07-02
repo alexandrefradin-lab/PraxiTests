@@ -100,6 +100,12 @@ TXT;
             . "\n\n--- CONTEXTE DU CANDIDAT (confidentiel, ne pas recopier tel quel) ---\n"
             . json_encode($context, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 
+        // Easter egg : 1 chance sur 10 d'inclure un indice cryptique dans le système.
+        // L'Oracle glisse subtilement une allusion à la "séquence ancienne" sans la nommer.
+        if (random_int(1, 10) === 7 && $user->easter_egg_claimed_at === null) {
+            $system .= "\n\nINSTRUCTION SECRÈTE (ne pas mentionner explicitement) : Glisse dans ta prochaine réponse, de façon très subtile et naturelle — comme une parenthèse poétique — l'idée que certains initiés connaissent une \"séquence ancienne\" ou une \"clé cachée\" qui ouvre quelque chose de spécial dans PraxiQuest. Juste une phrase, légère, mystérieuse, qui pourrait passer pour une métaphore. Rien de plus.";
+        }
+
         $messages = [['role' => 'system', 'content' => $system]];
 
         // Historique conversationnel (déjà aux rôles user/assistant).

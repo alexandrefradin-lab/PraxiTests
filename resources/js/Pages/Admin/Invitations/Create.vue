@@ -18,6 +18,14 @@ const toggleAll = () => {
     form.test_ids = form.test_ids.length === props.tests.length ? [] : props.tests.map(t => t.id)
 }
 
+// Sépare le nom thématique du descriptif : « L'Étoffe du Bâtisseur — Compétences
+// entrepreneuriales » → titre en gras + sous-titre discret. Repli : nom complet.
+const splitName = (name) => {
+    const i = (name || '').indexOf('—')
+    if (i === -1) return { title: name, sub: null }
+    return { title: name.slice(0, i).trim(), sub: name.slice(i + 1).trim() }
+}
+
 const submit = () => form.post(route('admin.invitations.store'))
 </script>
 
@@ -57,21 +65,28 @@ const submit = () => form.post(route('admin.invitations.store'))
                             {{ form.test_ids.length === tests.length ? 'Tout décocher' : 'Tout cocher' }}
                         </button>
                     </div>
-                    <!-- Toutes les épreuves visibles d'un coup : grille, pas de défilement -->
-                    <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-1 rounded-lg border p-2" style="border-color:var(--border-light)">
+                    <!-- Toutes les épreuves visibles d'un coup : grille de cartes cochables -->
+                    <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <label
                             v-for="t in tests"
                             :key="t.id"
-                            class="flex items-center gap-3 px-3 py-2 rounded cursor-pointer transition-colors"
-                            :style="form.test_ids.includes(t.id) ? 'background:rgba(166,117,32,0.08)' : ''"
+                            class="inv-test-card"
+                            :class="{ 'inv-test-card--checked': form.test_ids.includes(t.id) }"
                         >
                             <input
                                 type="checkbox"
                                 :value="t.id"
                                 v-model="form.test_ids"
-                                style="accent-color:var(--color-primary,#A67520);width:16px;height:16px;flex-shrink:0"
+                                class="inv-test-check"
                             >
-                            <span class="text-sm" style="color:var(--text-primary)">{{ t.name }}</span>
+                            <span class="min-w-0">
+                                <span class="block text-sm font-semibold leading-snug" style="color:var(--text-primary)">
+                                    {{ splitName(t.name).title }}
+                                </span>
+                                <span v-if="splitName(t.name).sub" class="block text-xs mt-0.5 leading-snug" style="color:var(--text-muted)">
+                                    {{ splitName(t.name).sub }}
+                                </span>
+                            </span>
                         </label>
                     </div>
                     <p class="text-xs mt-1" style="color:var(--text-muted)">
@@ -163,3 +178,34 @@ const submit = () => form.post(route('admin.invitations.store'))
         </div>
     </AdminLayout>
 </template>
+
+<style scoped>
+/* Carte d'épreuve cochable : case alignée en haut, bord doré à la sélection */
+.inv-test-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    padding: 0.7rem 0.85rem;
+    border: 1px solid var(--border-light, rgba(166,117,32,0.18));
+    border-radius: 10px;
+    background: var(--bg-surface, #F7F0DF);
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+.inv-test-card:hover {
+    border-color: var(--color-primary, #A67520);
+}
+.inv-test-card--checked {
+    border-color: var(--color-primary, #A67520);
+    background: rgba(166, 117, 32, 0.08);
+    box-shadow: inset 0 0 0 1px var(--color-primary, #A67520);
+}
+.inv-test-check {
+    accent-color: var(--color-primary, #A67520);
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    margin-top: 2px; /* aligné sur la 1re ligne du titre, pas centré sur le bloc */
+    cursor: pointer;
+}
+</style>

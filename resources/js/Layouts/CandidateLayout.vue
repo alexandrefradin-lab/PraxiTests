@@ -2,8 +2,26 @@
 import { Link, usePage, router } from '@inertiajs/vue3'
 import { computed, ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
 import OracleChat from '@/Components/OracleChat.vue'
+import EasterEgg from '@/Components/EasterEgg.vue'
 
 const mobileOpen = ref(false)
+
+// ─── Easter egg — Konami Code ─────────────────────────────────────────
+const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a']
+const konamiIdx = ref(0)
+const showEasterEgg = ref(false)
+
+function onKonami(e) {
+    if (e.key === KONAMI[konamiIdx.value]) {
+        konamiIdx.value++
+        if (konamiIdx.value === KONAMI.length) {
+            konamiIdx.value = 0
+            showEasterEgg.value = true
+        }
+    } else {
+        konamiIdx.value = e.key === KONAMI[0] ? 1 : 0
+    }
+}
 const mobileDrawer = ref(null)
 const navigating = ref(false)
 const userMenuOpen = ref(false)
@@ -66,6 +84,7 @@ function onKeydown(e) {
 onMounted(() => {
     startAiPoll()
     window.addEventListener('keydown', onKeydown)
+    window.addEventListener('keydown', onKonami)
     document.addEventListener('click', onClickOutsideUserMenu)
     stopNavStart = router.on('start', (event) => {
         navTarget.value = event.detail?.visit?.url ?? ''
@@ -82,6 +101,7 @@ onBeforeUnmount(() => {
     document.removeEventListener('click', onClickOutsideUserMenu)
     stopAiPoll()
     window.removeEventListener('keydown', onKeydown)
+    window.removeEventListener('keydown', onKonami)
     if (stopNavStart) stopNavStart()
     if (stopNavFinish) stopNavFinish()
     // Toujours libérer le scroll du body si le layout est démonté
@@ -570,6 +590,7 @@ watch(() => page.props.gamification?.level, (newLevel) => {
 
         <!-- L'Oracle — chat IA d'orientation, flottant en bas à droite -->
         <OracleChat v-if="user" />
+        <EasterEgg :show="showEasterEgg" @close="showEasterEgg = false" />
 
         <!-- Achievement toast (style Xbox, bottom-left) -->
         <Teleport to="body">
