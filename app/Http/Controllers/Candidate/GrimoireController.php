@@ -143,6 +143,7 @@ class GrimoireController extends Controller
                 'name'         => $a->test?->name,
                 'mesure'       => $this->testMeasures($a->test?->slug, $a->test?->description),
                 'summary'      => $this->testSummary($a->result?->ai_synthesis),
+                'detail_preview' => $this->testDetailPreview($a->test?->slug),
                 'completed_at' => $a->completed_at?->toIso8601String(),
                 'results_url'  => route('results.show', $a->id),
                 'pdf_url'      => $a->result?->ai_synthesis ? route('results.pdf', $a->id) : null,
@@ -192,6 +193,37 @@ class GrimoireController extends Controller
         $first = preg_split('/(?<=[.!?])\s+/', $desc)[0] ?? $desc;
 
         return mb_strlen($first) > 160 ? (mb_substr($first, 0, 157) . '…') : $first;
+    }
+
+    /**
+     * Annonce ce que la page de résultats détaillés révèle au clic sur
+     * « Voir le détail » : radar/scores par dimension + analyse complète.
+     * Map curée par slug (mêmes slugs que testMeasures) ; repli générique.
+     */
+    private function testDetailPreview(?string $slug): string
+    {
+        $map = [
+            'praximet-riasec'               => "En cliquant sur « Voir le détail » : tes scores sur les 6 types RIASEC, le radar de ton profil d'intérêts et l'analyse complète avec les familles de métiers qui te correspondent.",
+            'orientation-express'           => "En cliquant sur « Voir le détail » : tes affinités professionnelles dominantes, dimension par dimension, et la lecture complète de ton profil d'orientation.",
+            'praxiemo'                      => "En cliquant sur « Voir le détail » : tes 16 dimensions émotionnelles notées sur 100, tes points forts et axes de progression, et l'analyse complète de ton intelligence émotionnelle.",
+            'praximum'                      => "En cliquant sur « Voir le détail » : tes 5 traits de personnalité (OCEAN) notés sur 100, avec la définition de chacun et l'analyse complète de ton profil.",
+            'praxicare'                     => "En cliquant sur « Voir le détail » : tes niveaux de demande, d'autonomie et de soutien au travail, tes signaux d'épuisement, et l'analyse complète de ta situation.",
+            'praxis360'                     => "En cliquant sur « Voir le détail » : le radar de tes soft skills croisant ton auto-évaluation et le regard de ton entourage, et l'analyse complète des écarts.",
+            'praxifocus'                    => "En cliquant sur « Voir le détail » : tes scores d'attention et d'hyperactivité dimension par dimension, et une lecture nuancée de ce qu'ils suggèrent.",
+            'praxisens'                     => "En cliquant sur « Voir le détail » : ton niveau de sensibilité sur chaque facette du modèle, et l'analyse complète de ce que cela implique au travail.",
+            'praxibiais'                    => "En cliquant sur « Voir le détail » : les biais cognitifs les plus actifs chez toi, notés un par un, et des pistes concrètes pour mieux décider.",
+            'praxivaleurs'                  => "En cliquant sur « Voir le détail » : la hiérarchie de tes valeurs professionnelles (Schwartz), le radar de ton profil et l'analyse de ce qui doit nourrir ton travail.",
+            'praxitempo'                    => "En cliquant sur « Voir le détail » : tes 4 dimensions de gestion du temps notées sur 100, et l'analyse complète de ton organisation.",
+            'competences-entrepreneuriales' => "En cliquant sur « Voir le détail » : tes 8 compétences entrepreneuriales (EntreComp) notées sur 100, le radar de ton profil et l'analyse complète de ton potentiel.",
+            'praxizen-stress'               => "En cliquant sur « Voir le détail » : tes 5 dimensions de gestion du stress notées sur 100, et l'analyse complète de tes ressources et points de vigilance.",
+            'praxiself-affirmation'         => "En cliquant sur « Voir le détail » : tes 5 dimensions d'affirmation de soi notées sur 100, et l'analyse complète de ta posture relationnelle.",
+            'praxispeak'                    => "En cliquant sur « Voir le détail » : ton profil d'orateur dimension par dimension, et l'analyse complète de ta prise de parole en public.",
+            'praxiflow-productivite'        => "En cliquant sur « Voir le détail » : tes scores de productivité au quotidien, dimension par dimension, et l'analyse complète de ton organisation.",
+            'praxilink-assertivite'         => "En cliquant sur « Voir le détail » : tes 5 dimensions de communication assertive notées sur 100, et l'analyse complète de ton style relationnel.",
+        ];
+
+        return $map[$slug ?? '']
+            ?? "En cliquant sur « Voir le détail » : tes scores dimension par dimension et l'analyse complète de ton profil.";
     }
 
     /**

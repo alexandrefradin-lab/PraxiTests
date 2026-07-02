@@ -346,6 +346,10 @@ function fitClass(score) {
                                     <p v-else class="grim-test-summary grim-test-pending">
                                         Synthèse en cours de génération…
                                     </p>
+                                    <p v-if="t.detail_preview" class="grim-test-preview">
+                                        <span class="grim-test-preview-icon" aria-hidden="true">&#10022;</span>
+                                        {{ t.detail_preview }}
+                                    </p>
                                 </div>
                                 <div class="grim-test-actions">
                                     <Link :href="t.results_url" class="grim-test-link">Voir le détail</Link>
@@ -1038,6 +1042,17 @@ function fitClass(score) {
 .grim-test-measures { font-family: var(--font-body, 'Inter', sans-serif); font-size: .82rem; line-height: 1.45; color: var(--color-primary-dark, #7D5010); margin: .15rem 0 .55rem; }
 .grim-test-summary { font-family: var(--font-body, 'Inter', sans-serif); font-size: .98rem; line-height: 1.6; color: var(--text-secondary, #6B5A3E); }
 .grim-test-pending { font-style: italic; color: var(--text-muted, #8C7A5E); }
+.grim-test-preview {
+    font-family: var(--font-body, 'Inter', sans-serif);
+    font-size: .85rem;
+    line-height: 1.5;
+    font-style: italic;
+    color: var(--grim-gold-dark);
+    margin-top: .6rem;
+    padding-top: .6rem;
+    border-top: 1px dashed rgba(166,117,32,0.30);
+}
+.grim-test-preview-icon { color: var(--grim-gold); margin-right: .35rem; font-style: normal; }
 .grim-test-actions { display: flex; flex-direction: column; gap: .5rem; flex: 0 0 auto; align-items: stretch; }
 .grim-test-link {
     font-family: var(--font-display, sans-serif);
