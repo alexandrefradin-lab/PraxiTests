@@ -40,6 +40,12 @@ class BadgeSeeder extends Seeder
                 'icon' => 'eye', 'xp_reward' => 50,
                 'criteria' => ['type' => 'cv_uploaded'],
             ],
+            [
+                'slug' => 'eveille', 'name' => 'Éveillé',
+                'description' => 'Tu as découvert le secret de l\'Oracle.',
+                'icon' => 'sparkles', 'xp_reward' => 0, // XP attribués directement par l\'EasterEggController
+                'criteria' => ['type' => 'easter_egg'],
+            ],
         ];
 
         foreach ($badges as $b) {

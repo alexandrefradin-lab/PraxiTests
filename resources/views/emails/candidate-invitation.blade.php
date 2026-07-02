@@ -40,12 +40,12 @@
         @else
         <p>Vous avez été invité(e) à passer <strong>{{ $invitation->test->name ?? 'un test' }}</strong>.</p>
         @endif
-        @php $customMessage = $invitation->metadata['message'] ?? null; @endphp
-        @if(!empty($customMessage))
-        <p style="background:#f9f9f9;padding:12px;border-radius:4px;font-style:italic">
-            "{{ $customMessage }}"
+        {{-- Message d'invitation standard, identique pour tous les candidats --}}
+        <p style="background:#f9f9f9;padding:12px 16px;border-radius:4px">
+            Ces épreuves s'inscrivent dans le cadre de votre accompagnement. Répondez spontanément —
+            il n'y a pas de bonnes ou de mauvaises réponses. Vos résultats vous seront restitués
+            directement dans votre espace personnel.
         </p>
-        @endif
         @if($invitation->expires_at)
         <div class="expires">
             <strong>Ce lien expire le {{ $invitation->expires_at->format('d/m/Y à H:i') }}</strong>

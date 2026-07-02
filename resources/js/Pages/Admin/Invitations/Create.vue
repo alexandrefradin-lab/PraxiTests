@@ -11,7 +11,6 @@ const form = useForm({
     email:      '',
     first_name: '',
     last_name:  '',
-    message:    '',
     expires_at: '',
 })
 
@@ -58,7 +57,8 @@ const submit = () => form.post(route('admin.invitations.store'))
                             {{ form.test_ids.length === tests.length ? 'Tout décocher' : 'Tout cocher' }}
                         </button>
                     </div>
-                    <div class="mt-2 rounded-lg border p-1" style="border-color:var(--border-light);max-height:260px;overflow-y:auto">
+                    <!-- Toutes les épreuves visibles d'un coup : grille, pas de défilement -->
+                    <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-1 rounded-lg border p-2" style="border-color:var(--border-light)">
                         <label
                             v-for="t in tests"
                             :key="t.id"
@@ -120,18 +120,12 @@ const submit = () => form.post(route('admin.invitations.store'))
                     </div>
                 </div>
 
-                <!-- Message personnalisé -->
-                <div>
-                    <label for="inv-message" class="pt-label">Message personnalisé <span class="font-normal" style="color:var(--text-muted)">(optionnel)</span></label>
-                    <textarea
-                        id="inv-message"
-                        v-model="form.message"
-                        rows="3"
-                        placeholder="Ex. : Ce test fait partie de votre parcours d'orientation. N'hésitez pas à me contacter si vous avez des questions."
-                        class="pt-input mt-2"
-                        maxlength="1000"
-                    ></textarea>
-                    <p class="text-xs mt-1" style="color:var(--text-muted)">Apparaît dans le corps de l'email d'invitation.</p>
+                <!-- Message d'invitation : identique pour tous les candidats -->
+                <div class="p-4 rounded-lg text-sm" style="background:var(--bg-elevated);color:var(--text-secondary)">
+                    <strong style="color:var(--text-primary)">Message envoyé (identique pour tous) :</strong><br>
+                    « Ces épreuves s'inscrivent dans le cadre de votre accompagnement. Répondez spontanément —
+                    il n'y a pas de bonnes ou de mauvaises réponses. Vos résultats vous seront restitués
+                    directement dans votre espace personnel. »
                 </div>
 
                 <!-- Expiration -->
@@ -145,9 +139,6 @@ const submit = () => form.post(route('admin.invitations.store'))
                     >
                     <p v-if="form.errors.expires_at" class="text-xs mt-1" style="color:#ef4444">{{ form.errors.expires_at }}</p>
                 </div>
-
-                <!-- Erreur générique -->
-                <p v-if="form.errors.message" class="text-xs" style="color:#ef4444">{{ form.errors.message }}</p>
 
                 <!-- Actions -->
                 <div class="flex items-center gap-4 pt-2">

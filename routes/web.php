@@ -88,6 +88,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/oracle/messages',      [OracleController::class, 'message'])->middleware('throttle:20,1')->name('oracle.message');
     Route::delete('/oracle/messages',    [OracleController::class, 'clear'])->name('oracle.clear');
 
+    // Easter egg — Konami Code
+    Route::post('/easter-egg/claim', [EasterEggController::class, 'claim'])
+        ->middleware('throttle:5,1')->name('easter-egg.claim');
+
     // Journey 60 jours
     Route::post('/journey/complete', [JourneyController::class, 'completeDay'])->name('journey.complete');
     Route::get('/journey/today',     [JourneyController::class, 'todayData'])->name('journey.today');

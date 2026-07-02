@@ -38,7 +38,6 @@ class InvitationController extends Controller
             'email'      => ['required', 'email', 'max:180'],
             'first_name' => ['nullable', 'string', 'max:80'],
             'last_name'  => ['nullable', 'string', 'max:80'],
-            'message'    => ['nullable', 'string', 'max:1000'],
             'expires_at' => ['nullable', 'date', 'after:today'],
         ], [
             'test_ids.required' => 'Cochez au moins une épreuve à faire passer.',
@@ -64,10 +63,9 @@ class InvitationController extends Controller
             'email'                   => $data['email'],
             'first_name'              => $data['first_name'] ?? null,
             'last_name'               => $data['last_name'] ?? null,
-            'metadata'                => array_filter([
-                'message'  => $data['message'] ?? null,
-                'test_ids' => $testIds,
-            ]),
+            // Message d'invitation : identique pour tous, porté par le template
+            // de l'email (plus de message personnalisé par invitation).
+            'metadata'                => ['test_ids' => $testIds],
             'expires_at'              => $data['expires_at'] ?? null,
             // token et expires_at par défaut gérés par le hook creating()
         ]);
