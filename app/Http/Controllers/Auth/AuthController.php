@@ -97,6 +97,26 @@ class AuthController extends Controller
             'quest_title' => $data['quest_title'],
         ]);
 
+        // CRM : chaque inscrit entre dans le pipeline des leads (source « inscription »).
+        // Si un lead existe déjà pour cet email (prospect importé, campagne…), on le
+        // rattache au compte sans écraser sa source ni son statut — le listener RIASEC
+        // (praximet) l'upgradera en « qualified » à la fin du test phare.
+        // Ne doit jamais faire échouer l'inscription.
+        try {
+            $lead = \App\Models\Lead::firstOrNew(['email' => $user->email]);
+            if (! $lead->exists) {
+                $lead->source = 'inscription';
+                $lead->status = 'new';
+                $lead->score  = 20;
+            }
+            $lead->user_id          = $user->id;
+            $lead->first_name       = $lead->first_name ?: $user->name;
+            $lead->last_activity_at = now();
+            $lead->save();
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
         // L'événement Registered déclenche l'envoi du mail de vérification (queue sync).
         // Si le SMTP est indisponible/mal configuré (OVH), l'exception ne doit PAS
         // faire échouer l'inscription (sinon 500 sur /register). On la journalise.
