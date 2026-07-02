@@ -18,6 +18,10 @@ Route::middleware('auth')->prefix('account')->name('account.')->group(function (
     Route::post('/two-factor/enable',         [TwoFactorController::class, 'enable'])->name('two-factor.enable');
     Route::post('/two-factor/disable',        [TwoFactorController::class, 'disable'])->name('two-factor.disable');
     Route::post('/two-factor/recovery-codes', [TwoFactorController::class, 'regenerateCodes'])->name('two-factor.recovery-codes');
+
+    // Changement de mot de passe (utilisateur connecté)
+    Route::get('/password', [\App\Http\Controllers\Auth\PasswordController::class, 'edit'])->name('password.edit');
+    Route::put('/password', [\App\Http\Controllers\Auth\PasswordController::class, 'update'])->name('password.change');
 });
 
 // ─── Authentification standard ───────────────────────────────────────────────

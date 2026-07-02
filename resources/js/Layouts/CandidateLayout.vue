@@ -335,6 +335,10 @@ watch(() => page.props.gamification?.level, (newLevel) => {
                                         </div>
                                     </Link>
                                     <div class="cand-user-menu-divider"></div>
+                                    <Link :href="route('account.password.edit')" class="cand-user-menu-item cand-user-menu-item--muted" role="menuitem" @click="closeUserMenu">
+                                        <i class="ti ti-key"></i>
+                                        <div>Changer mon sceau secret</div>
+                                    </Link>
                                     <Link :href="route('gdpr.show')" class="cand-user-menu-item cand-user-menu-item--muted" role="menuitem" @click="closeUserMenu">
                                         <i class="ti ti-shield-lock"></i>
                                         <div>Mes données & RGPD</div>
@@ -514,6 +518,12 @@ watch(() => page.props.gamification?.level, (newLevel) => {
                             :class="{ 'cand-drawer-link--active': isActive('/contact') }">
                             <i class="ti ti-help-circle"></i>
                             <span>Aide & contact</span>
+                        </Link>
+                        <Link :href="route('account.password.edit')"
+                            class="cand-drawer-link"
+                            :class="{ 'cand-drawer-link--active': isActive('/account/password') }">
+                            <i class="ti ti-key"></i>
+                            <span>Changer mon sceau secret</span>
                         </Link>
                         <Link :href="route('gdpr.show')"
                             class="cand-drawer-link"
