@@ -4,8 +4,8 @@ import { defineProps } from 'vue'
 
 defineProps({ branding: { type: Object, default: () => ({ name: 'PraxiQuest' }) } })
 
-const version = '1.0'
-const date = '23 juin 2026'
+const version = '1.1'
+const date = '2 juillet 2026'
 </script>
 
 <template>
@@ -62,6 +62,9 @@ const date = '23 juin 2026'
                     <li><strong>Fourniture du service</strong> (passation des tests, restitution, espace personnel) — exécution du contrat ;</li>
                     <li><strong>Génération des synthèses et pistes de métiers par IA</strong> — exécution du contrat et consentement recueilli lors de l'onboarding ;</li>
                     <li><strong>Facturation et abonnements</strong> — exécution du contrat et obligation légale ;</li>
+                    <li><strong>Suivi et accompagnement</strong> : consultation de vos résultats d'évaluation par
+                        l'équipe habilitée de Praxis Accompagnement, afin de personnaliser le suivi et de préparer
+                        les échanges d'accompagnement — intérêt légitime ;</li>
                     <li><strong>Communications marketing</strong> (le cas échéant) — consentement, retirable à tout moment ;</li>
                     <li><strong>Sécurité et lutte contre la fraude</strong> — intérêt légitime.</li>
                 </ul>
@@ -82,6 +85,12 @@ const date = '23 juin 2026'
                         bancaire n'est stockée par la Plateforme) ;</li>
                     <li><strong>Envoi d'e-mails</strong> : prestataire d'acheminement des messages transactionnels.</li>
                 </ul>
+                <p>
+                    <strong>Accès interne :</strong> vos résultats d'évaluation et synthèses peuvent être consultés
+                    par les personnes habilitées de Praxis Accompagnement (administrateurs de la Plateforme),
+                    exclusivement à des fins de suivi et d'accompagnement. Cet accès est strictement limité,
+                    soumis à authentification, et vos données ne sont jamais partagées avec des tiers à cette occasion.
+                </p>
             </section>
 
             <section class="cgu-section">
