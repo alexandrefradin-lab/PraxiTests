@@ -58,30 +58,32 @@ const save = () => form.put(route('admin.leads.update', props.lead.id))
                 <p v-else-if="!attempts.length" class="text-sm" style="color:var(--text-muted)">
                     Aucune épreuve commencée pour l'instant.
                 </p>
-                <table v-else class="w-full text-sm">
-                    <thead>
-                        <tr>
-                            <th class="ac-th text-left py-2 pr-3">Épreuve</th>
-                            <th class="ac-th text-left py-2 pr-3">Statut</th>
-                            <th class="ac-th text-left py-2 pr-3">Commencée</th>
-                            <th class="ac-th text-left py-2 pr-3">Terminée</th>
-                            <th class="ac-th text-left py-2">Synthèse IA</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y" style="border-color:var(--border-light)">
-                        <tr v-for="a in attempts" :key="a.id">
-                            <td class="py-2 pr-3 font-medium" style="color:var(--text-primary)">{{ a.test_name }}</td>
-                            <td class="py-2 pr-3">
-                                <span :class="attemptStatusClass[a.status] ?? 'ac-badge-neutral'">
-                                    {{ attemptStatusLabel[a.status] ?? a.status }}
-                                </span>
-                            </td>
-                            <td class="py-2 pr-3 text-xs" style="color:var(--text-muted)">{{ a.started_at ?? '—' }}</td>
-                            <td class="py-2 pr-3 text-xs" style="color:var(--text-muted)">{{ a.completed_at ?? '—' }}</td>
-                            <td class="py-2 text-xs" style="color:var(--text-muted)">{{ a.has_synthesis ? 'Oui' : '—' }}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div v-else class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr>
+                                <th class="ac-th text-left py-2 pr-3">Épreuve</th>
+                                <th class="ac-th text-left py-2 pr-3">Statut</th>
+                                <th class="ac-th text-left py-2 pr-3">Commencée</th>
+                                <th class="ac-th text-left py-2 pr-3">Terminée</th>
+                                <th class="ac-th text-left py-2">Synthèse IA</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y" style="border-color:var(--border-light)">
+                            <tr v-for="a in attempts" :key="a.id">
+                                <td class="py-2 pr-3 font-medium" style="color:var(--text-primary)">{{ a.test_name }}</td>
+                                <td class="py-2 pr-3">
+                                    <span :class="attemptStatusClass[a.status] ?? 'ac-badge-neutral'" class="whitespace-nowrap">
+                                        {{ attemptStatusLabel[a.status] ?? a.status }}
+                                    </span>
+                                </td>
+                                <td class="py-2 pr-3 text-xs whitespace-nowrap" style="color:var(--text-muted)">{{ a.started_at ?? '—' }}</td>
+                                <td class="py-2 pr-3 text-xs whitespace-nowrap" style="color:var(--text-muted)">{{ a.completed_at ?? '—' }}</td>
+                                <td class="py-2 text-xs" style="color:var(--text-muted)">{{ a.has_synthesis ? 'Oui' : '—' }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
 
                 <h3 class="font-semibold mt-6 mb-2" style="color:var(--text-primary);font-family:var(--font-display)">UTM</h3>
                 <pre class="text-xs rounded-lg p-3 overflow-auto" style="background:var(--bg-elevated)">{{ JSON.stringify(lead.utm ?? {}, null, 2) }}</pre>

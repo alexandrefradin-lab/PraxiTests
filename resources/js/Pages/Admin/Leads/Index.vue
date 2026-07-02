@@ -50,13 +50,14 @@ const statusColor = {
         </div>
 
         <div class="pt-card overflow-hidden">
+            <div class="overflow-x-auto">
             <table class="w-full text-sm">
                 <thead>
                     <tr>
                         <th class="ac-th text-left px-5 py-3">Email</th>
                         <th class="ac-th text-left px-5 py-3">Nom</th>
                         <th class="ac-th text-left px-5 py-3">Source</th>
-                        <th class="ac-th text-left px-5 py-3">Épreuves</th>
+                        <th class="ac-th text-center px-5 py-3">Épreuves</th>
                         <th class="ac-th text-left px-5 py-3">Score</th>
                         <th class="ac-th text-left px-5 py-3">Statut</th>
                         <th class="ac-th text-left px-5 py-3">Date</th>
@@ -67,16 +68,23 @@ const statusColor = {
                         <td class="px-5 py-3 font-medium" style="color:var(--text-primary)">{{ l.email }}</td>
                         <td class="px-5 py-3" style="color:var(--text-secondary)">{{ [l.first_name, l.last_name].filter(Boolean).join(' ') }}</td>
                         <td class="px-5 py-3 text-xs" style="color:var(--text-muted)">{{ l.source ?? '—' }}</td>
-                        <td class="px-5 py-3 text-center" style="color:var(--text-secondary)">{{ l.tests_count ?? 0 }}</td>
+                        <td class="px-5 py-3 text-center">
+                            <span v-if="l.tests_count > 0" class="inline-flex items-center justify-center min-w-[1.7rem] px-2 py-0.5 rounded-full text-xs font-semibold"
+                                style="background:rgba(166,117,32,0.12);color:var(--color-primary-dark,#7D5510);border:1px solid rgba(166,117,32,0.3)">
+                                {{ l.tests_count }}
+                            </span>
+                            <span v-else class="text-xs" style="color:var(--text-ghost,#B0A08A)">0</span>
+                        </td>
                         <td class="px-5 py-3">{{ l.score }}/100</td>
                         <td class="px-5 py-3">
                             <span :class="statusColor[l.status] ?? 'ac-badge-neutral'">{{ l.status }}</span>
                         </td>
-                        <td class="px-5 py-3 text-xs" style="color:var(--text-muted)">{{ l.created_at }}</td>
+                        <td class="px-5 py-3 text-xs whitespace-nowrap" style="color:var(--text-muted)">{{ l.created_at }}</td>
                     </tr>
                     <tr v-if="!leads.data.length"><td colspan="7" class="text-center py-12" style="color:var(--text-muted)">Aucun lead.</td></tr>
                 </tbody>
             </table>
+            </div>
         </div>
 
         <div v-if="leads.links" class="flex items-center justify-center gap-1 mt-6">
