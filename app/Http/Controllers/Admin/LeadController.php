@@ -12,7 +12,14 @@ class LeadController extends Controller
 {
     public function index(Request $request)
     {
-        $q = Lead::query()->latest();
+        // tests_count : nombre d'épreuves terminées du compte rattaché (0 si
+        // lead sans compte). Affiché en colonne dans la liste.
+        $q = Lead::query()
+            ->select('leads.*')
+            ->addSelect(['tests_count' => \App\Models\TestAttempt::selectRaw('count(*)')
+                ->whereColumn('test_attempts.user_id', 'leads.user_id')
+                ->where('status', 'completed')])
+            ->latest();
 
         // A9 — Cloisonnement multi-tenant : les professionnels ne voient que leurs leads
         if (!auth()->user()->hasRole('admin')) {
@@ -41,7 +48,31 @@ class LeadController extends Controller
     public function show(Lead $lead)
     {
         $this->authorizeLead($lead);
-        return Inertia::render('Admin/Leads/Show', ['lead' => $lead]);
+
+        // Épreuves du compte rattaché : toutes les tentatives (terminées ou en
+        // cours), hors regards d'évaluateurs 360 (rater_relation).
+        $attempts = collect();
+        if ($lead->user_id) {
+            $attempts = \App\Models\TestAttempt::with('test:id,name,slug')
+                ->where('user_id', $lead->user_id)
+                ->where(fn ($q) => $q->whereNull('rater_relation')->orWhere('rater_relation', 'self'))
+                ->orderByDesc('created_at')
+                ->get()
+                ->map(fn ($a) => [
+                    'id'            => $a->id,
+                    'test_name'     => $a->test?->name ?? '—',
+                    'status'        => $a->status,
+                    'started_at'    => $a->started_at?->format('d/m/Y H:i'),
+                    'completed_at'  => $a->completed_at?->format('d/m/Y H:i'),
+                    'has_synthesis' => (bool) $a->result?->ai_synthesis,
+                ])
+                ->values();
+        }
+
+        return Inertia::render('Admin/Leads/Show', [
+            'lead'     => $lead,
+            'attempts' => $attempts,
+        ]);
     }
 
     public function update(Request $request, Lead $lead)

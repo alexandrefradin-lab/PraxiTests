@@ -56,6 +56,7 @@ const statusColor = {
                         <th class="ac-th text-left px-5 py-3">Email</th>
                         <th class="ac-th text-left px-5 py-3">Nom</th>
                         <th class="ac-th text-left px-5 py-3">Source</th>
+                        <th class="ac-th text-left px-5 py-3">Épreuves</th>
                         <th class="ac-th text-left px-5 py-3">Score</th>
                         <th class="ac-th text-left px-5 py-3">Statut</th>
                         <th class="ac-th text-left px-5 py-3">Date</th>
@@ -66,13 +67,14 @@ const statusColor = {
                         <td class="px-5 py-3 font-medium" style="color:var(--text-primary)">{{ l.email }}</td>
                         <td class="px-5 py-3" style="color:var(--text-secondary)">{{ [l.first_name, l.last_name].filter(Boolean).join(' ') }}</td>
                         <td class="px-5 py-3 text-xs" style="color:var(--text-muted)">{{ l.source ?? '—' }}</td>
+                        <td class="px-5 py-3 text-center" style="color:var(--text-secondary)">{{ l.tests_count ?? 0 }}</td>
                         <td class="px-5 py-3">{{ l.score }}/100</td>
                         <td class="px-5 py-3">
                             <span :class="statusColor[l.status] ?? 'ac-badge-neutral'">{{ l.status }}</span>
                         </td>
                         <td class="px-5 py-3 text-xs" style="color:var(--text-muted)">{{ l.created_at }}</td>
                     </tr>
-                    <tr v-if="!leads.data.length"><td colspan="6" class="text-center py-12" style="color:var(--text-muted)">Aucun lead.</td></tr>
+                    <tr v-if="!leads.data.length"><td colspan="7" class="text-center py-12" style="color:var(--text-muted)">Aucun lead.</td></tr>
                 </tbody>
             </table>
         </div>
