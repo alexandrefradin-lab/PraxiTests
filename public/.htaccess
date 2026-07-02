@@ -5,6 +5,12 @@
 
     RewriteEngine On
 
+    # Domaine canonique : www.praxiquest.fr -> praxiquest.fr (301).
+    # Un seul hote evite les doubles sessions (cookie par domaine), les
+    # navigations Inertia cross-origin et le contenu duplique cote SEO.
+    RewriteCond %{HTTP_HOST} ^www\.praxiquest\.fr$ [NC]
+    RewriteRule ^ https://praxiquest.fr%{REQUEST_URI} [L,R=301]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
