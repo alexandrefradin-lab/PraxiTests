@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, watch } from 'vue'
 import { router } from '@inertiajs/vue3'
 
 const props = defineProps({
@@ -48,8 +48,8 @@ function close() {
     }
 }
 
-onMounted(() => {
-    claim()
+watch(() => props.show, (val) => {
+    if (val) claim()
 })
 </script>
 
