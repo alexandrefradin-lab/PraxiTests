@@ -337,7 +337,7 @@ class GlobalGrimoireService
         return $user->attempts()
             ->where('status', 'completed')
             ->whereHas('result')
-            ->with(['test:id,name,slug,type', 'result'])
+            ->with(['test:id,name,slug,type,description', 'result'])
             ->latest('completed_at')
             ->get()
             // Dédoublonnage par test : on garde la tentative la plus récente (l'ordre

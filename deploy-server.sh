@@ -74,6 +74,16 @@ php artisan route:cache
 php artisan view:cache
 ok "Caches OK"
 
+# Reset OPcache : l'OVH mutualisé (PHP-FPM) ne recompile pas les classes PHP
+# modifiées au déploiement → les changements de contrôleurs/services ne prenaient
+# effet qu'au bout d'un moment. On force le reset via une requête web (contexte FPM).
+msg "Reset OPcache..."
+printf '%s' '<?php if (function_exists("opcache_reset")) { opcache_reset(); } echo "ok";' > public/__opcache_reset.php
+curl -fsS "https://praxiquest.fr/__opcache_reset.php" >/dev/null 2>&1 || true
+curl -fsS "https://praxiquest.decisionpro.fr/__opcache_reset.php" >/dev/null 2>&1 || true
+rm -f public/__opcache_reset.php
+ok "OPcache reset"
+
 msg "Permissions..."
 chmod -R 775 storage bootstrap/cache
 ok "Permissions OK"
