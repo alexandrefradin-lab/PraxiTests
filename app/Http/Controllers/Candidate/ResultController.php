@@ -32,6 +32,27 @@ class ResultController extends Controller
         $this->authorizeAttempt($attempt);
         $attempt->load('test', 'result');
 
+        // Auto-relance d'un job IA « zombie » : passation terminée depuis plus
+        // de 5 min, sans synthèse NI échec marqué = job tué (OVH
+        // max_execution_time) ou jamais démarré. Sans cette relance, l'écran
+        // « Ton Grimoire se révèle… » tourne indéfiniment — pour le candidat
+        // comme pour l'admin. Cooldown 5 min (Cache::add) : une seule relance
+        // par tentative par fenêtre, quel que soit le nombre de visites.
+        // Même mécanique que GrimoireController (stuckPending).
+        if ($attempt->status === 'completed'
+            && !$attempt->result?->ai_synthesis
+            && !$attempt->result?->ai_failed
+            && $attempt->completed_at
+            && $attempt->completed_at->lt(now()->subMinutes(5))
+            && \Illuminate\Support\Facades\Cache::add("attempt_insights_retry_{$attempt->id}", 1, 300)) {
+            // Purge le verrou ShouldBeUnique résiduel du job tué, sinon le
+            // dispatch est silencieusement ignoré.
+            \Illuminate\Support\Facades\Cache::forget(
+                'laravel_unique_job:' . \App\Jobs\GenerateAttemptInsights::class . ':attempt_' . $attempt->id
+            );
+            \App\Jobs\GenerateAttemptInsights::dispatch($attempt->id)->afterResponse();
+        }
+
         // Laisser chaque plugin overrider la page de résultats via un filtre.
         // Ex: PraxiCare enregistre 'results.inertia_page' → 'PraxiCareResult'
         // La whitelist est extensible : les plugins s'enregistrent via 'results.allowed_pages' (ARC-m3).
