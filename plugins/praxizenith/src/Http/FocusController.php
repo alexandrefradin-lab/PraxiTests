@@ -64,6 +64,7 @@ class FocusController extends Controller
         $completed = $progress->whereNotNull('completed_at')->count();
 
         return Inertia::render('PraxiZenithIndex', [
+            'appDescription' => $this->rewards->descriptionFor('praxizenith'),
             'exercises'  => $exercises,
             'currentDay' => $current,
             'totalDays'  => FocusJourneyService::TOTAL_DAYS,

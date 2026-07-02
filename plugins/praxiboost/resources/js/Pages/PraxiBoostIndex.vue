@@ -5,6 +5,7 @@ import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import DailyTipCard from '@/Components/DailyTipCard.vue'
 
 const props = defineProps({
+    appDescription: { type: String, default: null },
     exercises:     { type: Array,  default: () => [] },
     totalEclats:   { type: Number, default: 0 },
     dailyTip:      { type: Object, default: null },
@@ -47,6 +48,9 @@ const nextPercent = computed(() => {
                     <div class="pb-count-pill">{{ unlockedCount }}/{{ exercises.length }}</div>
                 </div>
             </div>
+
+            <!-- Présentation du module (description du manifest) -->
+            <p v-if="appDescription" class="pb-app-desc">{{ appDescription }}</p>
 
             <!-- Tip du jour -->
             <DailyTipCard plugin="praxiboost" :tip="dailyTip" :engagement="tipEngagement" />
@@ -114,6 +118,7 @@ const nextPercent = computed(() => {
 .pb-topbar-right { display: flex; align-items: center; gap: 0.5rem; margin-top: 4px; }
 .pb-eclats-pill { display: flex; align-items: center; gap: 4px; background: rgba(184,122,26,0.12); color: #7D5010; border-radius: 999px; padding: 4px 10px; font-size: 0.78rem; font-weight: 500; }
 .pb-count-pill { background: var(--bg-elevated, #eee); color: var(--text-secondary); border-radius: 999px; padding: 4px 10px; font-size: 0.78rem; font-weight: 500; font-family: var(--font-data); }
+.pb-app-desc { font-size: 0.9rem; line-height: 1.65; color: var(--text-secondary); background: var(--bg-elevated, #fafafa); border-left: 3px solid var(--color-primary, #B87A1A); border-radius: 0 10px 10px 0; padding: 0.9rem 1.1rem; margin: 0 0 1.25rem; }
 .pb-next-tier { border: 1px solid var(--glass-border, #e5e7eb); border-top: 2px solid var(--color-primary, #B87A1A); border-radius: 12px; padding: 1rem 1.25rem; background: var(--bg-elevated, #fafafa); margin-bottom: 1.25rem; }
 .pb-next-tier-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem; font-size: 0.85rem; color: var(--text-secondary); }
 .pb-next-tier-top strong { color: var(--text-primary); }

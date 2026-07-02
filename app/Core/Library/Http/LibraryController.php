@@ -63,9 +63,10 @@ class LibraryController extends Controller
         return Inertia::render('Library/Index', [
             'plugin'         => $plugin,
             'app'            => [
-                'title'    => $cfg['title'] ?? $plugin,
-                'subtitle' => $cfg['subtitle'] ?? null,
-                'icon'     => $cfg['icon'] ?? null,
+                'title'       => $cfg['title'] ?? $plugin,
+                'subtitle'    => $cfg['subtitle'] ?? null,
+                'icon'        => $cfg['icon'] ?? null,
+                'description' => $this->rewards->descriptionFor($plugin),
             ],
             'exercises'      => $exercises,
             'completedCount' => count($done),

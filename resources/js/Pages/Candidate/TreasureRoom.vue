@@ -187,10 +187,10 @@ const unlockedPct = computed(() => {
                     {{ item.purpose }}
                 </p>
 
-                <!-- Description / teaser -->
+                <!-- Description / teaser (texte complet, jamais tronqué) -->
                 <p
-                    class="text-[13px] leading-relaxed flex-1 overflow-hidden"
-                    style="font-family:'Inter',sans-serif; color:var(--text-secondary); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;"
+                    class="text-[13px] leading-relaxed flex-1"
+                    style="font-family:'Inter',sans-serif; color:var(--text-secondary);"
                 >
                     {{ item.unlocked ? item.description : item.teaser }}
                 </p>

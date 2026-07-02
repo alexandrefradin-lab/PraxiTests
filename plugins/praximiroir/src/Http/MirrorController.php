@@ -63,6 +63,7 @@ class MirrorController extends Controller
         $completed = $progress->whereNotNull('completed_at')->count();
 
         return Inertia::render('PraxiMiroirIndex', [
+            'appDescription' => $this->rewards->descriptionFor('praximiroir'),
             'exercises'  => $exercises,
             'currentDay' => $current,
             'totalDays'  => MirrorJourneyService::TOTAL_DAYS,

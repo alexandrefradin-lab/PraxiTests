@@ -66,6 +66,7 @@ class ExerciseController extends Controller
         });
 
         return Inertia::render('PraxiBoostIndex', [
+            'appDescription' => $this->rewards->descriptionFor('praxiboost'),
             'exercises'     => $exercises,
             'totalEclats'   => $total,
             'dailyTip'      => $this->dailyTips->todayFor($user, 'praxiboost'),

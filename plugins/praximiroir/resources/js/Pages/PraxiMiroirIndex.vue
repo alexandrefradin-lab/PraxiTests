@@ -4,6 +4,7 @@ import { Link, Head } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 
 const props = defineProps({
+    appDescription: { type: String, default: null },
     exercises:  { type: Array,  default: () => [] },
     currentDay: { type: Number, default: 1 },
     totalDays:  { type: Number, default: 30 },
@@ -89,6 +90,9 @@ const blocs = computed(() => {
                     <div class="pm-progress-pill">{{ donePercent }} %</div>
                 </div>
             </div>
+
+            <!-- Présentation du module (description du manifest) -->
+            <p v-if="appDescription" class="pm-app-desc">{{ appDescription }}</p>
 
             <div class="pm-prog-track">
                 <div class="pm-prog-fill" :style="{ width: donePercent + '%' }"></div>
@@ -208,6 +212,7 @@ const blocs = computed(() => {
 .pm-topbar { display: flex; align-items: flex-start; justify-content: space-between; padding: 1.5rem 0 1rem; }
 .pm-app-name { font-size: 1.4rem; font-weight: 500; color: var(--text-primary); font-family: var(--font-display); }
 .pm-app-sub { font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
+.pm-app-desc { font-size: 0.9rem; line-height: 1.65; color: var(--text-secondary); background: var(--bg-elevated, #fafafa); border-left: 3px solid var(--color-primary, #B87A1A); border-radius: 0 10px 10px 0; padding: 0.9rem 1.1rem; margin: 0 0 1.25rem; }
 .pm-topbar-right { display: flex; align-items: center; gap: 0.5rem; margin-top: 4px; }
 
 .pm-streak-pill { display: flex; align-items: center; gap: 4px; background: rgba(107,63,160,0.12); color: #4a2870; border-radius: 999px; padding: 4px 10px; font-size: 0.78rem; font-weight: 500; }

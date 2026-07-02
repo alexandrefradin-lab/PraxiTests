@@ -64,6 +64,7 @@ class PracticeController extends Controller
         $completed = $progress->whereNotNull('completed_at')->count();
 
         return Inertia::render('PraxiLeadIndex', [
+            'appDescription' => $this->rewards->descriptionFor('praxilead'),
             'practices'  => $practices,
             'currentDay' => $current,
             'totalDays'  => JourneyService::TOTAL_DAYS,

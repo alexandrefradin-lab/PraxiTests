@@ -66,6 +66,13 @@ const total = computed(() => props.exercises.length)
                 <p v-if="app.subtitle" class="mt-2" style="font-family: var(--font-body); font-size: 0.95rem; color: var(--text-secondary);">
                     {{ app.subtitle }}
                 </p>
+                <p
+                    v-if="app.description"
+                    class="mt-3"
+                    style="font-family: var(--font-body); font-size: 0.9rem; line-height: 1.65; color: var(--text-secondary); padding: 0.9rem 1.1rem; background: var(--bg-elevated); border-left: 3px solid var(--color-primary); border-radius: 0 10px 10px 0;"
+                >
+                    {{ app.description }}
+                </p>
                 <p class="mt-2" style="font-size: 0.85rem; color: var(--text-secondary);">
                     {{ completedCount }}/{{ total }} exercices réalisés · choisis ce qui te parle, dans l'ordre que tu veux.
                 </p>

@@ -147,6 +147,17 @@ class RewardCatalog
         ];
     }
 
+    /**
+     * Description longue d'un plugin (manifest), affichée en tête de sa
+     * mini-app — la même que sur sa carte de la Salle du Trésor.
+     */
+    public function descriptionFor(string $pluginSlug): ?string
+    {
+        $desc = $this->all()->firstWhere('plugin_slug', $pluginSlug)['description'] ?? '';
+
+        return $desc !== '' ? $desc : null;
+    }
+
     public function testSlugs(): array
     {
         return $this->all()
