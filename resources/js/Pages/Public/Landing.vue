@@ -20,6 +20,21 @@ onMounted(() => {
     countUp(document.getElementById('lp-stat-pistes'), 50, '', 1300)
     countUp(document.getElementById('lp-stat-modules'), 10, '', 1500)
   }, 500)
+
+  // Vague dorée sur les chiffres romains quand la section entre à l'écran.
+  // Remplace le :hover sur tactile (où il restait bloqué après le tap).
+  const journeyGrid = document.querySelector('.lp-journey-grid')
+  if (journeyGrid && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) {
+          journeyGrid.classList.add('lp-journey-visible')
+          io.disconnect()
+        }
+      }
+    }, { threshold: 0.4 })
+    io.observe(journeyGrid)
+  }
 })
 </script>
 
@@ -467,6 +482,38 @@ onMounted(() => {
 }
 
 /*
+ * VAGUE DORÉE À L'ENTRÉE — remplace le hover sur tactile.
+ * Quand la grille des 4 actes devient visible (IntersectionObserver ajoute
+ * .lp-journey-visible), chaque cercle s'illumine tour à tour puis revient
+ * à son état normal. Joue une seule fois, sur tous les appareils.
+ * NB : le 1er enfant de la grille est le connecteur — les actes sont les
+ * enfants 2 à 5, d'où les nth-child décalés.
+ */
+@keyframes lp-circle-wave {
+  0%, 100% { }
+  40% {
+    background: var(--color-primary, #A67520);
+    border-color: var(--color-primary-dark, #7D5510);
+    transform: scale(1.14);
+    box-shadow: 0 6px 18px rgba(166,117,32,0.38);
+  }
+}
+@keyframes lp-num-wave {
+  0%, 100% { }
+  40% { color: var(--bg-base, #F0E8D4); }
+}
+.lp-journey-visible .lp-journey-item .lp-journey-circle { animation: lp-circle-wave 0.9s ease both; }
+.lp-journey-visible .lp-journey-item .lp-journey-num    { animation: lp-num-wave 0.9s ease both; }
+.lp-journey-visible .lp-journey-item:nth-child(2) .lp-journey-circle,
+.lp-journey-visible .lp-journey-item:nth-child(2) .lp-journey-num { animation-delay: 0.1s; }
+.lp-journey-visible .lp-journey-item:nth-child(3) .lp-journey-circle,
+.lp-journey-visible .lp-journey-item:nth-child(3) .lp-journey-num { animation-delay: 0.3s; }
+.lp-journey-visible .lp-journey-item:nth-child(4) .lp-journey-circle,
+.lp-journey-visible .lp-journey-item:nth-child(4) .lp-journey-num { animation-delay: 0.5s; }
+.lp-journey-visible .lp-journey-item:nth-child(5) .lp-journey-circle,
+.lp-journey-visible .lp-journey-item:nth-child(5) .lp-journey-num { animation-delay: 0.7s; }
+
+/*
  * Effets de survol réservés aux appareils AVEC pointeur (souris/trackpad).
  * Sur mobile, :hover « colle » après le tap : les chiffres romains restaient
  * bloqués en doré/agrandi. hover:hover exclut les écrans tactiles.
@@ -521,7 +568,9 @@ onMounted(() => {
   .lp-compass-needle,
   .lp-anim-badge,
   .lp-anim-h1a, .lp-anim-h1b,
-  .lp-anim-sub, .lp-anim-ctas, .lp-anim-trust {
+  .lp-anim-sub, .lp-anim-ctas, .lp-anim-trust,
+  .lp-journey-visible .lp-journey-item .lp-journey-circle,
+  .lp-journey-visible .lp-journey-item .lp-journey-num {
     animation: none !important;
   }
   .lp-h1-gradient {
