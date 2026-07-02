@@ -51,12 +51,12 @@ onMounted(() => {
       <!-- Texte logo -->
       <div style="display:flex;flex-direction:column;gap:1px">
         <span style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:16px;font-weight:600;color:var(--text-primary,#2A1E08);letter-spacing:-0.01em;line-height:1">{{ branding.name }}</span>
-        <span style="font-family:var(--font-data,'Space Mono',monospace);font-size:9px;font-weight:400;color:var(--color-primary,#A67520);letter-spacing:0.14em;text-transform:uppercase;line-height:1">Voyage interieur</span>
+        <span style="font-family:var(--font-data,'Space Mono',monospace);font-size:9px;font-weight:400;color:var(--color-primary,#A67520);letter-spacing:0.14em;text-transform:uppercase;line-height:1">Voyage intérieur</span>
       </div>
     </div>
     <div class="lp-nav-actions" style="display:flex;align-items:center;gap:8px">
       <Link href="/login" class="lp-nav-login" style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:13px;font-weight:500;color:var(--text-secondary,#6B5A3E);text-decoration:none;padding:6px 14px;border-radius:6px;transition:background 0.15s" onmouseenter="this.style.background='rgba(166,117,32,0.08)'" onmouseleave="this.style.background='transparent'">Connexion</Link>
-      <Link href="/register" class="lp-nav-cta" style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:13px;font-weight:600;letter-spacing:-0.01em;color:var(--bg-base,#F0E8D4);background:var(--color-accent,#1C1408);border:none;padding:8px 20px;border-radius:6px;text-decoration:none;display:inline-block;box-shadow:0 2px 8px rgba(42,30,8,0.2);white-space:nowrap">Partir a l'aventure</Link>
+      <Link href="/register" class="lp-nav-cta" style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:13px;font-weight:600;letter-spacing:-0.01em;color:var(--bg-base,#F0E8D4);background:var(--color-accent,#1C1408);border:none;padding:8px 20px;border-radius:6px;text-decoration:none;display:inline-block;box-shadow:0 2px 8px rgba(42,30,8,0.2);white-space:nowrap">Partir à l'aventure</Link>
     </div>
   </nav>
 
@@ -85,14 +85,14 @@ onMounted(() => {
     <div style="position:relative;z-index:2;padding:5.5rem 2rem 5rem;text-align:center;max-width:680px;margin:0 auto">
       <div class="lp-badge lp-anim-badge" style="display:inline-flex;align-items:center;gap:8px;font-family:var(--font-data,'Space Mono',monospace);font-size:10px;letter-spacing:.18em;color:var(--color-primary,#A67520);text-transform:uppercase;font-weight:400;margin-bottom:2.5rem;padding:5px 14px 5px 10px;border:1px solid rgba(166,117,32,0.3);border-radius:4px;background:rgba(166,117,32,0.05)">
         <div style="width:6px;height:6px;background:var(--color-primary,#A67520);transform:rotate(45deg);flex-shrink:0"></div>
-        Voyage interieur &middot; Augmente par IA
+        Voyage intérieur &middot; Augmenté par IA
       </div>
       <h1 class="lp-anim-h1a" style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:clamp(38px,6vw,62px);font-weight:700;color:var(--text-primary,#2A1E08);line-height:1.08;letter-spacing:-0.03em;margin-bottom:.3rem">La plus grande aventure</h1>
       <h1 class="lp-h1-gradient lp-anim-h1b" style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:clamp(38px,6vw,62px);font-weight:400;line-height:1.08;letter-spacing:-0.03em;margin-bottom:2rem">commence en toi.</h1>
-      <p class="lp-anim-sub" style="font-family:var(--font-body,'Inter',sans-serif);font-size:16px;color:var(--text-secondary,#6B5A3E);line-height:1.8;max-width:420px;margin:0 auto 2.8rem;font-weight:400">Une expedition au coeur de toi-meme. L'IA cartographie ton monde interieur et revele les horizons qui t'attendent.</p>
+      <p class="lp-anim-sub" style="font-family:var(--font-body,'Inter',sans-serif);font-size:16px;color:var(--text-secondary,#6B5A3E);line-height:1.8;max-width:420px;margin:0 auto 2.8rem;font-weight:400">Une expédition au cœur de toi-même. L'IA cartographie ton monde intérieur et révèle les horizons qui t'attendent.</p>
       <div class="lp-anim-ctas" style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:2rem;flex-wrap:wrap">
-        <Link href="/register" class="lp-btn-primary" style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:13px;letter-spacing:-0.01em;font-weight:600;color:var(--bg-base,#F0E8D4);background:var(--color-accent,#1C1408);border:none;border-radius:8px;padding:14px 32px;cursor:pointer;text-decoration:none;display:inline-block;box-shadow:0 4px 16px rgba(42,30,8,0.25)">Commencer l'expedition</Link>
-        <a href="#methode" class="lp-btn-ghost" style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:13px;letter-spacing:-0.01em;font-weight:500;color:var(--text-secondary,#6B5A3E);background:transparent;border:1px solid rgba(166,117,32,0.3);border-radius:8px;padding:14px 24px;cursor:pointer;text-decoration:none;display:inline-block">Decouvrir la methode</a>
+        <Link href="/register" class="lp-btn-primary" style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:13px;letter-spacing:-0.01em;font-weight:600;color:var(--bg-base,#F0E8D4);background:var(--color-accent,#1C1408);border:none;border-radius:8px;padding:14px 32px;cursor:pointer;text-decoration:none;display:inline-block;box-shadow:0 4px 16px rgba(42,30,8,0.25)">Commencer l'expédition</Link>
+        <a href="#methode" class="lp-btn-ghost" style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:13px;letter-spacing:-0.01em;font-weight:500;color:var(--text-secondary,#6B5A3E);background:transparent;border:1px solid rgba(166,117,32,0.3);border-radius:8px;padding:14px 24px;cursor:pointer;text-decoration:none;display:inline-block">Découvrir la méthode</a>
       </div>
       <div class="lp-anim-trust" style="display:flex;align-items:center;justify-content:center;gap:10px;font-family:var(--font-data,'Space Mono',monospace);font-size:10px;letter-spacing:.12em;color:var(--text-muted,#8C7A5E);text-transform:uppercase">
         <div style="width:28px;height:1px;background:rgba(166,117,32,0.25)"></div>
@@ -108,7 +108,7 @@ onMounted(() => {
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><polygon points="12,2 14,9 12,7.5 10,9" fill="none" stroke="#A67520" stroke-width="1.2" stroke-linejoin="round"/><circle cx="12" cy="12" r="9" stroke="#A67520" stroke-width=".8" opacity=".4"/></svg>
       <div>
         <div id="lp-stat-epreuves" class="lp-stat-num" style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:22px;font-weight:700;color:var(--color-primary,#A67520);letter-spacing:-0.02em">15</div>
-        <div style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;color:var(--text-secondary,#6B5A3E);letter-spacing:.06em;text-transform:uppercase">Epreuves fondees</div>
+        <div style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;color:var(--text-secondary,#6B5A3E);letter-spacing:.06em;text-transform:uppercase">Épreuves fondées</div>
       </div>
     </div>
     <div class="lp-stats-divider" style="width:1px;height:28px;background:rgba(166,117,32,0.2)"></div>
@@ -132,7 +132,7 @@ onMounted(() => {
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#A67520" stroke-width=".8" opacity=".4"/><circle cx="12" cy="12" r="4" stroke="#A67520" stroke-width=".8" opacity=".5"/><line x1="12" y1="2" x2="12" y2="7" stroke="#A67520" stroke-width="1.2"/></svg>
       <div>
         <div style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:22px;font-weight:700;color:var(--color-primary,#A67520);letter-spacing:-0.02em">RGPD</div>
-        <div style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;color:var(--text-secondary,#6B5A3E);letter-spacing:.06em;text-transform:uppercase">Donnees chiffrees</div>
+        <div style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;color:var(--text-secondary,#6B5A3E);letter-spacing:.06em;text-transform:uppercase">Données chiffrées</div>
       </div>
     </div>
   </div>
@@ -142,10 +142,10 @@ onMounted(() => {
     <div class="lp-intro-grid grid grid-cols-1 md:grid-cols-2" style="max-width:960px;margin:0 auto">
       <div>
         <p style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--color-primary,#A67520);margin-bottom:1rem">Connaissance de soi</p>
-        <h2 style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:32px;font-weight:600;color:var(--text-primary,#2A1E08);line-height:1.2;letter-spacing:-0.02em;margin-bottom:1.2rem">Tu as explore le monde.<br>Et si tu explorais <span style="color:var(--color-primary,#A67520);font-weight:400;font-style:italic">qui tu es</span> ?</h2>
-        <p style="font-family:var(--font-body,'Inter',sans-serif);font-size:14px;color:var(--text-secondary,#6B5A3E);line-height:1.85;margin-bottom:1.2rem">Certaines questions meritent plus qu'une reponse rapide. PraxiQuest te guide dans une introspection profonde.</p>
-        <p style="font-family:var(--font-body,'Inter',sans-serif);font-size:14px;color:var(--text-secondary,#6B5A3E);line-height:1.85;margin-bottom:1.8rem">L'IA synthetise ton voyage et ouvre devant toi des chemins que tu n'aurais peut-etre jamais imagines.</p>
-        <a href="#methode" style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:12px;letter-spacing:.04em;font-weight:500;text-transform:uppercase;color:var(--color-primary,#A67520);display:inline-flex;align-items:center;gap:8px;text-decoration:none">Voir comment ca marche</a>
+        <h2 style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:32px;font-weight:600;color:var(--text-primary,#2A1E08);line-height:1.2;letter-spacing:-0.02em;margin-bottom:1.2rem">Tu as exploré le monde.<br>Et si tu explorais <span style="color:var(--color-primary,#A67520);font-weight:400;font-style:italic">qui tu es</span> ?</h2>
+        <p style="font-family:var(--font-body,'Inter',sans-serif);font-size:14px;color:var(--text-secondary,#6B5A3E);line-height:1.85;margin-bottom:1.2rem">Certaines questions méritent plus qu'une réponse rapide. PraxiQuest te guide dans une introspection profonde.</p>
+        <p style="font-family:var(--font-body,'Inter',sans-serif);font-size:14px;color:var(--text-secondary,#6B5A3E);line-height:1.85;margin-bottom:1.8rem">L'IA synthétise ton voyage et ouvre devant toi des chemins que tu n'aurais peut-être jamais imaginés.</p>
+        <a href="#methode" style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:12px;letter-spacing:.04em;font-weight:500;text-transform:uppercase;color:var(--color-primary,#A67520);display:inline-flex;align-items:center;gap:8px;text-decoration:none">Voir comment ça marche</a>
       </div>
       <div class="lp-intro-compass" style="display:flex;align-items:center;justify-content:center">
         <svg class="lp-compass-svg" width="220" height="220" viewBox="0 0 220 220">
@@ -179,16 +179,16 @@ onMounted(() => {
   <section id="methode" class="lp-section" style="background:var(--bg-surface,#E5DAC2);padding:5rem 3rem">
     <div style="max-width:960px;margin:0 auto">
       <div style="text-align:center;margin-bottom:3.5rem">
-        <p style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--color-primary,#A67520);margin-bottom:.8rem">Les etapes de la quete</p>
+        <p style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--color-primary,#A67520);margin-bottom:.8rem">Les étapes de la quête</p>
         <h2 style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:30px;font-weight:600;color:var(--text-primary,#2A1E08);line-height:1.2;letter-spacing:-0.02em">Un voyage en quatre <span style="font-weight:400;color:var(--color-primary,#A67520)">actes</span></h2>
       </div>
       <div class="lp-journey-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4" style="position:relative">
         <div class="lp-journey-connector" style="position:absolute;top:28px;left:12.5%;right:12.5%;height:1px;background:linear-gradient(90deg,rgba(166,117,32,0.1),rgba(166,117,32,0.4),rgba(166,117,32,0.1))"></div>
         <div v-for="(step, i) in [
-          {roman:'I', title:'L\'ancrage', text:'Tu poses le contexte. La ou tu en es. D\'ou tu viens. L\'IA t\'ecoute avant de te parler.'},
-          {roman:'II', title:'L\'exploration', text:'15 epreuves fondees sur des modeles reconnus : RIASEC, Big Five, valeurs, stress, soft skills 360...'},
-          {roman:'III', title:'La revelation', text:'Le Grimoire croise toutes tes epreuves : synthese profonde, et l\'impact de l\'IA sur ton metier.'},
-          {roman:'IV', title:'L\'horizon', text:'Jusqu\'a 50 horizons metiers, a reordonner selon tes priorites. Pas des verdicts. Des chemins.'},
+          {roman:'I', title:'L\'ancrage', text:'Tu poses le contexte. Là où tu en es. D\'où tu viens. L\'IA t\'écoute avant de te parler.'},
+          {roman:'II', title:'L\'exploration', text:'15 épreuves fondées sur des modèles reconnus : RIASEC, Big Five, valeurs, stress, soft skills 360...'},
+          {roman:'III', title:'La révélation', text:'Le Grimoire croise toutes tes épreuves : synthèse profonde, et l\'impact de l\'IA sur ton métier.'},
+          {roman:'IV', title:'L\'horizon', text:'Jusqu\'à 50 horizons métiers, à réordonner selon tes priorités. Pas des verdicts. Des chemins.'},
         ]" :key="i" class="lp-journey-item" style="padding:0 1.2rem;text-align:center;position:relative">
           <div class="lp-journey-circle" style="width:56px;height:56px;margin:0 auto 1.2rem;background:var(--bg-surface,#E5DAC2);border:1px solid rgba(166,117,32,0.35);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:1">
             <span class="lp-journey-num" style="font-family:var(--font-data,'Space Mono',monospace);font-size:14px;font-weight:400;color:var(--color-primary,#A67520)">{{ step.roman }}</span>
@@ -204,7 +204,7 @@ onMounted(() => {
   <section class="lp-section" style="background:var(--bg-base,#F0E8D4);padding:5rem 3rem">
     <div style="max-width:960px;margin:0 auto">
       <div style="text-align:center;margin-bottom:3rem">
-        <p style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--color-primary,#A67520);margin-bottom:.8rem">La methode</p>
+        <p style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--color-primary,#A67520);margin-bottom:.8rem">La méthode</p>
         <h2 style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:30px;font-weight:600;color:var(--text-primary,#2A1E08);line-height:1.2;letter-spacing:-0.02em">Trois forces pour <span style="font-weight:400;color:var(--color-primary,#A67520)">aller en profondeur</span></h2>
       </div>
       <div class="lp-pillars-grid grid grid-cols-1 md:grid-cols-3" style="gap:1px;background:rgba(166,117,32,0.15);border:1px solid rgba(166,117,32,0.2);border-radius:12px;overflow:hidden">
@@ -212,22 +212,22 @@ onMounted(() => {
           <div class="lp-pillar-icon" style="width:40px;height:40px;margin-bottom:1.2rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(166,117,32,0.3);border-radius:50%;background:rgba(166,117,32,0.06)">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><polygon points="10,1 19,6 19,14 10,19 1,14 1,6" stroke="#A67520" stroke-width="1"/><circle cx="10" cy="10" r="2.5" fill="#A67520" opacity=".7"/></svg>
           </div>
-          <div style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:15px;font-weight:600;color:var(--text-primary,#2A1E08);margin-bottom:.6rem;letter-spacing:-0.01em">Intelligence augmentee</div>
-          <p style="font-family:var(--font-body,'Inter',sans-serif);font-size:13px;color:var(--text-secondary,#6B5A3E);line-height:1.7">L'IA lit entre les lignes. Elle croise tes reponses, ton histoire, ton contexte.</p>
+          <div style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:15px;font-weight:600;color:var(--text-primary,#2A1E08);margin-bottom:.6rem;letter-spacing:-0.01em">Intelligence augmentée</div>
+          <p style="font-family:var(--font-body,'Inter',sans-serif);font-size:13px;color:var(--text-secondary,#6B5A3E);line-height:1.7">L'IA lit entre les lignes. Elle croise tes réponses, ton histoire, ton contexte.</p>
         </div>
         <div class="lp-pillar-card" style="background:var(--bg-surface,#E5DAC2);padding:2.2rem 1.8rem">
           <div class="lp-pillar-icon" style="width:40px;height:40px;margin-bottom:1.2rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(166,117,32,0.3);border-radius:50%;background:rgba(166,117,32,0.06)">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="#A67520" stroke-width="1"/><line x1="10" y1="1" x2="10" y2="19" stroke="#A67520" stroke-width=".6" opacity=".4"/><line x1="1" y1="10" x2="19" y2="10" stroke="#A67520" stroke-width=".6" opacity=".4"/><polygon points="10,2 11,7 10,6 9,7" fill="#A67520"/></svg>
           </div>
           <div style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:15px;font-weight:600;color:var(--text-primary,#2A1E08);margin-bottom:.6rem;letter-spacing:-0.01em">Narration immersive</div>
-          <p style="font-family:var(--font-body,'Inter',sans-serif);font-size:13px;color:var(--text-secondary,#6B5A3E);line-height:1.7">PraxiQuest n'est pas un questionnaire. C'est un recit dont tu es le heros.</p>
+          <p style="font-family:var(--font-body,'Inter',sans-serif);font-size:13px;color:var(--text-secondary,#6B5A3E);line-height:1.7">PraxiQuest n'est pas un questionnaire. C'est un récit dont tu es le héros.</p>
         </div>
         <div class="lp-pillar-card" style="background:var(--bg-surface,#E5DAC2);padding:2.2rem 1.8rem">
           <div class="lp-pillar-icon" style="width:40px;height:40px;margin-bottom:1.2rem;display:flex;align-items:center;justify-content:center;border:1px solid rgba(166,117,32,0.3);border-radius:50%;background:rgba(166,117,32,0.06)">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2 L18 6 L18 14 L10 18 L2 14 L2 6 Z" stroke="#A67520" stroke-width="1"/><path d="M10 6 L14 8 L14 12 L10 14 L6 12 L6 8 Z" fill="#A67520" opacity=".2"/></svg>
           </div>
-          <div style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:15px;font-weight:600;color:var(--text-primary,#2A1E08);margin-bottom:.6rem;letter-spacing:-0.01em">Psychologie de la decision</div>
-          <p style="font-family:var(--font-body,'Inter',sans-serif);font-size:13px;color:var(--text-secondary,#6B5A3E);line-height:1.7">Chaque question a ete construite pour activer une prise de conscience reelle.</p>
+          <div style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:15px;font-weight:600;color:var(--text-primary,#2A1E08);margin-bottom:.6rem;letter-spacing:-0.01em">Psychologie de la décision</div>
+          <p style="font-family:var(--font-body,'Inter',sans-serif);font-size:13px;color:var(--text-secondary,#6B5A3E);line-height:1.7">Chaque question a été construite pour activer une prise de conscience réelle.</p>
         </div>
       </div>
     </div>
@@ -237,24 +237,24 @@ onMounted(() => {
   <section class="lp-section" style="background:var(--bg-surface,#E5DAC2);padding:5rem 3rem">
     <div style="max-width:960px;margin:0 auto">
       <div style="text-align:center;margin-bottom:3rem">
-        <p style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--color-primary,#A67520);margin-bottom:.8rem">Ton univers de quete</p>
+        <p style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--color-primary,#A67520);margin-bottom:.8rem">Ton univers de quête</p>
         <h2 style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:30px;font-weight:600;color:var(--text-primary,#2A1E08);line-height:1.2;letter-spacing:-0.02em">Trois espaces, <span style="font-weight:400;color:var(--color-primary,#A67520)">un seul voyage</span></h2>
       </div>
       <div class="lp-univers-grid grid grid-cols-1 md:grid-cols-3" style="gap:1.1rem">
         <div class="lp-univers-card" style="background:var(--bg-base,#F0E8D4);border:1px solid rgba(166,117,32,0.25);border-top:2px solid var(--color-primary,#A67520);border-radius:12px;padding:2rem 1.7rem">
-          <p style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--color-primary,#A67520);margin-bottom:.7rem">01 &middot; Les epreuves</p>
+          <p style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--color-primary,#A67520);margin-bottom:.7rem">01 &middot; Les épreuves</p>
           <div style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:17px;font-weight:600;color:var(--text-primary,#2A1E08);margin-bottom:.7rem;letter-spacing:-0.01em">L'Armurerie</div>
-          <p style="font-family:var(--font-body,'Inter',sans-serif);font-size:13px;color:var(--text-secondary,#6B5A3E);line-height:1.75">15 epreuves fondees sur des modeles reconnus : RIASEC, Big Five, valeurs de Schwartz, stress au travail (Karasek + MBI), soft skills 360, competences entrepreneuriales... Chacune livre une analyse detaillee, telechargeable en PDF.</p>
+          <p style="font-family:var(--font-body,'Inter',sans-serif);font-size:13px;color:var(--text-secondary,#6B5A3E);line-height:1.75">15 épreuves fondées sur des modèles reconnus : RIASEC, Big Five, valeurs de Schwartz, stress au travail (Karasek + MBI), soft skills 360, compétences entrepreneuriales... Chacune livre une analyse détaillée, téléchargeable en PDF.</p>
         </div>
         <div class="lp-univers-card" style="background:var(--bg-base,#F0E8D4);border:1px solid rgba(166,117,32,0.25);border-top:2px solid var(--color-primary,#A67520);border-radius:12px;padding:2rem 1.7rem">
           <p style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--color-primary,#A67520);margin-bottom:.7rem">02 &middot; La relecture</p>
           <div style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:17px;font-weight:600;color:var(--text-primary,#2A1E08);margin-bottom:.7rem;letter-spacing:-0.01em">Le Grimoire</div>
-          <p style="font-family:var(--font-body,'Inter',sans-serif);font-size:13px;color:var(--text-secondary,#6B5A3E);line-height:1.75">L'oracle croise l'ensemble de tes epreuves : un fil conducteur, une analyse de l'impact de l'IA sur ton metier, et jusqu'a 50 horizons metiers que tu reordonnes en direct selon tes priorites — remuneration, sens, autonomie, stabilite.</p>
+          <p style="font-family:var(--font-body,'Inter',sans-serif);font-size:13px;color:var(--text-secondary,#6B5A3E);line-height:1.75">L'oracle croise l'ensemble de tes épreuves : un fil conducteur, une analyse de l'impact de l'IA sur ton métier, et jusqu'à 50 horizons métiers que tu réordonnes en direct selon tes priorités — rémunération, sens, autonomie, stabilité.</p>
         </div>
         <div class="lp-univers-card" style="background:var(--bg-base,#F0E8D4);border:1px solid rgba(166,117,32,0.25);border-top:2px solid var(--color-primary,#A67520);border-radius:12px;padding:2rem 1.7rem">
-          <p style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--color-primary,#A67520);margin-bottom:.7rem">03 &middot; L'entrainement</p>
-          <div style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:17px;font-weight:600;color:var(--text-primary,#2A1E08);margin-bottom:.7rem;letter-spacing:-0.01em">La Salle du Tresor</div>
-          <p style="font-family:var(--font-body,'Inter',sans-serif);font-size:13px;color:var(--text-secondary,#6B5A3E);line-height:1.75">Tes Eclats, gagnes au fil des epreuves, revelent 10 mini-apps offertes : parcours guides de 30 a 60 jours — confiance, stress, prise de parole, leadership, gestion du temps... Recommandees selon ton profil, a toi pour toujours.</p>
+          <p style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--color-primary,#A67520);margin-bottom:.7rem">03 &middot; L'entraînement</p>
+          <div style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:17px;font-weight:600;color:var(--text-primary,#2A1E08);margin-bottom:.7rem;letter-spacing:-0.01em">La Salle du Trésor</div>
+          <p style="font-family:var(--font-body,'Inter',sans-serif);font-size:13px;color:var(--text-secondary,#6B5A3E);line-height:1.75">Tes Éclats, gagnés au fil des épreuves, révèlent 10 mini-apps offertes : parcours guidés de 30 à 60 jours — confiance, stress, prise de parole, leadership, gestion du temps... Recommandées selon ton profil, à toi pour toujours.</p>
         </div>
       </div>
     </div>
@@ -263,8 +263,8 @@ onMounted(() => {
   <!-- QUOTE -->
   <div class="lp-quote" style="background:#1C1408;padding:4rem 3rem;text-align:center;border-top:1px solid rgba(166,117,32,0.15)">
     <div style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:64px;font-weight:700;color:var(--color-primary,#A67520);opacity:.25;line-height:.7;margin-bottom:.8rem">"</div>
-    <p style="font-family:var(--font-body,'Inter',sans-serif);font-size:19px;font-style:italic;font-weight:400;color:rgba(240,232,212,0.85);line-height:1.6;max-width:480px;margin:0 auto 1.2rem;letter-spacing:.01em">Je ne m'attendais pas a me retrouver autant dans ce parcours. Comme si quelqu'un avait enfin pose les bonnes questions.</p>
-    <p style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;letter-spacing:.15em;color:rgba(166,117,32,0.6);text-transform:uppercase">Margaux, 34 ans &middot; Apres son voyage PraxiQuest</p>
+    <p style="font-family:var(--font-body,'Inter',sans-serif);font-size:19px;font-style:italic;font-weight:400;color:rgba(240,232,212,0.85);line-height:1.6;max-width:480px;margin:0 auto 1.2rem;letter-spacing:.01em">Je ne m'attendais pas à me retrouver autant dans ce parcours. Comme si quelqu'un avait enfin posé les bonnes questions.</p>
+    <p style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;letter-spacing:.15em;color:rgba(166,117,32,0.6);text-transform:uppercase">Margaux, 34 ans &middot; Après son voyage PraxiQuest</p>
   </div>
 
   <!-- FINAL CTA -->
@@ -284,9 +284,9 @@ onMounted(() => {
       </div>
       <h2 style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:clamp(28px,4vw,44px);font-weight:700;color:var(--text-primary,#2A1E08);line-height:1.15;letter-spacing:-0.03em;margin-bottom:.4rem">Ta terra incognita</h2>
       <h2 style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:clamp(28px,4vw,44px);font-weight:400;color:var(--color-primary,#A67520);line-height:1.15;letter-spacing:-0.03em;margin-bottom:1.2rem">t'attend.</h2>
-      <p style="font-family:var(--font-body,'Inter',sans-serif);font-size:14px;color:var(--text-secondary,#6B5A3E);margin:0 auto 2.4rem;max-width:340px;line-height:1.75">Une expedition interieure. Jusqu'a 50 horizons metiers, et des modules d'entrainement pour avancer vraiment.</p>
-      <Link href="/register" class="lp-btn-primary" style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:13px;font-weight:600;letter-spacing:-0.01em;color:var(--bg-base,#F0E8D4);background:var(--color-accent,#1C1408);border:none;padding:16px 44px;cursor:pointer;border-radius:8px;text-decoration:none;display:inline-block;margin-bottom:1.4rem;box-shadow:0 4px 16px rgba(42,30,8,0.2)">Commencer l'expedition</Link>
-      <p style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;color:var(--text-muted,#8C7A5E);letter-spacing:.1em;text-transform:uppercase">Gratuit &middot; Sans engagement &middot; Donnees chiffrees</p>
+      <p style="font-family:var(--font-body,'Inter',sans-serif);font-size:14px;color:var(--text-secondary,#6B5A3E);margin:0 auto 2.4rem;max-width:340px;line-height:1.75">Une expédition intérieure. Jusqu'à 50 horizons métiers, et des modules d'entraînement pour avancer vraiment.</p>
+      <Link href="/register" class="lp-btn-primary" style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:13px;font-weight:600;letter-spacing:-0.01em;color:var(--bg-base,#F0E8D4);background:var(--color-accent,#1C1408);border:none;padding:16px 44px;cursor:pointer;border-radius:8px;text-decoration:none;display:inline-block;margin-bottom:1.4rem;box-shadow:0 4px 16px rgba(42,30,8,0.2)">Commencer l'expédition</Link>
+      <p style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;color:var(--text-muted,#8C7A5E);letter-spacing:.1em;text-transform:uppercase">Gratuit &middot; Sans engagement &middot; Données chiffrées</p>
     </div>
   </section>
 
@@ -295,8 +295,8 @@ onMounted(() => {
     <div style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:14px;font-weight:600;color:var(--text-secondary,#6B5A3E);letter-spacing:-0.01em">{{ branding.name }}</div>
     <div style="display:flex;gap:20px">
       <Link href="/cgu" style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted,#8C7A5E);text-decoration:none">CGU</Link>
-      <Link href="/confidentialite" style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted,#8C7A5E);text-decoration:none">Confidentialite</Link>
-      <Link href="/mentions-legales" style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted,#8C7A5E);text-decoration:none">Mentions legales</Link>
+      <Link href="/confidentialite" style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted,#8C7A5E);text-decoration:none">Confidentialité</Link>
+      <Link href="/mentions-legales" style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted,#8C7A5E);text-decoration:none">Mentions légales</Link>
       <Link href="/contact" style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted,#8C7A5E);text-decoration:none">Contact</Link>
     </div>
     <div style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;color:var(--text-ghost,#B0A08A);letter-spacing:.04em">{{ new Date().getFullYear() }} Praxis Accompagnement</div>
