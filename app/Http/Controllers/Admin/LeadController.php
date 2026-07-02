@@ -51,6 +51,9 @@ class LeadController extends Controller
 
         // Épreuves du compte rattaché : toutes les tentatives (terminées ou en
         // cours), hors regards d'évaluateurs 360 (rater_relation).
+        // Liens vers les résultats : réservés aux admins (ResultController
+        // autorise propriétaire OU admin ; les pros n'y ont pas accès).
+        $isAdmin  = auth()->user()->hasRole('admin');
         $attempts = collect();
         if ($lead->user_id) {
             $attempts = \App\Models\TestAttempt::with('test:id,name,slug')
@@ -65,6 +68,8 @@ class LeadController extends Controller
                     'started_at'    => $a->started_at?->format('d/m/Y H:i'),
                     'completed_at'  => $a->completed_at?->format('d/m/Y H:i'),
                     'has_synthesis' => (bool) $a->result?->ai_synthesis,
+                    'results_url'   => ($isAdmin && $a->status === 'completed') ? route('results.show', $a->id, false) : null,
+                    'pdf_url'       => ($isAdmin && $a->result?->ai_synthesis) ? route('results.pdf', $a->id, false) : null,
                 ])
                 ->values();
         }

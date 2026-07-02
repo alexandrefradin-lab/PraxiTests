@@ -14,9 +14,22 @@ class ResultController extends Controller
 {
     use BuildsBrandedPdf;
 
+    /**
+     * Résultats consultables par leur propriétaire, et par les admins
+     * (suivi des leads depuis le back-office). Les comptes professionnels
+     * restent exclus : leur cloisonnement multi-tenant sera traité à part.
+     */
+    protected function authorizeAttempt(TestAttempt $attempt): void
+    {
+        abort_unless(
+            $attempt->user_id === auth()->id() || auth()->user()->hasRole('admin'),
+            403
+        );
+    }
+
     public function show(TestAttempt $attempt)
     {
-        abort_unless($attempt->user_id === auth()->id(), 403);
+        $this->authorizeAttempt($attempt);
         $attempt->load('test', 'result');
 
         // Laisser chaque plugin overrider la page de résultats via un filtre.
@@ -47,7 +60,8 @@ class ResultController extends Controller
 
         $journeyProps = [];
         if (in_array($testSlug, $miniAppSlugs, true)) {
-            $userId = auth()->id();
+            // Propriétaire de la tentative (≠ auth()->id() quand un admin consulte)
+            $userId = $attempt->user_id;
 
             $journeyClass = match($testSlug) {
                 'praxizen'   => \Praxis\Plugins\PraxiZen\Data\Journey::class,
@@ -101,7 +115,7 @@ class ResultController extends Controller
         // Feedback 360° — injecter l'agrégat des regards si un panel existe.
         $panel360 = null;
         if ($testSlug === 'praxis360') {
-            $panel = \App\Models\EvaluationPanel::where('user_id', auth()->id())
+            $panel = \App\Models\EvaluationPanel::where('user_id', $attempt->user_id)
                 ->where('self_attempt_id', $attempt->id)
                 ->first();
             $panel360 = [
@@ -128,7 +142,7 @@ class ResultController extends Controller
      */
     public function status(TestAttempt $attempt): \Illuminate\Http\JsonResponse
     {
-        abort_unless($attempt->user_id === auth()->id(), 403);
+        $this->authorizeAttempt($attempt);
 
         return response()->json([
             'ai_ready'   => (bool) $attempt->result?->ai_synthesis,
@@ -138,7 +152,7 @@ class ResultController extends Controller
 
     public function pdf(TestAttempt $attempt)
     {
-        abort_unless($attempt->user_id === auth()->id(), 403);
+        $this->authorizeAttempt($attempt);
         $attempt->load('test', 'result', 'user.profile');
 
         $opts = $this->pdfOptions();

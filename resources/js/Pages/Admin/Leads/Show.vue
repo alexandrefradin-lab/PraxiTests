@@ -66,7 +66,8 @@ const save = () => form.put(route('admin.leads.update', props.lead.id))
                                 <th class="ac-th text-left py-2 pr-3">Statut</th>
                                 <th class="ac-th text-left py-2 pr-3">Commencée</th>
                                 <th class="ac-th text-left py-2 pr-3">Terminée</th>
-                                <th class="ac-th text-left py-2">Synthèse IA</th>
+                                <th class="ac-th text-left py-2 pr-3">Synthèse IA</th>
+                                <th class="ac-th text-left py-2">Résultats</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y" style="border-color:var(--border-light)">
@@ -79,7 +80,18 @@ const save = () => form.put(route('admin.leads.update', props.lead.id))
                                 </td>
                                 <td class="py-2 pr-3 text-xs whitespace-nowrap" style="color:var(--text-muted)">{{ a.started_at ?? '—' }}</td>
                                 <td class="py-2 pr-3 text-xs whitespace-nowrap" style="color:var(--text-muted)">{{ a.completed_at ?? '—' }}</td>
-                                <td class="py-2 text-xs" style="color:var(--text-muted)">{{ a.has_synthesis ? 'Oui' : '—' }}</td>
+                                <td class="py-2 pr-3 text-xs" style="color:var(--text-muted)">{{ a.has_synthesis ? 'Oui' : '—' }}</td>
+                                <td class="py-2 text-xs whitespace-nowrap">
+                                    <a v-if="a.results_url" :href="a.results_url" target="_blank" rel="noopener"
+                                       class="hover:underline" style="color:var(--color-primary-dark,#7D5510);font-weight:600">
+                                        Voir ↗
+                                    </a>
+                                    <a v-if="a.pdf_url" :href="a.pdf_url" target="_blank" rel="noopener"
+                                       class="hover:underline ml-2" style="color:var(--color-primary-dark,#7D5510)">
+                                        PDF
+                                    </a>
+                                    <span v-if="!a.results_url && !a.pdf_url" style="color:var(--text-ghost,#B0A08A)">—</span>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
