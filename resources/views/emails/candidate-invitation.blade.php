@@ -23,8 +23,23 @@
         <p style="margin:8px 0 0; opacity:.85">Vous avez reçu une invitation</p>
     </div>
     <div class="body">
-        <p>Bonjour,</p>
+        <p>Bonjour{{ $invitation->first_name ? ' ' . $invitation->first_name : '' }},</p>
+        @php
+            $testIds      = $invitation->metadata['test_ids'] ?? [];
+            $invitedTests = count($testIds) > 1
+                ? \App\Models\Test::whereIn('id', $testIds)->orderBy('name')->get(['id', 'name'])
+                : collect();
+        @endphp
+        @if($invitedTests->count() > 1)
+        <p>Vous avez été invité(e) à passer les <strong>{{ $invitedTests->count() }} épreuves</strong> suivantes :</p>
+        <ul style="background:#f9f9f9;padding:16px 16px 16px 36px;border-radius:4px;margin:16px 0">
+            @foreach($invitedTests as $t)
+            <li style="margin:6px 0"><strong>{{ $t->name }}</strong></li>
+            @endforeach
+        </ul>
+        @else
         <p>Vous avez été invité(e) à passer <strong>{{ $invitation->test->name ?? 'un test' }}</strong>.</p>
+        @endif
         @php $customMessage = $invitation->metadata['message'] ?? null; @endphp
         @if(!empty($customMessage))
         <p style="background:#f9f9f9;padding:12px;border-radius:4px;font-style:italic">
@@ -37,7 +52,7 @@
         </div>
         @endif
         <div class="cta">
-            <a href="{{ url('/i/' . $invitation->token) }}" class="btn">Commencer le test &rarr;</a>
+            <a href="{{ url('/i/' . $invitation->token) }}" class="btn">{{ ($invitedTests->count() > 1) ? 'Commencer mes épreuves' : 'Commencer le test' }} &rarr;</a>
         </div>
         <p style="color:#888;font-size:13px">Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :<br>
         <a href="{{ url('/i/' . $invitation->token) }}">{{ url('/i/' . $invitation->token) }}</a></p>

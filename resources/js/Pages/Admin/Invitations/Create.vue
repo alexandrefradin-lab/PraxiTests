@@ -7,13 +7,17 @@ const props = defineProps({
 })
 
 const form = useForm({
-    test_id:    props.tests.length === 1 ? props.tests[0].id : '',
+    test_ids:   props.tests.length === 1 ? [props.tests[0].id] : [],
     email:      '',
     first_name: '',
     last_name:  '',
     message:    '',
     expires_at: '',
 })
+
+const toggleAll = () => {
+    form.test_ids = form.test_ids.length === props.tests.length ? [] : props.tests.map(t => t.id)
+}
 
 const submit = () => form.post(route('admin.invitations.store'))
 </script>
@@ -46,19 +50,35 @@ const submit = () => form.post(route('admin.invitations.store'))
 
             <form @submit.prevent="submit" class="pt-card p-6 space-y-5">
 
-                <!-- Test -->
+                <!-- Épreuves (cases à cocher) -->
                 <div>
-                    <label for="inv-test" class="pt-label">Test à faire passer <span style="color:#ef4444">*</span></label>
-                    <select
-                        id="inv-test"
-                        v-model="form.test_id"
-                        required
-                        class="pt-input mt-2"
-                    >
-                        <option value="" disabled>— Choisir un test —</option>
-                        <option v-for="t in tests" :key="t.id" :value="t.id">{{ t.name }}</option>
-                    </select>
-                    <p v-if="form.errors.test_id" class="text-xs mt-1" style="color:#ef4444">{{ form.errors.test_id }}</p>
+                    <div class="flex items-center justify-between">
+                        <label class="pt-label">Épreuves à faire passer <span style="color:#ef4444">*</span></label>
+                        <button type="button" @click="toggleAll" class="text-xs hover:underline" style="color:var(--color-primary-dark,#7D5510)">
+                            {{ form.test_ids.length === tests.length ? 'Tout décocher' : 'Tout cocher' }}
+                        </button>
+                    </div>
+                    <div class="mt-2 rounded-lg border p-1" style="border-color:var(--border-light);max-height:260px;overflow-y:auto">
+                        <label
+                            v-for="t in tests"
+                            :key="t.id"
+                            class="flex items-center gap-3 px-3 py-2 rounded cursor-pointer transition-colors"
+                            :style="form.test_ids.includes(t.id) ? 'background:rgba(166,117,32,0.08)' : ''"
+                        >
+                            <input
+                                type="checkbox"
+                                :value="t.id"
+                                v-model="form.test_ids"
+                                style="accent-color:var(--color-primary,#A67520);width:16px;height:16px;flex-shrink:0"
+                            >
+                            <span class="text-sm" style="color:var(--text-primary)">{{ t.name }}</span>
+                        </label>
+                    </div>
+                    <p class="text-xs mt-1" style="color:var(--text-muted)">
+                        {{ form.test_ids.length }} épreuve{{ form.test_ids.length > 1 ? 's' : '' }} sélectionnée{{ form.test_ids.length > 1 ? 's' : '' }} —
+                        le candidat recevra un seul email listant toutes les épreuves.
+                    </p>
+                    <p v-if="form.errors.test_ids" class="text-xs mt-1" style="color:#ef4444">{{ form.errors.test_ids }}</p>
                 </div>
 
                 <!-- Email -->
@@ -145,9 +165,9 @@ const submit = () => form.post(route('admin.invitations.store'))
             <!-- Info SMTP -->
             <div class="mt-6 p-4 rounded-lg text-sm" style="background:var(--bg-elevated);color:var(--text-muted)">
                 <strong style="color:var(--text-secondary)">Comment ça marche ?</strong><br>
-                Dès la validation, un email est envoyé au candidat avec un lien sécurisé (token unique).
-                En cliquant, il crée son compte et accède directement au test sélectionné.
-                Vous pouvez suivre son avancement depuis le tableau de bord.
+                Dès la validation, un email est envoyé au candidat avec un lien sécurisé (token unique)
+                et la liste des épreuves cochées. En cliquant, il crée son compte et accède à l'Armurerie
+                pour passer ses épreuves. Vous suivez son avancement depuis le tableau de bord et sa fiche lead.
             </div>
         </div>
     </AdminLayout>

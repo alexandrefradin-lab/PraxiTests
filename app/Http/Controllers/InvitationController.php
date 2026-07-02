@@ -33,13 +33,19 @@ class InvitationController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'test_id'    => ['required', 'integer', 'exists:tests,id'],
+            'test_ids'   => ['required', 'array', 'min:1'],
+            'test_ids.*' => ['integer', 'exists:tests,id'],
             'email'      => ['required', 'email', 'max:180'],
             'first_name' => ['nullable', 'string', 'max:80'],
             'last_name'  => ['nullable', 'string', 'max:80'],
             'message'    => ['nullable', 'string', 'max:1000'],
             'expires_at' => ['nullable', 'date', 'after:today'],
+        ], [
+            'test_ids.required' => 'Cochez au moins une épreuve à faire passer.',
+            'test_ids.min'      => 'Cochez au moins une épreuve à faire passer.',
         ]);
+
+        $testIds = array_values(array_unique(array_map('intval', $data['test_ids'])));
 
         // Cloisonnement multi-tenant : on rattache l'invitation au premier compte
         // professionnel de l'utilisateur (ou null si admin sans compte PA).
@@ -48,20 +54,29 @@ class InvitationController extends Controller
             ? null
             : $user->professionalAccounts()->value('professional_accounts.id');
 
+        // UNE invitation (un seul email, un seul lien) pour l'ensemble des
+        // épreuves cochées. test_id = première épreuve (compat schéma et suivi
+        // existant) ; la liste complète vit dans metadata.test_ids et alimente
+        // l'email d'invitation.
         TestInvitation::create([
-            'test_id'                 => $data['test_id'],
+            'test_id'                 => $testIds[0],
             'professional_account_id' => $professionalAccountId,
             'email'                   => $data['email'],
             'first_name'              => $data['first_name'] ?? null,
             'last_name'               => $data['last_name'] ?? null,
-            'metadata'                => array_filter(['message' => $data['message'] ?? null]),
+            'metadata'                => array_filter([
+                'message'  => $data['message'] ?? null,
+                'test_ids' => $testIds,
+            ]),
             'expires_at'              => $data['expires_at'] ?? null,
             // token et expires_at par défaut gérés par le hook creating()
         ]);
 
+        $count = count($testIds);
+
         return redirect()
             ->route('admin.conseiller')
-            ->with('success', "Invitation envoyée à {$data['email']}.");
+            ->with('success', "Invitation envoyée à {$data['email']} ({$count} épreuve" . ($count > 1 ? 's' : '') . ").");
     }
 
     // ─── Lien public (atterrissage candidat) ──────────────────────────────────

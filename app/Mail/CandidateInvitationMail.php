@@ -19,8 +19,12 @@ class CandidateInvitationMail extends Mailable
 
     public function envelope(): Envelope
     {
+        $count = count($this->invitation->metadata['test_ids'] ?? []) ?: 1;
+
         return new Envelope(
-            subject: 'Vous êtes invité(e) à passer un test — ' . config('app.name'),
+            subject: ($count > 1
+                ? 'Vous êtes invité(e) à passer vos épreuves — '
+                : 'Vous êtes invité(e) à passer un test — ') . config('app.name'),
         );
     }
 
