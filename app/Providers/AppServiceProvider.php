@@ -23,9 +23,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Transport Brevo API (HTTP) — contourne le blocage SMTP OVH.
-        // Utilise BREVO_API_KEY (xkeysib-...) depuis le .env.
+        // BREVO_API_KEY est lu via config/services.php (PAS env() : avec la
+        // config cachée en prod, env() renvoie null → clé vide silencieuse).
         config(['mail.mailers.brevo' => ['transport' => 'brevo']]);
-        Mail::extend('brevo', fn() => new BrevoApiTransport(env('BREVO_API_KEY', '')));
+        Mail::extend('brevo', fn() => new BrevoApiTransport((string) config('services.brevo.key', '')));
 
         AwardXpOnAnswer::register($this->app->make(GamificationEngine::class));
 
