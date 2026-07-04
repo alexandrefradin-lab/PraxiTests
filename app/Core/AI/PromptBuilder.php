@@ -28,7 +28,7 @@ class PromptBuilder
      * @param  Collection<int,TestAttempt>  $attempts  tentatives complétées (test + result)
      * @param  array<int,array{role:string,content:string}>  $history  tours précédents
      */
-    public function oracleChat(User $user, Collection $attempts, ?ProfileGrimoire $grimoire, array $history, string $message): array
+    public function oracleChat(User $user, Collection $attempts, ?ProfileGrimoire $grimoire, array $history, string $message, bool $nightMode = false): array
     {
         $persona = <<<TXT
 Tu es l'Oracle de PraxiQuest. Conseiller d'orientation senior, lucide, avec du vécu. Tu aides les gens à y voir clair sur leur profil, leurs possibles et les moyens concrets d'avancer — sans leur faire de grands discours.

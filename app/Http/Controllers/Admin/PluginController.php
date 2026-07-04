@@ -11,7 +11,7 @@ use Praxis\Core\Plugins\PluginRegistry;
 
 class PluginController extends Controller
 {
-    public function index(PluginRegistry $registry)
+    public function index(Request $request, PluginRegistry $registry)
     {
         // Throttle le scan disque syncToDatabase() — coûteux à chaque page admin (ARC-m5).
         // Le cache est TTL 60 s ; une activation/désactivation l'invalide via back().
@@ -19,11 +19,24 @@ class PluginController extends Controller
             $registry->syncToDatabase();
             return true;
         });
-        $plugins = Plugin::orderBy('type')->orderBy('name')->get();
+
+        $q = Plugin::query();
+
+        if ($request->filled('type')) {
+            $q->where('type', $request->string('type')->toString());
+        }
+        if ($request->filled('enabled')) {
+            $q->where('enabled', $request->string('enabled')->toString() === 'yes');
+        }
+        if ($request->filled('search')) {
+            $s = $request->string('search');
+            $q->where(fn ($x) => $x->where('name', 'like', "%{$s}%")->orWhere('slug', 'like', "%{$s}%"));
+        }
 
         return Inertia::render('Admin/Plugins/Index', [
-            'plugins' => $plugins,
+            'plugins' => $q->orderBy('type')->orderBy('name')->get(),
             'types'   => config('plugins.available_types'),
+            'filters' => $request->only(['search', 'type', 'enabled']),
         ]);
     }
 

@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 class TestInvitation extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'test_id',
         'professional_account_id',

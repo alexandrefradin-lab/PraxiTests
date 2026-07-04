@@ -53,7 +53,12 @@ class AuthController extends Controller
 
     public function showRegister(Request $request)
     {
-        return Inertia::render('Auth/Register', ['email' => filter_var($request->query('email'), FILTER_VALIDATE_EMAIL) ?: null]);
+        return Inertia::render('Auth/Register', [
+            'email' => filter_var($request->query('email'), FILTER_VALIDATE_EMAIL) ?: null,
+            // SEC-M12 / RGPD : inscription via invitation → proposer la case de
+            // consentement au partage des résultats avec le professionnel invitant.
+            'viaInvitation' => $request->session()->has('invitation_token'),
+        ]);
     }
 
     /** Version des CGU actuellement en vigueur — à incrémenter à chaque nouvelle version */
@@ -74,6 +79,9 @@ class AuthController extends Controller
             'email'       => ['required', 'email', 'unique:users,email'],
             'password'    => ['required', 'string', 'min:8', 'confirmed'],
             'terms'       => ['required', 'accepted'],
+            // RGPD : consentement au partage des résultats avec le professionnel
+            // invitant. Libre (nullable) — refuser n'empêche pas l'inscription.
+            'consent_share' => ['nullable', 'boolean'],
             'quest_title' => ['required', 'in:architecte,explorateur,passeur'],
         ], [
             'terms.required'        => 'Vous devez accepter les Conditions Générales d\'Utilisation.',
@@ -141,7 +149,14 @@ class AuthController extends Controller
                 ->whereNotIn('status', ['expired', 'completed'])
                 ->first();
             if ($invitation) {
-                $invitation->update(['status' => 'started']);
+                $invitation->update(array_merge(
+                    ['status' => 'started'],
+                    // SEC-M12 / RGPD : consentement de partage horodaté (preuve).
+                    $request->boolean('consent_share') ? [
+                        'consent_share_professional' => true,
+                        'consent_given_at'           => now(),
+                    ] : [],
+                ));
                 // Garder l'ID pour qu'AttemptController puisse le lier à la tentative
                 session(['pending_invitation_id' => $invitation->id]);
             }

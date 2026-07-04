@@ -13,17 +13,20 @@ const props = defineProps({
 // ---- Filtres ----
 const filterPlan   = ref(props.filters.plan   ?? '')
 const filterStatus = ref(props.filters.status ?? '')
+const filterSearch = ref(props.filters.search ?? '')
 
 function applyFilters() {
     router.get('/admin/subscriptions', {
         plan:   filterPlan.value   || undefined,
         status: filterStatus.value || undefined,
+        search: filterSearch.value || undefined,
     }, { preserveState: true, replace: true })
 }
 
 function resetFilters() {
     filterPlan.value   = ''
     filterStatus.value = ''
+    filterSearch.value = ''
     router.get('/admin/subscriptions')
 }
 
@@ -86,15 +89,20 @@ const kpiCards = computed(() => [
         <!-- Filtres -->
         <div class="pt-card p-4 mb-6 flex flex-wrap gap-3 items-end">
             <div>
-                <label class="pt-label mb-1">Plan</label>
-                <select v-model="filterPlan" class="pt-input text-sm py-1.5">
+                <label for="sub-search" class="pt-label mb-1">Recherche</label>
+                <input id="sub-search" v-model="filterSearch" @keyup.enter="applyFilters"
+                    placeholder="Email ou nom…" class="pt-input text-sm py-1.5">
+            </div>
+            <div>
+                <label for="sub-plan" class="pt-label mb-1">Plan</label>
+                <select id="sub-plan" v-model="filterPlan" class="pt-input text-sm py-1.5">
                     <option value="">Tous les plans</option>
                     <option v-for="p in plans" :key="p.key" :value="p.key">{{ p.name }}</option>
                 </select>
             </div>
             <div>
-                <label class="pt-label mb-1">Statut</label>
-                <select v-model="filterStatus" class="pt-input text-sm py-1.5">
+                <label for="sub-status" class="pt-label mb-1">Statut</label>
+                <select id="sub-status" v-model="filterStatus" class="pt-input text-sm py-1.5">
                     <option value="">Tous</option>
                     <option value="active">Actif</option>
                     <option value="trialing">Essai</option>
@@ -104,11 +112,12 @@ const kpiCards = computed(() => [
             </div>
             <button @click="applyFilters" class="ac-btn-ghost text-sm py-1.5 px-4">Filtrer</button>
             <button
-                v-if="filterPlan || filterStatus"
+                v-if="filterPlan || filterStatus || filterSearch"
                 @click="resetFilters"
                 class="text-sm underline hover:no-underline"
                 style="color:var(--text-muted)"
             >Effacer</button>
+            <a :href="route('admin.subscriptions.export')" class="ac-btn-ghost text-sm py-1.5 px-4 ml-auto">Exporter CSV</a>
         </div>
 
         <!-- Tableau -->

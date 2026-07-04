@@ -1,6 +1,7 @@
-<script setup>
+﻿<script setup>
 import { useForm } from '@inertiajs/vue3'
 import AdminLayout from '@/Layouts/AdminLayout.vue'
+import FlashAlert from '@/Components/Admin/FlashAlert.vue'
 
 const props = defineProps({
     tests: Array,   // [{ id, name, slug }]
@@ -35,8 +36,8 @@ const submit = () => form.post(route('admin.invitations.store'))
 
         <!-- En-tête -->
         <div class="flex items-center gap-3 mb-8">
-            <Link href="/admin/conseiller" class="text-sm" style="color:var(--text-muted)">
-                ← Tableau de bord
+            <Link href="/admin/invitations" class="text-sm" style="color:var(--text-muted)">
+                ← Invitations
             </Link>
             <span style="color:var(--border-light)">/</span>
             <span class="text-sm font-medium" style="color:var(--text-primary)">Inviter un candidat</span>
@@ -50,23 +51,25 @@ const submit = () => form.post(route('admin.invitations.store'))
                 Un email avec un lien personnalisé sera envoyé immédiatement.
             </p>
 
-            <!-- Alerte flash succès (redirigée mais au cas où) -->
-            <div v-if="$page.props.flash?.success" class="mb-6 p-4 rounded-lg text-sm" style="background:#ecfdf5;color:#065f46;border:1px solid #6ee7b7">
-                {{ $page.props.flash.success }}
-            </div>
+            <FlashAlert />
 
             <form @submit.prevent="submit" class="pt-card p-6 space-y-5">
 
                 <!-- Épreuves (cases à cocher) -->
                 <div>
                     <div class="flex items-center justify-between">
-                        <label class="pt-label">Épreuves à faire passer <span style="color:#ef4444">*</span></label>
+                        <label class="pt-label">Épreuves à faire passer <span style="color:var(--color-danger)">*</span></label>
                         <button type="button" @click="toggleAll" class="text-xs hover:underline" style="color:var(--color-primary-dark,#7D5510)">
                             {{ form.test_ids.length === tests.length ? 'Tout décocher' : 'Tout cocher' }}
                         </button>
                     </div>
+                    <!-- État vide : aucun test publié à proposer -->
+                    <div v-if="!tests.length" class="mt-2 p-4 rounded-lg text-sm" style="background:var(--bg-elevated);color:var(--text-muted)">
+                        Aucune épreuve publiée pour le moment. Publiez au moins un test depuis
+                        <Link href="/admin/tests" class="ac-link-primary">l'éditeur de tests</Link> avant d'inviter un candidat.
+                    </div>
                     <!-- Toutes les épreuves visibles d'un coup : grille de cartes cochables -->
-                    <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div v-else class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <label
                             v-for="t in tests"
                             :key="t.id"
@@ -93,12 +96,12 @@ const submit = () => form.post(route('admin.invitations.store'))
                         {{ form.test_ids.length }} épreuve{{ form.test_ids.length > 1 ? 's' : '' }} sélectionnée{{ form.test_ids.length > 1 ? 's' : '' }} —
                         le candidat recevra un seul email listant toutes les épreuves.
                     </p>
-                    <p v-if="form.errors.test_ids" class="text-xs mt-1" style="color:#ef4444">{{ form.errors.test_ids }}</p>
+                    <p v-if="form.errors.test_ids" class="text-xs mt-1" style="color:var(--color-danger)">{{ form.errors.test_ids }}</p>
                 </div>
 
                 <!-- Email -->
                 <div>
-                    <label for="inv-email" class="pt-label">Email du candidat <span style="color:#ef4444">*</span></label>
+                    <label for="inv-email" class="pt-label">Email du candidat <span style="color:var(--color-danger)">*</span></label>
                     <input
                         id="inv-email"
                         v-model="form.email"
@@ -108,7 +111,7 @@ const submit = () => form.post(route('admin.invitations.store'))
                         placeholder="candidat@exemple.fr"
                         class="pt-input mt-2"
                     >
-                    <p v-if="form.errors.email" class="text-xs mt-1" style="color:#ef4444">{{ form.errors.email }}</p>
+                    <p v-if="form.errors.email" class="text-xs mt-1" style="color:var(--color-danger)">{{ form.errors.email }}</p>
                 </div>
 
                 <!-- Prénom / Nom -->
@@ -152,7 +155,7 @@ const submit = () => form.post(route('admin.invitations.store'))
                         type="date"
                         class="pt-input mt-2"
                     >
-                    <p v-if="form.errors.expires_at" class="text-xs mt-1" style="color:#ef4444">{{ form.errors.expires_at }}</p>
+                    <p v-if="form.errors.expires_at" class="text-xs mt-1" style="color:var(--color-danger)">{{ form.errors.expires_at }}</p>
                 </div>
 
                 <!-- Actions -->

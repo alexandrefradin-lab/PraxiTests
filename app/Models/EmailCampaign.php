@@ -3,10 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class EmailCampaign extends Model
 {
+    use SoftDeletes;
+
     protected $table = 'email_campaigns';
 
     protected $fillable = [
@@ -37,5 +41,10 @@ class EmailCampaign extends Model
     public function logs(): HasMany
     {
         return $this->hasMany(EmailLog::class, 'campaign_id');
+    }
+
+    public function professionalAccount(): BelongsTo
+    {
+        return $this->belongsTo(ProfessionalAccount::class);
     }
 }

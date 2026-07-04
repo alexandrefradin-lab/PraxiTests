@@ -115,6 +115,20 @@ class User extends Authenticatable implements MustVerifyEmail
             ->withPivot('role')->withTimestamps();
     }
 
+    /**
+     * IDs des comptes professionnels de l'utilisateur (cloisonnement multi-tenant).
+     * Source unique utilisée par les Policies et les scopes de liste admin.
+     *
+     * @return array<int, int>
+     */
+    public function professionalAccountIds(): array
+    {
+        return $this->professionalAccounts()
+            ->pluck('professional_accounts.id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+    }
+
     public function totalXp(): int
     {
         return (int) $this->gamificationProgress()->sum('xp_total');

@@ -83,11 +83,11 @@ const save = () => form.put(route('admin.leads.update', props.lead.id))
                                 <td class="py-2 pr-3 text-xs" style="color:var(--text-muted)">{{ a.has_synthesis ? 'Oui' : '—' }}</td>
                                 <td class="py-2 text-xs whitespace-nowrap">
                                     <a v-if="a.results_url" :href="a.results_url" target="_blank" rel="noopener"
-                                       class="hover:underline" style="color:var(--color-primary-dark,#7D5510);font-weight:600">
+                                       class="ac-link-primary font-semibold">
                                         Voir ↗
                                     </a>
                                     <a v-if="a.pdf_url" :href="a.pdf_url" target="_blank" rel="noopener"
-                                       class="hover:underline ml-2" style="color:var(--color-primary-dark,#7D5510)">
+                                       class="ac-link-primary ml-2">
                                         PDF
                                     </a>
                                     <span v-if="!a.results_url && !a.pdf_url" style="color:var(--text-ghost,#B0A08A)">—</span>

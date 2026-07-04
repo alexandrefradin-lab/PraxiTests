@@ -19,6 +19,7 @@ class InsightsRetryController extends Controller
 {
     /**
      * Liste des tentatives avec synthèse IA en échec (ai_failed = true).
+     * L'erreur IA (ai_error) est affichée pour diagnostiquer sans ouvrir les logs.
      */
     public function index()
     {
@@ -29,11 +30,46 @@ class InsightsRetryController extends Controller
                 'attempt.test:id,name,slug',
             ])
             ->latest()
-            ->paginate(30);
+            ->paginate(30)
+            ->through(fn (TestResult $r) => [
+                'id'           => $r->id,
+                'attempt_id'   => $r->attempt_id,
+                'user'         => $r->attempt?->user?->name,
+                'email'        => $r->attempt?->user?->email,
+                'test'         => $r->attempt?->test?->name,
+                'completed_at' => $r->attempt?->completed_at?->format('d/m/Y H:i'),
+                'ai_error'     => $r->ai_error,
+            ]);
 
         return Inertia::render('Admin/FailedInsights', [
             'results' => $failed,
         ]);
+    }
+
+    /**
+     * Relance en masse : toutes les synthèses en échec repartent en file.
+     * Chaque relance est un job séparé — un nouvel échec isolé ne bloque pas le lot.
+     */
+    public function retryAll()
+    {
+        $ids = TestResult::where('ai_failed', true)->pluck('attempt_id')->filter();
+
+        abort_if($ids->isEmpty(), 422, 'Aucune synthèse en échec à relancer.');
+
+        TestResult::whereIn('attempt_id', $ids)->update([
+            'ai_synthesis' => null,
+            'ai_failed'    => false,
+            'ai_error'     => null,
+            'generated_at' => null,
+        ]);
+
+        foreach ($ids as $attemptId) {
+            GenerateAttemptInsights::dispatch($attemptId);
+        }
+
+        \App\Models\AuditLog::record('insights.retried_all', null, ['count' => $ids->count()]);
+
+        return back()->with('success', "Relance lancée pour {$ids->count()} synthèse(s).");
     }
 
     /**
@@ -55,6 +91,8 @@ class InsightsRetryController extends Controller
         ]);
 
         GenerateAttemptInsights::dispatch($attempt->id);
+
+        \App\Models\AuditLog::record('insights.retried', $attempt, []);
 
         return back()->with('success', "Génération IA relancée pour la tentative #{$attempt->id}.");
     }

@@ -16,11 +16,37 @@ use Praxis\Core\TestEngine\TestEngine;
 class TestEditorController extends Controller
 {
     public function __construct(protected TestEngine $engine) {}
-    public function index()
+
+    public function index(Request $request)
     {
+        $q = Test::with('plugin');
+
+        if ($request->boolean('trashed')) {
+            $q->onlyTrashed();
+        }
+
+        if ($request->filled('published')) {
+            $q->where('published', $request->string('published')->toString() === 'yes');
+        }
+
+        if ($request->filled('search')) {
+            $s = $request->string('search');
+            $q->where(fn ($x) => $x->where('name', 'like', "%{$s}%")->orWhere('slug', 'like', "%{$s}%"));
+        }
+
         return Inertia::render('Admin/Tests/Index', [
-            'tests' => Test::with('plugin')->latest()->take(200)->get(),
+            'tests'   => $q->latest()->paginate(25)->withQueryString(),
+            'filters' => $request->only(['search', 'published', 'trashed']),
         ]);
+    }
+
+    /** Restaure un test depuis la corbeille. */
+    public function restore(int $id)
+    {
+        $test = Test::withTrashed()->findOrFail($id);
+        $test->restore();
+        AuditLog::record('test.restored', $test, ['slug' => $test->slug]);
+        return back()->with('success', "Test « {$test->name} » restauré.");
     }
 
     public function create()
@@ -58,7 +84,7 @@ class TestEditorController extends Controller
     {
         AuditLog::record('test.destroyed', $test, ['slug' => $test->slug, 'name' => $test->name]); // #9
         $test->delete();
-        return redirect()->route('admin.tests.index');
+        return redirect()->route('admin.tests.index')->with('success', 'Test placé dans la corbeille.');
     }
 
     /**

@@ -100,10 +100,12 @@ class ConseillerDashboardController extends Controller
         })->values();
 
         // ---- Panneau synthèses IA & idées de métiers ----
-        // SEC-M12 / RGPD TODO: Add consent_share_professional check once migration is applied.
-        // Exemple : ->whereHas('attempt.invitation', fn($q) => $q->where('consent_share_professional', true))
-        // Cette ligne sera activée après la migration add_consent_share_professional_to_invitations.
+        // SEC-M12 / RGPD : un professionnel ne voit le CONTENU des synthèses que
+        // si le candidat a consenti au partage (consent_share_professional,
+        // capturé à l'inscription via invitation). Les admins ne sont pas filtrés.
+        // Migration 2026_06_25_100010 appliquée — le TODO est levé.
         $aiInsights = $resultsQuery()
+            ->when(! $isAdmin, fn ($q) => $q->where('test_invitations.consent_share_professional', true))
             ->whereNotNull('test_results.ai_synthesis')
             ->orderByDesc('test_results.id')
             ->limit(8)

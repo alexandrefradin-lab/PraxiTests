@@ -2,14 +2,161 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\StreamsCsv;
+use App\Models\AuditLog;
 use App\Models\Test;
 use App\Models\TestInvitation;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class InvitationController extends Controller
 {
+    use StreamsCsv;
+
     // ─── Interface conseiller ─────────────────────────────────────────────────
+
+    /**
+     * Liste des invitations envoyées : suivi (en attente / ouverte / terminée /
+     * expirée), relance et corbeille. Cloisonnement multi-tenant identique aux
+     * leads : un professionnel ne voit que les invitations de ses comptes.
+     */
+    public function index(Request $request)
+    {
+        $q = $this->filteredQuery($request)->with('test:id,name')->latest();
+
+        $invitations = $q->paginate(30)->withQueryString()
+            ->through(fn (TestInvitation $inv) => [
+                'id'         => $inv->id,
+                'email'      => $inv->email,
+                'name'       => trim(($inv->first_name ?? '') . ' ' . ($inv->last_name ?? '')) ?: null,
+                'test'       => $inv->test?->name,
+                'tests_count'=> is_array($inv->metadata['test_ids'] ?? null) ? count($inv->metadata['test_ids']) : 1,
+                'status'     => $inv->status,
+                'is_expired' => $inv->isExpired() && $inv->status !== 'completed',
+                'sent_at'    => $inv->sent_at?->format('d/m/Y H:i'),
+                'opened_at'  => $inv->opened_at?->format('d/m/Y H:i'),
+                'expires_at' => $inv->expires_at?->format('d/m/Y'),
+                'consent'    => (bool) $inv->consent_share_professional,
+                'deleted_at' => $inv->deleted_at?->format('d/m/Y H:i'),
+            ]);
+
+        return Inertia::render('Admin/Invitations/Index', [
+            'invitations' => $invitations,
+            'filters'     => $request->only(['status', 'search', 'trashed']),
+        ]);
+    }
+
+    /**
+     * Relance une invitation : renvoie l'email au candidat. Si le lien est
+     * expiré, l'expiration est repoussée de 30 jours pour que le lien renvoyé
+     * soit utilisable.
+     */
+    public function resend(TestInvitation $invitation)
+    {
+        $this->authorize('resend', $invitation);
+
+        abort_if($invitation->status === 'completed', 422, 'Ce candidat a déjà terminé ses épreuves.');
+
+        if ($invitation->isExpired()) {
+            $invitation->expires_at = now()->addDays(30);
+        }
+        if ($invitation->status === 'expired') {
+            $invitation->status = 'sent';
+        }
+
+        try {
+            \Illuminate\Support\Facades\Mail::to($invitation->email)
+                ->queue(new \App\Mail\CandidateInvitationMail($invitation));
+        } catch (\Throwable $e) {
+            report($e);
+            return back()->with('error', "L'email n'a pas pu être envoyé (SMTP). Réessayez plus tard.");
+        }
+
+        $invitation->sent_at = now();
+        $invitation->save();
+
+        AuditLog::record('invitation.resent', $invitation, ['email' => $invitation->email]);
+
+        return back()->with('success', "Invitation relancée pour {$invitation->email}.");
+    }
+
+    /** Place une invitation dans la corbeille (le lien devient inutilisable). */
+    public function destroy(TestInvitation $invitation)
+    {
+        $this->authorize('delete', $invitation);
+        AuditLog::record('invitation.destroyed', $invitation, ['email' => $invitation->email]);
+        $invitation->delete();
+        return back()->with('success', 'Invitation placée dans la corbeille.');
+    }
+
+    /** Restaure une invitation depuis la corbeille. */
+    public function restore(int $id)
+    {
+        $invitation = TestInvitation::withTrashed()->findOrFail($id);
+        $this->authorize('restore', $invitation);
+        $invitation->restore();
+        AuditLog::record('invitation.restored', $invitation, ['email' => $invitation->email]);
+        return back()->with('success', 'Invitation restaurée.');
+    }
+
+    /** Export CSV (mêmes filtres et cloisonnement que la liste). */
+    public function export(Request $request): StreamedResponse
+    {
+        $q = $this->filteredQuery($request)->with('test:id,name')->latest();
+        AuditLog::record('invitation.exported', null, $request->only(['status', 'search', 'trashed']));
+
+        return $this->streamCsv('invitations-' . now()->format('Y-m-d') . '.csv', [
+            'Email', 'Prénom', 'Nom', 'Épreuve', 'Statut', 'Envoyée le', 'Ouverte le', 'Expire le', 'Consentement partage',
+        ], function () use ($q) {
+            foreach ($q->lazy(500) as $inv) {
+                yield [
+                    $inv->email,
+                    $inv->first_name,
+                    $inv->last_name,
+                    $inv->test?->name,
+                    $inv->status,
+                    $inv->sent_at?->format('d/m/Y H:i'),
+                    $inv->opened_at?->format('d/m/Y H:i'),
+                    $inv->expires_at?->format('d/m/Y'),
+                    $inv->consent_share_professional ? 'oui' : 'non',
+                ];
+            }
+        });
+    }
+
+    /** Requête filtrée (statut, recherche, corbeille) + cloisonnement tenant. */
+    protected function filteredQuery(Request $request)
+    {
+        $q = TestInvitation::query();
+
+        if ($request->boolean('trashed')) {
+            $q->onlyTrashed();
+        }
+
+        if (!auth()->user()->hasRole('admin')) {
+            $q->whereIn('professional_account_id', auth()->user()->professionalAccountIds() ?: [0]);
+        }
+
+        if ($request->filled('status')) {
+            $status = $request->string('status')->toString();
+            if ($status === 'expired') {
+                // Statut virtuel : lien périmé sans complétion
+                $q->where('expires_at', '<', now())->where('status', '!=', 'completed');
+            } elseif (in_array($status, ['pending', 'sent', 'opened', 'started', 'completed'], true)) {
+                $q->where('status', $status);
+            }
+        }
+
+        if ($request->filled('search')) {
+            $s = $request->string('search');
+            $q->where(fn ($x) => $x->where('email', 'like', "%{$s}%")
+                ->orWhere('first_name', 'like', "%{$s}%")
+                ->orWhere('last_name', 'like', "%{$s}%"));
+        }
+
+        return $q;
+    }
 
     /**
      * Formulaire d'invitation individuelle d'un candidat.

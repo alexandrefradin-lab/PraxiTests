@@ -103,20 +103,58 @@ class SettingsController extends Controller
 
         $data = $request->validate($rules);
 
+        $changedKeys = [];
         foreach ($data as $key => $value) {
             // Ne pas écraser une clé chiffrée si l'user n'a rien saisi
             // (l'affichage renvoie '••••••••' mais on l'ignore)
             if (in_array($key, self::ENCRYPTED_KEYS, true)) {
                 if (blank($value) || $value === '••••••••') continue;
                 Setting::set('ai', $key, $value, true);
+                $changedKeys[] = $key; // le nom de la clé, jamais sa valeur
             } else {
                 // null = champ non envoyé → on ne touche pas ; '' = effacement explicite.
                 if ($value !== null) {
                     Setting::set('ai', $key, $value, false);
+                    $changedKeys[] = $key;
                 }
             }
         }
 
+        // Traçabilité : quels réglages ont changé (noms uniquement, pas les secrets).
+        \App\Models\AuditLog::record('settings.updated', null, ['keys' => $changedKeys]);
+
         return back()->with('success', 'Configuration IA enregistrée.');
+    }
+
+    /**
+     * Teste la connexion au fournisseur IA sélectionné avec la configuration
+     * réellement enregistrée (clé déchiffrée côté serveur, jamais exposée).
+     * Une clé invalide se découvre ici, pas au premier candidat sans synthèse.
+     */
+    public function testConnection(Request $request, \Praxis\Core\AI\AIManager $ai)
+    {
+        $data = $request->validate([
+            'driver' => ['required', 'string', 'in:anthropic,anthropic_haiku,openai,deepseek,mistral,ollama'],
+        ]);
+
+        try {
+            // Ping minimal : une génération d'un mot suffit à valider clé + modèle + réseau.
+            $driver   = $ai->driver($data['driver']);
+            $response = $driver->generate('Réponds uniquement : OK', ['max_tokens' => 8]);
+
+            return back()->with('success', sprintf(
+                'Connexion %s réussie (modèle %s) — réponse : « %s »',
+                $data['driver'],
+                $driver->model(),
+                \Illuminate\Support\Str::limit(trim($response), 40),
+            ));
+        } catch (\Throwable $e) {
+            report($e);
+            return back()->with('error', sprintf(
+                'Échec de connexion %s : %s',
+                $data['driver'],
+                \Illuminate\Support\Str::limit($e->getMessage(), 180),
+            ));
+        }
     }
 }

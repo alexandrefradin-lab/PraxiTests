@@ -5,23 +5,54 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Jobs\SendCampaignJob;
 use App\Models\AuditLog;
+use App\Models\EmailCampaign;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class CampaignController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         // A10 — Cloisonnement multi-tenant : les professionnels ne voient que leurs campagnes
-        $query = DB::table('email_campaigns')->latest();
-        if (!auth()->user()->hasRole('admin')) {
-            $accountIds = auth()->user()->professionalAccounts()->pluck('professional_accounts.id');
-            $query->whereIn('professional_account_id', $accountIds);
+        $q = EmailCampaign::query();
+
+        if ($request->boolean('trashed')) {
+            $q->onlyTrashed();
         }
 
+        if (!auth()->user()->hasRole('admin')) {
+            $q->whereIn('professional_account_id', auth()->user()->professionalAccountIds() ?: [0]);
+        }
+
+        if ($request->filled('status')) {
+            $status = $request->string('status')->toString();
+            if (in_array($status, ['draft', 'scheduled', 'sending', 'sent', 'partial', 'failed', 'paused'], true)) {
+                $q->where('status', $status);
+            }
+        }
+        if ($request->filled('search')) {
+            $s = $request->string('search');
+            $q->where(fn ($x) => $x->where('name', 'like', "%{$s}%")->orWhere('subject', 'like', "%{$s}%"));
+        }
+
+        $campaigns = $q->latest()->paginate(25)->withQueryString()
+            // Stats d'envoi visibles dès la liste (délivrés / ouverts / cliqués)
+            ->through(fn (EmailCampaign $c) => [
+                'id'           => $c->id,
+                'name'         => $c->name,
+                'subject'      => $c->subject,
+                'status'       => $c->status,
+                'scheduled_at' => $c->scheduled_at?->format('d/m/Y H:i'),
+                'sent_at'      => $c->sent_at?->format('d/m/Y H:i'),
+                'delivered'    => (int) ($c->stats['delivered'] ?? 0),
+                'opened'       => (int) ($c->stats['opened'] ?? 0),
+                'clicked'      => (int) ($c->stats['clicked'] ?? 0),
+                'deleted_at'   => $c->deleted_at?->format('d/m/Y H:i'),
+            ]);
+
         return Inertia::render('Admin/Campaigns/Index', [
-            'campaigns' => $query->get(),
+            'campaigns' => $campaigns,
+            'filters'   => $request->only(['status', 'search', 'trashed']),
         ]);
     }
 
@@ -33,74 +64,70 @@ class CampaignController extends Controller
     public function store(Request $request)
     {
         $data = $this->validatePayload($request);
-        $id = DB::table('email_campaigns')->insertGetId(array_merge($data, [
-            'status' => 'draft',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]));
-        AuditLog::record('campaign.created', null, ['id' => $id, 'name' => $data['name']]); // #9
-        return redirect()->route('admin.campaigns.edit', $id);
+
+        // Rattachement tenant : première PA du professionnel (null pour un admin).
+        $user = auth()->user();
+        $data['professional_account_id'] = $user->hasRole('admin')
+            ? null
+            : ($user->professionalAccountIds()[0] ?? null);
+
+        $campaign = EmailCampaign::create(array_merge($data, ['status' => 'draft']));
+        AuditLog::record('campaign.created', $campaign, ['name' => $campaign->name]); // #9
+        return redirect()->route('admin.campaigns.edit', $campaign);
     }
 
-    public function edit($id)
+    public function edit(EmailCampaign $campaign)
     {
-        $campaign = $this->findAndAuthorizeCampaign($id);
+        $this->authorize('view', $campaign);
         return Inertia::render('Admin/Campaigns/Edit', ['campaign' => $campaign]);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, EmailCampaign $campaign)
     {
-        $this->findAndAuthorizeCampaign($id);
-        DB::table('email_campaigns')->where('id', $id)->update(array_merge(
-            $this->validatePayload($request),
-            ['updated_at' => now()],
-        ));
+        $this->authorize('update', $campaign);
+        $campaign->update($this->validatePayload($request));
+        AuditLog::record('campaign.updated', $campaign, ['name' => $campaign->name]); // #9 — manquait
         return back()->with('success', 'Campagne mise à jour');
     }
 
-    public function destroy($id)
+    public function destroy(EmailCampaign $campaign)
     {
-        $campaign = $this->findAndAuthorizeCampaign($id);
-        AuditLog::record('campaign.destroyed', null, ['id' => $id, 'name' => $campaign->name]); // #9
-        DB::table('email_campaigns')->where('id', $id)->delete();
-        return redirect()->route('admin.campaigns.index');
+        $this->authorize('delete', $campaign);
+        AuditLog::record('campaign.destroyed', $campaign, ['name' => $campaign->name]); // #9
+        $campaign->delete(); // corbeille (soft delete) — restaurable
+        return redirect()->route('admin.campaigns.index')->with('success', 'Campagne placée dans la corbeille.');
     }
 
-    public function send($id)
+    /** Restaure une campagne depuis la corbeille. */
+    public function restore(int $id)
     {
-        $this->findAndAuthorizeCampaign($id);
+        $campaign = EmailCampaign::withTrashed()->findOrFail($id);
+        $this->authorize('restore', $campaign);
+        $campaign->restore();
+        AuditLog::record('campaign.restored', $campaign, ['name' => $campaign->name]);
+        return back()->with('success', 'Campagne restaurée.');
+    }
+
+    public function send(EmailCampaign $campaign)
+    {
+        $this->authorize('send', $campaign);
 
         // T3 — l'envoi sort du cycle HTTP. Statut 'sending' immédiat ; le job
         // (CampaignService) le clôturera en sent/partial/failed. Sur queue sync
         // le job tourne en ligne (identique à l'ancien comportement).
-        DB::table('email_campaigns')->where('id', $id)->update([
-            'status'     => 'sending',
-            'updated_at' => now(),
-        ]);
+        $campaign->update(['status' => 'sending']);
 
-        SendCampaignJob::dispatch((int) $id);
+        SendCampaignJob::dispatch($campaign->id);
 
-        AuditLog::record('campaign.sent', null, ['id' => $id]); // #9
-        return back()->with('success', "Envoi de la campagne lancé.");
-    }
-
-    /** Récupère la campagne et vérifie le cloisonnement tenant (A10). */
-    protected function findAndAuthorizeCampaign(int|string $id): object
-    {
-        $campaign = DB::table('email_campaigns')->find($id);
-        abort_if($campaign === null, 404);
-
-        if (!auth()->user()->hasRole('admin')) {
-            $accountIds = auth()->user()->professionalAccounts()->pluck('professional_accounts.id');
-            abort_unless($accountIds->contains($campaign->professional_account_id), 403);
-        }
-
-        return $campaign;
+        AuditLog::record('campaign.sent', $campaign, []); // #9
+        return back()->with('success', 'Envoi de la campagne lancé.');
     }
 
     protected function validatePayload(Request $request): array
     {
-        $v = $request->validate([
+        // Les casts array du modèle EmailCampaign gèrent l'encodage JSON —
+        // plus de json_encode manuel (source de doubles encodages).
+        return $request->validate([
             'name' => ['required', 'string', 'max:200'],
             'subject' => ['required', 'string', 'max:200'],
             'preheader' => ['nullable', 'string', 'max:200'],
@@ -110,8 +137,5 @@ class CampaignController extends Controller
             'variants' => ['nullable', 'array'],
             'scheduled_at' => ['nullable', 'date', 'after_or_equal:now'],
         ]);
-        $v['audience_filter'] = json_encode($v['audience_filter'] ?? []);
-        $v['variants'] = json_encode($v['variants'] ?? []);
-        return $v;
     }
 }

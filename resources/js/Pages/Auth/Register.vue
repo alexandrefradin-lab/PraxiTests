@@ -2,7 +2,12 @@
 import { Link, useForm } from '@inertiajs/vue3'
 import AuthLayout from '@/Layouts/AuthLayout.vue'
 
-const props = defineProps({ email: String })
+const props = defineProps({
+    email: String,
+    // Inscription via lien d'invitation : propose la case de consentement
+    // RGPD au partage des résultats avec le professionnel invitant.
+    viaInvitation: { type: Boolean, default: false },
+})
 
 const form = useForm({
     name: '',
@@ -10,6 +15,7 @@ const form = useForm({
     password: '',
     password_confirmation: '',
     terms: false,
+    consent_share: false,
     quest_title: '',
     website: '', // honeypot anti-bot — doit rester vide
 })
@@ -248,6 +254,32 @@ const questOptions = [
                     font-family:'Inter',sans-serif;font-size:12px;
                     color:var(--color-secondary);margin:0.35rem 0 0;
                 ">{{ form.errors.terms }}</p>
+            </div>
+
+            <!-- Consentement RGPD : partage des résultats avec le pro invitant.
+                 Facultatif — refuser n'empêche pas l'inscription (consentement libre). -->
+            <div v-if="viaInvitation">
+                <label style="
+                    display:flex;align-items:flex-start;gap:0.625rem;cursor:pointer;
+                ">
+                    <input
+                        type="checkbox"
+                        v-model="form.consent_share"
+                        style="
+                            width:16px;height:16px;margin-top:2px;
+                            border-radius:4px;flex-shrink:0;
+                            accent-color:var(--color-primary);cursor:pointer;
+                        "
+                    >
+                    <span style="
+                        font-family:'Inter',sans-serif;
+                        font-size:13px;color:var(--text-secondary);line-height:1.5;
+                    ">
+                        J'accepte que mes résultats et synthèses soient partagés avec le
+                        professionnel qui m'a invité(e) <span style="color:var(--text-muted)">(facultatif — vous
+                        gardez l'accès à vos résultats dans tous les cas)</span>.
+                    </span>
+                </label>
             </div>
 
             <!-- Submit -->

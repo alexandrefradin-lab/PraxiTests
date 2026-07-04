@@ -2,14 +2,18 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Concerns\StreamsCsv;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Laravel\Cashier\Subscription;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SubscriptionController extends Controller
 {
+    use StreamsCsv;
+
     public function index(Request $request)
     {
         $plans      = config('plans.plans');
@@ -32,6 +36,12 @@ class SubscriptionController extends Controller
         // --- Liste utilisateurs avec abonnement ---
         $query = User::with(['subscription' => fn ($q) => $q->where('name', 'default')])
             ->orderByDesc('created_at');
+
+        // Recherche nom / email
+        if ($request->filled('search')) {
+            $s = $request->string('search');
+            $query->where(fn ($x) => $x->where('email', 'like', "%{$s}%")->orWhere('name', 'like', "%{$s}%"));
+        }
 
         // Filtre plan
         if ($filterPlan && isset($plans[$filterPlan])) {
@@ -111,7 +121,7 @@ class SubscriptionController extends Controller
         return Inertia::render('Admin/Subscriptions/Index', [
             'users'    => $users,
             'plans'    => collect($plans)->map(fn ($p, $k) => ['key' => $k, 'name' => $p['name']])->values(),
-            'filters'  => ['plan' => $filterPlan, 'status' => $filterStatus],
+            'filters'  => ['plan' => $filterPlan, 'status' => $filterStatus, 'search' => $request->get('search')],
             'kpis'     => [
                 'total_subscribers' => $activeSubs->count() + $trialSubs->count(),
                 'active'            => $activeSubs->count(),
@@ -120,6 +130,47 @@ class SubscriptionController extends Controller
                 'mrr'               => $mrr,   // en centimes
             ],
         ]);
+    }
+
+    /**
+     * Export CSV des abonnés (tous les utilisateurs ayant un abonnement).
+     * Sans pagination — parcours lazy pour rester sobre en mémoire.
+     */
+    public function export(): StreamedResponse
+    {
+        $plans    = config('plans.plans');
+        $priceMap = $this->buildPriceMap($plans);
+
+        \App\Models\AuditLog::record('subscription.exported', null, []);
+
+        $q = User::with(['subscription' => fn ($sub) => $sub->where('name', 'default')])
+            ->whereHas('subscriptions', fn ($sub) => $sub->where('name', 'default'))
+            ->orderByDesc('created_at');
+
+        return $this->streamCsv('abonnements-' . now()->format('Y-m-d') . '.csv', [
+            'Nom', 'Email', 'Plan', 'Période', 'Statut', 'Fin essai', 'Fin abonnement', 'MRR (€)', 'Inscrit le',
+        ], function () use ($q, $plans, $priceMap) {
+            foreach ($q->lazy(200) as $user) {
+                $sub = $user->subscription;
+                $planName = null;
+                $period   = null;
+                foreach ($plans as $plan) {
+                    if ($sub && $sub->stripe_price === ($plan['stripe_monthly'] ?? '')) { $planName = $plan['name']; $period = 'mensuel'; break; }
+                    if ($sub && $sub->stripe_price === ($plan['stripe_yearly'] ?? ''))  { $planName = $plan['name']; $period = 'annuel'; break; }
+                }
+                yield [
+                    $user->name,
+                    $user->email,
+                    $planName,
+                    $period,
+                    $this->resolveStatus($sub, $user),
+                    $sub?->trial_ends_at?->format('d/m/Y'),
+                    $sub?->ends_at?->format('d/m/Y'),
+                    $sub ? number_format(($priceMap[$sub->stripe_price] ?? 0) / 100, 2, ',', '') : '0',
+                    $user->created_at?->format('d/m/Y'),
+                ];
+            }
+        });
     }
 
     // -----------------------------------------------------------------------

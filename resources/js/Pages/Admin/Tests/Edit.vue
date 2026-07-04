@@ -349,9 +349,9 @@ const moveQuestionDown = (si, qi) => {
                             <p class="text-xs" style="color:var(--text-muted)">{{ section.questions.length }} question(s)</p>
                         </div>
                         <div class="flex items-center gap-1">
-                            <button type="button" @click.stop="moveSectionUp(si)" class="p-1" style="color:var(--text-muted)" title="Monter">↑</button>
-                            <button type="button" @click.stop="moveSectionDown(si)" class="p-1" style="color:var(--text-muted)" title="Descendre">↓</button>
-                            <button type="button" @click.stop="removeSection(si)" class="p-1 ml-1" style="color:var(--color-danger)" title="Supprimer">✕</button>
+                            <button type="button" @click.stop="moveSectionUp(si)" class="p-1" style="color:var(--text-muted)" title="Monter" aria-label="Monter la section">↑</button>
+                            <button type="button" @click.stop="moveSectionDown(si)" class="p-1" style="color:var(--text-muted)" title="Descendre" aria-label="Descendre la section">↓</button>
+                            <button type="button" @click.stop="removeSection(si)" class="p-1 ml-1" style="color:var(--color-danger)" title="Supprimer" aria-label="Supprimer la section">✕</button>
                             <span class="ml-2 text-xs" style="color:var(--text-muted)">{{ section.open ? '▲' : '▼' }}</span>
                         </div>
                     </div>
@@ -465,9 +465,9 @@ const moveQuestionDown = (si, qi) => {
 
                                     <!-- Actions question -->
                                     <div class="flex flex-col items-center gap-1 flex-shrink-0">
-                                        <button type="button" @click="moveQuestionUp(si, qi)" class="p-1" style="color:var(--text-muted)" title="Monter">↑</button>
-                                        <button type="button" @click="moveQuestionDown(si, qi)" class="p-1" style="color:var(--text-muted)" title="Descendre">↓</button>
-                                        <button type="button" @click="removeQuestion(si, qi)" class="p-1 mt-1" style="color:var(--color-danger)" title="Supprimer">✕</button>
+                                        <button type="button" @click="moveQuestionUp(si, qi)" class="p-1" style="color:var(--text-muted)" title="Monter" aria-label="Monter la question">↑</button>
+                                        <button type="button" @click="moveQuestionDown(si, qi)" class="p-1" style="color:var(--text-muted)" title="Descendre" aria-label="Descendre la question">↓</button>
+                                        <button type="button" @click="removeQuestion(si, qi)" class="p-1 mt-1" style="color:var(--color-danger)" title="Supprimer" aria-label="Supprimer la question">✕</button>
                                     </div>
                                 </div>
 

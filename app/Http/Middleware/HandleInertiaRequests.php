@@ -21,6 +21,10 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user()?->only(['id', 'name', 'email', 'locale']),
                 // Permet d'afficher un bandeau « confirmez votre email » côté front.
                 'email_verified' => (bool) $request->user()?->hasVerifiedEmail(),
+                // Navigation admin : masquer les entrées réservées (Tests, Plugins,
+                // Réglages…) aux professionnels. Purement cosmétique — la sécurité
+                // reste portée par le middleware role: des routes.
+                'is_admin' => (bool) $request->user()?->hasRole('admin'),
             ],
             // Total d'Éclats global (lazy) — alimente la barre du layout candidat
             // sur toutes les pages, pas seulement pendant une tentative.

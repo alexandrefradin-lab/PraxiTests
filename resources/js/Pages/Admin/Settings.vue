@@ -1,7 +1,8 @@
 <script setup>
 import { ref } from 'vue'
-import { Head, useForm } from '@inertiajs/vue3'
+import { Head, router, useForm } from '@inertiajs/vue3'
 import AdminLayout from '@/Layouts/AdminLayout.vue'
+import FlashAlert from '@/Components/Admin/FlashAlert.vue'
 
 const props = defineProps({
     settings:   Object,
@@ -85,6 +86,17 @@ const DRIVERS = [
 ]
 
 const submit = () => form.post(route('admin.settings.update'))
+
+// Test de connexion : ping le fournisseur avec la clé ENREGISTRÉE (pense à
+// enregistrer d'abord si tu viens de saisir une nouvelle clé).
+const testing = ref(null)
+const testConnection = (driverId) => {
+    testing.value = driverId
+    router.post(route('admin.settings.test-connection'), { driver: driverId }, {
+        preserveScroll: true,
+        onFinish: () => { testing.value = null },
+    })
+}
 </script>
 
 <template>
@@ -95,9 +107,7 @@ const submit = () => form.post(route('admin.settings.update'))
             <h1 class="text-2xl font-semibold mb-1" style="font-family:var(--font-display);color:var(--text-primary)">Paramètres IA</h1>
             <p class="text-sm mb-8" style="color:var(--text-muted)">Clés des fournisseurs (Claude, OpenAI, DeepSeek…), modèles, et choix du modèle utilisé pour chaque tâche IA.</p>
 
-            <div v-if="$page.props.flash?.success" class="mb-6 p-3 rounded-lg text-sm" style="background:rgba(166,117,32,0.08);border:1px solid var(--color-success);color:var(--color-success)">
-                {{ $page.props.flash.success }}
-            </div>
+            <FlashAlert />
 
             <form @submit.prevent="submit" class="space-y-6">
 
@@ -138,12 +148,13 @@ const submit = () => form.post(route('admin.settings.update'))
 
                     <!-- Clé API (uniquement pour les drivers cloud) -->
                     <div v-if="d.id !== 'ollama'" class="mb-4">
-                        <label class="pt-label mb-1">
+                        <label :for="`key-${d.id}`" class="pt-label mb-1">
                             Clé API
                             <span v-if="hasKey(d.id)" class="text-xs font-normal ml-2" style="color:var(--color-success)">✓ Clé enregistrée</span>
                         </label>
                         <div class="relative">
                             <input
+                                :id="`key-${d.id}`"
                                 v-model="form[`${d.id}_api_key`]"
                                 :type="visible[d.id] ? 'text' : 'password'"
                                 class="pt-input pr-16"
@@ -152,6 +163,7 @@ const submit = () => form.post(route('admin.settings.update'))
                             <button type="button"
                                 class="absolute right-3 top-1/2 -translate-y-1/2 text-xs"
                                 style="color:var(--text-muted)"
+                                :aria-label="visible[d.id] ? `Masquer la clé API ${d.name}` : `Afficher la clé API ${d.name}`"
                                 @click="visible[d.id] = !visible[d.id]">
                                 {{ visible[d.id] ? 'Masquer' : 'Afficher' }}
                             </button>
@@ -194,12 +206,24 @@ const submit = () => form.post(route('admin.settings.update'))
 
                     <!-- Anthropic : modèle économique (Haiku) -->
                     <div v-if="d.id === 'anthropic'" class="mt-4 pt-4 border-t" style="border-color:var(--border-light)">
-                        <label class="pt-label mb-1">
+                        <label for="anthropic-haiku-model" class="pt-label mb-1">
                             Modèle économique (Haiku)
                             <span class="text-xs font-normal" style="color:var(--text-muted)">— utilisé pour les tâches structurées</span>
                         </label>
-                        <input v-model="form.anthropic_haiku_model" class="pt-input" placeholder="claude-haiku-4-5-20251001">
+                        <input id="anthropic-haiku-model" v-model="form.anthropic_haiku_model" class="pt-input" placeholder="claude-haiku-4-5-20251001">
                         <p v-if="form.errors.anthropic_haiku_model" class="text-xs mt-1" style="color:var(--color-danger)">{{ form.errors.anthropic_haiku_model }}</p>
+                    </div>
+
+                    <!-- Test de connexion : valide la clé/le modèle ENREGISTRÉS -->
+                    <div class="mt-4 pt-4 border-t flex items-center justify-between gap-4" style="border-color:var(--border-light)">
+                        <p class="text-xs" style="color:var(--text-muted)">
+                            Vérifie la configuration enregistrée (enregistre d'abord toute nouvelle clé).
+                        </p>
+                        <button type="button" class="ac-btn-ghost text-xs flex-shrink-0"
+                            :disabled="testing !== null"
+                            @click="testConnection(d.id)">
+                            {{ testing === d.id ? 'Test en cours…' : 'Tester la connexion' }}
+                        </button>
                     </div>
                 </div>
 
@@ -215,14 +239,15 @@ const submit = () => form.post(route('admin.settings.update'))
                     <div class="space-y-3">
                         <div v-for="[task, cfg] in taskEntries" :key="task"
                             class="grid sm:grid-cols-12 gap-2 items-center">
-                            <div class="sm:col-span-4 text-sm font-medium" style="color:var(--text-secondary)">{{ cfg.label }}</div>
+                            <label :for="`task-${task}-driver`" class="sm:col-span-4 text-sm font-medium" style="color:var(--text-secondary)">{{ cfg.label }}</label>
                             <div class="sm:col-span-4">
-                                <select v-model="form[`task_${task}_driver`]" class="pt-input w-full">
+                                <select :id="`task-${task}-driver`" v-model="form[`task_${task}_driver`]" class="pt-input w-full">
                                     <option v-for="p in providers" :key="p.value" :value="p.value">{{ p.label }}</option>
                                 </select>
                             </div>
                             <div class="sm:col-span-4">
                                 <input v-model="form[`task_${task}_model`]" class="pt-input w-full"
+                                    :aria-label="`Modèle pour ${cfg.label}`"
                                     :placeholder="cfg.default_model ? `défaut : ${cfg.default_model}` : 'modèle (optionnel)'">
                             </div>
                         </div>

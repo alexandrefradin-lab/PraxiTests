@@ -46,6 +46,12 @@ class OracleChatService
         }
         Cache::put($lockKey, true, 15);
 
+        // Mode nuit (0h–5h, heure de Paris) : l'Oracle sort du cadre orientation.
+        // Il appelle quand même l'IA, mais avec un prompt libre — pas de contraintes métier.
+        // À 5h il reprend son rôle normal.
+        $hour = \Carbon\Carbon::now('Europe/Paris')->hour;
+        $nightMode = ($hour >= 0 && $hour < 5);
+
         try {
             // Contexte candidat : tentatives + Grimoire.
             $attempts = $this->grimoires->completedAttempts($user);
@@ -65,7 +71,7 @@ class OracleChatService
                 'content' => $message,
             ]);
 
-            $messages = $this->prompts->oracleChat($user, $attempts, $grimoire, $history, $message);
+            $messages = $this->prompts->oracleChat($user, $attempts, $grimoire, $history, $message, $nightMode);
             $messages = PluginHooks::applyFilters('ai.oracle.messages', $messages, $user);
 
             $driver = $this->ai->forTask('oracle_chat');

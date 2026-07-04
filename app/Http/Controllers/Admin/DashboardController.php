@@ -66,19 +66,79 @@ class DashboardController extends Controller
         });
 
         $recent_attempts = $isAdmin
-            ? TestAttempt::with('user:id,name,email', 'test:id,name,slug')->latest('completed_at')->limit(10)->get()
+            ? TestAttempt::with('user:id,name,email', 'test:id,name,slug')
+                ->latest('completed_at')->limit(10)->get()
+                ->map(fn ($a) => [
+                    'id'           => $a->id,
+                    'user'         => $a->user ? ['name' => $a->user->name, 'email' => $a->user->email] : null,
+                    'test'         => $a->test ? ['name' => $a->test->name] : null,
+                    'completed_at' => $a->completed_at?->diffForHumans(),
+                ])
             : collect();
 
         $recent_leads = Lead::with(['user', 'professionalAccount'])
             ->when(! $isAdmin, fn ($q) => $q->whereIn('professional_account_id', $accountIds ?: [0]))
             ->latest()
             ->limit(10)
-            ->get();
+            ->get()
+            ->map(fn ($l) => [
+                'id'         => $l->id,
+                'first_name' => $l->first_name,
+                'last_name'  => $l->last_name,
+                'email'      => $l->email,
+                'status'     => $l->status,
+                'created_at' => $l->created_at?->diffForHumans(),
+            ]);
+
+        // ---- Activité 14 jours : tests complétés par jour (admin) ----
+        $activity = [];
+        if ($isAdmin) {
+            $byDay = TestAttempt::query()
+                ->where('status', 'completed')
+                ->whereNotNull('completed_at')
+                ->where('completed_at', '>=', now()->subDays(13)->startOfDay())
+                ->selectRaw('DATE(completed_at) as d, COUNT(*) as c')
+                ->groupBy('d')
+                ->pluck('c', 'd');
+
+            for ($i = 13; $i >= 0; $i--) {
+                $day = now()->subDays($i);
+                $activity[] = [
+                    'label' => $day->format('d/m'),
+                    'value' => (int) ($byDay[$day->format('Y-m-d')] ?? 0),
+                ];
+            }
+        }
+
+        // ---- Alertes exploitation : à traiter aujourd'hui ----
+        $alerts = [];
+        if ($isAdmin) {
+            $failedInsights = \App\Models\TestResult::where('ai_failed', true)->count();
+            if ($failedInsights > 0) {
+                $alerts[] = [
+                    'label' => "{$failedInsights} synthèse(s) IA en échec",
+                    'href'  => route('admin.attempts.failed-insights', absolute: false),
+                ];
+            }
+        }
+        $expiredInvitations = \App\Models\TestInvitation::query()
+            ->when(! $isAdmin, fn ($q) => $q->whereIn('professional_account_id', $accountIds ?: [0]))
+            ->where('expires_at', '<', now())
+            ->whereNotIn('status', ['completed'])
+            ->count();
+        if ($expiredInvitations > 0) {
+            $alerts[] = [
+                'label' => "{$expiredInvitations} invitation(s) expirée(s) sans réponse",
+                'href'  => route('admin.invitations.index', ['status' => 'expired'], false),
+            ];
+        }
 
         return Inertia::render('Admin/Dashboard', [
             'stats'           => $stats,
             'recent_attempts' => $recent_attempts,
             'recent_leads'    => $recent_leads,
+            'activity'        => $activity,
+            'alerts'          => $alerts,
         ]);
     }
 }

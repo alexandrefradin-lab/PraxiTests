@@ -4,9 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Lead extends Model
 {
+    // La colonne deleted_at existe depuis la migration d'origine ; le trait
+    // manquait — delete() supprimait donc définitivement. Corbeille admin.
+    use SoftDeletes;
+
     // #3 — $guarded=[] remplacé par $fillable explicite (protection mass assignment)
     protected $fillable = [
         'professional_account_id',

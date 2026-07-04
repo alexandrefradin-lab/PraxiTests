@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import AdminLayout from '@/Layouts/AdminLayout.vue'
+import FlashAlert from '@/Components/Admin/FlashAlert.vue'
 import { Bar, Doughnut } from 'vue-chartjs'
 import {
     Chart as ChartJS,
@@ -33,12 +34,23 @@ const kpis = computed(() => [
     { label: 'Synthèses IA', value: props.stats.ai_syntheses, tone: 'violet' },
 ])
 
+// Chart.js exige des couleurs concrètes : on résout les tokens du design
+// system à l'exécution (jamais d'hex Tailwind en dur — réf. app.css :root).
+const cssVar = (name, fallback) => (typeof window !== 'undefined'
+    ? getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback
+    : fallback)
+
 const funnelChart = computed(() => ({
     labels: props.funnel.map((f) => f.label),
     datasets: [
         {
             data: props.funnel.map((f) => f.value),
-            backgroundColor: ['#A67520', '#94a3b8', '#f59e0b', '#16a34a'],
+            backgroundColor: [
+                cssVar('--color-primary', '#A67520'),   // Invités — or
+                cssVar('--text-ghost', '#B0A08A'),      // En attente — neutre parchemin
+                cssVar('--color-signal', '#0A7FA0'),    // En cours — signal
+                cssVar('--color-success', '#3A6B48'),   // Terminés — succès
+            ],
             borderWidth: 0,
         },
     ],
@@ -50,7 +62,7 @@ const activityChart = computed(() => ({
         {
             label: 'Tests complétés',
             data: props.activity.map((a) => a.value),
-            backgroundColor: '#A67520',
+            backgroundColor: cssVar('--color-primary', '#A67520'),
             borderRadius: 4,
             maxBarThickness: 18,
         },
@@ -67,7 +79,7 @@ const barOpts = {
     maintainAspectRatio: false,
     plugins: { legend: { display: false } },
     scales: {
-        y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#f1f5f9' } },
+        y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: cssVar('--border-light', 'rgba(166,117,32,0.18)') } },
         x: { grid: { display: false } },
     },
 }
@@ -112,10 +124,7 @@ const openRate = (c) => (c.delivered > 0 ? Math.round((c.opened / c.delivered) *
             </Link>
         </div>
 
-        <!-- Flash success -->
-        <div v-if="$page.props.flash?.success" class="mb-6 p-4 rounded-lg text-sm" style="background:#ecfdf5;color:#065f46;border:1px solid #6ee7b7">
-            {{ $page.props.flash.success }}
-        </div>
+        <FlashAlert />
 
         <!-- KPIs -->
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
