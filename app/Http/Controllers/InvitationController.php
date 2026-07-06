@@ -66,11 +66,13 @@ class InvitationController extends Controller
         }
 
         try {
+            // send() direct (API Brevo) — le cron ne draine la file qu'une fois
+            // par heure, une relance doit partir immédiatement.
             \Illuminate\Support\Facades\Mail::to($invitation->email)
-                ->queue(new \App\Mail\CandidateInvitationMail($invitation));
+                ->send(new \App\Mail\CandidateInvitationMail($invitation));
         } catch (\Throwable $e) {
             report($e);
-            return back()->with('error', "L'email n'a pas pu être envoyé (SMTP). Réessayez plus tard.");
+            return back()->with('error', "L'email n'a pas pu être envoyé. Réessayez plus tard.");
         }
 
         $invitation->sent_at = now();

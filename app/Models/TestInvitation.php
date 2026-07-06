@@ -52,11 +52,13 @@ class TestInvitation extends Model
 
         static::created(function (self $inv) {
             // MET-C2 — Envoyer l'email d'invitation au candidat dès la création.
+            // send() et non queue() : le cron OVH ne draine la file qu'une fois
+            // par heure — l'invitation part en direct via l'API Brevo (HTTP).
             // updateQuietly() évite de re-déclencher les événements Eloquent.
             if ($inv->email) {
                 try {
                     \Illuminate\Support\Facades\Mail::to($inv->email)
-                        ->queue(new \App\Mail\CandidateInvitationMail($inv));
+                        ->send(new \App\Mail\CandidateInvitationMail($inv));
                     // Marquer l'invitation comme "envoyée" dès que le job est dispatché
                     // (pour sync : c'est déjà parti ; pour async : c'est en file).
                     $inv->updateQuietly([
