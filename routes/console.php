@@ -49,6 +49,18 @@ Schedule::call(function () {
     }
 })->weekly()->name('norms:recompute')->withoutOverlapping();
 
+// ── Relance automatique des synthèses IA bloquées ────────────────────────
+// Toutes les 5 min : détecte les zombies (process PHP tué) et les échecs
+// marqués (ai_failed=true) et les envoie sur la queue database pour que
+// le worker ci-dessus les traite au prochain passage.
+// Cooldown par attempt de 10 min (Cache) pour éviter les boucles infinies
+// si l'IA est durablement indisponible.
+Schedule::command('insights:retry-zombies')
+    ->everyFiveMinutes()
+    ->name('insights:retry-zombies')
+    ->withoutOverlapping(2)
+    ->appendOutputTo(storage_path('logs/insights_retry.log'));
+
 // ── Nettoyage des tentatives abandonnées ─────────────────────────────────
 // Marque "abandoned" les tentatives sans activité depuis plus de 30 jours.
 Schedule::call(function () {
