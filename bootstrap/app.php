@@ -10,6 +10,12 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__ . '/../routes/console.php',
         health: '/up',
     )
+    // Découverte explicite des commandes Artisan.
+    // Sur OVH avec bootstrap caché, l'auto-discovery Laravel 11 peut rater
+    // les nouvelles commandes. withCommands() force le scan du répertoire.
+    ->withCommands([
+        __DIR__ . '/../app/Console/Commands',
+    ])
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->validateCsrfTokens(except: [
             'stripe/webhook',
