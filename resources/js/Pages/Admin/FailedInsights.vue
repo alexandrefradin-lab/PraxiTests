@@ -6,11 +6,13 @@ import AdminPagination from '@/Components/Admin/AdminPagination.vue'
 import ConfirmModal from '@/Components/Admin/ConfirmModal.vue'
 import FlashAlert from '@/Components/Admin/FlashAlert.vue'
 
-const props = defineProps({ results: Object })
+const props = defineProps({ results: Object, zombie_count: { type: Number, default: 0 } })
 
-const confirmingRetryAll = ref(false)
-const retry = (attemptId) => router.post(route('admin.attempts.retry-insights', attemptId), {}, { preserveScroll: true })
-const retryAll = () => router.post(route('admin.attempts.retry-all-insights'), {}, { preserveScroll: true })
+const confirmingRetryAll  = ref(false)
+const confirmingRetryZombies = ref(false)
+const retry       = (attemptId) => router.post(route('admin.attempts.retry-insights', attemptId), {}, { preserveScroll: true })
+const retryAll    = () => router.post(route('admin.attempts.retry-all-insights'), {}, { preserveScroll: true })
+const retryZombies = () => router.post(route('admin.attempts.retry-zombie-insights'), {}, { preserveScroll: true })
 </script>
 
 <template>
@@ -24,9 +26,17 @@ const retryAll = () => router.post(route('admin.attempts.retry-all-insights'), {
                     Générations qui ont échoué (timeout, clé API, quota…). La relance remet la synthèse en file.
                 </p>
             </div>
-            <button v-if="results.data.length" @click="confirmingRetryAll = true" class="ac-btn-primary">
-                Tout relancer ({{ results.total }})
-            </button>
+            <div class="flex gap-3 flex-wrap">
+                <!-- Zombies : ai_synthesis=null + ai_failed=false + completed > 5 min (process PHP tué sans fallback) -->
+                <button v-if="zombie_count > 0" @click="confirmingRetryZombies = true"
+                    class="ac-btn-secondary text-sm"
+                    title="Tentatives sans synthèse ni erreur — process PHP tué avant le fallback">
+                    Zombies ({{ zombie_count }})
+                </button>
+                <button v-if="results.data.length" @click="confirmingRetryAll = true" class="ac-btn-primary">
+                    Tout relancer ({{ results.total }})
+                </button>
+            </div>
         </div>
 
         <FlashAlert />
@@ -77,6 +87,11 @@ const retryAll = () => router.post(route('admin.attempts.retry-all-insights'), {
         <ConfirmModal v-model:show="confirmingRetryAll" title="Tout relancer ?" confirm-label="Relancer tout" @confirm="retryAll">
             {{ results.total }} génération(s) repartiront en file de traitement. Chaque relance
             consomme des crédits IA.
+        </ConfirmModal>
+
+        <ConfirmModal v-model:show="confirmingRetryZombies" title="Relancer les zombies ?" confirm-label="Relancer" @confirm="retryZombies">
+            {{ zombie_count }} tentative(s) sans synthèse ni erreur (process PHP tué avant le fallback).
+            Chaque relance consomme des crédits IA.
         </ConfirmModal>
     </AdminLayout>
 </template>

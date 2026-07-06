@@ -60,6 +60,43 @@ class GenerateAttemptInsights implements ShouldQueue, ShouldBeUnique
             return;
         }
 
+        // Garde-fou OVH — kill PHP (max_execution_time) :
+        // Sur OVH shared hosting, PHP-FPM peut tuer le process avec une E_ERROR fatale
+        // si l'appel IA dépasse max_execution_time. Une erreur fatale ne déclenche PAS
+        // le try/catch, mais déclenche les shutdown functions. Ce guard écrit le fallback
+        // dans ce cas pour que le candidat ne reste pas sur un loader infini.
+        $attemptId = $this->attemptId;
+        register_shutdown_function(static function () use ($attemptId): void {
+            $error = error_get_last();
+            // On n'intervient que sur une erreur fatale (pas sur un arrêt normal).
+            if (!$error || !in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR], true)) {
+                return;
+            }
+            try {
+                // La connexion MySQL peut avoir été fermée — on force une reconnexion.
+                \Illuminate\Support\Facades\DB::reconnect();
+                $result = \App\Models\TestResult::where('attempt_id', $attemptId)->first();
+                if (!$result || $result->ai_synthesis) {
+                    return; // Synthèse déjà écrite (succès) ou pas de résultat.
+                }
+                $errorMsg = mb_substr(
+                    "PHP fatal [{$error['type']}]: {$error['message']} in {$error['file']}:{$error['line']}",
+                    0, 1000
+                );
+                $result->update([
+                    'ai_synthesis' => "La synthèse n'a pas pu être générée automatiquement pour le moment. "
+                        . "Tes résultats détaillés restent disponibles ci-dessous. "
+                        . "Tu peux réessayer plus tard ou en parler avec ton conseiller.",
+                    'ai_failed'    => true,
+                    'ai_error'     => $errorMsg,
+                    'generated_at' => now(),
+                ]);
+                logger()->warning("GenerateAttemptInsights: shutdown fallback écrit pour attempt #{$attemptId}", $error);
+            } catch (\Throwable) {
+                // Silence total : on est dans un shutdown, impossible de propager.
+            }
+        });
+
         try {
             $synthesis->synthesize($attempt);
             $jobs->suggest($attempt);
@@ -72,8 +109,8 @@ class GenerateAttemptInsights implements ShouldQueue, ShouldBeUnique
             // (GrimoireController::show détecte la signature périmée et dispatch lui-même).
             // → un seul appel IA, au moment où l'utilisateur le consulte réellement.
         } catch (\Throwable $e) {
-            // Une panne IA (clé absente, HTTP 4xx/5xx, JSON invalide, timeout) ne doit
-            // PAS laisser le candidat sur un écran de chargement infini (ai_pending).
+            // Une panne IA (clé absente, HTTP 4xx/5xx, JSON invalide, timeout applicatif)
+            // ne doit PAS laisser le candidat sur un écran de chargement infini (ai_pending).
             // On journalise et on écrit une synthèse de repli pour débloquer la page.
             logger()->error("GenerateAttemptInsights: échec IA pour attempt #{$this->attemptId}: {$e->getMessage()}", [
                 'attempt_id' => $this->attemptId,
@@ -81,6 +118,21 @@ class GenerateAttemptInsights implements ShouldQueue, ShouldBeUnique
                 'file'       => $e->getFile() . ':' . $e->getLine(),
             ]);
             $this->writeFallback($attempt, $e->getMessage());
+        }
+    }
+
+    /**
+     * Appelé par Laravel (queue database/redis) quand toutes les tentatives sont épuisées.
+     * En sync (OVH), ce n'est pas déclenché — le shutdown_function joue ce rôle.
+     */
+    public function failed(\Throwable $exception): void
+    {
+        logger()->error("GenerateAttemptInsights: job définitivement échoué pour attempt #{$this->attemptId}", [
+            'exception' => $exception->getMessage(),
+        ]);
+        $attempt = TestAttempt::with('result')->find($this->attemptId);
+        if ($attempt) {
+            $this->writeFallback($attempt, 'Toutes les tentatives ont échoué : ' . $exception->getMessage());
         }
     }
 

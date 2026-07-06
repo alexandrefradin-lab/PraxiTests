@@ -78,5 +78,6 @@ Route::middleware(['auth', 'verified', 'role:admin', '2fa'])
         // Retry IA : relance la génération de synthèse pour une tentative en échec
         Route::post('attempts/{attempt}/retry-insights', [InsightsRetryController::class, 'retry'])->name('attempts.retry-insights');
         Route::post('attempts/retry-all-insights', [InsightsRetryController::class, 'retryAll'])->name('attempts.retry-all-insights');
+        Route::post('attempts/retry-zombie-insights', [InsightsRetryController::class, 'retryZombies'])->name('attempts.retry-zombie-insights');
         Route::get('attempts/failed-insights', [InsightsRetryController::class, 'index'])->name('attempts.failed-insights');
     });

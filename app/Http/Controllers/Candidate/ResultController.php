@@ -33,7 +33,7 @@ class ResultController extends Controller
         $attempt->load('test', 'result');
 
         // Auto-relance d'un job IA « zombie » : passation terminée depuis plus
-        // de 5 min, sans synthèse NI échec marqué = job tué (OVH
+        // de 2 min, sans synthèse NI échec marqué = job tué (OVH
         // max_execution_time) ou jamais démarré. Sans cette relance, l'écran
         // « Ton Grimoire se révèle… » tourne indéfiniment — pour le candidat
         // comme pour l'admin. Cooldown 5 min (Cache::add) : une seule relance
@@ -43,7 +43,7 @@ class ResultController extends Controller
             && !$attempt->result?->ai_synthesis
             && !$attempt->result?->ai_failed
             && $attempt->completed_at
-            && $attempt->completed_at->lt(now()->subMinutes(5))
+            && $attempt->completed_at->lt(now()->subMinutes(2))
             && \Illuminate\Support\Facades\Cache::add("attempt_insights_retry_{$attempt->id}", 1, 300)) {
             // Purge le verrou ShouldBeUnique résiduel du job tué, sinon le
             // dispatch est silencieusement ignoré.
