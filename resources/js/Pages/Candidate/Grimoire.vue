@@ -5,7 +5,7 @@ import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import MarkdownText from '@/Components/MarkdownText.vue'
 import { useParcours } from '@/composables/useParcours'
 
-const { L } = useParcours()
+const { L, isCorporate } = useParcours()
 
 const props = defineProps({
     grimoire:      Object,
@@ -24,12 +24,19 @@ const iaPending = computed(() => props.voies_pending && !iaImpact.value)
 
 // ── Onglets ───────────────────────────────────────────────────────────────
 const pistesCount = ref(Math.min(50, props.grimoire?.requested_voies_count ?? 30))
-const tabs = computed(() => [
-    { key: 'synthese', label: 'Relecture globale',        roman: 'I',   tocLabel: 'Synthèse',     pg: '✦' },
-    { key: 'tests',    label: 'Résultats des tests',      roman: 'II',  tocLabel: 'Mes épreuves', pg: String(props.tests?.length ?? 0) },
-    { key: 'ia',       label: 'Ton métier face à l\'IA', roman: 'III', tocLabel: 'Métier & IA',  pg: 'IA' },
-    { key: 'pistes',   label: `${voies.value.length || pistesCount.value} Pistes métiers`, roman: 'IV', tocLabel: 'Voies', pg: String(voies.value.length || pistesCount.value) },
-])
+// Sommaire : chiffres romains + « épreuves/Voies » en médiéval, numérotation
+// 01/02 + « évaluations/Pistes » en corporate.
+const tabs = computed(() => {
+    const corp = isCorporate.value
+    const base = [
+        { key: 'synthese', label: corp ? 'Synthèse globale' : 'Relecture globale', tocLabel: 'Synthèse', pg: corp ? '—' : '✦' },
+        { key: 'tests',    label: 'Résultats des tests', tocLabel: corp ? 'Mes évaluations' : 'Mes épreuves', pg: String(props.tests?.length ?? 0) },
+        { key: 'ia',       label: corp ? 'Votre métier face à l\'IA' : 'Ton métier face à l\'IA', tocLabel: 'Métier & IA', pg: 'IA' },
+        { key: 'pistes',   label: `${voies.value.length || pistesCount.value} Pistes métiers`, tocLabel: corp ? 'Pistes' : 'Voies', pg: String(voies.value.length || pistesCount.value) },
+    ]
+    const romans = ['I', 'II', 'III', 'IV']
+    return base.map((t, i) => ({ ...t, roman: corp ? String(i + 1).padStart(2, '0') : romans[i] }))
+})
 const activeTab = ref('synthese')
 
 // ── Ajustement des voies par préférences (curseurs) ──────────────────────
@@ -243,8 +250,9 @@ function fitClass(score) {
                 <h1 class="grim-title">{{ L.titleGrimoire }}</h1>
                 <div class="grim-rule"><span>&#10022;</span></div>
                 <p class="grim-empty-text">
-                    Ton Grimoire se remplira au fil de tes épreuves. Passe une première épreuve
-                    pour que l'oracle commence à relire ton profil.
+                    {{ isCorporate
+                        ? 'Votre dossier de synthèse se construira au fil de vos évaluations. Complétez une première évaluation pour lancer l\'analyse.'
+                        : 'Ton Grimoire se remplira au fil de tes épreuves. Passe une première épreuve pour que l\'oracle commence à relire ton profil.' }}
                 </p>
                 <Link :href="route('tests.index')" class="ac-btn-primary">{{ L.btnToTests }}</Link>
             </div>
@@ -252,9 +260,9 @@ function fitClass(score) {
             <div v-else-if="ai_pending" class="grim-pending">
                 <div class="grim-flourish">&#10087;&nbsp;&nbsp;&#10022;&nbsp;&nbsp;&#10087;</div>
                 <div class="grim-pulse-dots"><span></span><span></span><span></span></div>
-                <h1 class="grim-title">L'oracle relit tes épreuves…</h1>
+                <h1 class="grim-title">{{ isCorporate ? 'Analyse en cours…' : 'L\'oracle relit tes épreuves…' }}</h1>
                 <p class="grim-pending-sub">
-                    Croisement de tes {{ tests.length }} épreuve{{ tests.length > 1 ? 's' : '' }} · 1 à 2 minutes
+                    Croisement de {{ isCorporate ? 'vos' : 'tes' }} {{ tests.length }} {{ isCorporate ? 'évaluation' : 'épreuve' }}{{ tests.length > 1 ? 's' : '' }} · 1 à 2 minutes
                 </p>
                 <div class="grim-rule"><span>&#10022;</span></div>
                 <!-- Slider toujours visible en pending pour permettre de changer le nombre avant relance -->
@@ -272,7 +280,7 @@ function fitClass(score) {
                 </div>
                 <!-- Bouton de secours si le job IA a été interrompu côté serveur -->
                 <div v-if="pendingTooLong" class="grim-stuck-notice">
-                    <p class="grim-stuck-text">La relecture prend plus de temps que prévu.</p>
+                    <p class="grim-stuck-text">{{ isCorporate ? 'L\'analyse prend plus de temps que prévu.' : 'La relecture prend plus de temps que prévu.' }}</p>
                     <button class="ac-btn-secondary" :disabled="refreshing" @click="regenerate">
                         {{ refreshing ? 'Relecture en cours…' : 'Relancer avec ' + pistesCount + ' pistes' }}
                     </button>
@@ -287,7 +295,7 @@ function fitClass(score) {
                     <div class="grim-rule"><span>&#10022;</span></div>
                     <p class="grim-sub">
                         Ce que révèle le croisement de
-                        <strong>{{ tests.length }}</strong> de tes épreuves.
+                        <strong>{{ tests.length }}</strong> de {{ isCorporate ? 'vos évaluations' : 'tes épreuves' }}.
                     </p>
 
                 </header>
@@ -336,9 +344,11 @@ function fitClass(score) {
                 <div v-show="activeTab === 'tests'" role="tabpanel" id="panel-tests" aria-labelledby="tab-tests">
                     <section v-if="tests.length" class="grim-tests">
                         <div class="grim-section-head">
-                            <h2 class="grim-section-title">Tes épreuves relues</h2>
+                            <h2 class="grim-section-title">{{ isCorporate ? 'Vos évaluations analysées' : 'Tes épreuves relues' }}</h2>
                             <p class="grim-voies-intro">
-                                Ce que chaque épreuve te révèle. Ouvre le détail ou télécharge-le en PDF.
+                                {{ isCorporate
+                                    ? 'Ce que chaque évaluation révèle. Consultez le détail ou téléchargez le PDF.'
+                                    : 'Ce que chaque épreuve te révèle. Ouvre le détail ou télécharge-le en PDF.' }}
                             </p>
                         </div>
                         <div class="grim-tests-list">
@@ -367,17 +377,19 @@ function fitClass(score) {
                     <!-- Analyse en cours (elle arrive avec les pistes) -->
                     <div v-if="iaPending" class="grim-voies-loading">
                         <div class="grim-pulse-dots"><span></span><span></span><span></span></div>
-                        <p class="grim-voies-loading-text">L'oracle sonde l'avenir de ton métier face à l'IA…</p>
-                        <p class="grim-voies-loading-sub">Quelques secondes — la relecture est déjà disponible dans le premier onglet.</p>
+                        <p class="grim-voies-loading-text">{{ isCorporate ? 'Analyse de l\'impact de l\'IA sur votre métier…' : 'L\'oracle sonde l\'avenir de ton métier face à l\'IA…' }}</p>
+                        <p class="grim-voies-loading-sub">{{ isCorporate ? 'Quelques secondes — la synthèse est déjà disponible dans la première section.' : 'Quelques secondes — la relecture est déjà disponible dans le premier onglet.' }}</p>
                     </div>
                     <p v-else-if="!iaImpact" class="grim-voies-empty">
-                        Cette analyse n'a pas encore été générée. Clique sur « Régénérer le Grimoire » pour l'obtenir.
+                        {{ isCorporate
+                            ? 'Cette analyse n\'a pas encore été générée. Cliquez sur « Actualiser la synthèse » pour l\'obtenir.'
+                            : 'Cette analyse n\'a pas encore été générée. Clique sur « Régénérer le Grimoire » pour l\'obtenir.' }}
                     </p>
                     <section v-else class="grim-ia">
                         <div class="grim-section-head">
-                            <h2 class="grim-section-title">Ton métier face à l'IA</h2>
+                            <h2 class="grim-section-title">{{ isCorporate ? 'Votre métier face à l\'IA' : 'Ton métier face à l\'IA' }}</h2>
                             <p class="grim-voies-intro">
-                                Comment l'intelligence artificielle est susceptible de transformer ton métier — et comment en faire un atout.
+                                Comment l'intelligence artificielle est susceptible de transformer {{ isCorporate ? 'votre' : 'ton' }} métier — et comment en faire un atout.
                             </p>
                         </div>
                         <div class="grim-scroll grim-ia-scroll">
@@ -392,31 +404,36 @@ function fitClass(score) {
                     <div v-if="voies_pending && !voies.length" class="grim-voies-loading">
                         <div class="grim-pulse-dots"><span></span><span></span><span></span></div>
                         <p class="grim-voies-loading-text">
-                            L'oracle trace tes <strong>{{ pistesCount }}</strong> pistes métiers…
+                            <template v-if="isCorporate">Génération de vos <strong>{{ pistesCount }}</strong> pistes de carrière…</template>
+                            <template v-else>L'oracle trace tes <strong>{{ pistesCount }}</strong> pistes métiers…</template>
                         </p>
-                        <p class="grim-voies-loading-sub">Quelques secondes — la relecture est déjà disponible dans l'onglet précédent.</p>
+                        <p class="grim-voies-loading-sub">{{ isCorporate ? 'Quelques secondes — la synthèse est déjà disponible dans la section précédente.' : 'Quelques secondes — la relecture est déjà disponible dans l\'onglet précédent.' }}</p>
                     </div>
                     <p v-else-if="!voies.length" class="grim-voies-empty">
-                        Aucune piste générée pour l'instant. Choisis un nombre de pistes et clique sur « Régénérer le Grimoire ».
+                        {{ isCorporate
+                            ? 'Aucune piste générée pour l\'instant. Choisissez un nombre de pistes et cliquez sur « Actualiser la synthèse ».'
+                            : 'Aucune piste générée pour l\'instant. Choisis un nombre de pistes et clique sur « Régénérer le Grimoire ».' }}
                     </p>
                     <section v-if="voies.length" class="grim-voies">
                         <div class="grim-section-head">
-                            <h2 class="grim-section-title">Tes Voies Possibles</h2>
+                            <h2 class="grim-section-title">{{ isCorporate ? 'Vos pistes de carrière' : 'Tes Voies Possibles' }}</h2>
                             <p class="grim-voies-intro">
-                                {{ voies.length }} pistes tracées en croisant l'ensemble de tes résultats.
+                                {{ voies.length }} pistes {{ isCorporate ? 'établies en croisant l\'ensemble de vos résultats' : 'tracées en croisant l\'ensemble de tes résultats' }}.
                             </p>
                         </div>
 
                         <!-- ── Curseurs de préférences : re-trie les voies en direct ── -->
                         <div v-if="hasAxes" class="grim-tuner">
                             <div class="grim-tuner-head">
-                                <h3 class="grim-tuner-title">Ajuste selon ce qui compte pour toi</h3>
+                                <h3 class="grim-tuner-title">{{ isCorporate ? 'Ajustez selon vos priorités' : 'Ajuste selon ce qui compte pour toi' }}</h3>
                                 <button v-if="customized" type="button" class="grim-tuner-reset" @click="resetWeights">
                                     Réinitialiser
                                 </button>
                             </div>
                             <p class="grim-tuner-sub">
-                                Déplace les curseurs : tes voies se réordonnent instantanément selon tes priorités.
+                                {{ isCorporate
+                                    ? 'Déplacez les curseurs : les pistes se réordonnent instantanément selon vos priorités.'
+                                    : 'Déplace les curseurs : tes voies se réordonnent instantanément selon tes priorités.' }}
                                 <em>(Ce réglage n'est pas enregistré.)</em>
                             </p>
                             <div class="grim-tuner-grid">
@@ -519,7 +536,7 @@ function fitClass(score) {
                             Télécharger en PDF
                         </a>
                         <button class="ac-btn-secondary" :disabled="refreshing" @click="regenerate">
-                            {{ refreshing ? 'Relecture en cours…' : 'Régénérer le Grimoire' }}
+                            {{ refreshing ? (isCorporate ? 'Analyse en cours…' : 'Relecture en cours…') : (isCorporate ? 'Actualiser la synthèse' : 'Régénérer le Grimoire') }}
                         </button>
                     </div>
                     <p v-if="regenError" class="grim-regen-error" role="alert">{{ regenError }}</p>
@@ -528,7 +545,7 @@ function fitClass(score) {
                     </p>
                     <p class="grim-disclaimer" style="font-style:normal;font-size:12px;margin-top:0.85rem">
                         <strong>Outil d'auto-évaluation et de développement personnel.</strong>
-                        Les contenus de ce Grimoire sont générés par IA, à titre informatif. Ils ne
+                        Les contenus de ce {{ isCorporate ? 'dossier' : 'Grimoire' }} sont générés par IA, à titre informatif. Ils ne
                         constituent pas un avis professionnel et ne remplacent pas un psychologue, un
                         médecin ou un coach.
                     </p>
@@ -1144,5 +1161,52 @@ function fitClass(score) {
     .grim-test-actions { flex-direction: row; width: 100%; }
     .grim-test-actions > * { flex: 1; }
     .grim-tuner-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Parcours Corporate : sobriété executive ─────────────────────────────
+   Fleurons et étoiles masqués, sommaire modernisé (numérotation mono),
+   parchemin remplacé par une carte blanche à filet laiton supérieur. */
+html[data-theme="corporate"] .grim-flourish { display: none; }
+html[data-theme="corporate"] .grim-rule {
+    background: var(--border-mid);
+    opacity: 1;
+}
+html[data-theme="corporate"] .grim-rule span { display: none; }
+html[data-theme="corporate"] .grim-title {
+    letter-spacing: -0.03em;
+    text-shadow: none;
+}
+html[data-theme="corporate"] .grim-toc { border-right-color: var(--border-light); }
+html[data-theme="corporate"] .grim-toc-title {
+    color: var(--text-muted);
+    border-bottom-color: var(--border-light);
+}
+html[data-theme="corporate"] .grim-toc-num {
+    font-family: var(--font-data, monospace);
+    font-style: normal;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--color-primary);
+}
+html[data-theme="corporate"] .grim-toc-dots { border-bottom-color: var(--border-light); }
+html[data-theme="corporate"] .grim-toc-pg { color: var(--text-muted); }
+html[data-theme="corporate"] .grim-scroll {
+    background: #FFFFFF;
+    border: 1px solid var(--border-light);
+    border-top: 2px solid var(--color-primary);
+    box-shadow: 0 1px 2px rgba(25,23,19,0.03), 0 16px 40px -20px rgba(25,23,19,0.22);
+    --pt-gold-pale:   rgba(168,133,59,0.10);
+    --pt-gold-border: var(--color-primary);
+    --pt-border:      var(--border-light);
+}
+html[data-theme="corporate"] .grim-chip {
+    background: #FFFFFF;
+    box-shadow: none;
+}
+html[data-theme="corporate"] .grim-badge { border-radius: var(--r-sm); }
+@media (max-width: 860px) {
+    html[data-theme="corporate"] .grim-toc { border-bottom-color: var(--border-light); }
+    html[data-theme="corporate"] .grim-toc-item--active { border-bottom-color: var(--color-primary); }
 }
 </style>
