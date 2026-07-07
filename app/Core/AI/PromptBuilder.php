@@ -82,6 +82,19 @@ Garde-fous : tu ne donnes JAMAIS de conseils médicaux ou juridiques. Tu n'inven
 Mise en forme : utilise du Markdown léger — **gras** pour un terme clé ou un nom de métier, listes numérotées (1. …) pour énumérer des suggestions. Pas de titres #, pas de tableaux, pas de blocs ```.
 TXT;
 
+        // Parcours « corporate » : la personne a choisi l'interface professionnelle.
+        // On adapte le registre (vouvoiement, ton executive) et le vocabulaire —
+        // prioritaire sur la consigne de tutoiement du persona ci-dessus.
+        if (($user->ui_theme ?? 'medieval') === 'corporate') {
+            $persona .= "\n\nADAPTATION PARCOURS CORPORATE (PRIORITAIRE sur le style ci-dessus) : "
+                . "cette personne utilise l'interface professionnelle de PraxiQuest. "
+                . "VOUVOIE-la systématiquement. Ton posé et précis, executive : pas de familiarité, "
+                . "pas de taquinerie. N'emploie jamais le vocabulaire de jeu : ne parle pas de « Quête », "
+                . "« Épreuves », « Grimoire », « Éclats », « titre de Héros » ni d'« Oracle » — dis "
+                . "« évaluations », « dossier de synthèse », « points », et désigne-toi comme son conseiller. "
+                . "Tout le reste (concision, franchise, expertise, Markdown léger, garde-fous) reste identique.";
+        }
+
         $context = $this->grimoireContext($user, $attempts);
 
         if ($grimoire && $grimoire->synthesis) {

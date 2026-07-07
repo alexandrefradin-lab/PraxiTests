@@ -1,5 +1,35 @@
 <script setup>
-import { ref, nextTick, watch, onBeforeUnmount } from 'vue'
+import { ref, computed, nextTick, watch, onBeforeUnmount } from 'vue'
+import { useParcours } from '@/composables/useParcours'
+
+const { isCorporate } = useParcours()
+
+// Libellés du widget selon le parcours (médiéval : Oracle · corporate : conseiller)
+const T = computed(() => isCorporate.value
+    ? {
+        name: 'Votre conseiller',
+        welcomeTitle: 'Posez votre question',
+        welcomeText: "Il connaît vos évaluations et votre dossier de synthèse. Demandez-lui d'éclairer votre profil, d'explorer une piste, ou de vous suggérer des métiers qui vous ressemblent.",
+        suggestionsLabel: 'Commencez par ici :',
+        suggestions: ['Quels métiers me correspondent le mieux ?', 'Comment interpréter mes résultats ?', 'Quelle évaluation passer en priorité ?'],
+        placeholder: 'Écrivez à votre conseiller…',
+        errorPrefix: "Le conseiller n'a pas pu répondre",
+        errorRetry: 'Réessayez dans un instant.',
+        disclaimer: "Ce conseiller est une IA d'orientation : ses réponses sont indicatives et ne remplacent pas l'avis d'un psychologue, d'un médecin ou d'un coach.",
+        fabLabel: 'Ouvrir le conseiller',
+    }
+    : {
+        name: "L'Oracle",
+        welcomeTitle: "Pose ta question à l'Oracle",
+        welcomeText: "Il connaît tes épreuves et ton Grimoire. Demande-lui d'éclairer ton profil, d'explorer une voie, ou de te suggérer des métiers qui te ressemblent.",
+        suggestionsLabel: 'Commence par ici :',
+        suggestions: ['Quels métiers me correspondent le mieux ?', 'Comment interpréter mon score ?', 'Quelle épreuve passer en priorité ?'],
+        placeholder: "Écris à l'Oracle…",
+        errorPrefix: "L'Oracle n'a pas pu répondre",
+        errorRetry: 'Réessaie dans un instant.',
+        disclaimer: "L'Oracle est une IA d'orientation : ses réponses sont indicatives et ne remplacent pas l'avis d'un psychologue, d'un médecin ou d'un coach.",
+        fabLabel: "Ouvrir l'Oracle",
+    })
 
 // Renderer Markdown léger pour les bulles oracle.
 // Utilise exclusivement des inline styles — aucune dépendance aux classes CSS
@@ -164,7 +194,7 @@ async function send() {
         const data = await r.json()
         messages.value.push({ role: 'assistant', content: data.reply?.content ?? '…' })
     } catch (e) {
-        error.value = `L'Oracle n'a pas pu répondre (${e.message}). Réessaie dans un instant.`
+        error.value = `${T.value.errorPrefix} (${e.message}). ${T.value.errorRetry}`
     } finally {
         sending.value = false
         scrollToBottom()
@@ -230,7 +260,7 @@ onBeforeUnmount(() => {
                     <div class="oracle-head-id">
                         <span class="oracle-sigil">&#10022;</span>
                         <div>
-                            <p class="oracle-name" id="oracle-panel-title">L'Oracle</p>
+                            <p class="oracle-name" id="oracle-panel-title">{{ T.name }}</p>
                             <p class="oracle-role">Conseil d'orientation</p>
                         </div>
                     </div>
@@ -243,18 +273,17 @@ onBeforeUnmount(() => {
                 <div ref="scroller" class="oracle-body">
                     <div v-if="!messages.length" class="oracle-welcome">
                         <span class="oracle-sigil-lg">&#10022;</span>
-                        <p class="oracle-welcome-title">Pose ta question à l'Oracle</p>
+                        <p class="oracle-welcome-title">{{ T.welcomeTitle }}</p>
                         <p class="oracle-welcome-text">
-                            Il connaît tes épreuves et ton Grimoire. Demande-lui d'éclairer ton profil,
-                            d'explorer une voie, ou de te suggérer des métiers qui te ressemblent.
+                            {{ T.welcomeText }}
                         </p>
 
                         <!-- Suggestions (UX-04) -->
                         <div class="oracle-suggestions">
-                            <p class="oracle-suggestions-label">Commence par ici :</p>
+                            <p class="oracle-suggestions-label">{{ T.suggestionsLabel }}</p>
                             <div class="oracle-suggestions-list">
                                 <button
-                                    v-for="s in ['Quels métiers me correspondent le mieux ?', 'Comment interpréter mon score ?', 'Quelle épreuve passer en priorité ?']"
+                                    v-for="s in T.suggestions"
                                     :key="s"
                                     @click="sendSuggestion(s)"
                                     class="oracle-suggestion-chip"
@@ -288,7 +317,7 @@ onBeforeUnmount(() => {
                     <textarea
                         v-model="draft"
                         rows="1"
-                        placeholder="Écris à l'Oracle…"
+                        :placeholder="T.placeholder"
                         class="oracle-textarea"
                         @keydown="onKeydown"
                     ></textarea>
@@ -298,8 +327,7 @@ onBeforeUnmount(() => {
                 </footer>
 
                 <p style="margin:0;padding:0.5rem 0.9rem 0.7rem;font-size:10.5px;line-height:1.5;color:var(--pt-text-muted,#8C7A5E);text-align:center">
-                    L'Oracle est une IA d'orientation : ses réponses sont indicatives et ne remplacent pas
-                    l'avis d'un psychologue, d'un médecin ou d'un coach.
+                    {{ T.disclaimer }}
                 </p>
             </section>
         </transition>
@@ -323,7 +351,7 @@ onBeforeUnmount(() => {
         </Transition>
 
         <!-- Bulle flottante -->
-        <button class="oracle-fab" :class="{ 'oracle-fab--open': open }" @click="toggle" aria-label="Ouvrir l'Oracle">
+        <button class="oracle-fab" :class="{ 'oracle-fab--open': open }" @click="toggle" :aria-label="T.fabLabel">
             <svg v-if="!open" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <circle cx="12" cy="12" r="9" />
                 <polygon points="15.5 8.5 11 11 8.5 15.5 13 13" fill="currentColor" stroke="none" />
@@ -639,5 +667,77 @@ onBeforeUnmount(() => {
 /* ── Transition fade (modale) ── */
 .fade-enter-active, .fade-leave-active { transition: opacity 0.18s ease; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
+
+/* ── Parcours Corporate : conseiller banque privée (marine / blanc / laiton) ── */
+html[data-theme="corporate"] .oracle-fab {
+    background: var(--color-accent);
+    color: #D4B368;
+    border-color: rgba(176,141,63,0.5);
+    box-shadow: 0 6px 22px rgba(21,34,56,0.30);
+}
+html[data-theme="corporate"] .oracle-fab:hover { box-shadow: 0 10px 28px rgba(21,34,56,0.38); }
+html[data-theme="corporate"] .oracle-fab--open {
+    background: var(--color-accent);
+    color: #F5F7FA;
+}
+html[data-theme="corporate"] .oracle-panel {
+    background: #FFFFFF;
+    border-color: var(--border-mid);
+    box-shadow: 0 18px 48px rgba(21,34,56,0.25);
+}
+html[data-theme="corporate"] .oracle-head {
+    background: #F5F7FA;
+    border-bottom-color: var(--border-light);
+}
+html[data-theme="corporate"] .oracle-sigil {
+    background: var(--color-accent);
+    color: #D4B368;
+    border-color: rgba(176,141,63,0.4);
+}
+html[data-theme="corporate"] .oracle-icon-btn:hover { background: var(--bg-elevated); }
+html[data-theme="corporate"] .oracle-msg--user .oracle-bubble {
+    background: var(--color-accent);
+    color: #F5F7FA;
+    box-shadow: none;
+}
+html[data-theme="corporate"] .oracle-msg--oracle .oracle-bubble {
+    background: #F5F7FA;
+    border-color: var(--border-mid);
+    box-shadow: 0 1px 4px rgba(21,34,56,0.08);
+}
+html[data-theme="corporate"] .oracle-input {
+    background: #F5F7FA;
+    border-top-color: var(--border-light);
+}
+html[data-theme="corporate"] .oracle-textarea {
+    background: #FFFFFF;
+    border-color: var(--border-mid);
+}
+html[data-theme="corporate"] .oracle-textarea:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 2px rgba(22,50,92,0.14);
+}
+html[data-theme="corporate"] .oracle-send {
+    background: var(--color-accent);
+    color: #F5F7FA;
+}
+html[data-theme="corporate"] .oracle-suggestions-label { color: var(--text-muted); }
+html[data-theme="corporate"] .oracle-suggestion-chip {
+    background: rgba(22,50,92,0.05);
+    border-color: var(--border-mid);
+}
+html[data-theme="corporate"] .oracle-suggestion-chip:hover {
+    background: rgba(22,50,92,0.10);
+    border-color: var(--border-strong);
+}
+html[data-theme="corporate"] .oracle-confirm-dialog {
+    background: #FFFFFF;
+    border-color: var(--border-mid);
+    box-shadow: 0 12px 40px rgba(21,34,56,0.25);
+}
+html[data-theme="corporate"] .oracle-confirm-body,
+html[data-theme="corporate"] .oracle-confirm-cancel { color: var(--text-secondary); }
+html[data-theme="corporate"] .oracle-confirm-cancel { border-color: var(--border-mid); }
+html[data-theme="corporate"] .oracle-confirm-cancel:hover { background: var(--bg-elevated); }
 </style>
 
