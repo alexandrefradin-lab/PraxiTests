@@ -750,8 +750,9 @@ html[data-theme="corporate"] {
     --shadow-xs:            0 1px 2px rgba(25,23,19,0.05);
     --shadow-gold:          0 2px 14px rgba(168,133,59,0.20);
 
-    /* Glassmorphism */
-    --glass-bg:             rgba(248,247,244,0.92);
+    /* Glassmorphism — flou saturé façon app premium */
+    --glass-bg:             rgba(248,247,244,0.88);
+    --glass-blur:           blur(18px) saturate(1.5);
     --glass-border:         rgba(25,23,19,0.10);
 
     /* Radius — modernes, légèrement arrondis */
@@ -805,8 +806,12 @@ html[data-theme="corporate"] .pt-btn-primary::after { display: none; }
 html[data-theme="corporate"] .ac-btn-primary:hover:not(:disabled),
 html[data-theme="corporate"] .pt-btn-primary:hover:not(:disabled) {
     background: #2A2721;
-    box-shadow: 0 2px 6px rgba(25,23,19,0.24);
+    box-shadow: 0 6px 18px -6px rgba(25,23,19,0.40), 0 2px 8px -2px rgba(168,133,59,0.25);
 }
+
+/* Micro-typographie premium : labels et en-têtes de tableaux plus aérés */
+html[data-theme="corporate"] .ac-section-label { letter-spacing: 0.16em; }
+html[data-theme="corporate"] .ac-th            { letter-spacing: 0.12em; }
 html[data-theme="corporate"] .ac-btn-ghost,
 html[data-theme="corporate"] .ac-btn-danger,
 html[data-theme="corporate"] .pt-btn-ghost,
@@ -820,11 +825,14 @@ html[data-theme="corporate"] .pt-card,
 html[data-theme="corporate"] .ac-card {
     background: #FFFFFF;
     border: 1px solid var(--border-light);
-    box-shadow: 0 1px 2px rgba(25,23,19,0.04), 0 4px 14px rgba(25,23,19,0.05);
+    box-shadow: 0 1px 2px rgba(25,23,19,0.03), 0 16px 40px -20px rgba(25,23,19,0.22);
 }
-/* Ornements d'angle dorés : supprimés (le shorthand réinitialise les 5 couches) */
+/* Ornements d'angle dorés : remplacés par le filet laiton supérieur —
+   marqueur premium des cartes mises en avant (le shorthand background
+   réinitialise les 5 couches d'ornements). */
 html[data-theme="corporate"] .ac-card-ornate {
     background: #FFFFFF;
+    border-top: 2px solid var(--color-primary);
 }
 html[data-theme="corporate"] .ac-card-accent { color: #F2F5F9; }
 

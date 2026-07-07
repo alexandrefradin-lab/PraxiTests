@@ -114,7 +114,10 @@ const questOptions = computed(() => [
             <p style="
                 font-family:'Inter',sans-serif;font-size:11px;
                 color:var(--text-muted);margin:0.4rem 0 0;line-height:1.5;
-            ">{{ isCorporate ? 'Interface sobre, vocabulaire professionnel.' : 'Une aventure intérieure — quêtes, grimoire, éclats.' }} Modifiable à tout moment.</p>
+            ">{{ isCorporate
+                ? "L'expérience executive : sobre et directe, pensée pour un cadre professionnel — l'essentiel, sans distraction."
+                : "L'expérience immersive : la gamification — quêtes, éclats, niveaux — entretient ta motivation tout au long du bilan."
+            }} Modifiable à tout moment.</p>
         </div>
 
         <form @submit.prevent="submit" style="display:flex;flex-direction:column;gap:1.125rem">

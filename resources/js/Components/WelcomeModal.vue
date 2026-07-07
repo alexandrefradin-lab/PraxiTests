@@ -228,7 +228,7 @@ function prev() {
                                             <span style="font-family:'Space Grotesk',sans-serif;font-size:12.5px;font-weight:700;color:#2A1E08;">Médiéval</span>
                                             <i v-if="!isCorporate" class="ti ti-circle-check" style="font-size:15px;color:#A67520;" aria-hidden="true"></i>
                                         </span>
-                                        <span style="display:block;font-family:'Inter',sans-serif;font-size:10px;color:#6B5F4C;margin-top:2px;line-height:1.5;">L'aventure intérieure — quêtes, grimoire, éclats</span>
+                                        <span style="display:block;font-family:'Inter',sans-serif;font-size:10px;color:#6B5F4C;margin-top:2px;line-height:1.5;">Immersif et ludique — le jeu entretient la motivation</span>
                                     </span>
                                 </button>
 
@@ -251,7 +251,7 @@ function prev() {
                                             <span style="font-family:'Inter',sans-serif;font-size:12.5px;font-weight:700;letter-spacing:-0.02em;color:#191713;">Corporate</span>
                                             <i v-if="isCorporate" class="ti ti-circle-check" style="font-size:15px;color:#A8853B;" aria-hidden="true"></i>
                                         </span>
-                                        <span style="display:block;font-family:'Inter',sans-serif;font-size:10px;color:#5F5A4F;margin-top:2px;line-height:1.5;">Le programme executive — évaluations, synthèse, points</span>
+                                        <span style="display:block;font-family:'Inter',sans-serif;font-size:10px;color:#5F5A4F;margin-top:2px;line-height:1.5;">Sobre et premium — l'essentiel, sans distraction</span>
                                     </span>
                                 </button>
                             </div>
