@@ -1,5 +1,11 @@
-import { computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { usePage, router } from '@inertiajs/vue3'
+
+// Préférence des VISITEURS (non connectés) : portée par localStorage pour que
+// le choix fait sur /register survive à la navigation (login, CGU…) et soit
+// repris à l'inscription. Les connectés suivent users.ui_theme (partagé Inertia).
+const GUEST_KEY = 'pq_parcours_pref'
+const guestTheme = ref(null)
 
 // ─── Parcours visuels ────────────────────────────────────────────────────────
 // 'medieval'  : univers Parchemin/Or — quête, épreuves, grimoire, éclats.
@@ -35,6 +41,16 @@ const LABELS = {
         countTreasure:     'trésors révélés',
         countTreasureShort: 'révélés',
         btnToTests:        "Entrer dans l'Armurerie",
+        authTitle:         'Créer mon Identité de Héros',
+        authSubtitle:      'La première Épreuve est offerte. Rejoins la Quête.',
+        authQuestLabel:    'Choisis ton titre de Héros',
+        authName:          'Ton nom dans la Quête',
+        authEmail:         'Adresse du Héros',
+        authPassword:      'Sceau secret',
+        authPasswordConfirm: 'Confirmer le Sceau',
+        authSubmit:        'Commencer la Quête',
+        authHaveAccount:   'Déjà un Héros ?',
+        authLoginLink:     '→ Entrer dans la Quête',
     },
     corporate: {
         tagline:           'Excellence & Décision',
@@ -62,15 +78,35 @@ const LABELS = {
         countTreasure:     'modules débloqués',
         countTreasureShort: 'débloqués',
         btnToTests:        'Accéder aux évaluations',
+        authTitle:         'Créer mon compte',
+        authSubtitle:      'La première évaluation est offerte. Deux minutes suffisent.',
+        authQuestLabel:    'Votre profil dominant',
+        authName:          'Nom complet',
+        authEmail:         'Adresse email',
+        authPassword:      'Mot de passe',
+        authPasswordConfirm: 'Confirmation du mot de passe',
+        authSubmit:        'Créer mon compte',
+        authHaveAccount:   'Déjà un compte ?',
+        authLoginLink:     '→ Se connecter',
     },
 }
 
 export function useParcours() {
     const page = usePage()
 
-    const theme = computed(() =>
-        page.props.auth?.user?.ui_theme === 'corporate' ? 'corporate' : 'medieval'
-    )
+    if (guestTheme.value === null) {
+        try {
+            guestTheme.value = localStorage.getItem(GUEST_KEY) === 'corporate' ? 'corporate' : 'medieval'
+        } catch (e) {
+            guestTheme.value = 'medieval'
+        }
+    }
+
+    const theme = computed(() => {
+        const authed = page.props.auth?.user?.ui_theme
+        if (authed) return authed === 'corporate' ? 'corporate' : 'medieval'
+        return guestTheme.value === 'corporate' ? 'corporate' : 'medieval'
+    })
     const isCorporate = computed(() => theme.value === 'corporate')
     const L = computed(() => LABELS[theme.value])
 
@@ -80,10 +116,15 @@ export function useParcours() {
     function setParcours(t) {
         if (t !== 'medieval' && t !== 'corporate') return
         document.documentElement.dataset.theme = t // feedback visuel immédiat
-        router.patch(route('ui-theme.update'), { ui_theme: t }, {
-            preserveScroll: true,
-            preserveState: true,
-        })
+        if (page.props.auth?.user) {
+            router.patch(route('ui-theme.update'), { ui_theme: t }, {
+                preserveScroll: true,
+                preserveState: true,
+            })
+        } else {
+            guestTheme.value = t
+            try { localStorage.setItem(GUEST_KEY, t) } catch (e) { /* mode privé */ }
+        }
     }
 
     return { theme, isCorporate, L, setParcours }

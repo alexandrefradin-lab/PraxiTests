@@ -83,6 +83,8 @@ class AuthController extends Controller
             // invitant. Libre (nullable) — refuser n'empêche pas l'inscription.
             'consent_share' => ['nullable', 'boolean'],
             'quest_title' => ['required', 'in:architecte,explorateur,passeur'],
+            // Parcours visuel choisi sur le formulaire (Médiéval / Corporate).
+            'ui_theme'    => ['nullable', 'in:medieval,corporate'],
         ], [
             'terms.required'        => 'Vous devez accepter les Conditions Générales d\'Utilisation.',
             'terms.accepted'        => 'Vous devez accepter les Conditions Générales d\'Utilisation.',
@@ -94,6 +96,7 @@ class AuthController extends Controller
             'name'              => $data['name'],
             'email'             => $data['email'],
             'password'          => Hash::make($data['password']),
+            'ui_theme'          => $data['ui_theme'] ?? 'medieval',
             'terms_accepted_at' => now(),
             'terms_version'     => self::CGU_VERSION,
         ]);

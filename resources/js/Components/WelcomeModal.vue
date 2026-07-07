@@ -106,6 +106,11 @@ const ctaLast = computed(() => (isCorporate.value ? 'Commencer' : 'Commencer l\'
 onMounted(() => {
     if (!localStorage.getItem(STORAGE_KEY)) {
         visible.value = true
+        // Parcours déjà choisi sur le formulaire d'inscription (même navigateur) :
+        // on saute l'écran de choix et on entre directement dans le tour.
+        if (localStorage.getItem('praxiquest_parcours_chosen')) {
+            choosing.value = false
+        }
     }
 })
 

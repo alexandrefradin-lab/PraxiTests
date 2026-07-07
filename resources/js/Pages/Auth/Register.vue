@@ -1,6 +1,8 @@
 <script setup>
+import { computed } from 'vue'
 import { Link, useForm } from '@inertiajs/vue3'
 import AuthLayout from '@/Layouts/AuthLayout.vue'
+import { useParcours } from '@/composables/useParcours'
 
 const props = defineProps({
     email: String,
@@ -8,6 +10,8 @@ const props = defineProps({
     // RGPD au partage des résultats avec le professionnel invitant.
     viaInvitation: { type: Boolean, default: false },
 })
+
+const { theme, isCorporate, L, setParcours } = useParcours()
 
 const form = useForm({
     name: '',
@@ -17,52 +21,100 @@ const form = useForm({
     terms: false,
     consent_share: false,
     quest_title: '',
+    ui_theme: theme.value,
     website: '', // honeypot anti-bot — doit rester vide
 })
 
+// Choix du parcours dès l'inscription : bascule live (page + libellés) et
+// valeur envoyée avec le formulaire pour être posée sur users.ui_theme.
+function chooseParcours(t) {
+    setParcours(t)
+    form.ui_theme = t
+}
+
 const submit = () => form.post(route('register'), {
+    onSuccess: () => {
+        // Le parcours a été choisi ici : la WelcomeModal saute son écran de choix.
+        try { localStorage.setItem('praxiquest_parcours_chosen', '1') } catch (e) { /* mode privé */ }
+    },
     onFinish: () => form.reset('password', 'password_confirmation'),
 })
 
-const questOptions = [
+const questOptions = computed(() => [
     {
         value: 'architecte',
         label: "L'Architecte",
-        description: 'Tu construis des systèmes, tu penses en structures.',
+        description: isCorporate.value
+            ? 'Vous construisez des systèmes, vous pensez en structures.'
+            : 'Tu construis des systèmes, tu penses en structures.',
     },
     {
         value: 'explorateur',
         label: "L'Explorateur",
-        description: 'Tu cherches, tu questionnes, tu aimes les possibilités.',
+        description: isCorporate.value
+            ? 'Vous cherchez, vous questionnez, vous aimez les possibilités.'
+            : 'Tu cherches, tu questionnes, tu aimes les possibilités.',
     },
     {
         value: 'passeur',
         label: 'Le Passeur',
-        description: 'Tu transmets, tu connectes, tu fais grandir.',
+        description: isCorporate.value
+            ? 'Vous transmettez, vous connectez, vous faites grandir.'
+            : 'Tu transmets, tu connectes, tu fais grandir.',
     },
-]
+])
 </script>
 
 <template>
     <AuthLayout>
-        <Head title="Créer mon Identité de Héros — PraxiQuest" />
+        <Head :title="`${L.authTitle} — PraxiQuest`" />
 
         <!-- En-tête -->
-        <div class="lp-anim-badge" style="margin-bottom:1.75rem">
-            <div class="lp-badge" style="display:inline-flex;align-items:center;gap:7px;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.16em;color:var(--color-primary);text-transform:uppercase;font-weight:400;margin-bottom:1rem;padding:4px 12px 4px 9px;border:1px solid rgba(166,117,32,0.3);border-radius:4px;background:rgba(166,117,32,0.05)">
+        <div class="lp-anim-badge" style="margin-bottom:1.5rem">
+            <div class="lp-badge" style="display:inline-flex;align-items:center;gap:7px;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.16em;color:var(--color-primary);text-transform:uppercase;font-weight:400;margin-bottom:1rem;padding:4px 12px 4px 9px;border:1px solid var(--border-mid);border-radius:4px;background:var(--pt-gold-pale)">
                 <div style="width:5px;height:5px;background:var(--color-primary);transform:rotate(45deg);flex-shrink:0"></div>
                 Gratuit · 2 minutes · RGPD
             </div>
             <h1 class="lp-h1-gradient lp-anim-h1a" style="
-                font-family:'Space Grotesk',sans-serif;
+                font-family:var(--font-display);
                 font-size:1.625rem;font-weight:700;
                 letter-spacing:-0.02em;line-height:1.15;
                 margin:0 0 0.5rem;
-            ">Créer mon Identité de Héros</h1>
+            ">{{ L.authTitle }}</h1>
             <p class="lp-anim-sub" style="
                 font-family:'Inter',sans-serif;
                 font-size:14px;color:var(--text-secondary);margin:0;line-height:1.5;
-            ">La première Épreuve est offerte. Rejoins la Quête.</p>
+            ">{{ L.authSubtitle }}</p>
+        </div>
+
+        <!-- Choix du parcours visuel — dès l'inscription -->
+        <div style="margin-bottom:1.5rem">
+            <p style="
+                font-family:'Space Mono',monospace;font-size:9px;font-weight:600;
+                letter-spacing:0.12em;text-transform:uppercase;
+                color:var(--text-muted);margin:0 0 0.5rem;
+            ">Mon parcours</p>
+            <div role="group" aria-label="Choix du parcours" style="display:flex;border:1px solid var(--border-mid);border-radius:var(--r);overflow:hidden">
+                <button
+                    type="button"
+                    @click="chooseParcours('medieval')"
+                    class="auth-parcours-opt"
+                    :class="{ 'auth-parcours-opt--active': !isCorporate }"
+                    :aria-pressed="!isCorporate"
+                >Médiéval</button>
+                <button
+                    type="button"
+                    @click="chooseParcours('corporate')"
+                    class="auth-parcours-opt"
+                    :class="{ 'auth-parcours-opt--active': isCorporate }"
+                    style="border-left:1px solid var(--border-mid)"
+                    :aria-pressed="isCorporate"
+                >Corporate</button>
+            </div>
+            <p style="
+                font-family:'Inter',sans-serif;font-size:11px;
+                color:var(--text-muted);margin:0.4rem 0 0;line-height:1.5;
+            ">{{ isCorporate ? 'Interface sobre, vocabulaire professionnel.' : 'Une aventure intérieure — quêtes, grimoire, éclats.' }} Modifiable à tout moment.</p>
         </div>
 
         <form @submit.prevent="submit" style="display:flex;flex-direction:column;gap:1.125rem">
@@ -82,11 +134,11 @@ const questOptions = [
             <!-- BLOC NEUROMARKETING : Ancrage identitaire précoce -->
             <div class="lp-anim-ctas">
                 <p style="
-                    font-family:'Space Grotesk',sans-serif;
+                    font-family:var(--font-display);
                     font-size:13px;font-weight:600;
                     color:var(--text-primary);
                     margin:0 0 0.75rem;letter-spacing:0.01em;
-                ">Choisis ton titre de Héros</p>
+                ">{{ L.authQuestLabel }}</p>
 
                 <div style="display:flex;flex-direction:column;gap:0.625rem">
                     <label
@@ -142,7 +194,7 @@ const questOptions = [
                     display:block;
                     font-family:'Inter',sans-serif;font-size:13px;font-weight:500;
                     color:var(--text-secondary);margin-bottom:0.4rem;
-                " for="register-name">Ton nom dans la Quête</label>
+                " for="register-name">{{ L.authName }}</label>
                 <input
                     id="register-name"
                     v-model="form.name"
@@ -163,7 +215,7 @@ const questOptions = [
                     display:block;
                     font-family:'Inter',sans-serif;font-size:13px;font-weight:500;
                     color:var(--text-secondary);margin-bottom:0.4rem;
-                " for="register-email">Adresse du Héros</label>
+                " for="register-email">{{ L.authEmail }}</label>
                 <input
                     id="register-email"
                     type="email"
@@ -185,7 +237,7 @@ const questOptions = [
                     display:block;
                     font-family:'Inter',sans-serif;font-size:13px;font-weight:500;
                     color:var(--text-secondary);margin-bottom:0.4rem;
-                " for="register-password">Sceau secret</label>
+                " for="register-password">{{ L.authPassword }}</label>
                 <input
                     id="register-password"
                     type="password"
@@ -208,7 +260,7 @@ const questOptions = [
                     display:block;
                     font-family:'Inter',sans-serif;font-size:13px;font-weight:500;
                     color:var(--text-secondary);margin-bottom:0.4rem;
-                " for="register-password-confirm">Confirmer le Sceau</label>
+                " for="register-password-confirm">{{ L.authPasswordConfirm }}</label>
                 <input
                     id="register-password-confirm"
                     type="password"
@@ -290,7 +342,7 @@ const questOptions = [
                 style="width:100%;padding:0.7rem 1.5rem;justify-content:center;margin-top:0.25rem"
             >
                 <span v-if="form.processing">Création en cours…</span>
-                <span v-else>Commencer la Quête</span>
+                <span v-else>{{ L.authSubmit }}</span>
             </button>
         </form>
 
@@ -299,10 +351,10 @@ const questOptions = [
             text-align:center;margin-top:1.5rem;
             font-family:'Inter',sans-serif;font-size:13px;color:var(--text-secondary);
         ">
-            Déjà un Héros ?
+            {{ L.authHaveAccount }}
             <Link :href="route('login')" style="
                 color:var(--color-primary);font-weight:600;text-decoration:none;
-            " class="hover:underline">→ Entrer dans la Quête</Link>
+            " class="hover:underline">{{ L.authLoginLink }}</Link>
         </p>
     </AuthLayout>
 </template>
@@ -329,5 +381,33 @@ const questOptions = [
 .auth-quest-card--selected .auth-quest-check {
     border-color: var(--color-primary) !important;
     background: rgba(166,117,32,0.08);
+}
+
+/* ── Sélecteur de parcours (inscription) ── */
+.auth-parcours-opt {
+    flex: 1;
+    padding: 9px 8px;
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    touch-action: manipulation;
+}
+.auth-parcours-opt:hover {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+}
+.auth-parcours-opt--active {
+    background: var(--color-primary);
+    color: var(--pt-white, #fff);
+    font-weight: 600;
+}
+.auth-parcours-opt--active:hover {
+    background: var(--color-primary-dark);
+    color: var(--pt-white, #fff);
 }
 </style>

@@ -1,6 +1,9 @@
 <script setup>
 import { Link, usePage } from '@inertiajs/vue3'
 import { computed } from 'vue'
+import { useParcours } from '@/composables/useParcours'
+
+const { L } = useParcours()
 
 const branding = computed(() => usePage().props.branding ?? { name: 'PraxiQuest', tagline: 'Évaluer. Orienter. Transformer.' })
 </script>
@@ -9,7 +12,7 @@ const branding = computed(() => usePage().props.branding ?? { name: 'PraxiQuest'
     <div class="min-h-screen flex" style="background: var(--bg-base)">
 
         <!-- Panneau gauche — Encre / identité AC -->
-        <div class="hidden lg:flex flex-col justify-between" style="width: 420px; flex-shrink: 0; background: #1C1408; padding: 3rem 3rem 2.5rem; position: relative; overflow: hidden">
+        <div class="hidden lg:flex flex-col justify-between" style="width: 420px; flex-shrink: 0; background: var(--color-accent); padding: 3rem 3rem 2.5rem; position: relative; overflow: hidden">
 
             <!-- Ligne décorative verticale droite -->
             <div style="position: absolute; top: 0; right: 0; width: 1px; height: 100%; background: linear-gradient(to bottom, transparent, rgba(166,117,32,0.3) 20%, rgba(166,117,32,0.3) 80%, transparent)"></div>
@@ -36,7 +39,7 @@ const branding = computed(() => usePage().props.branding ?? { name: 'PraxiQuest'
                 </svg>
                 <div>
                     <div class="auth-brand-name">{{ branding.name }}</div>
-                    <div class="auth-brand-tag">Voyage intérieur</div>
+                    <div class="auth-brand-tag">{{ L.tagline }}</div>
                 </div>
             </Link>
 
@@ -73,7 +76,7 @@ const branding = computed(() => usePage().props.branding ?? { name: 'PraxiQuest'
 
             <!-- Logo mobile uniquement -->
             <Link href="/" class="lg:hidden mb-10 flex items-center gap-3" style="text-decoration: none">
-                <div style="width: 36px; height: 36px; border-radius: 8px; background: #1C1408; display: flex; align-items: center; justify-content: center; flex-shrink: 0">
+                <div style="width: 36px; height: 36px; border-radius: 8px; background: var(--color-accent); display: flex; align-items: center; justify-content: center; flex-shrink: 0">
                     <svg width="18" height="18" viewBox="0 0 22 22" fill="none">
                         <polygon points="11,2 12.8,10 11,13 9.2,10" fill="#A67520"/>
                         <polygon points="11,20 12.8,12 11,9 9.2,12" fill="#A67520" opacity="0.4"/>
@@ -83,7 +86,7 @@ const branding = computed(() => usePage().props.branding ?? { name: 'PraxiQuest'
                 </div>
                 <div>
                     <div style="font-family: var(--font-display); font-size: 15px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.01em; line-height: 1">{{ branding.name }}</div>
-                    <div style="font-family: var(--font-data); font-size: 9px; color: var(--color-primary); text-transform: uppercase; letter-spacing: 0.14em; margin-top: 3px">Voyage intérieur</div>
+                    <div style="font-family: var(--font-data); font-size: 9px; color: var(--color-primary); text-transform: uppercase; letter-spacing: 0.14em; margin-top: 3px">{{ L.tagline }}</div>
                 </div>
             </Link>
 
