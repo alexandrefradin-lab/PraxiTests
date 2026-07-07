@@ -1,6 +1,9 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { router, Head, Link } from '@inertiajs/vue3'
+import { useParcours } from '@/composables/useParcours'
+
+const { L, isCorporate, testLabel } = useParcours()
 
 const props = defineProps({
     attempt: Object,
@@ -153,7 +156,7 @@ const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
 
 <template>
     <div class="ac-shell">
-        <Head :title="attempt.test.name" />
+        <Head :title="testLabel(attempt.test)" />
 
         <!-- HEADER MINIMAL -->
         <header class="ac-header">
@@ -164,7 +167,7 @@ const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                             <path d="M19 12H5M5 12l7-7M5 12l7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
-                        Armurerie
+                        {{ isCorporate ? 'Évaluations' : 'Armurerie' }}
                     </Link>
                     <span class="ac-header-sep" aria-hidden="true"></span>
                     <svg class="ac-logo" width="26" height="26" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -175,7 +178,7 @@ const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
                         <circle cx="19" cy="19" r="2" fill="#A67520"/>
                         <circle cx="19" cy="19" r="1" fill="#F0E8D4"/>
                     </svg>
-                    <span class="ac-test-name">{{ attempt.test.name }}</span>
+                    <span class="ac-test-name">{{ testLabel(attempt.test) }}</span>
                 </div>
 
                 <!-- Numéro question centré -->
@@ -186,7 +189,7 @@ const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
                 <!-- Badge gamification -->
                 <div class="ac-header-right">
                     <span v-if="gamification" class="ac-xp-badge">
-                        Niv.{{ gamification.level }} · {{ gamification.xp }} Éclats
+                        Niv.{{ gamification.level }} · {{ gamification.xp }} {{ L.xpName }}
                     </span>
                 </div>
             </div>

@@ -2,6 +2,9 @@
 import { computed } from 'vue'
 import { router, Link, Head } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
+import { useParcours } from '@/composables/useParcours'
+
+const { L, isCorporate, testLabel } = useParcours()
 
 const props = defineProps({
     test: Object,
@@ -25,7 +28,7 @@ const start = () => {
 
 <template>
     <CandidateLayout>
-        <Head :title="test.name" />
+        <Head :title="testLabel(test)" />
 
         <div class="max-w-2xl mx-auto px-4 py-6">
 
@@ -37,7 +40,7 @@ const start = () => {
                 onmouseover="this.style.color='var(--text-primary)'"
                 onmouseout="this.style.color='var(--text-secondary)'"
             >
-                ← L'Armurerie
+                ← {{ L.navTests }}
             </Link>
 
             <!-- ── En-tête ── -->
@@ -47,14 +50,14 @@ const start = () => {
                     class="inline-block px-2.5 py-0.5 rounded text-[11px] uppercase tracking-widest mb-3"
                     style="font-family:'Space Mono',monospace; color:var(--text-secondary); background:var(--bg-elevated); border:1px solid var(--glass-border);"
                 >
-                    {{ test.type ?? 'Épreuve' }}
+                    {{ test.type ?? L.typeFallback }}
                 </span>
 
                 <h1
                     class="font-bold tracking-tight leading-tight mt-1 mb-3"
-                    style="font-family:'Space Grotesk',sans-serif; font-size:2rem; color:var(--text-primary);"
+                    style="font-family:var(--font-display); font-size:2rem; color:var(--text-primary);"
                 >
-                    {{ test.name }}
+                    {{ testLabel(test) }}
                 </h1>
 
                 <p
@@ -79,7 +82,7 @@ const start = () => {
                             {{ test.estimated_minutes }}
                         </p>
                         <p class="text-xs mt-2" style="color:var(--text-secondary); font-family:'Inter',sans-serif;">
-                            minutes d'Épreuve
+                            {{ isCorporate ? 'minutes environ' : "minutes d'Épreuve" }}
                         </p>
                     </div>
 
@@ -105,7 +108,7 @@ const start = () => {
                             IA
                         </p>
                         <p class="text-xs mt-2" style="color:var(--text-secondary); font-family:'Inter',sans-serif;">
-                            Grimoire inclus
+                            {{ isCorporate ? 'Synthèse incluse' : 'Grimoire inclus' }}
                         </p>
                     </div>
 

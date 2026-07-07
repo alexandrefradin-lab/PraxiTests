@@ -4,7 +4,7 @@ import { Link, Head } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import { useParcours } from '@/composables/useParcours'
 
-const { L } = useParcours()
+const { L, testLabel } = useParcours()
 
 const props = defineProps({
     attempts: Array,
@@ -94,7 +94,7 @@ const formatDate = (iso) => {
                                     color: var(--text-primary);
                                 "
                             >
-                                {{ a.test_name }}
+                                {{ testLabel(a) }}
                             </p>
                             <p
                                 v-if="a.test_description"
@@ -191,7 +191,7 @@ const formatDate = (iso) => {
                                         color: var(--text-primary);
                                     "
                                 >
-                                    {{ a.test_name }}
+                                    {{ testLabel(a) }}
                                 </p>
 
                                 <!-- Badge score Éclats -->

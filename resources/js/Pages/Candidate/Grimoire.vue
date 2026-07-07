@@ -5,7 +5,7 @@ import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import MarkdownText from '@/Components/MarkdownText.vue'
 import { useParcours } from '@/composables/useParcours'
 
-const { L, isCorporate } = useParcours()
+const { L, isCorporate, testLabel } = useParcours()
 
 const props = defineProps({
     grimoire:      Object,
@@ -354,7 +354,7 @@ function fitClass(score) {
                         <div class="grim-tests-list">
                             <article v-for="t in tests" :key="t.attempt_id" class="grim-test-card">
                                 <div class="grim-test-main">
-                                    <h3 class="grim-test-name">{{ t.name }}</h3>
+                                    <h3 class="grim-test-name">{{ testLabel(t) }}</h3>
                                     <p v-if="t.mesure" class="grim-test-measures">{{ t.mesure }}</p>
                                     <p v-if="t.detail_preview" class="grim-test-preview">
                                         <span class="grim-test-preview-label">Dans le détail</span>

@@ -1,27 +1,39 @@
 <script setup>
 /**
  * RestitutionHeader — en-tête unifié des pages de résultats (« restitution »).
- * Kicker doré + titre Space Grotesk + sous-titre + filet décoratif or.
+ * Kicker doré + titre display + sous-titre + filet décoratif.
+ * Parcours corporate : le titre (nom de test « quête ») est traduit via
+ * testLabel(), le kicker par défaut est vouvoyé, l'étoile est masquée.
  *
  * Usage :
  *   <RestitutionHeader kicker="Ta restitution" title="La Constellation des Talents"
  *                      subtitle="Bilan révélé le 30 juin 2026 — synthèse augmentée par IA" />
  */
-defineProps({
+import { computed } from 'vue'
+import { useParcours } from '@/composables/useParcours'
+
+const props = defineProps({
     kicker:   { type: String, default: 'Ta restitution' },
     title:    { type: String, required: true },
     subtitle: { type: String, default: '' },
 })
+
+const { isCorporate, testLabel } = useParcours()
+
+const displayTitle = computed(() => testLabel(props.title))
+const displayKicker = computed(() =>
+    isCorporate.value && props.kicker === 'Ta restitution' ? 'Votre restitution' : props.kicker
+)
 </script>
 
 <template>
     <header class="rh">
-        <span class="rh-kicker">✦ {{ kicker }}</span>
-        <h1 class="rh-title">{{ title }}</h1>
+        <span class="rh-kicker"><span v-if="!isCorporate">✦ </span>{{ displayKicker }}</span>
+        <h1 class="rh-title">{{ displayTitle }}</h1>
         <p v-if="subtitle" class="rh-sub">{{ subtitle }}</p>
         <div class="rh-divider" aria-hidden="true">
             <i></i>
-            <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+            <svg v-if="!isCorporate" width="12" height="12" viewBox="0 0 16 16" fill="none">
                 <path d="M8 0L9.6 6.4L16 8L9.6 9.6L8 16L6.4 9.6L0 8L6.4 6.4L8 0Z" fill="var(--color-primary)" opacity="0.55"/>
             </svg>
             <i></i>

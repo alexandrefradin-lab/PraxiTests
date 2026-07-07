@@ -109,6 +109,62 @@ const LABELS = {
     },
 }
 
+// ─── Noms corporate des tests / mini-apps ────────────────────────────────────
+// Les noms « quête » vivent en base (manifests plugins + seeders). En parcours
+// corporate on les remplace à l'affichage : d'abord par slug (fiable), sinon
+// par motif sur le nom (pages qui n'exposent que le nom, ex. Grimoire/History).
+const CORPORATE_TEST_NAMES = {
+    'orientation-express':           'Orientation Express',
+    'praximet-riasec':               'Intérêts professionnels — RIASEC',
+    'praximum':                      'Personnalité — Big Five',
+    'praxiemo':                      'Intelligence émotionnelle',
+    'praxivaleurs':                  'Valeurs professionnelles — Schwartz',
+    'praxicare':                     'Bien-être et risques psychosociaux',
+    'praxibiais':                    'Biais cognitifs professionnels',
+    'praxifocus':                    'Attention et concentration — repères TDAH',
+    'praxisens':                     'Sensibilité sensorielle',
+    'praxitempo':                    'Gestion du temps',
+    'praxis360':                     'Feedback 360°',
+    'competences-entrepreneuriales': 'Compétences entrepreneuriales — EntreComp',
+    'praxiself':                     'Affirmation de soi',
+    'praxiself-affirmation':         'Affirmation de soi',
+    'praxispeak':                    'Prise de parole en public',
+    'praxiflow':                     'Productivité et organisation',
+    'praxiflow-productivite':        'Productivité et organisation',
+    'praxizen':                      'Gestion du stress',
+    'praxizen-stress':               'Gestion du stress',
+    'praxilink':                     'Assertivité et relations',
+    'praxilink-assertivite':         'Assertivité et relations',
+    'praxiboost':                    'Motivation et confiance',
+    'praxilead':                     'Management — programme 60 jours',
+    'praximiroir':                   'Identité professionnelle — programme 30 jours',
+    'praxivision':                   'Leadership — programme 60 jours',
+    'praxizenith':                   'Concentration — programme d\'entraînement',
+}
+
+const CORPORATE_NAME_PATTERNS = [
+    [/qu[êe]te de la voie/i,        'Intérêts professionnels — RIASEC'],
+    [/grande cartographie/i,        'Personnalité — Big Five'],
+    [/boussole des [ée]motions/i,   'Intelligence émotionnelle'],
+    [/sentinelle int[ée]rieure/i,   'Bien-être et risques psychosociaux'],
+    [/source des valeurs/i,         'Valeurs professionnelles — Schwartz'],
+    [/cartographe mental/i,         'Biais cognitifs professionnels'],
+    [/boussole de l'attention/i,    'Attention et concentration — repères TDAH'],
+    [/radar des sens/i,             'Sensibilité sensorielle'],
+    [/ma[îi]tre du temps/i,         'Gestion du temps'],
+    [/constellation des talents/i,  'Feedback 360°'],
+    [/[ée]toffe du b[âa]tisseur/i,  'Compétences entrepreneuriales — EntreComp'],
+    [/forge du soi/i,               'Affirmation de soi'],
+    [/voix du h[ée]ros/i,           'Prise de parole en public'],
+    [/refuge int[ée]rieur/i,        'Gestion du stress'],
+    [/art des liens/i,              'Assertivité et relations'],
+    [/[ée]tincelle/i,               'Motivation et confiance'],
+    [/forge de l'identit[ée]/i,     'Identité professionnelle — programme 30 jours'],
+    [/60 jours de management/i,     'Management — programme 60 jours'],
+    [/[ée]veilleur/i,               'Leadership — programme 60 jours'],
+    [/sanctuaire de l'attention/i,  'Concentration — programme d\'entraînement'],
+]
+
 export function useParcours() {
     const page = usePage()
 
@@ -145,5 +201,20 @@ export function useParcours() {
         }
     }
 
-    return { theme, isCorporate, L, setParcours }
+    // Nom d'affichage d'un test/mini-app selon le parcours. Accepte un objet
+    // ({ slug, name } / { test_name }) ou une chaîne. En médiéval : inchangé.
+    function testLabel(input) {
+        const name = typeof input === 'string' ? input : (input?.name ?? input?.test_name ?? '')
+        if (!isCorporate.value) return name
+        const slug = (input && typeof input === 'object')
+            ? (input.slug ?? input.test_slug ?? input.plugin_slug ?? '')
+            : ''
+        if (slug && CORPORATE_TEST_NAMES[slug]) return CORPORATE_TEST_NAMES[slug]
+        for (const [re, label] of CORPORATE_NAME_PATTERNS) {
+            if (re.test(name)) return label
+        }
+        return name
+    }
+
+    return { theme, isCorporate, L, setParcours, testLabel }
 }

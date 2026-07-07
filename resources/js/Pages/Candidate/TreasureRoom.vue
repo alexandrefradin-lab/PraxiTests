@@ -4,7 +4,7 @@ import { Link, Head } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import { useParcours } from '@/composables/useParcours'
 
-const { L } = useParcours()
+const { L, testLabel } = useParcours()
 
 const props = defineProps({
     treasure: {
@@ -180,7 +180,7 @@ const unlockedPct = computed(() => {
                     class="font-bold mb-1 leading-snug"
                     style="font-family:'Space Grotesk',sans-serif; font-size:16px; color:var(--text-primary);"
                 >
-                    {{ item.name }}
+                    {{ testLabel(item) }}
                 </h3>
                 <p
                     v-if="item.purpose"
