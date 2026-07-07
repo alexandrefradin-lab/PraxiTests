@@ -1,6 +1,9 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { router } from '@inertiajs/vue3'
+import { useParcours } from '@/composables/useParcours'
+
+const { L, isCorporate } = useParcours()
 
 const props = defineProps({
     attempt:     Object,
@@ -47,8 +50,8 @@ onBeforeUnmount(() => {
 <template>
     <div class="ac-overlay" role="status" aria-live="polite">
 
-        <!-- Falling Éclats particles -->
-        <div class="ac-particles" aria-hidden="true">
+        <!-- Falling Éclats particles (médiéval uniquement) -->
+        <div v-if="!isCorporate" class="ac-particles" aria-hidden="true">
             <span
                 v-for="(p, i) in PARTICLES"
                 :key="i"
@@ -66,8 +69,8 @@ onBeforeUnmount(() => {
         <!-- Card -->
         <div class="ac-card">
 
-            <!-- Map fragment reveal -->
-            <div class="ac-fragment" aria-hidden="true">
+            <!-- Map fragment reveal (médiéval uniquement) -->
+            <div v-if="!isCorporate" class="ac-fragment" aria-hidden="true">
                 <svg viewBox="0 0 120 104" class="ac-fragment-svg" xmlns="http://www.w3.org/2000/svg">
                     <polygon points="60,2 118,32 118,72 60,102 2,72 2,32"
                              fill="rgba(212,168,67,0.06)" stroke="#D4A843" stroke-width="1.2"/>
@@ -85,18 +88,18 @@ onBeforeUnmount(() => {
 
             <!-- Éclats burst -->
             <div class="ac-eclats">
-                <span class="ac-eclat-icon" aria-hidden="true">✦</span>
+                <span v-if="!isCorporate" class="ac-eclat-icon" aria-hidden="true">✦</span>
                 <span class="ac-eclat-count">+{{ eclatsGagnes }}</span>
-                <span class="ac-eclat-label">Éclats gagnés</span>
+                <span class="ac-eclat-label">{{ L.xpName }} gagnés</span>
             </div>
 
             <!-- Level up banner -->
             <div v-if="levelUp" class="ac-level-banner">
-                ✧ Niveau {{ newLevel }} atteint ! ✧
+                {{ isCorporate ? `Niveau ${newLevel} atteint` : `✧ Niveau ${newLevel} atteint ! ✧` }}
             </div>
 
-            <h1 class="ac-title">Épreuve accomplie !</h1>
-            <p class="ac-subtitle">Ton Grimoire se révèle…</p>
+            <h1 class="ac-title">{{ isCorporate ? 'Évaluation terminée' : 'Épreuve accomplie !' }}</h1>
+            <p class="ac-subtitle">{{ isCorporate ? 'Votre synthèse se met à jour…' : 'Ton Grimoire se révèle…' }}</p>
 
             <!-- Countdown dots -->
             <div class="ac-countdown" aria-hidden="true">

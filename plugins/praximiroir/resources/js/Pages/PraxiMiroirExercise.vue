@@ -3,6 +3,9 @@ import { ref } from 'vue'
 import { Link, Head, useForm } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import MarkdownText from '@/Components/MarkdownText.vue'
+import { useParcours } from '@/composables/useParcours'
+
+const { L } = useParcours()
 
 const props = defineProps({
     exercise: { type: Object, required: true },
@@ -133,9 +136,9 @@ const moodLabels = ['😔 Difficile', '😐 Neutre', '🙂 Bien', '😊 Très bi
                             :disabled="form.processing"
                         >
                             <i v-if="submitted && !form.isDirty" class="ti ti-check" aria-hidden="true"></i>
-                            <span v-if="submitted && !form.isDirty">Accompli · +{{ eclatsPerExercise }} Éclats</span>
+                            <span v-if="submitted && !form.isDirty">Accompli · +{{ eclatsPerExercise }} {{ L.xpName }}</span>
                             <span v-else-if="submitted">Mettre à jour ma réflexion</span>
-                            <span v-else>Valider l'exercice · +{{ eclatsPerExercise }} Éclats</span>
+                            <span v-else>Valider l'exercice · +{{ eclatsPerExercise }} {{ L.xpName }}</span>
                         </button>
                     </div>
                 </form>

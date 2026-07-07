@@ -4,7 +4,7 @@ import { Link, Head } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import { useParcours } from '@/composables/useParcours'
 
-const { L, testLabel } = useParcours()
+const { L, isCorporate, testLabel } = useParcours()
 
 const props = defineProps({
     attempts: Array,
@@ -208,7 +208,7 @@ const formatDate = (iso) => {
                                         border: 1px solid rgba(166,117,32,0.25);
                                     "
                                 >
-                                    {{ a.score ?? a.score_eclat ?? a.eclat }} Éclats ✦
+                                    {{ a.score ?? a.score_eclat ?? a.eclat }} {{ L.xpName }}<template v-if="!isCorporate"> ✦</template>
                                 </span>
                             </div>
 

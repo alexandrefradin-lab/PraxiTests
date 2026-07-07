@@ -2,6 +2,9 @@
 import { computed } from 'vue'
 import { Link, Head } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
+import { useParcours } from '@/composables/useParcours'
+
+const { L } = useParcours()
 
 const props = defineProps({
     appDescription: { type: String, default: null },
@@ -145,7 +148,7 @@ const blocs = computed(() => {
                         <span v-else class="pm-tag pm-tag-locked">
                             <i class="ti ti-lock" aria-hidden="true"></i> Demain
                         </span>
-                        <span class="pm-tag pm-tag-xp">+ 20 Éclats</span>
+                        <span class="pm-tag pm-tag-xp">+ 20 {{ L.xpName }}</span>
                     </div>
                 </Link>
             </div>

@@ -7,6 +7,9 @@
 import { computed } from 'vue'
 import { Head } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
+import { useParcours } from '@/composables/useParcours'
+
+const { isCorporate } = useParcours()
 import RestitutionHeader from '@/Components/RestitutionHeader.vue'
 import ResultPanel from '@/Components/ResultPanel.vue'
 import RadarChart from '@/Components/RadarChart.vue'
@@ -95,7 +98,7 @@ const areaColor = (v) => v >= 66 ? '#4ade80' : (v >= 40 ? '#fbbf24' : '#f87171')
 
             <!-- Blason archétype -->
             <section class="pt-card ac-card-ornate ac-card-dark p-8 mb-8">
-                <p class="text-xs uppercase tracking-wide" style="color:var(--pt-gold)">✦ Ton archétype</p>
+                <p class="text-xs uppercase tracking-wide" style="color:var(--pt-gold)">{{ isCorporate ? 'Votre archétype' : '✦ Ton archétype' }}</p>
                 <div style="display:flex;gap:1.25rem;align-items:flex-start;margin-top:0.75rem">
                     <div class="ent-crest" aria-hidden="true">
                         <i class="ti" :class="archetype.icon"></i>

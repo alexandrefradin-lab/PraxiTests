@@ -4,7 +4,7 @@ import { Link, Head } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import { useParcours } from '@/composables/useParcours'
 
-const { L, testLabel } = useParcours()
+const { L, isCorporate, testLabel } = useParcours()
 
 const props = defineProps({
     treasure: {
@@ -74,9 +74,9 @@ const unlockedPct = computed(() => {
         <div class="trs-eclats mb-8">
             <i class="ti ti-diamond text-xl shrink-0" style="color:var(--color-primary);"></i>
             <p class="text-sm" style="color:var(--text-secondary); font-family:'Inter',sans-serif; margin:0;">
-                Tu détiens
-                <strong style="font-family:'Space Mono',monospace; color:var(--text-primary); font-weight:700;">{{ treasure.total }} Éclats</strong>.
-                Continue tes Épreuves pour en accumuler et débloquer la suite.
+                {{ isCorporate ? 'Vous détenez' : 'Tu détiens' }}
+                <strong style="font-family:'Space Mono',monospace; color:var(--text-primary); font-weight:700;">{{ treasure.total }} {{ L.xpName }}</strong>.
+                {{ isCorporate ? 'Poursuivez vos évaluations pour en accumuler et débloquer la suite.' : 'Continue tes Épreuves pour en accumuler et débloquer la suite.' }}
             </p>
         </div>
 
@@ -104,8 +104,10 @@ const unlockedPct = computed(() => {
             <p class="text-sm leading-relaxed" style="color:var(--text-secondary); font-family:'Inter',sans-serif; margin:0;">
                 Chaque trésor est une <strong style="color:var(--text-primary);">mini-application indépendante</strong> :
                 un parcours de pratiques guidées à raison d'<strong style="color:var(--text-primary);">une par jour</strong>.
-                Tu avances à ton rythme, tu gagnes des Éclats à chaque pratique accomplie,
-                et tu conserves l'accès au module <strong style="color:var(--text-primary);">pour toujours</strong> une fois révélé.
+                {{ isCorporate
+                    ? `Vous avancez à votre rythme, vous gagnez des ${L.xpName.toLowerCase()} à chaque pratique accomplie,`
+                    : 'Tu avances à ton rythme, tu gagnes des Éclats à chaque pratique accomplie,' }}
+                {{ isCorporate ? "et vous conservez l'accès au module" : "et tu conserves l'accès au module" }} <strong style="color:var(--text-primary);">pour toujours</strong> {{ isCorporate ? 'une fois débloqué.' : 'une fois révélé.' }}
             </p>
         </div>
 
@@ -212,14 +214,14 @@ const unlockedPct = computed(() => {
                 <div v-if="!item.unlocked" class="mt-4">
                     <div class="flex justify-between mb-1.5" style="font-family:'Space Mono',monospace; font-size:11px; color:var(--text-secondary);">
                         <span>{{ item.progress_pct }}%</span>
-                        <span>{{ item.threshold }} Éclats</span>
+                        <span>{{ item.threshold }} {{ L.xpName }}</span>
                     </div>
                     <div style="height:6px;background:rgba(140,122,94,0.2);border-radius:999px;overflow:hidden;">
                         <div :style="{ width: item.progress_pct + '%', height:'100%', background:'var(--color-primary)', borderRadius:'999px', transition:'width 0.4s ease' }"></div>
                     </div>
                     <p class="mt-2" style="font-family:'Inter',sans-serif; font-size:0.8rem; font-weight:600; color:var(--color-primary-dark);">
                         <i class="ti ti-lock"></i>
-                        Encore {{ item.remaining }} Éclats pour le révéler
+                        Encore {{ item.remaining }} {{ L.xpName }} pour le {{ isCorporate ? 'débloquer' : 'révéler' }}
                     </p>
                 </div>
 

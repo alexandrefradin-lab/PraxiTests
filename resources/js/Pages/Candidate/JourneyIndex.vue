@@ -7,6 +7,9 @@
 import { computed } from 'vue'
 import { Link, Head } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
+import { useParcours } from '@/composables/useParcours'
+
+const { L } = useParcours()
 
 const props = defineProps({
     meta:       { type: Object, default: () => ({ slug: '', title: '', subtitle: '', color: '#B87A1A' }) },
@@ -130,7 +133,7 @@ const blocks = computed(() => {
                         <span v-else class="pv-tag pv-tag-locked">
                             <i class="ti ti-lock" aria-hidden="true"></i> Débloque demain
                         </span>
-                        <span class="pv-tag pv-tag-xp">+ {{ todayPractice.eclats ?? 20 }} Éclats</span>
+                        <span class="pv-tag pv-tag-xp">+ {{ todayPractice.eclats ?? 20 }} {{ L.xpName }}</span>
                     </div>
                 </Link>
             </div>

@@ -6,6 +6,9 @@
 import { computed, ref } from 'vue'
 import { Link, Head, useForm } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
+import { useParcours } from '@/composables/useParcours'
+
+const { L } = useParcours()
 
 const props = defineProps({
     meta:              { type: Object, default: () => ({ slug: '', title: '', color: '#B87A1A' }) },
@@ -134,7 +137,7 @@ const submit = () => {
                 </div>
                 <div class="pvp-xp-pill">
                     <i class="ti ti-sparkles" aria-hidden="true"></i>
-                    + {{ eclatsPerPractice }} Éclats
+                    + {{ eclatsPerPractice }} {{ L.xpName }}
                 </div>
             </div>
 
@@ -236,7 +239,7 @@ const submit = () => {
                     <i class="ti ti-circle-check" aria-hidden="true"></i> Pratique intégrée
                 </div>
                 <p v-else class="pvp-completion-hint">
-                    Marque cette pratique comme intégrée pour gagner {{ eclatsPerPractice }} Éclats.
+                    Marque cette pratique comme intégrée pour gagner {{ eclatsPerPractice }} {{ L.xpName }}.
                 </p>
 
                 <div class="pvp-felt-row">
