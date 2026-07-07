@@ -230,11 +230,11 @@ watch(() => page.props.gamification?.level, (newLevel) => {
                 <!-- Logo -->
                 <Link :href="route('home')" style="display: flex; align-items: center; gap: 10px; text-decoration: none">
                     <svg width="34" height="34" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink: 0">
-                        <circle cx="19" cy="19" r="17.5" stroke="var(--color-primary)" stroke-width="1"/>
-                        <circle cx="19" cy="19" r="13" stroke="var(--color-primary)" stroke-width="0.5" opacity="0.5"/>
-                        <polygon points="19,6 20.4,18 19,21 17.6,18" fill="var(--color-primary)"/>
-                        <polygon points="19,32 20.4,20 19,17 17.6,20" fill="var(--color-primary)" opacity="0.35"/>
-                        <circle cx="19" cy="19" r="2" fill="var(--color-primary)"/>
+                        <circle cx="19" cy="19" r="17.5" stroke="var(--logo-ring)" stroke-width="1.2"/>
+                        <circle cx="19" cy="19" r="13" stroke="var(--logo-ring)" stroke-width="0.5" opacity="0.5"/>
+                        <polygon points="19,6 20.4,18 19,21 17.6,18" fill="var(--logo-needle)"/>
+                        <polygon points="19,32 20.4,20 19,17 17.6,20" fill="var(--logo-needle)" opacity="0.35"/>
+                        <circle cx="19" cy="19" r="2" fill="var(--logo-ring)"/>
                         <circle cx="19" cy="19" r="1" fill="var(--bg-base)"/>
                     </svg>
                     <div style="display: flex; flex-direction: column; gap: 1px">

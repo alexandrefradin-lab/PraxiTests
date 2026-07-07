@@ -1195,8 +1195,8 @@ html[data-theme="corporate"] .grim-scroll {
     background: #FFFFFF;
     border: 1px solid var(--border-light);
     border-top: 2px solid var(--color-primary);
-    box-shadow: 0 1px 2px rgba(25,23,19,0.03), 0 16px 40px -20px rgba(25,23,19,0.22);
-    --pt-gold-pale:   rgba(168,133,59,0.10);
+    box-shadow: 0 1px 2px rgba(21,34,56,0.03), 0 16px 40px -20px rgba(21,34,56,0.22);
+    --pt-gold-pale:   rgba(176,141,63,0.10);
     --pt-gold-border: var(--color-primary);
     --pt-border:      var(--border-light);
 }

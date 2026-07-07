@@ -262,7 +262,7 @@ function emblem(slug) {
     transform: translateY(-3px);
 }
 html[data-theme="corporate"] .pt-card:hover {
-    box-shadow: 0 4px 10px -4px rgba(25, 23, 19, 0.10), 0 20px 44px -20px rgba(25, 23, 19, 0.28);
+    box-shadow: 0 4px 10px -4px rgba(21, 34, 56, 0.10), 0 20px 44px -20px rgba(21, 34, 56, 0.28);
 }
 
 /* ── KPIs tableau de bord (Corporate) ── */
@@ -276,7 +276,7 @@ html[data-theme="corporate"] .pt-card:hover {
     border: 1px solid var(--border-light);
     border-radius: var(--r-lg);
     padding: 12px 14px;
-    box-shadow: 0 1px 2px rgba(25,23,19,0.03), 0 10px 24px -16px rgba(25,23,19,0.16);
+    box-shadow: 0 1px 2px rgba(21,34,56,0.03), 0 10px 24px -16px rgba(21,34,56,0.16);
 }
 .tk-kpi-label {
     font-family: var(--font-body);

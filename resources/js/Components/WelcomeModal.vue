@@ -240,18 +240,18 @@ function prev() {
                                     :style="{ border: isCorporate ? '2px solid var(--color-primary)' : '1px solid var(--border-mid)' }"
                                     :aria-pressed="isCorporate"
                                 >
-                                    <span style="display:block;background:#F8F7F4;padding:12px 10px 10px;">
-                                        <svg width="20" height="20" viewBox="0 0 30 30" aria-hidden="true"><polygon points="15,2 26,8.5 26,21.5 15,28 4,21.5 4,8.5" fill="#16140F" stroke="#A8853B" stroke-width="1"/></svg>
-                                        <span style="display:block;height:5px;width:70%;background:#16140F;border-radius:99px;margin-top:8px;"></span>
-                                        <span style="display:block;height:4px;width:50%;background:#A8853B;border-radius:99px;margin-top:5px;"></span>
-                                        <span style="display:flex;gap:4px;margin-top:9px;"><span style="flex:1;height:20px;background:#FFFFFF;border:1px solid rgba(25,23,19,0.10);border-radius:5px;"></span><span style="flex:1;height:20px;background:#FFFFFF;border:1px solid rgba(25,23,19,0.10);border-radius:5px;"></span></span>
+                                    <span style="display:block;background:#F5F7FA;padding:12px 10px 10px;">
+                                        <svg width="20" height="20" viewBox="0 0 30 30" aria-hidden="true"><polygon points="15,2 26,8.5 26,21.5 15,28 4,21.5 4,8.5" fill="#16325C" stroke="#B08D3F" stroke-width="1"/></svg>
+                                        <span style="display:block;height:5px;width:70%;background:#16325C;border-radius:99px;margin-top:8px;"></span>
+                                        <span style="display:block;height:4px;width:50%;background:#B08D3F;border-radius:99px;margin-top:5px;"></span>
+                                        <span style="display:flex;gap:4px;margin-top:9px;"><span style="flex:1;height:20px;background:#FFFFFF;border:1px solid rgba(21,34,56,0.10);border-radius:5px;"></span><span style="flex:1;height:20px;background:#FFFFFF;border:1px solid rgba(21,34,56,0.10);border-radius:5px;"></span></span>
                                     </span>
-                                    <span style="display:block;padding:9px 10px;background:#FFFFFF;border-top:1px solid rgba(25,23,19,0.10);">
+                                    <span style="display:block;padding:9px 10px;background:#FFFFFF;border-top:1px solid rgba(21,34,56,0.10);">
                                         <span style="display:flex;align-items:center;justify-content:space-between;">
-                                            <span style="font-family:'Inter',sans-serif;font-size:12.5px;font-weight:700;letter-spacing:-0.02em;color:#191713;">Corporate</span>
-                                            <i v-if="isCorporate" class="ti ti-circle-check" style="font-size:15px;color:#A8853B;" aria-hidden="true"></i>
+                                            <span style="font-family:'Inter',sans-serif;font-size:12.5px;font-weight:700;letter-spacing:-0.02em;color:#152238;">Corporate</span>
+                                            <i v-if="isCorporate" class="ti ti-circle-check" style="font-size:15px;color:#B08D3F;" aria-hidden="true"></i>
                                         </span>
-                                        <span style="display:block;font-family:'Inter',sans-serif;font-size:10px;color:#5F5A4F;margin-top:2px;line-height:1.5;">Sobre et premium — l'essentiel, sans distraction</span>
+                                        <span style="display:block;font-family:'Inter',sans-serif;font-size:10px;color:#44536B;margin-top:2px;line-height:1.5;">Sobre et premium — l'essentiel, sans distraction</span>
                                     </span>
                                 </button>
                             </div>

@@ -71,6 +71,10 @@
     --overlay-accent: #A67520;
     --overlay-text:   #F0E8D4;
 
+    /* Logo boussole : anneau + aiguille (différenciés par le thème corporate) */
+    --logo-ring:   var(--color-primary);
+    --logo-needle: var(--color-primary);
+
     /* ─── Alias legacy --pt-* (mappés sur les tokens modernes ci-dessus) ───
        Conservés car référencés par d'anciennes pages (Billing, Admin, CGU…).
        Une seule source de vérité : modifier la valeur moderne suffit. */
@@ -706,54 +710,54 @@ select.pt-input, select.ac-input {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   PARCOURS « CORPORATE » — Obsidienne claire (executive moderne)
+   PARCOURS « CORPORATE » — Banque privée (executive moderne)
    Activé via data-theme="corporate" sur <html> (colonne users.ui_theme).
    Ne redéfinit QUE les tokens + neutralise les effets « quête »
    (grain, ornements, reflets). Tout le reste suit automatiquement
    via les variables CSS. Défini HORS @layer → prime sur components.
-   Palette : ivoire chaud · encre noire · laiton froid #A8853B.
-   Typo : Inter resserrée graisses fortes — pas de serif.
+   Palette : blanc bleuté #F5F7FA · marine #16325C (structure, boutons)
+   · laiton #B08D3F (accents fins). Typo : Inter resserrée — pas de serif.
    ═══════════════════════════════════════════════════════════════ */
 
 html[data-theme="corporate"] {
-    /* Fonds — ivoire chaud, neutre galerie */
-    --bg-base:              #F8F7F4;
-    --bg-surface:           #F0EEE9;
-    --bg-elevated:          #E7E4DD;
+    /* Fonds — blanc bleuté froid */
+    --bg-base:              #F5F7FA;
+    --bg-surface:           #EBEEF3;
+    --bg-elevated:          #E0E5EC;
 
     /* Couleurs primaires */
-    --color-primary:        #A8853B;   /* laiton froid */
-    --color-primary-dark:   #8A6C2C;
-    --color-primary-light:  #C9A557;
-    --color-secondary:      #16140F;
-    --color-accent:         #16140F;   /* encre noire */
-    --color-success:        #178A4C;
-    --color-success-rgb:    23,138,76;
+    --color-primary:        #B08D3F;   /* laiton — accents fins */
+    --color-primary-dark:   #8F7130;
+    --color-primary-light:  #D4B368;
+    --color-secondary:      #16325C;
+    --color-accent:         #16325C;   /* marine — structure, boutons */
+    --color-success:        #17705A;
+    --color-success-rgb:    23,112,90;
     --color-danger:         #B3382E;
     --color-signal:         #0A6E8F;
 
     /* Texte */
-    --text-primary:         #191713;
-    --text-secondary:       #5F5A4F;
-    --text-muted:           #8D887C;
-    --text-ghost:           #BAB5AA;
+    --text-primary:         #152238;
+    --text-secondary:       #44536B;
+    --text-muted:           #74808F;
+    --text-ghost:           #A5AEBB;
 
-    /* Bordures — hairlines neutres */
-    --border-light:         rgba(25,23,19,0.09);
-    --border-mid:           rgba(25,23,19,0.16);
-    --border-strong:        rgba(25,23,19,0.32);
+    /* Bordures — hairlines froides */
+    --border-light:         rgba(21,34,56,0.09);
+    --border-mid:           rgba(21,34,56,0.17);
+    --border-strong:        rgba(21,34,56,0.34);
 
-    /* Ombres — neutres et retenues */
-    --shadow-primary:       0 2px 10px rgba(25,23,19,0.14);
-    --shadow-card:          0 1px 6px rgba(25,23,19,0.07);
-    --shadow-elevated:      0 6px 24px rgba(25,23,19,0.10);
-    --shadow-xs:            0 1px 2px rgba(25,23,19,0.05);
-    --shadow-gold:          0 2px 14px rgba(168,133,59,0.20);
+    /* Ombres — froides et retenues */
+    --shadow-primary:       0 2px 10px rgba(21,34,56,0.14);
+    --shadow-card:          0 1px 6px rgba(21,34,56,0.07);
+    --shadow-elevated:      0 6px 24px rgba(21,34,56,0.10);
+    --shadow-xs:            0 1px 2px rgba(21,34,56,0.05);
+    --shadow-gold:          0 2px 14px rgba(176,141,63,0.22);
 
     /* Glassmorphism — flou saturé façon app premium */
-    --glass-bg:             rgba(248,247,244,0.88);
+    --glass-bg:             rgba(245,247,250,0.88);
     --glass-blur:           blur(18px) saturate(1.5);
-    --glass-border:         rgba(25,23,19,0.10);
+    --glass-border:         rgba(21,34,56,0.10);
 
     /* Radius — modernes, légèrement arrondis */
     --r-sm:  4px;
@@ -764,17 +768,21 @@ html[data-theme="corporate"] {
     /* Typographie — Inter resserrée, graisses fortes (pas de serif) */
     --font-display: 'Inter', sans-serif;
 
-    /* Overlays plein écran : obsidienne + laiton */
-    --overlay-bg:     rgba(11,13,16,0.94);
-    --overlay-accent: #C9A557;
-    --overlay-text:   #F2F3F5;
+    /* Overlays plein écran : nuit marine + laiton */
+    --overlay-bg:     rgba(13,23,40,0.94);
+    --overlay-accent: #D4B368;
+    --overlay-text:   #F2F5FA;
+
+    /* Logo : anneau marine, aiguille laiton (lisible sur fond clair froid) */
+    --logo-ring:   #16325C;
+    --logo-needle: #B08D3F;
 
     /* Alias legacy hardcodés (non mappés sur les modernes) */
     --pt-white:           #FFFFFF;
-    --pt-navy-mid:        #2A2721;
-    --pt-gold-border:     rgba(168,133,59,0.35);
-    --pt-gold-pale:       rgba(168,133,59,0.10);
-    --pt-shadow-md:       0 3px 12px rgba(25,23,19,0.09);
+    --pt-navy-mid:        #234066;
+    --pt-gold-border:     rgba(176,141,63,0.40);
+    --pt-gold-pale:       rgba(176,141,63,0.10);
+    --pt-shadow-md:       0 3px 12px rgba(21,34,56,0.09);
 }
 
 /* Grain de parchemin : supprimé */
@@ -790,13 +798,13 @@ html[data-theme="corporate"] .font-display {
     font-weight: 700;
 }
 
-/* ── Boutons : aplat encre noire, sans reflet « sceau », libellés en Inter ── */
+/* ── Boutons : aplat marine, sans reflet « sceau », libellés en Inter ── */
 html[data-theme="corporate"] .ac-btn-primary,
 html[data-theme="corporate"] .pt-btn-primary {
     background: var(--color-accent);
-    color: #F5F3EE;
-    border: 1px solid #000000;
-    box-shadow: 0 1px 2px rgba(25,23,19,0.18);
+    color: #F5F7FA;
+    border: 1px solid #0D1E38;
+    box-shadow: 0 1px 2px rgba(21,34,56,0.18);
     font-family: var(--font-body);
     font-weight: 600;
     letter-spacing: 0.01em;
@@ -805,8 +813,8 @@ html[data-theme="corporate"] .ac-btn-primary::after,
 html[data-theme="corporate"] .pt-btn-primary::after { display: none; }
 html[data-theme="corporate"] .ac-btn-primary:hover:not(:disabled),
 html[data-theme="corporate"] .pt-btn-primary:hover:not(:disabled) {
-    background: #2A2721;
-    box-shadow: 0 6px 18px -6px rgba(25,23,19,0.40), 0 2px 8px -2px rgba(168,133,59,0.25);
+    background: #112743;
+    box-shadow: 0 6px 18px -6px rgba(21,34,56,0.45), 0 2px 8px -2px rgba(176,141,63,0.25);
 }
 
 /* Micro-typographie premium : labels et en-têtes de tableaux plus aérés */
@@ -825,7 +833,7 @@ html[data-theme="corporate"] .pt-card,
 html[data-theme="corporate"] .ac-card {
     background: #FFFFFF;
     border: 1px solid var(--border-light);
-    box-shadow: 0 1px 2px rgba(25,23,19,0.03), 0 16px 40px -20px rgba(25,23,19,0.22);
+    box-shadow: 0 1px 2px rgba(21,34,56,0.03), 0 16px 40px -20px rgba(21,34,56,0.22);
 }
 /* Ornements d'angle dorés : remplacés par le filet laiton supérieur —
    marqueur premium des cartes mises en avant (le shorthand background
@@ -836,44 +844,44 @@ html[data-theme="corporate"] .ac-card-ornate {
 }
 html[data-theme="corporate"] .ac-card-accent { color: #F2F5F9; }
 
-/* ── Panneau sombre « constellation » → panneau obsidienne + laiton ── */
+/* ── Panneau sombre « constellation » → panneau nuit marine + laiton ── */
 html[data-theme="corporate"] .ac-card-dark {
-    background: linear-gradient(180deg, #1A1D22 0%, #0F1114 100%) !important;
-    border: 1px solid rgba(201,165,87,0.28) !important;
-    box-shadow: 0 10px 26px rgba(0,0,0,0.35), inset 0 1px 0 rgba(201,165,87,0.14) !important;
-    color: #F2F3F5;
-    --pt-text:        #F2F3F5;
-    --pt-text-muted:  rgba(242,243,245,0.72);
-    --pt-text-light:  rgba(242,243,245,0.55);
-    --pt-text-ghost:  rgba(242,243,245,0.40);
-    --pt-navy:        #F2F3F5;
-    --pt-navy-mid:    rgba(242,243,245,0.85);
-    --pt-navy-light:  rgba(242,243,245,0.72);
+    background: linear-gradient(180deg, #1A2E4E 0%, #101F38 100%) !important;
+    border: 1px solid rgba(176,141,63,0.35) !important;
+    box-shadow: 0 10px 26px rgba(8,16,30,0.35), inset 0 1px 0 rgba(212,179,104,0.14) !important;
+    color: #F2F5FA;
+    --pt-text:        #F2F5FA;
+    --pt-text-muted:  rgba(242,245,250,0.72);
+    --pt-text-light:  rgba(242,245,250,0.55);
+    --pt-text-ghost:  rgba(242,245,250,0.40);
+    --pt-navy:        #F2F5FA;
+    --pt-navy-mid:    rgba(242,245,250,0.85);
+    --pt-navy-light:  rgba(242,245,250,0.72);
     --pt-surface:     rgba(255,255,255,0.05);
-    --pt-surface-2:   rgba(242,243,245,0.12);
-    --pt-border:      rgba(201,165,87,0.25);
-    --text-primary:   #F2F3F5;
-    --text-secondary: rgba(242,243,245,0.72);
-    --text-muted:     rgba(242,243,245,0.55);
-    --bg-elevated:    rgba(242,243,245,0.10);
-    --color-primary:  #C9A557;   /* laiton clair, lisible sur obsidienne */
+    --pt-surface-2:   rgba(242,245,250,0.12);
+    --pt-border:      rgba(212,179,104,0.25);
+    --text-primary:   #F2F5FA;
+    --text-secondary: rgba(242,245,250,0.72);
+    --text-muted:     rgba(242,245,250,0.55);
+    --bg-elevated:    rgba(242,245,250,0.10);
+    --color-primary:  #D4B368;   /* laiton clair, lisible sur nuit marine */
 }
 html[data-theme="corporate"] .ac-card-dark .border-slate-100,
 html[data-theme="corporate"] .ac-card-dark .border-slate-200,
-html[data-theme="corporate"] .ac-card-dark .border-slate-300 { border-color: rgba(201,165,87,0.25) !important; }
+html[data-theme="corporate"] .ac-card-dark .border-slate-300 { border-color: rgba(212,179,104,0.25) !important; }
 html[data-theme="corporate"] .ac-card-dark .border-amber-400,
-html[data-theme="corporate"] .ac-card-dark .border-amber-200 { border-color: rgba(201,165,87,0.5) !important; }
+html[data-theme="corporate"] .ac-card-dark .border-amber-200 { border-color: rgba(212,179,104,0.5) !important; }
 
-/* Contenus sur panneau sombre (couleurs parchemin hardcodées → tons neutres) */
-html[data-theme="corporate"] .ac-panel-title  { color: #F2F3F5; }
+/* Contenus sur panneau sombre (couleurs parchemin hardcodées → tons froids) */
+html[data-theme="corporate"] .ac-panel-title  { color: #F2F5FA; }
 html[data-theme="corporate"] .ac-panel-sub,
 html[data-theme="corporate"] .ac-dark-muted,
-html[data-theme="corporate"] .ac-dark-def     { color: rgba(242,243,245,0.60); }
+html[data-theme="corporate"] .ac-dark-def     { color: rgba(242,245,250,0.60); }
 html[data-theme="corporate"] .ac-dark-strong,
-html[data-theme="corporate"] .ac-dark-name    { color: #F2F3F5; }
-html[data-theme="corporate"] .ac-dark-track   { background: rgba(242,243,245,0.10); }
+html[data-theme="corporate"] .ac-dark-name    { color: #F2F5FA; }
+html[data-theme="corporate"] .ac-dark-track   { background: rgba(242,245,250,0.10); }
 html[data-theme="corporate"] .ac-dark-item {
-    border-color: rgba(201,165,87,0.22);
+    border-color: rgba(212,179,104,0.22);
     background: rgba(255,255,255,0.04);
 }
 
@@ -881,14 +889,14 @@ html[data-theme="corporate"] .ac-dark-item {
 html[data-theme="corporate"] .pt-badge,
 html[data-theme="corporate"] .ac-badge,
 html[data-theme="corporate"] .ac-badge-warning {
-    background: rgba(168,133,59,0.10);
+    background: rgba(176,141,63,0.10);
     color: var(--color-primary-dark);
-    border-color: rgba(168,133,59,0.28);
+    border-color: rgba(176,141,63,0.28);
 }
 html[data-theme="corporate"] .ac-emblem {
     background: var(--color-accent);
-    color: #C9A557;
-    border: 1px solid rgba(201,165,87,0.30);
+    color: #D4B368;
+    border: 1px solid rgba(212,179,104,0.30);
     box-shadow: none;
 }
 
@@ -916,7 +924,7 @@ html[data-theme="corporate"] .ac-input:focus {
 }
 html[data-theme="corporate"] .pt-input:focus,
 html[data-theme="corporate"] .ac-input:focus {
-    box-shadow: 0 0 0 3px rgba(168,133,59,0.18);
+    box-shadow: 0 0 0 3px rgba(22,50,92,0.14);
 }
 
 /* ── Cases / radios : coche blanche ── */
