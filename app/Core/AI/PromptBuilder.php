@@ -420,6 +420,55 @@ TXT;
     }
 
     /**
+     * Plan d'action « 10 étapes » pour UNE piste métier du Grimoire.
+     * Généré à la demande (bouton sur la carte de piste) puis persisté dans la
+     * voie — on ne paie l'IA qu'une fois par piste.
+     */
+    public function voieActionPlan(User $user, Collection $attempts, array $voie): array
+    {
+        $system = <<<TXT
+Tu es un consultant en orientation professionnelle senior. Tu construis des plans d'action de reconversion ou d'évolution CONCRETS, réalistes et séquencés pour le marché du travail francophone actuel.
+Tu t'appuies sur le profil de la personne (tests, statut, parcours) ET sur la piste métier visée.
+Tu connais les dispositifs français de financement de formation (CPF, AIF France Travail, Transitions Pro, FAF selon statut) et tu les cites quand c'est pertinent, adaptés au statut de la personne.
+Tu ne donnes JAMAIS de conseils médicaux ou juridiques, et tu n'inventes pas de montants précis.
+Tu réponds STRICTEMENT en JSON valide, sans texte hors-JSON, sans bloc ```.
+TXT;
+
+        if ($this->isCorporate($user)) {
+            $system .= $this->corporateDirective();
+        }
+
+        $context = $this->grimoireContext($user, $attempts);
+
+        $piste = [
+            'titre'   => $voie['titre'] ?? '',
+            'secteur' => $voie['secteur'] ?? null,
+            'modele'  => $voie['modele'] ?? null,
+            'pourquoi' => $voie['pourquoi'] ?? null,
+        ];
+
+        $user_msg = "PROFIL DU CANDIDAT :\n"
+            . json_encode($context, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
+            . "\n\nPISTE MÉTIER VISÉE :\n"
+            . json_encode($piste, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
+            . "\n\nProduis un JSON STRICT : { \"plan\": [ …EXACTEMENT 10 étapes… ] }.\n"
+            . "Chaque étape est une chaîne de 15 à 30 mots : UNE action concrète et vérifiable, "
+            . "suivie d'un horizon indicatif entre parenthèses — ex. « (semaine 1) », « (mois 1-2) », « (mois 3-6) ».\n"
+            . "Progression chronologique imposée : étapes 1-2 = valider le projet (enquêtes métier, immersion, "
+            . "réalité du marché) ; 3-5 = montée en compétence (formation ciblée + financement adapté au statut) ; "
+            . "6-8 = mise en pratique (premiers projets, réseau, visibilité) ; 9-10 = bascule "
+            . "(candidatures ou lancement selon le modèle, sécurisation financière de la transition).\n"
+            . "Personnalise selon le statut de la personne et le modèle de la piste "
+            . "(salariat / freelance / entrepreneuriat). Appuie-toi sur ses forces révélées par les tests.\n"
+            . "CONTRÔLE FINAL : le tableau \"plan\" contient EXACTEMENT 10 chaînes. Aucun texte hors-JSON.";
+
+        return [
+            ['role' => 'system', 'content' => $system],
+            ['role' => 'user',   'content' => $user_msg],
+        ];
+    }
+
+    /**
      * Grimoire — onglet « Ton métier face à l'IA ».
      *
      * Relecture dédiée : comment le métier actuel du candidat (ou, à défaut, son

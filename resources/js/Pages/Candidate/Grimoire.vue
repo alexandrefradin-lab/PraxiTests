@@ -87,13 +87,31 @@ function resetWeights() {
 }
 
 // Voies affichées : ordre IA par défaut, re-trié par préférence dès interaction.
+// Chaque voie porte _idx = sa position dans le tableau d'ORIGINE (grimoire->voies),
+// nécessaire pour cibler la bonne piste côté serveur après re-tri.
 const rankedVoies = computed(() => {
-    const list = voies.value.map((v, i) => ({ v, i }))
-    if (!customized.value || !hasAxes.value) return list.map(x => x.v)
+    const list = voies.value.map((v, i) => ({ ...v, _idx: i }))
+    if (!customized.value || !hasAxes.value) return list
     return list
-        .sort((a, b) => prefScore(b.v) - prefScore(a.v) || a.i - b.i)
-        .map(x => x.v)
+        .slice()
+        .sort((a, b) => prefScore(b) - prefScore(a) || a._idx - b._idx)
 })
+
+// ── Plan d'action « 10 étapes » par piste (génération IA à la demande) ────
+const planLoadingIdx = ref(null)
+const planErrorIdx = ref(null)
+function generatePlan(idx) {
+    if (planLoadingIdx.value !== null) return
+    planLoadingIdx.value = idx
+    planErrorIdx.value = null
+    router.post(route('grimoire.voie.plan', idx), {}, {
+        preserveScroll: true,
+        preserveState: true,
+        only: ['grimoire', 'errors'],
+        onError: () => { planErrorIdx.value = idx },
+        onFinish: () => { planLoadingIdx.value = null },
+    })
+}
 
 // ── Cartes dépliables : détail (axes + prochaine étape) au clic ──────────
 // On garde un Set d'index dépliés. Cartes compactes par défaut (scannables),
@@ -479,9 +497,8 @@ function fitClass(score) {
                                 </div>
                                 <p v-if="v.pourquoi" class="grim-voie-why">{{ v.pourquoi }}</p>
 
-                                <!-- Détail au clic : axes + prochaine étape -->
+                                <!-- Détail au clic : axes + prochaine étape + plan d'action -->
                                 <button
-                                    v-if="v.prochaine_etape || (v.axes && hasAxes)"
                                     type="button"
                                     class="grim-voie-toggle"
                                     :aria-expanded="isExpanded(i)"
@@ -505,6 +522,27 @@ function fitClass(score) {
                                         <span class="grim-voie-next-label">Prochaine étape</span>
                                         {{ v.prochaine_etape }}
                                     </p>
+
+                                    <!-- Plan d'action 10 étapes (généré à la demande, puis persistant) -->
+                                    <div v-if="Array.isArray(v.plan) && v.plan.length" class="grim-voie-plan">
+                                        <span class="grim-voie-next-label">Plan d'action — {{ v.plan.length }} étapes</span>
+                                        <ol class="grim-plan-list">
+                                            <li v-for="(step, si) in v.plan" :key="si">{{ step }}</li>
+                                        </ol>
+                                    </div>
+                                    <template v-else>
+                                        <button
+                                            type="button"
+                                            class="grim-plan-btn"
+                                            :disabled="planLoadingIdx !== null"
+                                            @click="generatePlan(v._idx)"
+                                        >
+                                            {{ planLoadingIdx === v._idx ? 'Génération du plan…' : "Générer le plan d'action (10 étapes)" }}
+                                        </button>
+                                        <p v-if="planErrorIdx === v._idx" class="grim-plan-error" role="alert">
+                                            {{ isCorporate ? "Le plan n'a pas pu être généré. Réessayez dans un instant." : "Le plan n'a pas pu être généré. Réessaie dans un instant." }}
+                                        </p>
+                                    </template>
                                 </div>
                             </article>
                         </div>
@@ -1002,6 +1040,56 @@ function fitClass(score) {
 .grim-voie-next { font-family: var(--font-body, 'Inter', sans-serif); font-size: .95rem; line-height: 1.55; color: var(--grim-ink); border-top: 1px solid rgba(166,117,32,0.25); padding-top: .75rem; }
 .grim-voie-next-label { display: block; font-family: var(--font-data, monospace); font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--grim-red); margin-bottom: .25rem; }
 
+/* ── Plan d'action 10 étapes ── */
+.grim-voie-plan {
+    border-top: 1px solid rgba(166,117,32,0.25);
+    padding-top: .75rem;
+    margin-top: .75rem;
+}
+.grim-plan-list {
+    margin: .3rem 0 0;
+    padding-left: 1.3rem;
+    list-style: decimal;
+}
+.grim-plan-list li {
+    font-family: var(--font-body, 'Inter', sans-serif);
+    font-size: .92rem;
+    line-height: 1.5;
+    color: var(--grim-ink);
+    margin: .4rem 0;
+    padding-left: .15rem;
+}
+.grim-plan-list li::marker {
+    font-family: var(--font-data, monospace);
+    font-weight: 700;
+    color: var(--grim-gold-dark);
+}
+.grim-plan-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    margin-top: .85rem;
+    font-family: var(--font-data, monospace);
+    font-size: 11px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: #FBF6EA;
+    background: linear-gradient(180deg, var(--grim-gold), var(--grim-gold-dark));
+    border: none;
+    border-radius: 8px;
+    padding: 8px 14px;
+    cursor: pointer;
+    transition: filter .15s, opacity .15s;
+}
+.grim-plan-btn:hover:not(:disabled) { filter: brightness(1.07); }
+.grim-plan-btn:disabled { opacity: .55; cursor: wait; }
+.grim-plan-error {
+    font-family: var(--font-body, 'Inter', sans-serif);
+    font-size: .85rem;
+    color: var(--grim-red);
+    margin: .5rem 0 0;
+}
+
 /* Secteur + modèle sur une ligne */
 .grim-voie-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: .65rem; }
 .grim-voie-meta .grim-voie-secteur { margin-bottom: 0; }
@@ -1244,6 +1332,13 @@ html[data-theme="corporate"] .voie-fit-mid {
     background: rgba(176,141,63,0.12);
     border-color: rgba(176,141,63,0.35);
 }
+html[data-theme="corporate"] .grim-voie-plan { border-top-color: var(--border-light); }
+html[data-theme="corporate"] .grim-plan-btn {
+    background: var(--color-accent);
+    color: #F5F7FA;
+    border-radius: 6px;
+}
+html[data-theme="corporate"] .grim-plan-list li::marker { color: var(--color-primary-dark); }
 html[data-theme="corporate"] .grim-badge { border-radius: var(--r-sm); }
 @media (max-width: 860px) {
     html[data-theme="corporate"] .grim-toc { border-bottom-color: var(--border-light); }

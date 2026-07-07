@@ -77,6 +77,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Déclaration d'une formation visée/acquise pour une piste (déblocage déclaratif PTP)
     Route::post('/grimoire/piste/{pathMatch}/declare', [GrimoireController::class, 'declarePiste'])
         ->middleware('throttle:30,1')->name('grimoire.piste.declare');
+    // Plan d'action 10 étapes d'une voie (génération IA à la demande, 1× par piste)
+    Route::post('/grimoire/voies/{index}/plan', [GrimoireController::class, 'voiePlan'])
+        ->whereNumber('index')->middleware('throttle:6,1')->name('grimoire.voie.plan');
 
     // Plans d'action IA par piste métier (Haiku, throttlé — coût IA)
     Route::get('/career-path/{careerPath:slug}/plan',  [PathPlanController::class, 'show'])->name('path-plan.show');

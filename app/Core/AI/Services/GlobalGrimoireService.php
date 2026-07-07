@@ -25,6 +25,58 @@ class GlobalGrimoireService
     ) {}
 
     /**
+     * Plan d'action « 10 étapes » pour une voie, généré à la demande (bouton
+     * sur la carte de piste) puis persisté dans grimoire->voies[$index]['plan']
+     * — l'appel IA n'est payé qu'une fois par piste.
+     *
+     * @return array<int,string>
+     */
+    public function generateVoiePlan(User $user, int $index): array
+    {
+        $grimoire = $user->profileGrimoire;
+        $voies    = $grimoire?->voies ?? [];
+
+        if (! isset($voies[$index]) || ! is_array($voies[$index])) {
+            abort(404, 'Piste introuvable.');
+        }
+
+        // Déjà généré : renvoyer tel quel (idempotent, zéro coût).
+        if (! empty($voies[$index]['plan']) && is_array($voies[$index]['plan'])) {
+            return $voies[$index]['plan'];
+        }
+
+        $attempts = $this->completedAttempts($user);
+        $messages = $this->prompts->voieActionPlan($user, $attempts, $voies[$index]);
+        $messages = PluginHooks::applyFilters('ai.grimoire.voie_plan_messages', $messages, $user, $voies[$index]);
+
+        // Même driver que les voies (structuré, économique).
+        $driver = $this->ai->forTask('global_grimoire_voies');
+        $raw    = (string) $driver->chat($messages, ['temperature' => 0.5, 'max_tokens' => 1400]);
+
+        $json = $this->parseJson($raw);
+        $plan = $json['plan'] ?? $json['etapes'] ?? $json['steps'] ?? null;
+
+        if (! is_array($plan)) {
+            throw new \RuntimeException('Réponse IA sans clé "plan" exploitable.');
+        }
+
+        // Normalisation : chaînes propres uniquement, 10 max.
+        $plan = array_slice(array_values(array_filter(array_map(
+            fn ($e) => trim((string) (is_array($e) ? ($e['etape'] ?? $e['action'] ?? '') : $e)),
+            $plan
+        ))), 0, 10);
+
+        if (count($plan) < 5) {
+            throw new \RuntimeException('Plan IA incomplet (' . count($plan) . ' étapes).');
+        }
+
+        $voies[$index]['plan'] = $plan;
+        $grimoire->update(['voies' => $voies]);
+
+        return $plan;
+    }
+
+    /**
      * (Re)génère le Grimoire global pour un utilisateur.
      * Ne fait rien s'il n'a aucun test complété avec résultat.
      */

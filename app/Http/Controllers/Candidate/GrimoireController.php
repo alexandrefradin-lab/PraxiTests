@@ -346,6 +346,28 @@ class GrimoireController extends Controller
     }
 
     /**
+     * Plan d'action « 10 étapes » d'une piste — génération IA à la demande,
+     * persistée dans la voie (un seul appel par piste). {index} = position de
+     * la voie dans le tableau d'origine (grimoire->voies), pas le rang affiché.
+     */
+    public function voiePlan(int $index, GlobalGrimoireService $service): RedirectResponse
+    {
+        $user = auth()->user();
+        abort_unless($user->profileGrimoire && $user->profileGrimoire->isReady(), 404);
+
+        try {
+            $service->generateVoiePlan($user, $index);
+        } catch (\Throwable $e) {
+            report($e);
+            return back()->withErrors([
+                'plan' => "Le plan d'action n'a pas pu être généré. Réessaie dans un instant.",
+            ]);
+        }
+
+        return back();
+    }
+
+    /**
      * Déblocage déclaratif d'une piste : la personne indique viser/avoir la
      * formation associée. Lot 1 = simple déclaration (trace), sans toucher au
      * score des tests. La validation par module interne (qui réduira réellement
