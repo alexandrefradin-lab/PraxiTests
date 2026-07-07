@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
 @import url('https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css');
 
 @tailwind base;
@@ -65,6 +65,11 @@
     --font-display: 'Space Grotesk', sans-serif;
     --font-body:    'Inter', sans-serif;
     --font-data:    'Space Mono', monospace;
+
+    /* Overlays plein écran (level-up…) : accent + texte lisibles sur fond sombre */
+    --overlay-bg:     rgba(42,30,8,0.92);
+    --overlay-accent: #A67520;
+    --overlay-text:   #F0E8D4;
 
     /* ─── Alias legacy --pt-* (mappés sur les tokens modernes ci-dessus) ───
        Conservés car référencés par d'anciennes pages (Billing, Admin, CGU…).
@@ -699,6 +704,219 @@ select.pt-input, select.ac-input {
     pointer-events: none;
     border-radius: inherit;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   PARCOURS « CORPORATE » — Obsidienne claire (executive moderne)
+   Activé via data-theme="corporate" sur <html> (colonne users.ui_theme).
+   Ne redéfinit QUE les tokens + neutralise les effets « quête »
+   (grain, ornements, reflets). Tout le reste suit automatiquement
+   via les variables CSS. Défini HORS @layer → prime sur components.
+   Palette : ivoire chaud · encre noire · laiton froid #A8853B.
+   Typo : Inter resserrée graisses fortes — pas de serif.
+   ═══════════════════════════════════════════════════════════════ */
+
+html[data-theme="corporate"] {
+    /* Fonds — ivoire chaud, neutre galerie */
+    --bg-base:              #F8F7F4;
+    --bg-surface:           #F0EEE9;
+    --bg-elevated:          #E7E4DD;
+
+    /* Couleurs primaires */
+    --color-primary:        #A8853B;   /* laiton froid */
+    --color-primary-dark:   #8A6C2C;
+    --color-primary-light:  #C9A557;
+    --color-secondary:      #16140F;
+    --color-accent:         #16140F;   /* encre noire */
+    --color-success:        #178A4C;
+    --color-success-rgb:    23,138,76;
+    --color-danger:         #B3382E;
+    --color-signal:         #0A6E8F;
+
+    /* Texte */
+    --text-primary:         #191713;
+    --text-secondary:       #5F5A4F;
+    --text-muted:           #8D887C;
+    --text-ghost:           #BAB5AA;
+
+    /* Bordures — hairlines neutres */
+    --border-light:         rgba(25,23,19,0.09);
+    --border-mid:           rgba(25,23,19,0.16);
+    --border-strong:        rgba(25,23,19,0.32);
+
+    /* Ombres — neutres et retenues */
+    --shadow-primary:       0 2px 10px rgba(25,23,19,0.14);
+    --shadow-card:          0 1px 6px rgba(25,23,19,0.07);
+    --shadow-elevated:      0 6px 24px rgba(25,23,19,0.10);
+    --shadow-xs:            0 1px 2px rgba(25,23,19,0.05);
+    --shadow-gold:          0 2px 14px rgba(168,133,59,0.20);
+
+    /* Glassmorphism */
+    --glass-bg:             rgba(248,247,244,0.92);
+    --glass-border:         rgba(25,23,19,0.10);
+
+    /* Radius — modernes, légèrement arrondis */
+    --r-sm:  4px;
+    --r:     6px;
+    --r-lg:  10px;
+    --r-xl:  14px;
+
+    /* Typographie — Inter resserrée, graisses fortes (pas de serif) */
+    --font-display: 'Inter', sans-serif;
+
+    /* Overlays plein écran : obsidienne + laiton */
+    --overlay-bg:     rgba(11,13,16,0.94);
+    --overlay-accent: #C9A557;
+    --overlay-text:   #F2F3F5;
+
+    /* Alias legacy hardcodés (non mappés sur les modernes) */
+    --pt-white:           #FFFFFF;
+    --pt-navy-mid:        #2A2721;
+    --pt-gold-border:     rgba(168,133,59,0.35);
+    --pt-gold-pale:       rgba(168,133,59,0.10);
+    --pt-shadow-md:       0 3px 12px rgba(25,23,19,0.09);
+}
+
+/* Grain de parchemin : supprimé */
+html[data-theme="corporate"] body::after { display: none; }
+
+/* Titres : Inter resserrée, graisse forte */
+html[data-theme="corporate"] h1,
+html[data-theme="corporate"] h2,
+html[data-theme="corporate"] h3,
+html[data-theme="corporate"] h4,
+html[data-theme="corporate"] .font-display {
+    letter-spacing: -0.03em;
+    font-weight: 700;
+}
+
+/* ── Boutons : aplat encre noire, sans reflet « sceau », libellés en Inter ── */
+html[data-theme="corporate"] .ac-btn-primary,
+html[data-theme="corporate"] .pt-btn-primary {
+    background: var(--color-accent);
+    color: #F5F3EE;
+    border: 1px solid #000000;
+    box-shadow: 0 1px 2px rgba(25,23,19,0.18);
+    font-family: var(--font-body);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+html[data-theme="corporate"] .ac-btn-primary::after,
+html[data-theme="corporate"] .pt-btn-primary::after { display: none; }
+html[data-theme="corporate"] .ac-btn-primary:hover:not(:disabled),
+html[data-theme="corporate"] .pt-btn-primary:hover:not(:disabled) {
+    background: #2A2721;
+    box-shadow: 0 2px 6px rgba(25,23,19,0.24);
+}
+html[data-theme="corporate"] .ac-btn-ghost,
+html[data-theme="corporate"] .ac-btn-danger,
+html[data-theme="corporate"] .pt-btn-ghost,
+html[data-theme="corporate"] .pt-btn-secondary,
+html[data-theme="corporate"] .pt-btn-danger {
+    font-family: var(--font-body);
+}
+
+/* ── Cartes : blanches, plates, hairline — sans dégradé parcheminé ── */
+html[data-theme="corporate"] .pt-card,
+html[data-theme="corporate"] .ac-card {
+    background: #FFFFFF;
+    border: 1px solid var(--border-light);
+    box-shadow: 0 1px 2px rgba(25,23,19,0.04), 0 4px 14px rgba(25,23,19,0.05);
+}
+/* Ornements d'angle dorés : supprimés (le shorthand réinitialise les 5 couches) */
+html[data-theme="corporate"] .ac-card-ornate {
+    background: #FFFFFF;
+}
+html[data-theme="corporate"] .ac-card-accent { color: #F2F5F9; }
+
+/* ── Panneau sombre « constellation » → panneau obsidienne + laiton ── */
+html[data-theme="corporate"] .ac-card-dark {
+    background: linear-gradient(180deg, #1A1D22 0%, #0F1114 100%) !important;
+    border: 1px solid rgba(201,165,87,0.28) !important;
+    box-shadow: 0 10px 26px rgba(0,0,0,0.35), inset 0 1px 0 rgba(201,165,87,0.14) !important;
+    color: #F2F3F5;
+    --pt-text:        #F2F3F5;
+    --pt-text-muted:  rgba(242,243,245,0.72);
+    --pt-text-light:  rgba(242,243,245,0.55);
+    --pt-text-ghost:  rgba(242,243,245,0.40);
+    --pt-navy:        #F2F3F5;
+    --pt-navy-mid:    rgba(242,243,245,0.85);
+    --pt-navy-light:  rgba(242,243,245,0.72);
+    --pt-surface:     rgba(255,255,255,0.05);
+    --pt-surface-2:   rgba(242,243,245,0.12);
+    --pt-border:      rgba(201,165,87,0.25);
+    --text-primary:   #F2F3F5;
+    --text-secondary: rgba(242,243,245,0.72);
+    --text-muted:     rgba(242,243,245,0.55);
+    --bg-elevated:    rgba(242,243,245,0.10);
+    --color-primary:  #C9A557;   /* laiton clair, lisible sur obsidienne */
+}
+html[data-theme="corporate"] .ac-card-dark .border-slate-100,
+html[data-theme="corporate"] .ac-card-dark .border-slate-200,
+html[data-theme="corporate"] .ac-card-dark .border-slate-300 { border-color: rgba(201,165,87,0.25) !important; }
+html[data-theme="corporate"] .ac-card-dark .border-amber-400,
+html[data-theme="corporate"] .ac-card-dark .border-amber-200 { border-color: rgba(201,165,87,0.5) !important; }
+
+/* Contenus sur panneau sombre (couleurs parchemin hardcodées → tons neutres) */
+html[data-theme="corporate"] .ac-panel-title  { color: #F2F3F5; }
+html[data-theme="corporate"] .ac-panel-sub,
+html[data-theme="corporate"] .ac-dark-muted,
+html[data-theme="corporate"] .ac-dark-def     { color: rgba(242,243,245,0.60); }
+html[data-theme="corporate"] .ac-dark-strong,
+html[data-theme="corporate"] .ac-dark-name    { color: #F2F3F5; }
+html[data-theme="corporate"] .ac-dark-track   { background: rgba(242,243,245,0.10); }
+html[data-theme="corporate"] .ac-dark-item {
+    border-color: rgba(201,165,87,0.22);
+    background: rgba(255,255,255,0.04);
+}
+
+/* ── Badges / emblème : encadrés laiton discrets ── */
+html[data-theme="corporate"] .pt-badge,
+html[data-theme="corporate"] .ac-badge,
+html[data-theme="corporate"] .ac-badge-warning {
+    background: rgba(168,133,59,0.10);
+    color: var(--color-primary-dark);
+    border-color: rgba(168,133,59,0.28);
+}
+html[data-theme="corporate"] .ac-emblem {
+    background: var(--color-accent);
+    color: #C9A557;
+    border: 1px solid rgba(201,165,87,0.30);
+    box-shadow: none;
+}
+
+/* ── Progression : trait plein bleu nuit, sans lueur dorée ── */
+html[data-theme="corporate"] .xp-bar__fill {
+    background: var(--color-primary);
+    box-shadow: none;
+}
+html[data-theme="corporate"] .xp-bar__fill.animate { animation: none; }
+html[data-theme="corporate"] .pt-progress-fill,
+html[data-theme="corporate"] .ac-progress-fill {
+    background: var(--color-primary);
+}
+
+/* ── Inputs : fond blanc franc ── */
+html[data-theme="corporate"] .pt-input,
+html[data-theme="corporate"] .ac-input {
+    background: #FFFFFF;
+}
+html[data-theme="corporate"] .pt-input:hover,
+html[data-theme="corporate"] .ac-input:hover,
+html[data-theme="corporate"] .pt-input:focus,
+html[data-theme="corporate"] .ac-input:focus {
+    background: #FFFFFF;
+}
+html[data-theme="corporate"] .pt-input:focus,
+html[data-theme="corporate"] .ac-input:focus {
+    box-shadow: 0 0 0 3px rgba(168,133,59,0.18);
+}
+
+/* ── Cases / radios : coche blanche ── */
+html[data-theme="corporate"] .ac-checkbox:checked::after { border-color: #FFFFFF; }
+html[data-theme="corporate"] .ac-radio:checked::after    { background: #FFFFFF; }
+
+/* Texture parchemin optionnelle : neutralisée */
+html[data-theme="corporate"] .ac-parchment::before { display: none; }
 
 /* ── Accessibilité globale : respect de prefers-reduced-motion (WCAG 2.3.3) ── */
 @media (prefers-reduced-motion: reduce) {

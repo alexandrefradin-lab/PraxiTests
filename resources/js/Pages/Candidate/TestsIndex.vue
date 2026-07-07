@@ -3,6 +3,9 @@ import { computed } from 'vue'
 import { Link, Head, router } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import WelcomeModal from '@/Components/WelcomeModal.vue'
+import { useParcours } from '@/composables/useParcours'
+
+const { L } = useParcours()
 
 const props = defineProps({
     tests: Array,
@@ -65,7 +68,7 @@ function emblem(slug) {
 
 <template>
     <CandidateLayout>
-        <Head title="L'Armurerie — Épreuves" />
+        <Head :title="L.titleTests" />
         <WelcomeModal />
 
         <!-- ── En-tête page ── -->
@@ -74,20 +77,19 @@ function emblem(slug) {
                 <div>
                     <h1
                         class="font-bold tracking-tight leading-none"
-                        style="font-family:'Space Grotesk',sans-serif; color:var(--text-primary); font-size:2.5rem;"
+                        style="font-family:var(--font-display); color:var(--text-primary); font-size:2.5rem;"
                     >
-                        L'Armurerie
+                        {{ L.titleTests }}
                     </h1>
-                    <p class="mt-2 text-sm" style="color:var(--text-secondary); font-family:'Inter',sans-serif;">
-                        Chaque Épreuve est une étape de ta cartographie intérieure.
-                        Passe-les dans l'ordre qui te convient — tes résultats s'accumulent dans ton Grimoire pour forger une synthèse IA et dévoiler tes voies d'avenir. À tout moment, l'Oracle (en bas à droite) est là pour répondre à tes questions et t'orienter.
+                    <p class="mt-2 text-sm" style="color:var(--text-secondary); font-family:var(--font-body);">
+                        {{ L.subtitleTests }}
                     </p>
                 </div>
                 <span
                     class="text-sm whitespace-nowrap self-start sm:self-end pb-0.5"
                     style="font-family:'Space Mono',monospace; color:var(--text-secondary);"
                 >
-                    {{ tests.length }} Épreuves disponibles
+                    {{ tests.length }} {{ L.countTests }}
                 </span>
             </div>
 

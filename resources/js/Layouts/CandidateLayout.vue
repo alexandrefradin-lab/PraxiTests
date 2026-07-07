@@ -3,6 +3,9 @@ import { Link, usePage, router } from '@inertiajs/vue3'
 import { computed, ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
 import OracleChat from '@/Components/OracleChat.vue'
 import EasterEgg from '@/Components/EasterEgg.vue'
+import { useParcours } from '@/composables/useParcours'
+
+const { isCorporate, L, setParcours } = useParcours()
 
 const mobileOpen = ref(false)
 
@@ -236,7 +239,7 @@ watch(() => page.props.gamification?.level, (newLevel) => {
                     </svg>
                     <div style="display: flex; flex-direction: column; gap: 1px">
                         <span style="font-family: var(--font-display); font-size: 16px; font-weight: 600; color: var(--text-primary); letter-spacing: -0.01em; line-height: 1">{{ branding.name }}</span>
-                        <span style="font-family: var(--font-data); font-size: 9px; font-weight: 400; color: var(--color-primary); letter-spacing: 0.14em; text-transform: uppercase; line-height: 1">Voyage intérieur</span>
+                        <span style="font-family: var(--font-data); font-size: 9px; font-weight: 400; color: var(--color-primary); letter-spacing: 0.14em; text-transform: uppercase; line-height: 1">{{ L.tagline }}</span>
                     </div>
                 </Link>
 
@@ -259,30 +262,30 @@ watch(() => page.props.gamification?.level, (newLevel) => {
                         class="cand-nav-link"
                         :class="{ 'cand-nav-link--active': isActive('/tests') }"
                         style="font-family: var(--font-display); font-size: 13px; font-weight: 500; color: var(--text-secondary); text-decoration: none; padding: 6px 13px; border-radius: var(--r); transition: color 0.15s, background 0.15s">
-                        L'Armurerie
+                        {{ L.navTests }}
                     </Link>
                     <Link :href="route('grimoire.show')"
                         class="cand-nav-link"
                         :class="{ 'cand-nav-link--active': isActive('/grimoire') }"
                         style="font-family: var(--font-display); font-size: 13px; font-weight: 500; color: var(--text-secondary); text-decoration: none; padding: 6px 13px; border-radius: var(--r); transition: color 0.15s, background 0.15s">
-                        Le Grimoire
+                        {{ L.navGrimoire }}
                     </Link>
                     <Link :href="route('history')"
                         class="cand-nav-link"
                         :class="{ 'cand-nav-link--active': isActive('/history') }"
                         style="font-family: var(--font-display); font-size: 13px; font-weight: 500; color: var(--text-secondary); text-decoration: none; padding: 6px 13px; border-radius: var(--r); transition: color 0.15s, background 0.15s">
-                        Chroniques
+                        {{ L.navHistory }}
                     </Link>
                     <Link v-if="hasTreasure" :href="route('treasure.index')"
                         class="cand-nav-link"
                         :class="{ 'cand-nav-link--active': isActive('/treasure') }"
                         style="position:relative; font-family: var(--font-display); font-size: 13px; font-weight: 500; color: var(--text-secondary); text-decoration: none; padding: 6px 13px; border-radius: var(--r); transition: color 0.15s, background 0.15s">
-                        Le Trésor
-                        <span v-if="hasNewTreasure && !isActive('/treasure')" class="tresor-dot" aria-label="Nouveau trésor débloqué"></span>
+                        {{ L.navTreasure }}
+                        <span v-if="hasNewTreasure && !isActive('/treasure')" class="tresor-dot" aria-label="Nouveau contenu débloqué"></span>
                     </Link>
 
                     <!-- Écu de rang du héros -->
-                    <div class="cand-rank" :title="`${levelName} · Niveau ${level} · ${xpTotal} éclats`">
+                    <div class="cand-rank" :title="`${levelName} · Niveau ${level} · ${xpTotal} ${L.xpName}`">
                         <div class="cand-rank-shield">
                             <svg width="32" height="32" viewBox="0 0 30 30" aria-hidden="true">
                                 <polygon points="15,2 26,8.5 26,21.5 15,28 4,21.5 4,8.5" fill="var(--color-accent)" stroke="var(--color-primary)" stroke-width="1"/>
@@ -292,7 +295,7 @@ watch(() => page.props.gamification?.level, (newLevel) => {
                         </div>
                         <div class="cand-rank-txt">
                             <span class="cand-rank-name">{{ levelName }}</span>
-                            <span class="cand-rank-sub">{{ xpTotal }} ✦</span>
+                            <span class="cand-rank-sub">{{ xpTotal }} {{ L.xpUnit }}</span>
                         </div>
                     </div>
 
@@ -355,9 +358,18 @@ watch(() => page.props.gamification?.level, (newLevel) => {
                                         </div>
                                     </Link>
                                     <div class="cand-user-menu-divider"></div>
+                                    <!-- Choix du parcours visuel -->
+                                    <div class="cand-parcours">
+                                        <div class="cand-parcours-label">Mon parcours</div>
+                                        <div class="cand-parcours-toggle" role="group" aria-label="Choix du parcours">
+                                            <button type="button" :class="{ 'cand-parcours-opt--active': !isCorporate }" class="cand-parcours-opt" @click="setParcours('medieval')">Médiéval</button>
+                                            <button type="button" :class="{ 'cand-parcours-opt--active': isCorporate }" class="cand-parcours-opt" @click="setParcours('corporate')">Corporate</button>
+                                        </div>
+                                    </div>
+                                    <div class="cand-user-menu-divider"></div>
                                     <Link :href="route('account.password.edit')" class="cand-user-menu-item cand-user-menu-item--muted" role="menuitem" @click="closeUserMenu">
                                         <i class="ti ti-key"></i>
-                                        <div>Changer mon sceau secret</div>
+                                        <div>{{ L.password }}</div>
                                     </Link>
                                     <Link :href="route('gdpr.show')" class="cand-user-menu-item cand-user-menu-item--muted" role="menuitem" @click="closeUserMenu">
                                         <i class="ti ti-shield-lock"></i>
@@ -365,7 +377,7 @@ watch(() => page.props.gamification?.level, (newLevel) => {
                                     </Link>
                                     <Link :href="route('logout')" method="post" as="button" class="cand-user-menu-item cand-user-menu-item--danger" role="menuitem" @click="closeUserMenu">
                                         <i class="ti ti-door-exit"></i>
-                                        <div>Quitter la Quête</div>
+                                        <div>{{ L.logout }}</div>
                                     </Link>
                                 </div>
                             </Transition>
@@ -380,7 +392,7 @@ watch(() => page.props.gamification?.level, (newLevel) => {
         <div v-if="user" class="xp-bar" style="position: relative">
             <div class="xp-bar__fill" :style="{ width: xpProgress + '%' }"></div>
             <Transition name="pt-xpgain">
-                <span v-if="showXpGain" class="xp-gain">+{{ xpGain }} ✦</span>
+                <span v-if="showXpGain" class="xp-gain">+{{ xpGain }} {{ L.xpUnit }}</span>
             </Transition>
         </div>
 
@@ -492,29 +504,42 @@ watch(() => page.props.gamification?.level, (newLevel) => {
                         <Link :href="route('tests.index')"
                             class="cand-drawer-link"
                             :class="{ 'cand-drawer-link--active': isActive('/tests') }">
-                            <i class="ti ti-sword"></i>
-                            <span>L'Armurerie</span>
+                            <i class="ti" :class="L.iconTests"></i>
+                            <span>{{ L.navTests }}</span>
                         </Link>
                         <Link :href="route('grimoire.show')"
                             class="cand-drawer-link"
                             :class="{ 'cand-drawer-link--active': isActive('/grimoire') }">
-                            <i class="ti ti-book-2"></i>
-                            <span>Le Grimoire</span>
+                            <i class="ti" :class="L.iconGrimoire"></i>
+                            <span>{{ L.navGrimoire }}</span>
                         </Link>
                         <Link :href="route('history')"
                             class="cand-drawer-link"
                             :class="{ 'cand-drawer-link--active': isActive('/history') }">
-                            <i class="ti ti-scroll"></i>
-                            <span>Chroniques</span>
+                            <i class="ti" :class="L.iconHistory"></i>
+                            <span>{{ L.navHistory }}</span>
                         </Link>
                         <Link v-if="hasTreasure" :href="route('treasure.index')"
                             class="cand-drawer-link"
                             :class="{ 'cand-drawer-link--active': isActive('/treasure') }"
                             style="position:relative;">
-                            <i class="ti ti-stars"></i>
-                            <span>Le Trésor</span>
-                            <span v-if="hasNewTreasure && !isActive('/treasure')" class="tresor-dot tresor-dot--drawer" aria-label="Nouveau trésor débloqué"></span>
+                            <i class="ti" :class="L.iconTreasure"></i>
+                            <span>{{ L.navTreasure }}</span>
+                            <span v-if="hasNewTreasure && !isActive('/treasure')" class="tresor-dot tresor-dot--drawer" aria-label="Nouveau contenu débloqué"></span>
                         </Link>
+                    </div>
+
+                    <div class="cand-drawer-divider"></div>
+
+                    <!-- Choix du parcours visuel -->
+                    <div class="cand-drawer-section">
+                        <div class="cand-parcours cand-parcours--drawer">
+                            <div class="cand-parcours-label">Mon parcours</div>
+                            <div class="cand-parcours-toggle" role="group" aria-label="Choix du parcours">
+                                <button type="button" :class="{ 'cand-parcours-opt--active': !isCorporate }" class="cand-parcours-opt" @click="setParcours('medieval')">Médiéval</button>
+                                <button type="button" :class="{ 'cand-parcours-opt--active': isCorporate }" class="cand-parcours-opt" @click="setParcours('corporate')">Corporate</button>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="cand-drawer-divider"></div>
@@ -543,7 +568,7 @@ watch(() => page.props.gamification?.level, (newLevel) => {
                             class="cand-drawer-link"
                             :class="{ 'cand-drawer-link--active': isActive('/account/password') }">
                             <i class="ti ti-key"></i>
-                            <span>Changer mon sceau secret</span>
+                            <span>{{ L.password }}</span>
                         </Link>
                         <Link :href="route('gdpr.show')"
                             class="cand-drawer-link"
@@ -557,7 +582,7 @@ watch(() => page.props.gamification?.level, (newLevel) => {
                     <div style="margin-top:auto;padding:1rem 1.25rem 1.5rem;">
                         <Link :href="route('logout')" method="post" as="button" class="cand-drawer-logout">
                             <i class="ti ti-door-exit"></i>
-                            <span>Quitter la Quête</span>
+                            <span>{{ L.logout }}</span>
                         </Link>
                     </div>
 
@@ -597,22 +622,22 @@ watch(() => page.props.gamification?.level, (newLevel) => {
             <Transition name="pt-achievement">
                 <div
                     v-if="showAchievement && achievementData"
-                    style="position:fixed;bottom:1.5rem;left:1.5rem;z-index:9998;background:#2A1E08;border:1px solid rgba(166,117,32,0.4);border-radius:12px;padding:12px 14px 12px 12px;display:flex;align-items:center;gap:12px;max-width:320px;pointer-events:none;"
+                    style="position:fixed;bottom:1.5rem;left:1.5rem;z-index:9998;background:var(--color-accent);border:1px solid var(--border-strong);border-radius:12px;padding:12px 14px 12px 12px;display:flex;align-items:center;gap:12px;max-width:320px;pointer-events:none;"
                 >
                     <div style="position:relative;flex-shrink:0;width:42px;height:42px;">
                         <svg width="42" height="42" viewBox="0 0 30 30" fill="none" aria-hidden="true">
-                            <polygon points="15,2 26,8.5 26,21.5 15,28 4,21.5 4,8.5" fill="#A67520"/>
-                            <polygon points="15,5 23,9.5 23,20.5 15,25 7,20.5 7,9.5" fill="none" stroke="rgba(240,232,212,0.22)" stroke-width="0.5"/>
+                            <polygon points="15,2 26,8.5 26,21.5 15,28 4,21.5 4,8.5" fill="var(--color-primary)"/>
+                            <polygon points="15,5 23,9.5 23,20.5 15,25 7,20.5 7,9.5" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="0.5"/>
                         </svg>
-                        <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:16px;color:#F0E8D4;font-weight:700;line-height:1;">✓</span>
+                        <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--bg-base);font-weight:700;line-height:1;">✓</span>
                     </div>
                     <div style="flex:1;min-width:0;">
-                        <div style="font-size:9px;font-weight:600;color:rgba(166,117,32,0.85);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:3px;font-family:var(--font-data);">Épreuve déverrouillée</div>
-                        <div style="font-size:13px;font-weight:600;color:#F0E8D4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:var(--font-display);">{{ achievementData.name }}</div>
+                        <div style="font-size:9px;font-weight:600;color:var(--color-primary-light);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:3px;font-family:var(--font-data);">{{ L.achievementKicker }}</div>
+                        <div style="font-size:13px;font-weight:600;color:var(--bg-base);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:var(--font-display);">{{ achievementData.name }}</div>
                     </div>
                     <div style="flex-shrink:0;text-align:right;">
-                        <div style="font-size:13px;font-weight:700;color:#A67520;font-family:var(--font-data);line-height:1;">+{{ achievementData.xp }}</div>
-                        <div style="font-size:8px;color:rgba(166,117,32,0.6);letter-spacing:0.1em;font-family:var(--font-data);margin-top:1px;">ÉCLATS</div>
+                        <div style="font-size:13px;font-weight:700;color:var(--color-primary-light);font-family:var(--font-data);line-height:1;">+{{ achievementData.xp }}</div>
+                        <div style="font-size:8px;color:var(--text-ghost);letter-spacing:0.1em;font-family:var(--font-data);margin-top:1px;">{{ L.xpName.toUpperCase() }}</div>
                     </div>
                 </div>
             </Transition>
@@ -623,28 +648,28 @@ watch(() => page.props.gamification?.level, (newLevel) => {
             <Transition name="pt-levelup">
                 <div
                     v-if="showLevelUp && levelUpData"
-                    style="position:fixed;inset:0;z-index:10000;background:rgba(42,30,8,0.92);display:flex;align-items:center;justify-content:center;cursor:pointer;"
+                    style="position:fixed;inset:0;z-index:10000;background:var(--overlay-bg);display:flex;align-items:center;justify-content:center;cursor:pointer;"
                     @click="showLevelUp = false"
                     role="dialog"
                     aria-label="Niveau supérieur atteint"
                 >
                     <div class="pt-lvl-content" style="text-align:center;padding:2rem;max-width:420px;">
-                        <div style="font-size:10px;font-weight:600;color:rgba(166,117,32,0.7);text-transform:uppercase;letter-spacing:0.24em;margin-bottom:0.75rem;font-family:var(--font-data);">Voyage intérieur</div>
-                        <div style="font-size:clamp(2.5rem,8vw,4.5rem);font-weight:700;color:#F0E8D4;letter-spacing:-0.04em;line-height:1;font-family:var(--font-data);margin-bottom:0.35rem;">NIVEAU {{ levelUpData.level }}</div>
-                        <div style="font-size:1.3rem;font-weight:600;color:#A67520;font-family:var(--font-display);margin-bottom:1.5rem;">{{ levelUpData.name }}</div>
+                        <div style="font-size:10px;font-weight:600;color:var(--overlay-accent);opacity:0.75;text-transform:uppercase;letter-spacing:0.24em;margin-bottom:0.75rem;font-family:var(--font-data);">{{ L.tagline }}</div>
+                        <div style="font-size:clamp(2.5rem,8vw,4.5rem);font-weight:700;color:var(--overlay-text);letter-spacing:-0.04em;line-height:1;font-family:var(--font-data);margin-bottom:0.35rem;">NIVEAU {{ levelUpData.level }}</div>
+                        <div style="font-size:1.3rem;font-weight:600;color:var(--overlay-accent);font-family:var(--font-display);margin-bottom:1.5rem;">{{ levelUpData.name }}</div>
                         <div style="position:relative;display:inline-flex;align-items:center;justify-content:center;margin-bottom:1.5rem;">
                             <svg width="72" height="72" viewBox="0 0 30 30" fill="none" aria-hidden="true">
-                                <polygon points="15,2 26,8.5 26,21.5 15,28 4,21.5 4,8.5" fill="none" stroke="#A67520" stroke-width="1.2"/>
-                                <polygon points="15,5 23,9.5 23,20.5 15,25 7,20.5 7,9.5" fill="none" stroke="#A67520" stroke-width="0.4" opacity="0.35"/>
+                                <polygon points="15,2 26,8.5 26,21.5 15,28 4,21.5 4,8.5" fill="none" stroke="var(--overlay-accent)" stroke-width="1.2"/>
+                                <polygon points="15,5 23,9.5 23,20.5 15,25 7,20.5 7,9.5" fill="none" stroke="var(--overlay-accent)" stroke-width="0.4" opacity="0.35"/>
                             </svg>
-                            <span style="position:absolute;font-size:22px;font-weight:700;color:#A67520;font-family:var(--font-data);">{{ levelUpData.level }}</span>
+                            <span style="position:absolute;font-size:22px;font-weight:700;color:var(--overlay-accent);font-family:var(--font-data);">{{ levelUpData.level }}</span>
                         </div>
                         <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;">
-                            <div style="flex:1;height:1px;background:rgba(166,117,32,0.2);"></div>
-                            <svg width="10" height="10" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 0L9.6 6.4L16 8L9.6 9.6L8 16L6.4 9.6L0 8L6.4 6.4L8 0Z" fill="#A67520" opacity="0.45"/></svg>
-                            <div style="flex:1;height:1px;background:rgba(166,117,32,0.2);"></div>
+                            <div style="flex:1;height:1px;background:var(--overlay-accent);opacity:0.2;"></div>
+                            <svg width="10" height="10" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 0L9.6 6.4L16 8L9.6 9.6L8 16L6.4 9.6L0 8L6.4 6.4L8 0Z" fill="var(--overlay-accent)" opacity="0.45"/></svg>
+                            <div style="flex:1;height:1px;background:var(--overlay-accent);opacity:0.2;"></div>
                         </div>
-                        <div style="font-size:11px;color:rgba(240,232,212,0.3);font-family:var(--font-data);letter-spacing:0.08em;">Cliquer pour continuer</div>
+                        <div style="font-size:11px;color:var(--overlay-text);opacity:0.35;font-family:var(--font-data);letter-spacing:0.08em;">Cliquer pour continuer</div>
                     </div>
                 </div>
             </Transition>
@@ -1094,6 +1119,59 @@ watch(() => page.props.gamification?.level, (newLevel) => {
 .cand-user-menu-item--danger:hover {
     background: rgba(176, 48, 32, 0.07);
     color: var(--color-danger, #B03020);
+}
+
+/* ── Sélecteur de parcours (Quête / Executive) ── */
+.cand-parcours {
+    padding: 10px 14px;
+}
+.cand-parcours--drawer {
+    padding: 4px 12px 8px;
+}
+.cand-parcours-label {
+    font-family: var(--font-data);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 7px;
+}
+.cand-parcours-toggle {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--border-mid);
+    border-radius: var(--r);
+    overflow: hidden;
+}
+.cand-parcours-opt {
+    flex: 1;
+    padding: 7px 8px;
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    touch-action: manipulation;
+}
+.cand-parcours-opt + .cand-parcours-opt {
+    border-left: 1px solid var(--border-mid);
+}
+.cand-parcours-opt:hover {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+}
+.cand-parcours-opt--active {
+    background: var(--color-primary);
+    color: var(--pt-white, #fff);
+    font-weight: 600;
+}
+.cand-parcours-opt--active:hover {
+    background: var(--color-primary-dark);
+    color: var(--pt-white, #fff);
 }
 
 /* Dropdown transition */

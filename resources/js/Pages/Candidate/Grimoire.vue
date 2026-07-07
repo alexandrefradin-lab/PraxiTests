@@ -3,6 +3,10 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { Head, Link, router } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import MarkdownText from '@/Components/MarkdownText.vue'
+import { useParcours } from '@/composables/useParcours'
+
+const { L } = useParcours()
+
 const props = defineProps({
     grimoire:      Object,
     tests:         Array,
@@ -230,19 +234,19 @@ function fitClass(score) {
 
 <template>
     <CandidateLayout>
-        <Head title="Le Grimoire" />
+        <Head :title="L.titleGrimoire" />
 
         <div class="grim-shell">
 
             <div v-if="is_empty" class="grim-empty">
                 <div class="grim-flourish">&#10087;&nbsp;&nbsp;&#10022;&nbsp;&nbsp;&#10087;</div>
-                <h1 class="grim-title">Le Grimoire</h1>
+                <h1 class="grim-title">{{ L.titleGrimoire }}</h1>
                 <div class="grim-rule"><span>&#10022;</span></div>
                 <p class="grim-empty-text">
                     Ton Grimoire se remplira au fil de tes épreuves. Passe une première épreuve
                     pour que l'oracle commence à relire ton profil.
                 </p>
-                <Link :href="route('tests.index')" class="ac-btn-primary">Entrer dans l'Armurerie</Link>
+                <Link :href="route('tests.index')" class="ac-btn-primary">{{ L.btnToTests }}</Link>
             </div>
 
             <div v-else-if="ai_pending" class="grim-pending">
@@ -279,7 +283,7 @@ function fitClass(score) {
 
                 <header class="grim-header">
                     <div class="grim-flourish">&#10087;&nbsp;&nbsp;&#10022;&nbsp;&nbsp;&#10087;</div>
-                    <h1 class="grim-title">Le Grimoire</h1>
+                    <h1 class="grim-title">{{ L.titleGrimoire }}</h1>
                     <div class="grim-rule"><span>&#10022;</span></div>
                     <p class="grim-sub">
                         Ce que révèle le croisement de

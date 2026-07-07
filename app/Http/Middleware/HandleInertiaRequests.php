@@ -18,7 +18,7 @@ class HandleInertiaRequests extends Middleware
     {
         return array_merge(parent::share($request), [
             'auth' => [
-                'user' => $request->user()?->only(['id', 'name', 'email', 'locale']),
+                'user' => $request->user()?->only(['id', 'name', 'email', 'locale', 'ui_theme']),
                 // Permet d'afficher un bandeau « confirmez votre email » côté front.
                 'email_verified' => (bool) $request->user()?->hasVerifiedEmail(),
                 // Navigation admin : masquer les entrées réservées (Tests, Plugins,

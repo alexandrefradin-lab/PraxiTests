@@ -120,6 +120,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Édition du profil (mise à jour post-onboarding)
     Route::get('/profile/edit',   [OnboardingController::class, 'edit'])->name('profile.edit');
     Route::put('/profile',        [OnboardingController::class, 'update'])->name('profile.update');
+
+    // Choix du parcours visuel (Quête / Executive)
+    Route::patch('/account/ui-theme', [\App\Http\Controllers\Account\UiThemeController::class, 'update'])->name('ui-theme.update');
 });
 
 // ─── Croyances bloquantes (relance parcours journaliers) ────────────────────

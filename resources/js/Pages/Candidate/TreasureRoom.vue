@@ -2,6 +2,9 @@
 import { computed } from 'vue'
 import { Link, Head } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
+import { useParcours } from '@/composables/useParcours'
+
+const { L } = useParcours()
 
 const props = defineProps({
     treasure: {
@@ -23,7 +26,7 @@ const unlockedPct = computed(() => {
 
 <template>
     <CandidateLayout>
-        <Head title="La Salle du Trésor" />
+        <Head :title="L.titleTreasure" />
 
         <!-- ── En-tête page ── -->
         <div class="mb-8">
@@ -31,19 +34,19 @@ const unlockedPct = computed(() => {
                 <div>
                     <h1
                         class="font-bold tracking-tight leading-none"
-                        style="font-family:'Space Grotesk',sans-serif; color:var(--text-primary); font-size:2.5rem;"
+                        style="font-family:var(--font-display); color:var(--text-primary); font-size:2.5rem;"
                     >
-                        La Salle du Trésor
+                        {{ L.titleTreasure }}
                     </h1>
-                    <p class="mt-2 text-sm" style="color:var(--text-secondary); font-family:'Inter',sans-serif;">
-                        Tes Éclats ouvrent des modules d'entraînement offerts — révélés pour toujours.
+                    <p class="mt-2 text-sm" style="color:var(--text-secondary); font-family:var(--font-body);">
+                        {{ L.subtitleTreasure }}
                     </p>
                 </div>
                 <span
                     class="text-sm whitespace-nowrap self-start sm:self-end pb-0.5"
                     style="font-family:'Space Mono',monospace; color:var(--text-secondary);"
                 >
-                    {{ treasure.unlocked_count }}/{{ treasure.total_count }} trésors révélés
+                    {{ treasure.unlocked_count }}/{{ treasure.total_count }} {{ L.countTreasure }}
                 </span>
             </div>
 
@@ -53,7 +56,7 @@ const unlockedPct = computed(() => {
                     <div :style="{ width: unlockedPct + '%', height:'100%', background:'var(--color-primary)', borderRadius:'99px', transition:'width 0.4s ease' }"></div>
                 </div>
                 <span style="font-size:0.72rem;font-weight:600;color:var(--text-secondary);flex-shrink:0;white-space:nowrap;">
-                    {{ treasure.unlocked_count }}/{{ treasure.total_count }} révélés
+                    {{ treasure.unlocked_count }}/{{ treasure.total_count }} {{ L.countTreasureShort }}
                 </span>
             </div>
 

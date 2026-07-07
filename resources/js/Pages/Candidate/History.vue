@@ -2,6 +2,9 @@
 import { computed } from 'vue'
 import { Link, Head } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
+import { useParcours } from '@/composables/useParcours'
+
+const { L } = useParcours()
 
 const props = defineProps({
     attempts: Array,
@@ -18,7 +21,7 @@ const formatDate = (iso) => {
 
 <template>
     <CandidateLayout>
-        <Head title="Chroniques du Héros" />
+        <Head :title="L.titleHistory" />
 
         <div class="max-w-3xl mx-auto">
 
@@ -35,7 +38,7 @@ const formatDate = (iso) => {
                             line-height: 1.1;
                         "
                     >
-                        Chroniques du Héros
+                        {{ L.titleHistory }}
                     </h1>
                     <p
                         class="mt-2"
@@ -45,12 +48,12 @@ const formatDate = (iso) => {
                             color: var(--text-secondary);
                         "
                     >
-                        Toutes tes expéditions — accomplies et en cours.
+                        {{ L.subtitleHistory }}
                     </p>
                 </div>
 
                 <Link :href="route('tests.index')" class="pt-btn-ghost text-sm flex-shrink-0">
-                    L'Armurerie →
+                    {{ L.navTests }} →
                 </Link>
             </div>
 
