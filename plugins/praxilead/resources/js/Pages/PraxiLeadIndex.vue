@@ -2,6 +2,10 @@
 import { computed } from 'vue'
 import { Link, Head } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
+import { useParcours } from '@/composables/useParcours'
+
+const { isCorporate, vouvoyer } = useParcours()
+const appName = isCorporate.value ? 'Management' : 'Le Cap'
 
 const props = defineProps({
     appDescription: { type: String, default: null },
@@ -49,13 +53,13 @@ const blocks = computed(() => {
 
 <template>
     <CandidateLayout>
-        <Head title="Le Cap — 60 jours de management" />
+        <Head :title="isCorporate ? 'Management — programme 60 jours' : 'Le Cap — 60 jours de management'" />
 
         <div class="pl-shell">
 
             <div class="pl-topbar">
                 <div class="pl-topbar-left">
-                    <div class="pl-app-name">Le Cap</div>
+                    <div class="pl-app-name">{{ appName }}</div>
                     <div class="pl-app-sub">Management - 60 jours</div>
                 </div>
                 <div class="pl-topbar-right">
@@ -68,7 +72,7 @@ const blocks = computed(() => {
             </div>
 
             <!-- Présentation du module (description du manifest) -->
-            <p v-if="appDescription" class="pl-app-desc">{{ appDescription }}</p>
+            <p v-if="appDescription" class="pl-app-desc">{{ vouvoyer(appDescription) }}</p>
 
             <div class="pl-prog-track">
                 <div class="pl-prog-fill" :style="{ width: donePercent + '%' }"></div>

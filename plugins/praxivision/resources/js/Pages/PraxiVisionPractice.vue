@@ -2,6 +2,9 @@
 import { computed, ref } from 'vue'
 import { Link, Head, useForm } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
+import { useParcours } from '@/composables/useParcours'
+
+const { isCorporate } = useParcours()
 
 const props = defineProps({
     practice:          { type: Object, required: true },
@@ -118,7 +121,7 @@ const submit = () => {
             <div class="pvp-topbar">
                 <Link :href="route('praxivision.index')" class="pvp-back" style="text-decoration:none;">
                     <i class="ti ti-arrow-left" aria-hidden="true"></i>
-                    L'Eveilleur
+                    {{ isCorporate ? 'Leadership' : "L'Eveilleur" }}
                 </Link>
                 <div class="pvp-topbar-center">
                     <div class="pvp-day-label">Jour {{ practice.day }} / 60</div>

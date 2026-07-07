@@ -3,6 +3,9 @@ import { ref } from 'vue'
 import { Link, Head, useForm } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import MarkdownText from '@/Components/MarkdownText.vue'
+import { useParcours } from '@/composables/useParcours'
+
+const { isCorporate } = useParcours()
 
 const props = defineProps({
     exercise:          { type: Object, required: true },
@@ -51,7 +54,7 @@ const submit = () => {
             <div class="pze-topbar">
                 <Link :href="route('praxizenith.index')" class="pze-back" style="text-decoration:none;">
                     <i class="ti ti-arrow-left" aria-hidden="true"></i>
-                    Le Sanctuaire
+                    {{ isCorporate ? 'Concentration' : 'Le Sanctuaire' }}
                 </Link>
                 <div class="pze-topbar-center">
                     <div class="pze-day-label">Jour {{ exercise.day }} / 60</div>

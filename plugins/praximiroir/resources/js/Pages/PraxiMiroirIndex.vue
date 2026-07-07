@@ -4,7 +4,8 @@ import { Link, Head } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import { useParcours } from '@/composables/useParcours'
 
-const { L } = useParcours()
+const { L, isCorporate, vouvoyer } = useParcours()
+const appName = isCorporate.value ? 'Identité professionnelle' : "La Forge de l'Identité"
 
 const props = defineProps({
     appDescription: { type: String, default: null },
@@ -76,13 +77,13 @@ const blocs = computed(() => {
 
 <template>
     <CandidateLayout>
-        <Head title="La Forge de l'Identité — 30 jours" />
+        <Head :title="isCorporate ? 'Identité professionnelle — programme 30 jours' : 'La Forge de l\'Identité — 30 jours'" />
 
         <div class="pm-shell">
 
             <div class="pm-topbar">
                 <div class="pm-topbar-left">
-                    <div class="pm-app-name">La Forge de l'Identité</div>
+                    <div class="pm-app-name">{{ appName }}</div>
                     <div class="pm-app-sub">Introspection · 30 jours</div>
                 </div>
                 <div class="pm-topbar-right">
@@ -95,7 +96,7 @@ const blocs = computed(() => {
             </div>
 
             <!-- Présentation du module (description du manifest) -->
-            <p v-if="appDescription" class="pm-app-desc">{{ appDescription }}</p>
+            <p v-if="appDescription" class="pm-app-desc">{{ vouvoyer(appDescription) }}</p>
 
             <div class="pm-prog-track">
                 <div class="pm-prog-fill" :style="{ width: donePercent + '%' }"></div>

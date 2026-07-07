@@ -1,6 +1,9 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { router } from '@inertiajs/vue3'
+import { useParcours } from '@/composables/useParcours'
+
+const { isCorporate } = useParcours()
 
 const props = defineProps({
     plugin: { type: String, required: true },
@@ -39,7 +42,7 @@ const apply = () => {
             <!-- Bandeau : label + série -->
             <div class="flex items-center justify-between" style="margin-bottom: 0.85rem;">
                 <span style="font-family: var(--font-display); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; color: var(--color-primary);">
-                    ✦ Tip du jour
+                    {{ isCorporate ? 'Conseil du jour' : '✦ Tip du jour' }}
                 </span>
                 <span
                     v-if="streak > 0"

@@ -3,6 +3,9 @@ import { ref } from 'vue'
 import { Link, Head, useForm } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import MarkdownText from '@/Components/MarkdownText.vue'
+import { useParcours } from '@/composables/useParcours'
+
+const { isCorporate } = useParcours()
 
 const props = defineProps({
     practice:          { type: Object, required: true },
@@ -51,7 +54,7 @@ const submit = () => {
             <div class="plp-topbar">
                 <Link :href="route('praxilead.index')" class="plp-back" style="text-decoration:none;">
                     <i class="ti ti-arrow-left" aria-hidden="true"></i>
-                    Le Cap
+                    {{ isCorporate ? 'Management' : 'Le Cap' }}
                 </Link>
                 <div class="plp-topbar-center">
                     <div class="plp-day-label">Jour {{ practice.day }} / 60</div>

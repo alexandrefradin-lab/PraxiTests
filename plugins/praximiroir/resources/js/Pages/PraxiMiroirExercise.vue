@@ -5,7 +5,7 @@ import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import MarkdownText from '@/Components/MarkdownText.vue'
 import { useParcours } from '@/composables/useParcours'
 
-const { L } = useParcours()
+const { L, isCorporate } = useParcours()
 
 const props = defineProps({
     exercise: { type: Object, required: true },
@@ -74,7 +74,7 @@ const moodLabels = ['😔 Difficile', '😐 Neutre', '🙂 Bien', '😊 Très bi
             <div class="pme-breadcrumb">
                 <Link :href="route('praximiroir.index')" class="pme-back">
                     <i class="ti ti-arrow-left" aria-hidden="true"></i>
-                    La Forge
+                    {{ isCorporate ? 'Identité professionnelle' : 'La Forge' }}
                 </Link>
                 <span class="pme-breadcrumb-sep">/</span>
                 <span class="pme-breadcrumb-bloc">{{ exercise.bloc }}</span>

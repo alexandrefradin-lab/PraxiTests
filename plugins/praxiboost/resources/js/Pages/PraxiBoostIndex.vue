@@ -3,6 +3,10 @@ import { computed } from 'vue'
 import { Link, Head } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import DailyTipCard from '@/Components/DailyTipCard.vue'
+import { useParcours } from '@/composables/useParcours'
+
+const { L, testLabel, vouvoyer } = useParcours()
+const appName = testLabel({ slug: 'praxiboost', name: "L'Etincelle" })
 
 const props = defineProps({
     appDescription: { type: String, default: null },
@@ -31,26 +35,26 @@ const nextPercent = computed(() => {
 
 <template>
     <CandidateLayout>
-        <Head title="L'Etincelle" />
+        <Head :title="appName" />
 
         <div class="pb-shell">
 
             <div class="pb-topbar">
                 <div class="pb-topbar-left">
-                    <div class="pb-app-name">L'Etincelle</div>
+                    <div class="pb-app-name">{{ appName }}</div>
                     <div class="pb-app-sub">Exercices de developpement</div>
                 </div>
                 <div class="pb-topbar-right">
                     <div class="pb-eclats-pill">
                         <i class="ti ti-diamond" aria-hidden="true"></i>
-                        {{ totalEclats }} Eclats
+                        {{ totalEclats }} {{ L.xpName }}
                     </div>
                     <div class="pb-count-pill">{{ unlockedCount }}/{{ exercises.length }}</div>
                 </div>
             </div>
 
             <!-- Présentation du module (description du manifest) -->
-            <p v-if="appDescription" class="pb-app-desc">{{ appDescription }}</p>
+            <p v-if="appDescription" class="pb-app-desc">{{ vouvoyer(appDescription) }}</p>
 
             <!-- Tip du jour -->
             <DailyTipCard plugin="praxiboost" :tip="dailyTip" :engagement="tipEngagement" />
@@ -68,7 +72,7 @@ const nextPercent = computed(() => {
                 </div>
                 <div class="pb-next-tier-hint">
                     <i class="ti ti-diamond" aria-hidden="true"></i>
-                    Encore <strong>{{ nextLocked.remaining }} Eclats</strong> pour debloquer cet exercice
+                    Encore <strong>{{ nextLocked.remaining }} {{ L.xpName }}</strong> pour debloquer cet exercice
                 </div>
             </div>
 
@@ -99,7 +103,7 @@ const nextPercent = computed(() => {
                         <div class="pb-item-desc">{{ ex.summary }}</div>
                         <div v-if="!ex.unlocked" class="pb-item-lock-hint">
                             <i class="ti ti-lock" aria-hidden="true"></i>
-                            Se debloque a {{ ex.threshold_eclats }} Eclats — encore {{ ex.remaining }}
+                            Se debloque a {{ ex.threshold_eclats }} {{ L.xpName }} — encore {{ ex.remaining }}
                         </div>
                     </div>
                     <i v-if="ex.unlocked" class="ti ti-chevron-right pb-item-arrow" aria-hidden="true"></i>
