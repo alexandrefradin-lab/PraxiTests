@@ -5,7 +5,7 @@ import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import WelcomeModal from '@/Components/WelcomeModal.vue'
 import { useParcours } from '@/composables/useParcours'
 
-const { L, isCorporate, testLabel } = useParcours()
+const { L, isCorporate, testLabel, vouvoyer } = useParcours()
 
 const props = defineProps({
     tests: Array,
@@ -213,7 +213,7 @@ function emblem(slug) {
                     class="text-[13px] leading-relaxed flex-1 overflow-hidden"
                     style="font-family:'Inter',sans-serif; color:var(--text-secondary); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;"
                 >
-                    {{ test.description }}
+                    {{ vouvoyer(test.description) }}
                 </p>
 
                 <!-- Footer -->

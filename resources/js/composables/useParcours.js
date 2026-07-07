@@ -216,5 +216,21 @@ export function useParcours() {
         return name
     }
 
-    return { theme, isCorporate, L, setParcours, testLabel }
+    // Vouvoie un texte catalogue écrit au tutoiement (descriptions de tests
+    // stockées en base). Transformation lexicale limitée aux possessifs et
+    // pronoms — suffisante pour des textes descriptifs ; le contenu généré
+    // par IA est traité à la source, dans les prompts (PromptBuilder).
+    function vouvoyer(text) {
+        if (!isCorporate.value || !text) return text
+        return text
+            .replace(/\bTes\b/g, 'Vos').replace(/\btes\b/g, 'vos')
+            .replace(/\bTon\b/g, 'Votre').replace(/\bton\b/g, 'votre')
+            .replace(/\bTa\b/g, 'Votre').replace(/\bta\b/g, 'votre')
+            .replace(/\bT'/g, 'Vous ').replace(/\bt'/g, 'vous ')
+            .replace(/\bTe\b/g, 'Vous').replace(/\bte\b/g, 'vous')
+            .replace(/\bTu\b/g, 'Vous').replace(/\btu\b/g, 'vous')
+            .replace(/\bToi\b/g, 'Vous').replace(/\btoi\b/g, 'vous')
+    }
+
+    return { theme, isCorporate, L, setParcours, testLabel, vouvoyer }
 }

@@ -4,7 +4,7 @@ import { router, Link, Head } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import { useParcours } from '@/composables/useParcours'
 
-const { L, isCorporate, testLabel } = useParcours()
+const { L, isCorporate, testLabel, vouvoyer } = useParcours()
 
 const props = defineProps({
     test: Object,
@@ -65,7 +65,7 @@ const start = () => {
                     class="text-base leading-relaxed"
                     style="color:var(--text-secondary); font-family:'Inter',sans-serif;"
                 >
-                    {{ test.description }}
+                    {{ vouvoyer(test.description) }}
                 </p>
             </div>
 

@@ -5,7 +5,7 @@ import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import MarkdownText from '@/Components/MarkdownText.vue'
 import { useParcours } from '@/composables/useParcours'
 
-const { L, isCorporate, testLabel } = useParcours()
+const { L, isCorporate, testLabel, vouvoyer } = useParcours()
 
 const props = defineProps({
     grimoire:      Object,
@@ -355,10 +355,10 @@ function fitClass(score) {
                             <article v-for="t in tests" :key="t.attempt_id" class="grim-test-card">
                                 <div class="grim-test-main">
                                     <h3 class="grim-test-name">{{ testLabel(t) }}</h3>
-                                    <p v-if="t.mesure" class="grim-test-measures">{{ t.mesure }}</p>
+                                    <p v-if="t.mesure" class="grim-test-measures">{{ vouvoyer(t.mesure) }}</p>
                                     <p v-if="t.detail_preview" class="grim-test-preview">
                                         <span class="grim-test-preview-label">Dans le détail</span>
-                                        {{ t.detail_preview }}
+                                        {{ vouvoyer(t.detail_preview) }}
                                     </p>
                                 </div>
                                 <div class="grim-test-actions">
@@ -1203,6 +1203,46 @@ html[data-theme="corporate"] .grim-scroll {
 html[data-theme="corporate"] .grim-chip {
     background: #FFFFFF;
     box-shadow: none;
+}
+/* Cartes évaluations, tuner et pistes : blanc hairline + filet laiton */
+html[data-theme="corporate"] .grim-test-card,
+html[data-theme="corporate"] .grim-tuner,
+html[data-theme="corporate"] .grim-voie-card {
+    background: #FFFFFF;
+    border-color: var(--border-light);
+    box-shadow: 0 1px 2px rgba(21,34,56,0.03), 0 10px 26px -16px rgba(21,34,56,0.18);
+}
+html[data-theme="corporate"] .grim-tuner,
+html[data-theme="corporate"] .grim-voie-card {
+    border-top: 2px solid var(--color-primary);
+}
+html[data-theme="corporate"] .grim-test-card {
+    border-left: 3px solid var(--color-primary);
+}
+html[data-theme="corporate"] .grim-voie-rank {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-mid);
+    color: var(--color-accent);
+}
+html[data-theme="corporate"] .grim-test-pdf {
+    background: var(--color-accent);
+    color: #F5F7FA;
+}
+html[data-theme="corporate"] .grim-test-link {
+    border-color: var(--border-strong);
+    color: var(--text-secondary);
+}
+html[data-theme="corporate"] .grim-test-preview-label,
+html[data-theme="corporate"] .grim-voie-next-label {
+    color: var(--color-primary-dark);
+}
+html[data-theme="corporate"] .grim-voie-next { border-top-color: var(--border-light); }
+html[data-theme="corporate"] .grim-voie-modele {
+    background: rgba(176,141,63,0.10);
+}
+html[data-theme="corporate"] .voie-fit-mid {
+    background: rgba(176,141,63,0.12);
+    border-color: rgba(176,141,63,0.35);
 }
 html[data-theme="corporate"] .grim-badge { border-radius: var(--r-sm); }
 @media (max-width: 860px) {
