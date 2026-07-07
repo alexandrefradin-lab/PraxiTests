@@ -28,6 +28,49 @@ class PromptBuilder
      * @param  Collection<int,TestAttempt>  $attempts  tentatives complétées (test + result)
      * @param  array<int,array{role:string,content:string}>  $history  tours précédents
      */
+    /**
+     * Intitulés professionnels des tests, utilisés par la directive « corporate »
+     * injectée dans les prompts de génération (synthèses, Grimoire, Oracle).
+     * Pendant au front : CORPORATE_TEST_NAMES dans resources/js/composables/useParcours.js.
+     */
+    private const CORPORATE_TEST_LABELS = [
+        'La Quête de la Voie'          => 'Intérêts professionnels (RIASEC)',
+        'La Grande Cartographie'       => 'Personnalité (Big Five)',
+        'La Boussole des Émotions'     => 'Intelligence émotionnelle (EQ-i)',
+        'La Sentinelle Intérieure'     => 'Bien-être et risques psychosociaux',
+        'La Source des Valeurs'        => 'Valeurs professionnelles (Schwartz)',
+        'Le Cartographe Mental'        => 'Biais cognitifs professionnels',
+        'La Boussole de l\'Attention'  => 'Attention et concentration (repères TDAH)',
+        'Le Radar des Sens'            => 'Sensibilité sensorielle',
+        'Maître du Temps'              => 'Gestion du temps',
+        'La Constellation des Talents' => 'Feedback 360°',
+        'L\'Étoffe du Bâtisseur'       => 'Compétences entrepreneuriales (EntreComp)',
+    ];
+
+    private function isCorporate(User $user): bool
+    {
+        return ($user->ui_theme ?? 'medieval') === 'corporate';
+    }
+
+    /**
+     * Directive de registre pour le parcours corporate — à APPENDRE au message
+     * système des prompts de génération. Prioritaire sur toute consigne de
+     * tutoiement ou d'exemple utilisant les noms « fantaisie » des tests.
+     */
+    private function corporateDirective(): string
+    {
+        $mapping = collect(self::CORPORATE_TEST_LABELS)
+            ->map(fn ($pro, $fantasy) => "« {$fantasy} » → « {$pro} »")
+            ->implode(' ; ');
+
+        return "\n\nPARCOURS CORPORATE (directive PRIORITAIRE sur toute consigne de style ci-dessus) : "
+            . "cette personne utilise l'interface professionnelle de PraxiQuest. VOUVOIE-la systématiquement, "
+            . "ton posé et professionnel. N'emploie JAMAIS les noms « fantaisie » des tests — utilise leurs "
+            . "intitulés professionnels : {$mapping}. "
+            . "N'emploie pas non plus le vocabulaire de jeu (« Quête », « Épreuves », « Grimoire », « Éclats », "
+            . "« Oracle », « Héros ») : parle d'évaluations, de dossier de synthèse et de points.";
+    }
+
     public function oracleChat(User $user, Collection $attempts, ?ProfileGrimoire $grimoire, array $history, string $message, bool $nightMode = false): array
     {
         $persona = <<<TXT
@@ -82,16 +125,11 @@ Garde-fous : tu ne donnes JAMAIS de conseils médicaux ou juridiques. Tu n'inven
 Mise en forme : utilise du Markdown léger — **gras** pour un terme clé ou un nom de métier, listes numérotées (1. …) pour énumérer des suggestions. Pas de titres #, pas de tableaux, pas de blocs ```.
 TXT;
 
-        // Parcours « corporate » : la personne a choisi l'interface professionnelle.
-        // On adapte le registre (vouvoiement, ton executive) et le vocabulaire —
-        // prioritaire sur la consigne de tutoiement du persona ci-dessus.
-        if (($user->ui_theme ?? 'medieval') === 'corporate') {
-            $persona .= "\n\nADAPTATION PARCOURS CORPORATE (PRIORITAIRE sur le style ci-dessus) : "
-                . "cette personne utilise l'interface professionnelle de PraxiQuest. "
-                . "VOUVOIE-la systématiquement. Ton posé et précis, executive : pas de familiarité, "
-                . "pas de taquinerie. N'emploie jamais le vocabulaire de jeu : ne parle pas de « Quête », "
-                . "« Épreuves », « Grimoire », « Éclats », « titre de Héros » ni d'« Oracle » — dis "
-                . "« évaluations », « dossier de synthèse », « points », et désigne-toi comme son conseiller. "
+        // Parcours « corporate » : registre executive + intitulés professionnels
+        // des tests — prioritaire sur la consigne de tutoiement du persona.
+        if ($this->isCorporate($user)) {
+            $persona .= $this->corporateDirective()
+                . " Désigne-toi comme son conseiller — pas de taquinerie. "
                 . "Tout le reste (concision, franchise, expertise, Markdown léger, garde-fous) reste identique.";
         }
 
@@ -156,6 +194,10 @@ Style : chaleureux, professionnel, français, sans jargon, sans flatterie creuse
 Tu ne donnes JAMAIS de conseils médicaux, juridiques ou financiers. Tu n'inventes pas de scores qu'on ne t'a pas donnés.
 Tu réponds STRICTEMENT en JSON valide, sans texte hors-JSON, sans bloc ```.
 TXT;
+
+        if ($this->isCorporate($user)) {
+            $system .= $this->corporateDirective();
+        }
 
         // Une entrée par test : labels qualitatifs (jamais de chiffres bruts) + synthèse du test
         // Eager-load manquants pour éviter N+1 (ARC-M6).
@@ -275,6 +317,19 @@ Tu ne donnes JAMAIS de conseils médicaux, juridiques ou financiers. Tu n'invent
 Tu réponds STRICTEMENT en JSON valide, sans texte hors-JSON, sans bloc ```.
 TXT;
 
+        $corporate = $this->isCorporate($user);
+        if ($corporate) {
+            $system .= $this->corporateDirective();
+        }
+
+        // Exemples de nommage des tests adaptés au parcours (les exemples doivent
+        // être cohérents avec la directive corporate, sinon le modèle hésite).
+        $namingExamples = $corporate
+            ? "— ex. « Sensibilité sensorielle (hypersensibilité) », « Intelligence émotionnelle (EQ-i) », "
+              . "« Personnalité (Big Five) »"
+            : "— ex. « le Radar des Sens (hypersensibilité) », « la Boussole des Émotions "
+              . "(intelligence émotionnelle) », « la Grande Cartographie (personnalité Big Five) »";
+
         $context = $this->grimoireContext($user, $attempts);
 
         $user_msg = "Voici l'ensemble des tests passés par le candidat :\n\n"
@@ -289,8 +344,7 @@ TXT;
             . "— appuie-toi sur les labels qualitatifs. COMMENCE le premier paragraphe par la contradiction "
             . "ou la tension centrale, PAS par les forces ou les atouts.\n"
             . "QUAND TU NOMMES UN TEST, ajoute juste après, entre parenthèses, en quelques mots, ce qu'il "
-            . "mesure — ex. « le Radar des Sens (hypersensibilité) », « la Boussole des Émotions "
-            . "(intelligence émotionnelle) », « la Grande Cartographie (personnalité Big Five) ». "
+            . "mesure {$namingExamples}. "
             . "Déduis-le du nom et du type du test fournis dans le contexte.\n\n"
             . "Exemple EXACT du format attendu (garde les \\n\\n entre les paragraphes) :\n"
             . "{ \"synthese\": \"[Tension centrale — la contradiction qui ressort des tests croisés]...\\n\\n"
@@ -324,6 +378,10 @@ Tu varies les secteurs et les modèles (salariat / entrepreneuriat / freelance) 
 Tu ne donnes JAMAIS de conseils médicaux, juridiques ou financiers. Tu n'inventes pas de scores qu'on ne t'a pas donnés.
 Tu réponds STRICTEMENT en JSON valide, sans texte hors-JSON, sans bloc ```.
 TXT;
+
+        if ($this->isCorporate($user)) {
+            $system .= $this->corporateDirective();
+        }
 
         $context = $this->grimoireContext($user, $attempts);
 
@@ -382,6 +440,10 @@ Tu ne donnes JAMAIS de conseils médicaux, juridiques ou financiers, et tu n'aff
 Tu réponds en MARKDOWN (titres ##, listes à puces, gras), sans bloc ``` ni texte d'introduction hors-sujet.
 TXT;
 
+        if ($this->isCorporate($user)) {
+            $system .= $this->corporateDirective();
+        }
+
         $context = $this->grimoireContext($user, $attempts);
 
         $user_msg = "Voici le profil de la personne et l'ensemble de ses tests :\n\n"
@@ -426,6 +488,11 @@ Style : chaleureux, professionnel, sans jargon, sans flatterie creuse. Phrases c
 Tu ne donnes JAMAIS de conseils médicaux, juridiques ou financiers.
 Tu n'inventes pas de scores qu'on ne t'a pas donnés.
 TXT;
+
+        // La synthèse par test est aussi affichée dans l'interface : même registre.
+        if ($attempt->user && $this->isCorporate($attempt->user)) {
+            $system .= $this->corporateDirective();
+        }
 
         $context = [
             'test' => [

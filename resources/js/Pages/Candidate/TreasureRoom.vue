@@ -102,7 +102,7 @@ const unlockedPct = computed(() => {
         <div class="trs-explainer mb-8">
             <i class="ti ti-info-circle text-lg shrink-0" style="color:var(--text-muted); margin-top:1px;"></i>
             <p class="text-sm leading-relaxed" style="color:var(--text-secondary); font-family:'Inter',sans-serif; margin:0;">
-                Chaque trésor est une <strong style="color:var(--text-primary);">mini-application indépendante</strong> :
+                {{ isCorporate ? 'Chaque module est une' : 'Chaque trésor est une' }} <strong style="color:var(--text-primary);">mini-application indépendante</strong> :
                 un parcours de pratiques guidées à raison d'<strong style="color:var(--text-primary);">une par jour</strong>.
                 {{ isCorporate
                     ? `Vous avancez à votre rythme, vous gagnez des ${L.xpName.toLowerCase()} à chaque pratique accomplie,`
