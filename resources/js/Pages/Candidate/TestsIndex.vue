@@ -1,11 +1,11 @@
 <script setup>
 import { computed } from 'vue'
-import { Link, Head, router } from '@inertiajs/vue3'
+import { Link, Head, router, usePage } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import WelcomeModal from '@/Components/WelcomeModal.vue'
 import { useParcours } from '@/composables/useParcours'
 
-const { L } = useParcours()
+const { L, isCorporate } = useParcours()
 
 const props = defineProps({
     tests: Array,
@@ -13,6 +13,13 @@ const props = defineProps({
 })
 
 const completedCount = computed(() => props.tests.filter(t => t.completed_at || t.completed).length)
+
+// ── KPIs du tableau de bord (parcours Corporate uniquement) ──
+const page = usePage()
+const progressPct = computed(() => props.tests.length ? Math.round(completedCount.value / props.tests.length * 100) : 0)
+const kpiXpTotal  = computed(() => page.props.gamification?.xp_total ?? 0)
+const kpiLevel    = computed(() => page.props.gamification?.level ?? 1)
+const kpiLevelName = computed(() => page.props.gamification?.level_name ?? `Niveau ${kpiLevel.value}`)
 
 function goToTest(test) {
     if (props.profile_complete) router.visit(route('tests.show', test.slug))
@@ -93,18 +100,40 @@ function emblem(slug) {
                 </span>
             </div>
 
-            <!-- Barre de progression globale -->
-            <div v-if="tests.length > 0" class="mt-3" style="display:flex;align-items:center;gap:0.75rem;">
+            <!-- KPIs tableau de bord (parcours Corporate) -->
+            <div v-if="isCorporate && tests.length > 0" class="mt-4 tk-kpis">
+                <div class="tk-kpi">
+                    <div class="tk-kpi-label">Progression</div>
+                    <div class="tk-kpi-value">{{ progressPct }}<span class="tk-kpi-unit">%</span></div>
+                    <div class="tk-kpi-track"><div :style="{ width: progressPct + '%' }"></div></div>
+                </div>
+                <div class="tk-kpi">
+                    <div class="tk-kpi-label">Évaluations terminées</div>
+                    <div class="tk-kpi-value">{{ completedCount }}<span class="tk-kpi-unit">/{{ tests.length }}</span></div>
+                </div>
+                <div class="tk-kpi">
+                    <div class="tk-kpi-label">Points acquis</div>
+                    <div class="tk-kpi-value">{{ kpiXpTotal }}</div>
+                </div>
+                <div class="tk-kpi">
+                    <div class="tk-kpi-label">Niveau</div>
+                    <div class="tk-kpi-value">{{ kpiLevel }}</div>
+                    <div class="tk-kpi-sub">{{ kpiLevelName }}</div>
+                </div>
+            </div>
+
+            <!-- Barre de progression globale (parcours Médiéval) -->
+            <div v-if="!isCorporate && tests.length > 0" class="mt-3" style="display:flex;align-items:center;gap:0.75rem;">
                 <div style="flex:1;height:5px;border-radius:99px;background:var(--bg-elevated);overflow:hidden;">
-                    <div :style="{ width: Math.round(completedCount / tests.length * 100) + '%', height:'100%', background:'var(--color-primary)', borderRadius:'99px', transition:'width 0.4s ease' }"></div>
+                    <div :style="{ width: progressPct + '%', height:'100%', background:'var(--color-primary)', borderRadius:'99px', transition:'width 0.4s ease' }"></div>
                 </div>
                 <span style="font-size:0.72rem;font-weight:600;color:var(--text-secondary);flex-shrink:0;white-space:nowrap;">
                     {{ completedCount }}/{{ tests.length }} accomplies
                 </span>
             </div>
 
-            <!-- Ligne décorative or -->
-            <div class="flex items-center gap-3 mt-5">
+            <!-- Ligne décorative or (parcours Médiéval) -->
+            <div v-if="!isCorporate" class="flex items-center gap-3 mt-5">
                 <div class="h-px flex-1" style="background:linear-gradient(to right, var(--color-primary), transparent);"></div>
                 <svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M8 0L9.6 6.4L16 8L9.6 9.6L8 16L6.4 9.6L0 8L6.4 6.4L8 0Z" fill="var(--color-primary)" opacity="0.5"/>
@@ -121,11 +150,11 @@ function emblem(slug) {
         >
             <i class="ti ti-alert-triangle text-xl mt-0.5 shrink-0" style="color:var(--color-primary);"></i>
             <div>
-                <p class="text-sm font-semibold mb-1" style="color:var(--text-primary); font-family:'Space Grotesk',sans-serif;">
-                    Ton Identité n'est pas encore forgée.
+                <p class="text-sm font-semibold mb-1" style="color:var(--text-primary); font-family:var(--font-display);">
+                    {{ isCorporate ? 'Votre profil est incomplet.' : "Ton Identité n'est pas encore forgée." }}
                 </p>
                 <p class="text-sm" style="color:var(--text-secondary); font-family:'Inter',sans-serif;">
-                    Complete ton profil pour débloquer les Épreuves.
+                    {{ isCorporate ? 'Complétez votre profil pour accéder aux évaluations.' : 'Complete ton profil pour débloquer les Épreuves.' }}
                 </p>
                 <Link
                     :href="route('onboarding.show')"
@@ -140,27 +169,32 @@ function emblem(slug) {
         <!-- ── Grille des tests ── -->
         <div v-if="tests.length > 0" class="grid md:grid-cols-2 gap-4">
             <div
-                v-for="test in tests"
+                v-for="(test, idx) in tests"
                 :key="test.id"
                 class="pt-card ac-card-ornate p-6 flex flex-col transition-all duration-200 group"
                 :style="{ cursor: profile_complete ? 'pointer' : 'default' }"
                 @click="goToTest(test)"
             >
-                <!-- Badge type + emblème médiéval + complété -->
+                <!-- Badge type + emblème + complété (numéro en mode Corporate) -->
                 <div class="flex items-start justify-between mb-3 gap-3">
                     <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+                        <span
+                            v-if="isCorporate"
+                            class="mt-1"
+                            style="font-family:'Space Mono',monospace;font-size:10px;font-weight:700;color:var(--color-primary);letter-spacing:0.08em;"
+                        >{{ String(idx + 1).padStart(2, '0') }}</span>
                         <span
                             class="inline-block px-2 py-0.5 rounded text-[10px] uppercase tracking-widest mt-1"
                             style="font-family:'Space Mono',monospace; color:var(--text-secondary); background:var(--bg-elevated);"
                         >
-                            {{ test.type ?? 'Épreuve' }}
+                            {{ test.type ?? L.typeFallback }}
                         </span>
                         <span
                             v-if="test.completed_at || test.completed"
                             class="mt-1"
-                            style="font-size:10px;font-weight:700;color:#10B981;background:#D1FAE5;border-radius:20px;padding:2px 8px;display:inline-flex;align-items:center;gap:3px;"
+                            style="font-size:10px;font-weight:700;border-radius:20px;padding:2px 8px;display:inline-flex;align-items:center;gap:3px;color:var(--color-success);background:rgba(var(--color-success-rgb),0.12);"
                         >
-                            ✓ Accomplie
+                            ✓ {{ L.badgeDone }}
                         </span>
                     </div>
                     <span class="pt-emblem" v-html="emblem(test.slug)"></span>
@@ -169,7 +203,7 @@ function emblem(slug) {
                 <!-- Titre -->
                 <h3
                     class="font-bold mb-2 leading-snug"
-                    style="font-family:'Space Grotesk',sans-serif; font-size:16px; color:var(--text-primary);"
+                    style="font-family:var(--font-display); font-size:16px; color:var(--text-primary);"
                 >
                     {{ test.name }}
                 </h3>
@@ -195,7 +229,7 @@ function emblem(slug) {
                         :class="{ 'opacity-40': !profile_complete }"
                         style="pointer-events:none;"
                     >
-                        Entrer dans l'Épreuve →
+                        {{ L.ctaTest }}
                     </span>
                 </div>
             </div>
@@ -203,15 +237,15 @@ function emblem(slug) {
 
         <!-- ── Liste vide ── -->
         <div v-else class="pt-card p-12 text-center">
-            <i class="ti ti-sword block text-6xl mb-4" style="color:var(--text-secondary);"></i>
+            <i class="ti block text-6xl mb-4" :class="L.iconTests" style="color:var(--text-secondary);"></i>
             <p
                 class="text-base font-semibold mb-1"
-                style="font-family:'Space Grotesk',sans-serif; color:var(--text-primary);"
+                style="font-family:var(--font-display); color:var(--text-primary);"
             >
-                Aucune Épreuve disponible pour le moment.
+                {{ isCorporate ? 'Aucune évaluation disponible pour le moment.' : 'Aucune Épreuve disponible pour le moment.' }}
             </p>
             <p class="text-sm" style="color:var(--text-secondary); font-family:'Inter',sans-serif;">
-                L'Armurerie se remplit bientôt. Reviens dans quelques instants.
+                {{ isCorporate ? 'Le catalogue sera bientôt disponible. Revenez dans quelques instants.' : "L'Armurerie se remplit bientôt. Reviens dans quelques instants." }}
             </p>
         </div>
 
@@ -226,6 +260,62 @@ function emblem(slug) {
     border-color: var(--color-primary) !important;
     box-shadow: 0 8px 28px rgba(166, 117, 32, 0.16);
     transform: translateY(-3px);
+}
+html[data-theme="corporate"] .pt-card:hover {
+    box-shadow: 0 4px 10px -4px rgba(25, 23, 19, 0.10), 0 20px 44px -20px rgba(25, 23, 19, 0.28);
+}
+
+/* ── KPIs tableau de bord (Corporate) ── */
+.tk-kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+}
+.tk-kpi {
+    background: #FFFFFF;
+    border: 1px solid var(--border-light);
+    border-radius: var(--r-lg);
+    padding: 12px 14px;
+    box-shadow: 0 1px 2px rgba(25,23,19,0.03), 0 10px 24px -16px rgba(25,23,19,0.16);
+}
+.tk-kpi-label {
+    font-family: var(--font-body);
+    font-size: 10px;
+    color: var(--text-muted);
+}
+.tk-kpi-value {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--text-primary);
+    margin-top: 3px;
+    line-height: 1;
+}
+.tk-kpi-unit {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-left: 1px;
+}
+.tk-kpi-sub {
+    font-family: var(--font-body);
+    font-size: 9.5px;
+    color: var(--color-primary-dark);
+    margin-top: 6px;
+}
+.tk-kpi-track {
+    height: 3px;
+    border-radius: 99px;
+    background: var(--bg-elevated);
+    overflow: hidden;
+    margin-top: 8px;
+}
+.tk-kpi-track > div {
+    height: 100%;
+    border-radius: 99px;
+    background: var(--color-primary);
+    transition: width 0.4s ease;
 }
 .pt-emblem {
     width: 44px;

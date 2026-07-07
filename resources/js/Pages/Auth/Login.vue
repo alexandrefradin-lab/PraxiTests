@@ -2,6 +2,9 @@
 import { ref } from 'vue'
 import { Link, useForm } from '@inertiajs/vue3'
 import AuthLayout from '@/Layouts/AuthLayout.vue'
+import { useParcours } from '@/composables/useParcours'
+
+const { L } = useParcours()
 
 const form = useForm({
     email: '',
@@ -15,20 +18,20 @@ const submit = () => form.post(route('login'), { onFinish: () => form.reset('pas
 
 <template>
     <AuthLayout>
-        <Head title="Entrer dans la Quête — PraxiQuest" />
+        <Head :title="`${L.authLoginTitle} — PraxiQuest`" />
 
         <!-- En-tête -->
         <div class="lp-anim-badge" style="margin-bottom:2rem">
             <h1 class="lp-h1-gradient lp-anim-h1a" style="
-                font-family:'Space Grotesk',sans-serif;
+                font-family:var(--font-display);
                 font-size:1.625rem;font-weight:700;
                 letter-spacing:-0.02em;line-height:1.15;
                 margin:0 0 0.5rem;
-            ">Entrer dans la Quête</h1>
+            ">{{ L.authLoginTitle }}</h1>
             <p class="lp-anim-sub" style="
                 font-family:'Inter',sans-serif;
                 font-size:14px;color:var(--text-secondary);margin:0;line-height:1.5;
-            ">Reprenez là où vous en étiez.</p>
+            ">{{ L.authLoginSubtitle }}</p>
         </div>
 
         <!-- Flash success -->
@@ -44,7 +47,7 @@ const submit = () => form.post(route('login'), { onFinish: () => form.reset('pas
                     display:block;
                     font-family:'Inter',sans-serif;font-size:13px;font-weight:500;
                     color:var(--text-secondary);margin-bottom:0.4rem;
-                ">Adresse du Héros</label>
+                ">{{ L.authEmail }}</label>
                 <input
                     id="login-email"
                     type="email"
@@ -67,11 +70,11 @@ const submit = () => form.post(route('login'), { onFinish: () => form.reset('pas
                     <label for="login-password" style="
                         font-family:'Inter',sans-serif;font-size:13px;font-weight:500;
                         color:var(--text-secondary);
-                    ">Sceau secret</label>
+                    ">{{ L.authPassword }}</label>
                     <Link :href="route('password.request')" style="
                         font-family:'Inter',sans-serif;font-size:12px;
                         color:var(--color-primary);text-decoration:none;
-                    " class="hover:underline">Sceau oublié ?</Link>
+                    " class="hover:underline">{{ L.authForgot }}</Link>
                 </div>
                 <div style="position:relative;">
                     <input
@@ -112,7 +115,7 @@ const submit = () => form.post(route('login'), { onFinish: () => form.reset('pas
                         accent-color:var(--color-primary);cursor:pointer;
                     "
                 >
-                Rester dans la Quête
+                {{ L.authRemember }}
             </label>
 
             <!-- Submit -->
@@ -123,7 +126,7 @@ const submit = () => form.post(route('login'), { onFinish: () => form.reset('pas
                 style="width:100%;padding:0.7rem 1.5rem;justify-content:center;margin-top:0.25rem"
             >
                 <span v-if="form.processing">Connexion en cours…</span>
-                <span v-else>Entrer dans la Quête</span>
+                <span v-else>{{ L.authLoginSubmit }}</span>
             </button>
         </form>
 
@@ -135,7 +138,7 @@ const submit = () => form.post(route('login'), { onFinish: () => form.reset('pas
             Pas encore inscrit ?
             <Link :href="route('register')" style="
                 color:var(--color-primary);font-weight:600;text-decoration:none;
-            " class="hover:underline">→ Créer mon Identité</Link>
+            " class="hover:underline">{{ L.authRegisterLink }}</Link>
         </p>
     </AuthLayout>
 </template>
