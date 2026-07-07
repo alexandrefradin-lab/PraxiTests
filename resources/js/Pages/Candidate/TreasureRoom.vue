@@ -4,7 +4,7 @@ import { Link, Head } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import { useParcours } from '@/composables/useParcours'
 
-const { L, isCorporate, testLabel } = useParcours()
+const { L, isCorporate, testLabel, vouvoyer } = useParcours()
 
 const props = defineProps({
     treasure: {
@@ -197,7 +197,7 @@ const unlockedPct = computed(() => {
                     class="text-[13px] leading-relaxed flex-1"
                     style="font-family:'Inter',sans-serif; color:var(--text-secondary);"
                 >
-                    {{ item.unlocked ? item.description : item.teaser }}
+                    {{ vouvoyer(item.unlocked ? item.description : item.teaser) }}
                 </p>
 
                 <!-- Raison du matching (si recommandé) -->
@@ -241,7 +241,7 @@ const unlockedPct = computed(() => {
                         class="pt-btn-primary text-xs px-4 py-2"
                         :class="{ 'opacity-40 pointer-events-none': !profile_complete }"
                     >
-                        Ouvrir le trésor &#x2192;
+                        {{ isCorporate ? "Ouvrir l'application" : 'Ouvrir le trésor' }} &#x2192;
                     </Link>
                 </div>
             </article>

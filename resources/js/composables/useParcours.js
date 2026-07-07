@@ -216,10 +216,10 @@ export function useParcours() {
         return name
     }
 
-    // Vouvoie un texte catalogue écrit au tutoiement (descriptions de tests
-    // stockées en base). Transformation lexicale limitée aux possessifs et
-    // pronoms — suffisante pour des textes descriptifs ; le contenu généré
-    // par IA est traité à la source, dans les prompts (PromptBuilder).
+    // Adapte un texte catalogue écrit au registre « quête » (descriptions de
+    // tests/modules stockées en base) : vouvoiement (possessifs et pronoms) et
+    // vocabulaire (Éclats→points). Le contenu généré par IA est traité à la
+    // source, dans les prompts (PromptBuilder).
     function vouvoyer(text) {
         if (!isCorporate.value || !text) return text
         return text
@@ -230,6 +230,9 @@ export function useParcours() {
             .replace(/\bTe\b/g, 'Vous').replace(/\bte\b/g, 'vous')
             .replace(/\bTu\b/g, 'Vous').replace(/\btu\b/g, 'vous')
             .replace(/\bToi\b/g, 'Vous').replace(/\btoi\b/g, 'vous')
+            .replace(/\bÉclats?\b/g, 'points').replace(/\béclats?\b/g, 'points')
+            .replace(/\bGrimoire\b/g, 'dossier de synthèse')
+            .replace(/\b[Éé]preuves\b/g, 'évaluations').replace(/\b[Éé]preuve\b/g, 'évaluation')
     }
 
     return { theme, isCorporate, L, setParcours, testLabel, vouvoyer }
