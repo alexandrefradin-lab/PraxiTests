@@ -33,8 +33,8 @@ class ExerciseController extends Controller
             return redirect()->route('treasure.index')->with(
                 'error',
                 $seuil
-                    ? "Ce trésor est encore scellé. Il se révèle à {$seuil} Éclats."
-                    : "Ce trésor est encore scellé."
+                    ? \App\Support\Parcours::sealedMessage($seuil)
+                    : (\App\Support\Parcours::isCorporate() ? "Ce module est encore verrouillé." : "Ce trésor est encore scellé.")
             );
         }
 
@@ -83,7 +83,7 @@ class ExerciseController extends Controller
         abort_if(
             $total < $exercise->threshold_eclats,
             403,
-            "Cet exercice se débloque à {$exercise->threshold_eclats} Éclats."
+            "Cet exercice se débloque à {$exercise->threshold_eclats} " . \App\Support\Parcours::xpName() . "."
         );
 
         $this->unlocker->syncFor($user);
@@ -157,7 +157,7 @@ class ExerciseController extends Controller
         return back()->with(
             'success',
             $firstTime
-                ? 'Exercice marqué comme fait.' . ($eclatsAwarded ? ' +' . $eclatsAwarded . ' Éclats !' : '')
+                ? 'Exercice marqué comme fait.' . ($eclatsAwarded ? ' +' . $eclatsAwarded . ' ' . \App\Support\Parcours::xpName() . ' !' : '')
                 : 'Ressenti mis à jour.'
         );
     }

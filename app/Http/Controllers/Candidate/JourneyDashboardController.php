@@ -155,7 +155,7 @@ class JourneyDashboardController extends Controller
             'success',
             $already
                 ? 'Ressenti mis à jour.'
-                : 'Pratique intégrée ! +' . JourneyEngine::ECLATS_PER_PRACTICE . ' Éclats.'
+                : 'Pratique intégrée ! +' . JourneyEngine::ECLATS_PER_PRACTICE . ' ' . \App\Support\Parcours::xpName() . '.'
         );
     }
 }

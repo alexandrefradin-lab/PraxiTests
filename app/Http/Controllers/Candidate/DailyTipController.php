@@ -46,8 +46,8 @@ class DailyTipController extends Controller
         $result = $this->tips->markApplied($request->user(), $plugin, $tip['id']);
 
         $msg = $result['eclats_gained'] > 0
-            ? "Bravo ! +{$result['eclats_gained']} Éclats · série de {$result['engagement']['streak']} jour(s)."
-            : "Déjà validé aujourd'hui — reviens demain pour un nouveau tip.";
+            ? "Bravo ! +{$result['eclats_gained']} " . \App\Support\Parcours::xpName() . " · série de {$result['engagement']['streak']} jour(s)."
+            : (\App\Support\Parcours::isCorporate() ? "Déjà validé aujourd'hui — revenez demain pour un nouveau conseil." : "Déjà validé aujourd'hui — reviens demain pour un nouveau tip.");
 
         return back()->with('success', $msg);
     }
@@ -59,7 +59,7 @@ class DailyTipController extends Controller
         abort_unless(
             $this->rewards->isRouteUnlocked("{$plugin}.index", $request->user()),
             403,
-            "Ce trésor est encore scellé.",
+            (\App\Support\Parcours::isCorporate() ? "Ce module est encore verrouillé." : "Ce trésor est encore scellé."),
         );
     }
 }

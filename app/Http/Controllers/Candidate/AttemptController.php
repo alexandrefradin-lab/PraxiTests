@@ -36,8 +36,8 @@ class AttemptController extends Controller
             return redirect()->route('treasure.index')->with(
                 'error',
                 $seuil
-                    ? "Ce trésor est encore scellé. Il se révèle à {$seuil} Éclats."
-                    : "Ce trésor est encore scellé."
+                    ? \App\Support\Parcours::sealedMessage($seuil)
+                    : (\App\Support\Parcours::isCorporate() ? "Ce module est encore verrouillé." : "Ce trésor est encore scellé.")
             );
         }
 

@@ -31,8 +31,8 @@ class PracticeController extends Controller
             return redirect()->route('treasure.index')->with(
                 'error',
                 $seuil
-                    ? "Ce trésor est encore scellé. Il se révèle à {$seuil} Éclats."
-                    : "Ce trésor est encore scellé."
+                    ? \App\Support\Parcours::sealedMessage($seuil)
+                    : (\App\Support\Parcours::isCorporate() ? "Ce module est encore verrouillé." : "Ce trésor est encore scellé.")
             );
         }
 
@@ -158,7 +158,7 @@ class PracticeController extends Controller
         return back()->with(
             'success',
             $firstTime
-                ? 'Pratique appliquée ! +' . JourneyService::ECLATS_PER_PRACTICE . ' Éclats.'
+                ? 'Pratique appliquée ! +' . JourneyService::ECLATS_PER_PRACTICE . ' ' . \App\Support\Parcours::xpName() . '.'
                 : 'Ressenti mis à jour.'
         );
     }
