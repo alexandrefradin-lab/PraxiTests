@@ -104,6 +104,10 @@ return [
         'oracle_chat' => [
             'driver' => null,            // = défaut (Sonnet)
             'history_limit' => 10,       // nombre de messages (user+assistant) rejoués dans le prompt
+            // Délai max (secondes) de l'appel LLM. L'Oracle est SYNCHRONE (il bloque
+            // un worker PHP-FPM pendant toute la réponse — cf. SCALING_1000_USERS.md) :
+            // on plafonne bien plus bas que les 120 s par défaut des jobs en arrière-plan.
+            'timeout' => (int) env('AI_ORACLE_CHAT_TIMEOUT', 30),
         ],
     ],
 ];

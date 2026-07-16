@@ -27,7 +27,7 @@ class AnthropicDriver extends AbstractDriver
         // un petit délai, au lieu d'échouer net dès le premier hoquet réseau.
         $response = $this->headers()
             ->retry(2, 1000, throw: false)
-            ->timeout(120)
+            ->timeout($this->timeout($options))
             ->post('https://api.anthropic.com/v1/messages', $payload);
 
         if ($response->failed()) {
@@ -74,7 +74,7 @@ class AnthropicDriver extends AbstractDriver
                     $requests[] = $pool->as((string) $key)
                         ->withHeaders($this->headerArray())
                         ->retry(2, 1000, throw: false)
-                        ->timeout(120)
+                        ->timeout($this->timeout(array_merge($options, $req['options'] ?? [])))
                         ->post('https://api.anthropic.com/v1/messages', $payload);
                 }
                 return $requests;

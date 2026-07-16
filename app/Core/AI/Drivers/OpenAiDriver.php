@@ -34,7 +34,7 @@ class OpenAiDriver extends AbstractDriver
 
         $response = Http::withToken($this->config['api_key'])
             ->retry(2, 1000, throw: false)
-            ->timeout(120)
+            ->timeout($this->timeout($options))
             ->post("{$base}/chat/completions", $payload);
 
         if ($response->failed()) {

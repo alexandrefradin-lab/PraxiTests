@@ -33,8 +33,13 @@ class OracleChatService
     {
         $message = trim($message);
 
+        // Délai max (secondes) de l'appel LLM synchrone — configurable via
+        // ai.tasks.oracle_chat.timeout (env AI_ORACLE_CHAT_TIMEOUT, défaut 30 s).
+        // L'Oracle bloque un worker PHP-FPM pendant la réponse (cf. SCALING_1000_USERS.md).
+        $timeout = (int) config('ai.tasks.oracle_chat.timeout', 30);
+
         // MET-M4: Protection anti-double-envoi — un seul message Oracle en vol par utilisateur.
-        // Le lock expire après 15 secondes (délai max d'une réponse LLM).
+        // Le lock expire au timeout LLM + une petite marge (il couvre toute la réponse en vol).
         $lockKey = 'oracle_inflight.' . $user->id;
         if (Cache::has($lockKey)) {
             return new OracleMessage([
@@ -44,7 +49,7 @@ class OracleChatService
                 'tokens'  => 0,
             ]);
         }
-        Cache::put($lockKey, true, 15);
+        Cache::put($lockKey, true, $timeout + 5);
 
         // Mode nuit (0h–5h, heure de Paris) : l'Oracle sort du cadre orientation.
         // Il appelle quand même l'IA, mais avec un prompt libre — pas de contraintes métier.
@@ -75,7 +80,7 @@ class OracleChatService
             $messages = PluginHooks::applyFilters('ai.oracle.messages', $messages, $user);
 
             $driver = $this->ai->forTask('oracle_chat');
-            $reply  = $driver->chat($messages, ['temperature' => 0.7, 'max_tokens' => 900]);
+            $reply  = $driver->chat($messages, ['temperature' => 0.7, 'max_tokens' => 900, 'timeout' => $timeout]);
             $reply  = trim(PluginHooks::applyFilters('ai.oracle.output', $reply, $user));
             $usage  = $driver->lastUsage();
         } catch (\Throwable $e) {

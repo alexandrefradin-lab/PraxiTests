@@ -13,7 +13,7 @@ class OllamaDriver extends AbstractDriver
 
     public function generate(string $prompt, array $options = []): string
     {
-        $response = Http::timeout(180)->post(
+        $response = Http::timeout($this->timeout($options, 180))->post(
             rtrim($this->config['base_url'], '/') . '/api/generate',
             [
                 'model'  => $options['model'] ?? $this->config['model'],
@@ -36,7 +36,7 @@ class OllamaDriver extends AbstractDriver
 
     public function chat(array $messages, array $options = []): string
     {
-        $response = Http::timeout(180)->post(
+        $response = Http::timeout($this->timeout($options, 180))->post(
             rtrim($this->config['base_url'], '/') . '/api/chat',
             [
                 'model'    => $options['model'] ?? $this->config['model'],

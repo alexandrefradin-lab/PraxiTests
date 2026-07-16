@@ -54,6 +54,16 @@ abstract class AbstractDriver implements AIDriverContract
         return $this->config['model'] ?? $this->key();
     }
 
+    /**
+     * Délai max (secondes) de l'appel HTTP. Surchargeable par appel via l'option
+     * 'timeout' (ex. Oracle synchrone : 30 s via ai.tasks.oracle_chat.timeout),
+     * sinon via la config du driver, sinon $default (jobs en arrière-plan).
+     */
+    protected function timeout(array $options, int $default = 120): int
+    {
+        return (int) ($options['timeout'] ?? $this->config['timeout'] ?? $default);
+    }
+
     public function generateJson(string $prompt, array $schema = [], array $options = []): array
     {
         $instruction = "Réponds STRICTEMENT en JSON valide, sans texte avant ni après, sans bloc ```json.";
