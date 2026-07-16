@@ -1,4 +1,8 @@
 # Debug OVH — PraxiQuest 500 Error
+
+> ⚠️ **Document historique.** Les chemins `~/www/PraxiTests` mentionnés ici pointent vers
+> une copie NON servie. L'app de production vit dans `~/praxiquest` — voir [README.md](README.md).
+
 **Date :** 19 juin 2026 | **Env :** OVH cluster121, PHP 8.2, Laravel 11 + Inertia
 
 ---

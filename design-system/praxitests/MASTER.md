@@ -1,5 +1,11 @@
 # Design System Master File
 
+> ⚠️ **DOCUMENT OBSOLÈTE — NE PAS UTILISER POUR STYLER L'APPLICATION.**
+> Ce fichier (flat design Indigo/Emerald) a été généré automatiquement le 2026-06-24 et
+> ne correspond PAS au design system réel de PraxiQuest. La **source de vérité** est le
+> thème **Parchemin/Or** : tokens CSS dans `resources/css/app.css` (classes `.ac-*` / `.pt-*`),
+> page de référence = l'Armurerie. Voir `docs/archive/DESIGN_BRIEF_PRAXIQUEST.md` pour l'intention.
+
 > **LOGIC:** When building a specific page, first check `design-system/pages/[page-name].md`.
 > If that file exists, its rules **override** this Master file.
 > If not, strictly follow the rules below.

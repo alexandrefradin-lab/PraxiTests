@@ -59,4 +59,25 @@ Le candidat passe un ou plusieurs tests psychométriques (RIASEC, Big Five, inte
 ### Emailing & neuromarketing
 - Campagnes d'invitation avec segmentation par statut ou profil
 - Séquences email automatisées avec conditions et délais
-- Optimisation neuromarketing des ob
+- Optimisation neuromarketing des objets et contenus d'emails (8 biais comportementaux)
+- Envoi transactionnel via Brevo (API HTTP, compatible OVH mutualisé)
+- Suivi des invitations : relance, corbeille, export CSV
+
+---
+
+## Architecture
+
+- **Plugin-first** : chaque test psychométrique est un plugin autonome dans `plugins/{slug}/` (manifest, seeders, scoring engine, vues) — voir [docs/PLUGIN-DEVELOPER.md](docs/PLUGIN-DEVELOPER.md)
+- **Stack** : Laravel 11 · Inertia.js · Vue 3 · Vite · Tailwind CSS · MySQL · Pest
+- **Abstraction IA** : drivers interchangeables (Anthropic, OpenAI, Mistral, Ollama) dans `app/Core/AI/`
+- Détails complets : [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+
+## Installation
+
+- **Assistant web** : déployer puis suivre l'installeur 7 étapes (`install.php`, verrouillé après installation)
+- **CLI** : voir [docs/INSTALL.md](docs/INSTALL.md) et [docs/QUICKSTART.md](docs/QUICKSTART.md)
+- **Déploiement OVH** : `.\deploy-ovh.ps1` en local puis `cd ~/praxiquest && bash deploy-server.sh` sur le serveur — voir [docs/deploy/DEPLOY-OVH.md](docs/deploy/DEPLOY-OVH.md)
+
+## Licence
+
+Propriétaire — © Praxis Accompagnement. Tous droits réservés.

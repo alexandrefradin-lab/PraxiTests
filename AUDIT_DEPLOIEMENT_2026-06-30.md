@@ -152,6 +152,12 @@ find . -name "*.php" -o -name "*.vue" | grep -v node_modules | grep -v vendor | 
 
 ## 🟠 BUG-4 — Incohérence chemin dans `deploy-ovh.ps1`
 
+> ⚠️ **SECTION PÉRIMÉE (corrigée le 2026-06-30, commit `a91131a`)** — Ce diagnostic était INVERSÉ.
+> Le vrai docroot servi par le domaine est **`~/praxiquest/public`** (vérifié par hash du
+> `manifest.json` live) ; c'est `deploy-server.sh` qui ciblait à tort `~/www` (clone git
+> non servi). Le script cible désormais `$HOME/praxiquest`. **Ne jamais déployer dans `~/www`.**
+> Le « fix » proposé ci-dessous ne doit PAS être appliqué — conservé pour l'historique.
+
 ### Symptôme
 Le message final de `deploy-ovh.ps1` affiche :
 ```
@@ -235,9 +241,12 @@ done
 2. Valider plugin.json (cf. ci-dessus)
 3. `git add -A && git commit -m "description précise" && git push`
 
-### Ordre des opérations (SSH OVH → `~/www`)
+### Ordre des opérations (SSH OVH → `~/praxiquest`)
+
+> ⚠️ **CORRIGÉ le 2026-06-30** : le chemin est **`~/praxiquest`**, pas `~/www` (voir note BUG-4).
+
 ```bash
-cd ~/www
+cd ~/praxiquest
 bash deploy-server.sh
 # Le script fait : git pull → composer install → migrate → discover --sync → cache
 ```

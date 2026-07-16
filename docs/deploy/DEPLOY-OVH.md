@@ -1,5 +1,10 @@
 # Déploiement PraxiQuest sur OVH
 
+> ⚠️ **Pour l'instance de PRODUCTION (praxiquest.decisionpro.fr), ce guide est PÉRIMÉ** :
+> les chemins `~/www` ci-dessous ne s'appliquent pas (docroot réel = `~/praxiquest/public`)
+> et FileZilla n'est pas utilisé (flux git + `deploy-server.sh`). **Voir [README.md](README.md).**
+> Ce guide reste valable comme référence générique pour une NOUVELLE installation OVH.
+
 Guide spécifique aux hébergements OVH (Mutualisé, Web Cloud, VPS, Dédié).
 
 ## Récap des plans OVH compatibles
