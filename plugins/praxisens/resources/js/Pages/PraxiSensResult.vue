@@ -30,6 +30,9 @@ const globalScore = computed(() => scoring.value.global_score ?? null)
 const globalLabel = computed(() => scoring.value.global_label ?? '')
 const globalText  = computed(() => scoring.value.global_text  ?? '')
 
+// Échelle de validité (désirabilité sociale) — caveat affiché si le flag est levé.
+const desirabilite = computed(() => scoring.value.desirabilite ?? null)
+
 const dotColor = (color) => ({
     gold:  'var(--pt-gold)',
     navy:  'var(--pt-navy)',
@@ -97,6 +100,12 @@ const radarAxes = computed(() =>
                     </p>
                 </div>
             </div>
+
+            <!-- Alerte fiabilité (désirabilité sociale) — même mécanique que praxiemo -->
+            <Disclaimer v-if="desirabilite?.alerte" accent="#F59E0B">
+                <strong>Fiabilité des réponses — {{ desirabilite.niveau }}.</strong>
+                {{ desirabilite.message }}
+            </Disclaimer>
 
             <!-- Profil en un coup d'œil — toile d'araignée -->
             <ResultPanel v-if="radarAxes.length >= 3" label="Ton profil en un coup d'œil" class="mb-8">

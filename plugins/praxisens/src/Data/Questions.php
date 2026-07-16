@@ -12,6 +12,10 @@ namespace Praxis\Plugins\PraxiSens\Data;
  *   eoe = Facilité de saturation / sur-stimulation
  *   aes = Sensibilité esthétique & profondeur de traitement
  *   lst = Seuil sensoriel bas
+ *
+ * Dimension 'ctrl' : 6 items de contrôle (désirabilité sociale, style Marlowe-Crowne).
+ * Absente de dimensions() → exclue du score sensoriel principal, traitée à part
+ * par le moteur de scoring (même mécanique que la famille 5 de praxiemo).
  */
 class Questions
 {
@@ -41,10 +45,11 @@ class Questions
 
     public static function all(): array
     {
-        $eoe = 'Sur-stimulation';
-        $aes = 'Sensibilité esthétique';
-        $lst = 'Seuil sensoriel';
-        $emo = 'Sensibilité émotionnelle';
+        $eoe  = 'Sur-stimulation';
+        $aes  = 'Sensibilité esthétique';
+        $lst  = 'Seuil sensoriel';
+        $emo  = 'Sensibilité émotionnelle';
+        $ctrl = 'Vérification';
 
         return [
             // ── EOE — Facilité de saturation / sur-stimulation ──
@@ -78,6 +83,16 @@ class Questions
             self::scale($emo, "Je pleure ou suis submergé(e) par l'émotion plus facilement que la plupart des gens autour de moi.", 'emo'),
             self::scale($emo, "Assister à une scène triste (film, actualité, récit) me laisse avec une émotion forte et persistante bien après.", 'emo'),
             self::scale($emo, "Mon entourage m'a déjà dit que je réagissais de façon excessive ou que je prenais les choses trop à cœur.", 'emo'),
+
+            // ── CTRL — Désirabilité sociale (Marlowe-Crowne) ──
+            // Comportements humains normaux que presque tout le monde reconnaît avoir PARFOIS.
+            // Être « Pas du tout d'accord » partout = présentation trop parfaite = biais probable.
+            self::scale($ctrl, "Il m'arrive de réagir plus vivement que je ne le voudrais quand je suis fatigué(e).", 'ctrl'),
+            self::scale($ctrl, "Il m'arrive de dire que tout va bien alors que ce n'est pas tout à fait vrai.", 'ctrl'),
+            self::scale($ctrl, "Il m'arrive d'être moins attentif(ve) à ce que ressentent les autres quand je suis préoccupé(e).", 'ctrl'),
+            self::scale($ctrl, "Il m'arrive de perdre patience face à un désagrément (bruit, attente, imprévu).", 'ctrl'),
+            self::scale($ctrl, "Il m'arrive de remettre à plus tard des choses que je devrais faire.", 'ctrl'),
+            self::scale($ctrl, "Il m'arrive de juger quelqu'un intérieurement sans le lui dire.", 'ctrl'),
         ];
     }
 
