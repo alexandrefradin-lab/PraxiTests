@@ -2,163 +2,59 @@
 
 namespace Praxis\Plugins\PraxiVision\Http;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Praxis\Core\Gamification\GamificationEngine;
 use Praxis\Core\Gamification\RewardCatalog;
+use Praxis\Core\Journey\Http\DailyPracticeController;
 use Praxis\Plugins\PraxiVision\Models\VisionPractice;
 use Praxis\Plugins\PraxiVision\Models\VisionPracticeProgress;
 use Praxis\Plugins\PraxiVision\Services\LeadershipJourneyService;
 
-class PracticeController extends Controller
+/**
+ * L'Eveilleur — parcours leadership 60 jours.
+ *
+ * Toute la mécanique (gating Éclats, cadence quotidienne, complétion, octroi
+ * d'Éclats) vit dans le contrôleur mutualisé
+ * Praxis\Core\Journey\Http\DailyPracticeController. Ne restent ici que
+ * l'identité du plugin ; les libellés par défaut (« Pratique intégrée ! »,
+ * « Ressenti mis à jour. »…) correspondent déjà aux siens.
+ */
+class PracticeController extends DailyPracticeController
 {
     public function __construct(
-        protected LeadershipJourneyService $journeys,
-        protected GamificationEngine $gamification,
-        protected RewardCatalog $rewards,
-    ) {}
-
-    public function index(Request $request)
-    {
-        $user = $request->user();
-
-        if (! $this->rewards->isRouteUnlocked('praxivision.index', $user)) {
-            $reward = $this->rewards->rewardForRoute('praxivision.index');
-            $seuil  = $reward['threshold'] ?? null;
-
-            return redirect()->route('treasure.index')->with(
-                'error',
-                $seuil
-                    ? \App\Support\Parcours::sealedMessage($seuil)
-                    : (\App\Support\Parcours::isCorporate() ? "Ce module est encore verrouillé." : "Ce trésor est encore scellé.")
-            );
-        }
-
-        $journey  = $this->journeys->journeyFor($user);
-        $current  = $this->journeys->currentDay($journey);
-
-        $progress = VisionPracticeProgress::forUser($user->id)
-            ->get()
-            ->keyBy('day_index');
-
-        $practices = VisionPractice::active()->ordered()->get()->map(function ($p) use ($journey, $current, $progress) {
-            $unlocked = $this->journeys->isUnlocked($journey, $p->day_index);
-            $pr       = $progress->get($p->day_index);
-
-            return [
-                'day'          => $p->day_index,
-                'theme'        => $p->theme,
-                'title'        => $p->title,
-                'summary'      => $p->summary,
-                'duration_min' => $p->duration_min,
-                'icon'         => $p->icon,
-                'unlocked'     => $unlocked,
-                'completed'    => $pr?->completed_at !== null,
-                'is_today'     => $p->day_index === $current,
-                'days_left'    => $this->journeys->daysUntilUnlock($journey, $p->day_index),
-            ];
-        });
-
-        $completed = $progress->whereNotNull('completed_at')->count();
-
-        return Inertia::render('PraxiVisionIndex', [
-            'appDescription' => $this->rewards->descriptionFor('praxivision'),
-            'practices'  => $practices,
-            'currentDay' => $current,
-            'totalDays'  => LeadershipJourneyService::TOTAL_DAYS,
-            'completed'  => $completed,
-            'streak'     => $this->journeys->streakFor($user),
-        ]);
+        LeadershipJourneyService $journeys,
+        GamificationEngine $gamification,
+        RewardCatalog $rewards,
+    ) {
+        parent::__construct($journeys, $gamification, $rewards);
     }
 
-    public function show(Request $request, int $day)
+    protected function slug(): string
     {
-        $user     = $request->user();
-        $journey  = $this->journeys->journeyFor($user);
-        $practice = VisionPractice::active()->where('day_index', $day)->firstOrFail();
-
-        abort_unless(
-            $this->journeys->isUnlocked($journey, $day),
-            403,
-            'Cette pratique se débloquera dans '
-                . $this->journeys->daysUntilUnlock($journey, $day) . ' jour(s).'
-        );
-
-        $pr = VisionPracticeProgress::forUser($user->id)
-            ->where('day_index', $day)
-            ->first();
-
-        return Inertia::render('PraxiVisionPractice', [
-            'practice' => [
-                'day'             => $practice->day_index,
-                'theme'           => $practice->theme,
-                'title'           => $practice->title,
-                'summary'         => $practice->summary,
-                'body'            => $practice->body,
-                'micro_challenge' => $practice->micro_challenge,
-                'duration_min'    => $practice->duration_min,
-                'icon'            => $practice->icon,
-            ],
-            'state' => [
-                'completed'  => $pr?->completed_at !== null,
-                'felt_score' => $pr?->felt_score,
-                'notes'      => $pr?->notes,
-            ],
-            'nav' => [
-                'prev' => $day > 1 ? $day - 1 : null,
-                'next' => ($day < LeadershipJourneyService::TOTAL_DAYS
-                    && $this->journeys->isUnlocked($journey, $day + 1))
-                    ? $day + 1
-                    : null,
-            ],
-            'eclatsPerPractice' => LeadershipJourneyService::ECLATS_PER_PRACTICE,
-        ]);
+        return 'praxivision';
     }
 
-    public function complete(Request $request, int $day)
+    protected function itemModel(): string
     {
-        $user     = $request->user();
-        $journey  = $this->journeys->journeyFor($user);
-        $practice = VisionPractice::active()->where('day_index', $day)->firstOrFail();
+        return VisionPractice::class;
+    }
 
-        abort_unless($this->journeys->isUnlocked($journey, $day), 403);
+    protected function progressModel(): string
+    {
+        return VisionPracticeProgress::class;
+    }
 
-        $data = $request->validate([
-            'felt_score' => ['nullable', 'integer', 'min:1', 'max:5'],
-            'notes'      => ['nullable', 'string', 'max:2000'],
-        ]);
+    protected function indexPage(): string
+    {
+        return 'PraxiVisionIndex';
+    }
 
-        $pr = VisionPracticeProgress::firstOrNew([
-            'user_id'   => $user->id,
-            'day_index' => $day,
-        ]);
+    protected function showPage(): string
+    {
+        return 'PraxiVisionPractice';
+    }
 
-        $firstTime = $pr->completed_at === null;
-
-        $pr->completed_at = $pr->completed_at ?? now();
-        $pr->felt_score   = $data['felt_score'] ?? $pr->felt_score;
-        $pr->notes        = $data['notes'] ?? $pr->notes;
-
-        if ($firstTime && ! $pr->eclats_awarded) {
-            $this->gamification->awardXp(
-                $user,
-                LeadershipJourneyService::ECLATS_PER_PRACTICE,
-                'praxivision.practice_done',
-                null,
-                ['day' => $day, 'title' => $practice->title],
-                false,
-            );
-            $pr->eclats_awarded = true;
-        }
-
-        $pr->save();
-
-        return back()->with(
-            'success',
-            $firstTime
-                ? 'Pratique intégrée ! +' . LeadershipJourneyService::ECLATS_PER_PRACTICE . ' ' . \App\Support\Parcours::xpName() . '.'
-                : 'Ressenti mis à jour.'
-        );
+    protected function eclatsPerItem(): int
+    {
+        return LeadershipJourneyService::ECLATS_PER_PRACTICE;
     }
 }

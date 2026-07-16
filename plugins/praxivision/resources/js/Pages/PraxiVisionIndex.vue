@@ -1,8 +1,8 @@
 <script setup>
-import { computed } from 'vue'
 import { Link, Head } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import { useParcours } from '@/composables/useParcours'
+import { useJourney } from '@/composables/useJourney'
 
 const { isCorporate, vouvoyer } = useParcours()
 const appName = isCorporate.value ? 'Leadership' : "L'Eveilleur"
@@ -16,39 +16,17 @@ const props = defineProps({
     streak:     { type: Number, default: 0 },
 })
 
-const iconFor = (name) => ({
-    compass: 'ti-compass', target: 'ti-target', ear: 'ti-ear', message: 'ti-message',
-    handshake: 'ti-handshake', gift: 'ti-gift', flame: 'ti-flame', shield: 'ti-shield',
-    scale: 'ti-scale', users: 'ti-users', clock: 'ti-clock', book: 'ti-book',
-    heart: 'ti-heart', rocket: 'ti-rocket', eye: 'ti-eye', seedling: 'ti-plant',
-    anchor: 'ti-anchor', map: 'ti-map', lightbulb: 'ti-bulb', sun: 'ti-sun',
-}[name] ?? 'ti-sparkles')
-
-const todayPractice = computed(() => props.practices.find(p => p.is_today) ?? null)
-const donePercent   = computed(() => Math.round((props.completed / props.totalDays) * 100))
-
-const dayStrip = computed(() => {
-    const center = props.currentDay
-    const start  = Math.max(1, center - 3)
-    const end    = Math.min(props.totalDays, start + 6)
-    return props.practices.filter(p => p.day >= start && p.day <= end)
-})
-
-const upcomingDays = computed(() =>
-    props.practices.filter(p => !p.is_today && !p.completed && p.day > props.currentDay).slice(0, 3)
-)
-
-const currentBlock = computed(() => todayPractice.value?.theme ?? '')
-
-const blocks = computed(() => {
-    const out = []
-    for (const p of props.practices) {
-        let b = out.find(x => x.theme === p.theme)
-        if (!b) { b = { theme: p.theme, items: [] }; out.push(b) }
-        b.items.push(p)
-    }
-    return out
-})
+// Logique commune des parcours quotidiens (icônes, jour du jour, progression,
+// bandeau 7 jours, blocs) — mutualisée dans useJourney.
+const {
+    iconFor,
+    todayItem: todayPractice,
+    donePercent,
+    dayStrip,
+    upcomingDays,
+    currentBlock,
+    blocks,
+} = useJourney(props, { itemsKey: 'practices', groupKey: 'theme' })
 </script>
 
 <template>

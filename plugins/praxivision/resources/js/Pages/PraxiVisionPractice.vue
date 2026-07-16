@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { Link, Head, useForm } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import { useParcours } from '@/composables/useParcours'
+import { journeyIconFor as iconFor } from '@/composables/useJourney'
 
 const { isCorporate } = useParcours()
 
@@ -12,14 +13,6 @@ const props = defineProps({
     nav:               { type: Object, default: () => ({ prev: null, next: null }) },
     eclatsPerPractice: { type: Number, default: 20 },
 })
-
-const iconFor = (name) => ({
-    compass: 'ti-compass', target: 'ti-target', ear: 'ti-ear', message: 'ti-message',
-    handshake: 'ti-handshake', gift: 'ti-gift', flame: 'ti-flame', shield: 'ti-shield',
-    scale: 'ti-scale', users: 'ti-users', clock: 'ti-clock', book: 'ti-book',
-    heart: 'ti-heart', rocket: 'ti-rocket', eye: 'ti-eye', seedling: 'ti-plant',
-    anchor: 'ti-anchor', map: 'ti-map', lightbulb: 'ti-bulb', sun: 'ti-sun',
-}[name] ?? 'ti-sparkles')
 
 const exerciseSections = computed(() => {
     const body = props.practice.body ?? ''
