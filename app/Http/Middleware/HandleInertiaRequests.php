@@ -26,6 +26,17 @@ class HandleInertiaRequests extends Middleware
                 // reste portée par le middleware role: des routes.
                 'is_admin' => (bool) $request->user()?->hasRole('admin'),
             ],
+            // Badge d'incident dans la sidebar admin : nombre de synthèses IA en
+            // échec. Caché 60 s (même donnée que l'alerte du dashboard).
+            'admin_alerts' => fn () => $request->user()?->hasRole('admin')
+                ? [
+                    'failed_insights' => \Illuminate\Support\Facades\Cache::remember(
+                        'admin.failed_insights_count',
+                        60,
+                        fn () => \App\Models\TestResult::where('ai_failed', true)->count(),
+                    ),
+                ]
+                : null,
             // Total d'Éclats global (lazy) — alimente la barre du layout candidat
             // sur toutes les pages, pas seulement pendant une tentative.
             // Mis en cache 60 s pour éviter une requête SQL à chaque page (ARC-m2).

@@ -15,6 +15,11 @@ use Praxis\Core\TestEngine\TestEngine;
 
 class TestEditorController extends Controller
 {
+    use \App\Http\Controllers\Concerns\SortsColumns;
+
+    /** Colonnes triables depuis la liste (allowlist). */
+    private const SORTABLE = ['name', 'type', 'estimated_minutes', 'published', 'created_at'];
+
     public function __construct(protected TestEngine $engine) {}
 
     public function index(Request $request)
@@ -34,9 +39,11 @@ class TestEditorController extends Controller
             $q->where(fn ($x) => $x->where('name', 'like', "%{$s}%")->orWhere('slug', 'like', "%{$s}%"));
         }
 
+        [$sort, $dir] = $this->sortParams($request, self::SORTABLE);
+
         return Inertia::render('Admin/Tests/Index', [
-            'tests'   => $q->latest()->paginate(25)->withQueryString(),
-            'filters' => $request->only(['search', 'published', 'trashed']),
+            'tests'   => $q->orderBy($sort, $dir)->paginate(25)->withQueryString(),
+            'filters' => $request->only(['search', 'published', 'trashed', 'sort', 'dir']),
         ]);
     }
 

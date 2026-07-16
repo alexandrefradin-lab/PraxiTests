@@ -4,23 +4,44 @@ import { onUnmounted, ref, watch } from 'vue'
 import AdminLayout from '@/Layouts/AdminLayout.vue'
 import AdminPagination from '@/Components/Admin/AdminPagination.vue'
 import FlashAlert from '@/Components/Admin/FlashAlert.vue'
+import SortableTh from '@/Components/Admin/SortableTh.vue'
 
 const props = defineProps({ tests: Object, filters: Object })
 
 const search    = ref(props.filters?.search ?? '')
 const published = ref(props.filters?.published ?? '')
 const trashed   = ref(!!props.filters?.trashed)
+const sort      = ref(props.filters?.sort ?? 'created_at')
+const dir       = ref(props.filters?.dir ?? 'desc')
+
+const query = () => ({
+    search: search.value || undefined,
+    published: published.value || undefined,
+    trashed: trashed.value ? 1 : undefined,
+    sort: sort.value !== 'created_at' ? sort.value : undefined,
+    dir: dir.value !== 'desc' ? dir.value : undefined,
+})
 
 let timer = null
+const reload = () => router.get(route('admin.tests.index'), query(), {
+    preserveState: true, preserveScroll: true, replace: true,
+})
 watch([search, published, trashed], () => {
     clearTimeout(timer)
-    timer = setTimeout(() => {
-        router.get(route('admin.tests.index'),
-            { search: search.value, published: published.value, trashed: trashed.value ? 1 : undefined },
-            { preserveState: true, preserveScroll: true, replace: true })
-    }, 250)
+    timer = setTimeout(reload, 250)
 })
 onUnmounted(() => clearTimeout(timer))
+
+// Tri serveur : re-clic sur la même colonne inverse le sens
+const sortBy = (field) => {
+    if (sort.value === field) {
+        dir.value = dir.value === 'asc' ? 'desc' : 'asc'
+    } else {
+        sort.value = field
+        dir.value = field === 'created_at' ? 'desc' : 'asc'
+    }
+    reload()
+}
 
 const restore = (t) => router.post(route('admin.tests.restore', t.id), {}, { preserveScroll: true })
 </script>
@@ -58,11 +79,11 @@ const restore = (t) => router.post(route('admin.tests.restore', t.id), {}, { pre
             <table class="w-full text-sm">
                 <thead>
                     <tr>
-                        <th class="ac-th text-left px-5 py-3">Nom</th>
-                        <th class="ac-th text-left px-5 py-3">Type</th>
+                        <SortableTh field="name" :sort="sort" :dir="dir" @sort="sortBy">Nom</SortableTh>
+                        <SortableTh field="type" :sort="sort" :dir="dir" @sort="sortBy">Type</SortableTh>
                         <th class="ac-th text-left px-5 py-3">Plugin</th>
-                        <th class="ac-th text-left px-5 py-3">Durée</th>
-                        <th class="ac-th text-left px-5 py-3">Statut</th>
+                        <SortableTh field="estimated_minutes" :sort="sort" :dir="dir" @sort="sortBy">Durée</SortableTh>
+                        <SortableTh field="published" :sort="sort" :dir="dir" @sort="sortBy">Statut</SortableTh>
                         <th class="ac-th px-5 py-3"><span class="sr-only">Actions</span></th>
                     </tr>
                 </thead>

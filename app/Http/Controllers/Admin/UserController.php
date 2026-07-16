@@ -17,8 +17,13 @@ use Inertia\Inertia;
  */
 class UserController extends Controller
 {
+    use \App\Http\Controllers\Concerns\SortsColumns;
+
     /** Rôles assignables depuis l'interface (allowlist Spatie). */
     private const ROLES = ['admin', 'professional', 'candidate'];
+
+    /** Colonnes triables depuis la liste (allowlist). */
+    private const SORTABLE = ['name', 'email', 'last_login_at', 'created_at'];
 
     public function index(Request $request)
     {
@@ -43,7 +48,9 @@ class UserController extends Controller
             $q->where(fn ($x) => $x->where('email', 'like', "%{$s}%")->orWhere('name', 'like', "%{$s}%"));
         }
 
-        $users = $q->latest()->paginate(50)->withQueryString()
+        [$sort, $dir] = $this->sortParams($request, self::SORTABLE);
+
+        $users = $q->orderBy($sort, $dir)->paginate(50)->withQueryString()
             ->through(fn (User $u) => [
                 'id'            => $u->id,
                 'name'          => $u->name,
@@ -60,7 +67,7 @@ class UserController extends Controller
         return Inertia::render('Admin/Users/Index', [
             'users'   => $users,
             'roles'   => self::ROLES,
-            'filters' => $request->only(['search', 'role', 'verified', 'trashed']),
+            'filters' => $request->only(['search', 'role', 'verified', 'trashed', 'sort', 'dir']),
         ]);
     }
 

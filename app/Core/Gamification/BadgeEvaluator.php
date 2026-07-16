@@ -73,13 +73,30 @@ class BadgeEvaluator
 
     public function award(User $user, Badge $badge, array $context = []): void
     {
-        $user->badges()->attach($badge->id, [
-            'earned_at' => now(),
-            'context'   => json_encode($context, JSON_UNESCAPED_UNICODE),
-        ]);
+        // syncWithoutDetaching : idempotent — un badge déjà possédé n'est ni
+        // ré-inséré (violation user_badges unique → 500) ni re-crédité en Éclats.
+        try {
+            $changes = $user->badges()->syncWithoutDetaching([
+                $badge->id => [
+                    'earned_at' => now(),
+                    'context'   => json_encode($context, JSON_UNESCAPED_UNICODE),
+                ],
+            ]);
+        } catch (\Illuminate\Database\UniqueConstraintViolationException) {
+            return; // attribution concurrente (double clic / requêtes parallèles)
+        }
+
+        if (empty($changes['attached'])) {
+            return;
+        }
 
         if ($badge->xp_reward > 0) {
-            app(GamificationEngine::class)->awardXp($user, $badge->xp_reward, "badge:{$badge->slug}");
+            // evaluateBadges: false — on est déjà dans une passe d'évaluation ;
+            // la ré-évaluation récursive attribuait les badges suivants avant que
+            // la boucle appelante ne les atteigne, d'où des doublons user_badges.
+            // Les paliers franchis grâce à ces Éclats sont couverts par la suite
+            // de la passe en cours (totalEclats relit la base à chaque critère).
+            app(GamificationEngine::class)->awardXp($user, $badge->xp_reward, "badge:{$badge->slug}", evaluateBadges: false);
         }
 
         PluginHooks::doAction('gamification.badge_earned', $user, $badge);

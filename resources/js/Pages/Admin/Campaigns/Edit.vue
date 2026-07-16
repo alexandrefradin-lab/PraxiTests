@@ -1,5 +1,6 @@
 <script setup>
-import { useForm } from '@inertiajs/vue3'
+import { useForm, router } from '@inertiajs/vue3'
+import { ref, onBeforeUnmount } from 'vue'
 import AdminLayout from '@/Layouts/AdminLayout.vue'
 import FlashAlert from '@/Components/Admin/FlashAlert.vue'
 
@@ -26,13 +27,46 @@ const form = useForm({
     scheduled_at: toLocalInput(props.campaign?.scheduled_at),
 })
 
+// Champs JSON (variantes A/B, filtre audience) : au lieu d'avaler les erreurs
+// de parse en silence, on garde le texte saisi et on affiche l'erreur.
+const variantsStr = ref(JSON.stringify(form.variants, null, 2))
+const audienceStr = ref(JSON.stringify(form.audience_filter, null, 2))
+const variantsError = ref(null)
+const audienceError = ref(null)
+
+const syncJson = (str, formKey, errorRef) => {
+    try {
+        form[formKey] = JSON.parse(str.trim() || '{}')
+        errorRef.value = null
+    } catch (e) {
+        errorRef.value = 'JSON invalide — ' + e.message
+    }
+}
+
 const submit = () => {
+    if (variantsError.value || audienceError.value) return
     if (props.campaign?.id) {
         form.put(route('admin.campaigns.update', props.campaign.id))
     } else {
         form.post(route('admin.campaigns.store'))
     }
 }
+
+// Garde « modifications non enregistrées » : rechargement + navigation Inertia (GET).
+const onBeforeUnload = (e) => {
+    if (form.isDirty) { e.preventDefault(); e.returnValue = '' }
+}
+window.addEventListener('beforeunload', onBeforeUnload)
+const removeNavGuard = router.on('before', (event) => {
+    if (event.detail.visit.method === 'get' && form.isDirty
+        && !window.confirm('Des modifications non enregistrées seront perdues. Quitter quand même ?')) {
+        event.preventDefault()
+    }
+})
+onBeforeUnmount(() => {
+    window.removeEventListener('beforeunload', onBeforeUnload)
+    removeNavGuard()
+})
 </script>
 
 <template>
@@ -81,20 +115,25 @@ const submit = () => {
                 <label for="cmp-variants" class="pt-label block mt-6">Variantes A/B (optionnel)</label>
                 <textarea
                     id="cmp-variants"
-                    @input="(e) => { try { form.variants = JSON.parse(e.target.value || '{}') } catch {} }"
-                    :value="JSON.stringify(form.variants, null, 2)"
+                    v-model="variantsStr"
+                    @input="syncJson(variantsStr, 'variants', variantsError)"
                     rows="6" class="pt-input font-mono text-xs"
                     placeholder='{ "A": "Subject 1", "B": "Subject 2" }'></textarea>
+                <p v-if="variantsError" class="text-xs mt-1" style="color:var(--color-danger)">{{ variantsError }}</p>
 
                 <label for="cmp-audience" class="pt-label block mt-6">Filtre audience</label>
                 <textarea
                     id="cmp-audience"
-                    @input="(e) => { try { form.audience_filter = JSON.parse(e.target.value || '{}') } catch {} }"
-                    :value="JSON.stringify(form.audience_filter, null, 2)"
+                    v-model="audienceStr"
+                    @input="syncJson(audienceStr, 'audience_filter', audienceError)"
                     rows="5" class="pt-input font-mono text-xs"
                     placeholder='{ "status": "jobseeker", "has_completed_test": true }'></textarea>
+                <p v-if="audienceError" class="text-xs mt-1" style="color:var(--color-danger)">{{ audienceError }}</p>
 
-                <button type="submit" :disabled="form.processing" class="ac-btn-primary w-full mt-4">
+                <button type="submit"
+                    :disabled="form.processing || !!variantsError || !!audienceError"
+                    :title="(variantsError || audienceError) ? 'Corrige les champs JSON invalides avant d\'enregistrer' : undefined"
+                    class="ac-btn-primary w-full mt-4">
                     {{ form.processing ? 'Enregistrement…' : 'Enregistrer' }}
                 </button>
             </aside>

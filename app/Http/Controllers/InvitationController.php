@@ -13,6 +13,10 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 class InvitationController extends Controller
 {
     use StreamsCsv;
+    use \App\Http\Controllers\Concerns\SortsColumns;
+
+    /** Colonnes triables depuis la liste (allowlist). */
+    private const SORTABLE = ['email', 'status', 'sent_at', 'expires_at', 'created_at'];
 
     // ─── Interface conseiller ─────────────────────────────────────────────────
 
@@ -23,7 +27,9 @@ class InvitationController extends Controller
      */
     public function index(Request $request)
     {
-        $q = $this->filteredQuery($request)->with('test:id,name')->latest();
+        [$sort, $dir] = $this->sortParams($request, self::SORTABLE);
+
+        $q = $this->filteredQuery($request)->with('test:id,name')->orderBy($sort, $dir);
 
         $invitations = $q->paginate(30)->withQueryString()
             ->through(fn (TestInvitation $inv) => [
@@ -43,7 +49,7 @@ class InvitationController extends Controller
 
         return Inertia::render('Admin/Invitations/Index', [
             'invitations' => $invitations,
-            'filters'     => $request->only(['status', 'search', 'trashed']),
+            'filters'     => $request->only(['status', 'search', 'trashed', 'sort', 'dir']),
         ]);
     }
 

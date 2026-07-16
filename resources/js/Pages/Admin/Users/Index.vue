@@ -5,6 +5,7 @@ import AdminLayout from '@/Layouts/AdminLayout.vue'
 import AdminPagination from '@/Components/Admin/AdminPagination.vue'
 import ConfirmModal from '@/Components/Admin/ConfirmModal.vue'
 import FlashAlert from '@/Components/Admin/FlashAlert.vue'
+import SortableTh from '@/Components/Admin/SortableTh.vue'
 
 const props = defineProps({ users: Object, roles: Array, filters: Object })
 
@@ -12,18 +13,38 @@ const search   = ref(props.filters?.search ?? '')
 const role     = ref(props.filters?.role ?? '')
 const verified = ref(props.filters?.verified ?? '')
 const trashed  = ref(!!props.filters?.trashed)
+const sort     = ref(props.filters?.sort ?? 'created_at')
+const dir      = ref(props.filters?.dir ?? 'desc')
+
+const query = () => ({
+    search: search.value || undefined,
+    role: role.value || undefined,
+    verified: verified.value || undefined,
+    trashed: trashed.value ? 1 : undefined,
+    sort: sort.value !== 'created_at' ? sort.value : undefined,
+    dir: dir.value !== 'desc' ? dir.value : undefined,
+})
 
 let timer = null
+const reload = () => router.get(route('admin.users.index'), query(), {
+    preserveState: true, preserveScroll: true, replace: true,
+})
 watch([search, role, verified, trashed], () => {
     clearTimeout(timer)
-    timer = setTimeout(() => {
-        router.get(route('admin.users.index'), {
-            search: search.value, role: role.value, verified: verified.value,
-            trashed: trashed.value ? 1 : undefined,
-        }, { preserveState: true, preserveScroll: true, replace: true })
-    }, 250)
+    timer = setTimeout(reload, 250)
 })
 onUnmounted(() => clearTimeout(timer))
+
+// Tri serveur : re-clic sur la même colonne inverse le sens
+const sortBy = (field) => {
+    if (sort.value === field) {
+        dir.value = dir.value === 'asc' ? 'desc' : 'asc'
+    } else {
+        sort.value = field
+        dir.value = field === 'created_at' || field === 'last_login_at' ? 'desc' : 'asc'
+    }
+    reload()
+}
 
 const roleBadge = { admin: 'ac-badge-danger', professional: 'ac-badge-signal', candidate: 'ac-badge-neutral' }
 const roleLabel = { admin: 'Admin', professional: 'Professionnel', candidate: 'Candidat' }
@@ -87,12 +108,12 @@ const resendVerification = (user) => router.post(route('admin.users.resend-verif
             <table class="w-full text-sm">
                 <thead>
                     <tr>
-                        <th class="ac-th text-left px-5 py-3">Utilisateur</th>
+                        <SortableTh field="name" :sort="sort" :dir="dir" @sort="sortBy">Utilisateur</SortableTh>
                         <th class="ac-th text-left px-5 py-3">Rôle</th>
                         <th class="ac-th text-center px-5 py-3">Email vérifié</th>
                         <th class="ac-th text-center px-5 py-3">2FA</th>
-                        <th class="ac-th text-left px-5 py-3">Dernière connexion</th>
-                        <th class="ac-th text-left px-5 py-3">Inscrit le</th>
+                        <SortableTh field="last_login_at" :sort="sort" :dir="dir" @sort="sortBy">Dernière connexion</SortableTh>
+                        <SortableTh field="created_at" :sort="sort" :dir="dir" @sort="sortBy">Inscrit le</SortableTh>
                         <th class="ac-th px-5 py-3"><span class="sr-only">Actions</span></th>
                     </tr>
                 </thead>

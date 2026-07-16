@@ -29,6 +29,15 @@ git checkout -- app/Http/Controllers/Candidate/OnboardingController.php \
                 composer.json 2>/dev/null || true
 ok "Fichiers patchés réinitialisés"
 
+# composer.lock est désormais versionné (fix 500 Cashier : le lock local du
+# serveur datait de Cashier ≤14 qui requête subscriptions.name, alors que la
+# migration crée le schéma v15 avec la colonne `type`). Si un lock non suivi
+# traîne encore sur le serveur, il bloquerait le pull → on le supprime.
+if [ -f composer.lock ] && ! git ls-files --error-unmatch composer.lock >/dev/null 2>&1; then
+    rm -f composer.lock
+    ok "composer.lock obsolète (non suivi) supprimé"
+fi
+
 msg "Pull du code..."
 # NE PAS faire 'rm -rf public/build/' : après un rm, un git pull en merge ne
 # restaure QUE les fichiers modifiés dans le commit entrant → les chunks Vite

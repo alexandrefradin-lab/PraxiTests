@@ -1,7 +1,8 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue'
-import { Link, router } from '@inertiajs/vue3'
-import { ref, computed } from 'vue'
+import AdminPagination from '@/Components/Admin/AdminPagination.vue'
+import { router } from '@inertiajs/vue3'
+import { onUnmounted, ref, computed, watch } from 'vue'
 
 const props = defineProps({
     users:   Object,
@@ -10,37 +11,28 @@ const props = defineProps({
     kpis:    Object,
 })
 
-// ---- Filtres ----
+// ---- Filtres : live avec debounce, comme les autres listes admin ----
 const filterPlan   = ref(props.filters.plan   ?? '')
 const filterStatus = ref(props.filters.status ?? '')
 const filterSearch = ref(props.filters.search ?? '')
 
-function applyFilters() {
-    router.get('/admin/subscriptions', {
-        plan:   filterPlan.value   || undefined,
-        status: filterStatus.value || undefined,
-        search: filterSearch.value || undefined,
-    }, { preserveState: true, replace: true })
-}
+let timer = null
+watch([filterPlan, filterStatus, filterSearch], () => {
+    clearTimeout(timer)
+    timer = setTimeout(() => {
+        router.get(route('admin.subscriptions'), {
+            plan:   filterPlan.value   || undefined,
+            status: filterStatus.value || undefined,
+            search: filterSearch.value || undefined,
+        }, { preserveState: true, preserveScroll: true, replace: true })
+    }, 250)
+})
+onUnmounted(() => clearTimeout(timer))
 
 function resetFilters() {
     filterPlan.value   = ''
     filterStatus.value = ''
     filterSearch.value = ''
-    router.get('/admin/subscriptions')
-}
-
-// cf. audit M-14 — on n'injecte plus le label de pagination via v-html.
-// On retire les balises HTML et on décode les entités usuelles (« »),
-// puis on rend le résultat en texte simple (pas de surface XSS).
-function paginationLabel(label) {
-    const text = String(label ?? '').replace(/<[^>]*>/g, '')
-    return text
-        .replace(/&laquo;/g, '«')
-        .replace(/&raquo;/g, '»')
-        .replace(/&amp;/g, '&')
-        .replace(/&nbsp;/g, ' ')
-        .trim()
 }
 
 // ---- Formatage ----
@@ -110,7 +102,6 @@ const kpiCards = computed(() => [
                     <option value="none">Sans abonnement</option>
                 </select>
             </div>
-            <button @click="applyFilters" class="ac-btn-ghost text-sm py-1.5 px-4">Filtrer</button>
             <button
                 v-if="filterPlan || filterStatus || filterSearch"
                 @click="resetFilters"
@@ -181,24 +172,8 @@ const kpiCards = computed(() => [
                 </tbody>
             </table>
 
-            <!-- Pagination -->
-            <div v-if="users.last_page > 1" class="px-4 py-3 border-t flex items-center justify-between text-sm" style="border-color:var(--border-light);color:var(--text-muted)">
-                <span>{{ users.total }} résultat{{ users.total > 1 ? 's' : '' }}</span>
-                <div class="flex gap-1">
-                    <Link
-                        v-for="link in users.links"
-                        :key="link.label"
-                        :href="link.url ?? '#'"
-                        v-text="paginationLabel(link.label)"
-                        class="px-3 py-1 rounded text-xs border transition-colors"
-                        :class="[
-                            link.active ? 'bg-[var(--color-accent)] text-[#F0E8D4] border-[var(--color-accent)]' : 'hover:bg-[var(--bg-elevated)]',
-                            !link.url   ? 'opacity-40 pointer-events-none' : '',
-                        ]"
-                        :style="!link.active ? 'border-color:var(--border-light)' : ''"
-                    />
-                </div>
-            </div>
         </div>
+
+        <AdminPagination :links="users.links" />
     </AdminLayout>
 </template>

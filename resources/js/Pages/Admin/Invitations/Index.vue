@@ -5,23 +5,44 @@ import AdminLayout from '@/Layouts/AdminLayout.vue'
 import AdminPagination from '@/Components/Admin/AdminPagination.vue'
 import ConfirmModal from '@/Components/Admin/ConfirmModal.vue'
 import FlashAlert from '@/Components/Admin/FlashAlert.vue'
+import SortableTh from '@/Components/Admin/SortableTh.vue'
 
 const props = defineProps({ invitations: Object, filters: Object })
 
 const search  = ref(props.filters?.search ?? '')
 const status  = ref(props.filters?.status ?? '')
 const trashed = ref(!!props.filters?.trashed)
+const sort    = ref(props.filters?.sort ?? 'created_at')
+const dir     = ref(props.filters?.dir ?? 'desc')
+
+const query = () => ({
+    search: search.value || undefined,
+    status: status.value || undefined,
+    trashed: trashed.value ? 1 : undefined,
+    sort: sort.value !== 'created_at' ? sort.value : undefined,
+    dir: dir.value !== 'desc' ? dir.value : undefined,
+})
 
 let timer = null
+const reload = () => router.get(route('admin.invitations.index'), query(), {
+    preserveState: true, preserveScroll: true, replace: true,
+})
 watch([search, status, trashed], () => {
     clearTimeout(timer)
-    timer = setTimeout(() => {
-        router.get(route('admin.invitations.index'),
-            { search: search.value, status: status.value, trashed: trashed.value ? 1 : undefined },
-            { preserveState: true, preserveScroll: true, replace: true })
-    }, 250)
+    timer = setTimeout(reload, 250)
 })
 onUnmounted(() => clearTimeout(timer))
+
+// Tri serveur : re-clic sur la même colonne inverse le sens
+const sortBy = (field) => {
+    if (sort.value === field) {
+        dir.value = dir.value === 'asc' ? 'desc' : 'asc'
+    } else {
+        sort.value = field
+        dir.value = ['created_at', 'sent_at', 'expires_at'].includes(field) ? 'desc' : 'asc'
+    }
+    reload()
+}
 
 const statusColor = {
     pending:   'ac-badge-neutral',
@@ -93,11 +114,11 @@ const exportUrl = () => route('admin.invitations.export', {
             <table class="w-full text-sm">
                 <thead>
                     <tr>
-                        <th class="ac-th text-left px-5 py-3">Candidat</th>
+                        <SortableTh field="email" :sort="sort" :dir="dir" @sort="sortBy">Candidat</SortableTh>
                         <th class="ac-th text-left px-5 py-3">Épreuve(s)</th>
-                        <th class="ac-th text-left px-5 py-3">Statut</th>
-                        <th class="ac-th text-left px-5 py-3">Envoyée</th>
-                        <th class="ac-th text-left px-5 py-3">Expire</th>
+                        <SortableTh field="status" :sort="sort" :dir="dir" @sort="sortBy">Statut</SortableTh>
+                        <SortableTh field="sent_at" :sort="sort" :dir="dir" @sort="sortBy">Envoyée</SortableTh>
+                        <SortableTh field="expires_at" :sort="sort" :dir="dir" @sort="sortBy">Expire</SortableTh>
                         <th class="ac-th text-center px-5 py-3">Partage</th>
                         <th class="ac-th px-5 py-3"><span class="sr-only">Actions</span></th>
                     </tr>

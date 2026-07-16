@@ -11,6 +11,11 @@ use Inertia\Inertia;
 
 class CampaignController extends Controller
 {
+    use \App\Http\Controllers\Concerns\SortsColumns;
+
+    /** Colonnes triables depuis la liste (allowlist). */
+    private const SORTABLE = ['name', 'subject', 'status', 'sent_at', 'created_at'];
+
     public function index(Request $request)
     {
         // A10 — Cloisonnement multi-tenant : les professionnels ne voient que leurs campagnes
@@ -35,7 +40,9 @@ class CampaignController extends Controller
             $q->where(fn ($x) => $x->where('name', 'like', "%{$s}%")->orWhere('subject', 'like', "%{$s}%"));
         }
 
-        $campaigns = $q->latest()->paginate(25)->withQueryString()
+        [$sort, $dir] = $this->sortParams($request, self::SORTABLE);
+
+        $campaigns = $q->orderBy($sort, $dir)->paginate(25)->withQueryString()
             // Stats d'envoi visibles dès la liste (délivrés / ouverts / cliqués)
             ->through(fn (EmailCampaign $c) => [
                 'id'           => $c->id,
@@ -52,7 +59,7 @@ class CampaignController extends Controller
 
         return Inertia::render('Admin/Campaigns/Index', [
             'campaigns' => $campaigns,
-            'filters'   => $request->only(['status', 'search', 'trashed']),
+            'filters'   => $request->only(['status', 'search', 'trashed', 'sort', 'dir']),
         ]);
     }
 

@@ -20,18 +20,18 @@ class SubscriptionController extends Controller
         $filterPlan = $request->get('plan');
         $filterStatus = $request->get('status'); // active | trialing | cancelled | none
 
-        // --- KPIs ---
-        $allSubs = Subscription::where('name', 'default')->get();
+        // --- KPIs : agrégats SQL (scopes Cashier) — on ne charge plus la table en mémoire ---
+        $activeCount    = Subscription::where('name', 'default')->active()->notOnGracePeriod()->count();
+        $trialCount     = Subscription::where('name', 'default')->onTrial()->count();
+        $cancelledCount = Subscription::where('name', 'default')->canceled()->count();
 
-        $activeSubs   = $allSubs->filter(fn ($s) => $s->active() && ! $s->onGracePeriod());
-        $trialSubs    = $allSubs->filter(fn ($s) => $s->onTrial());
-        $cancelledSubs = $allSubs->filter(fn ($s) => $s->cancelled());
-
-        // MRR : calcul basé sur les price IDs Stripe → montant mensuel
+        // MRR : comptage groupé par price ID Stripe → montant mensuel
         $priceMap = $this->buildPriceMap($plans);
-        $mrr = $activeSubs->sum(function ($sub) use ($priceMap) {
-            return $priceMap[$sub->stripe_price] ?? 0;
-        });
+        $mrr = Subscription::where('name', 'default')->active()->notOnGracePeriod()
+            ->selectRaw('stripe_price, COUNT(*) as subs_count')
+            ->groupBy('stripe_price')
+            ->pluck('subs_count', 'stripe_price')
+            ->reduce(fn ($sum, $count, $price) => $sum + ($priceMap[$price] ?? 0) * $count, 0);
 
         // --- Liste utilisateurs avec abonnement ---
         $query = User::with(['subscription' => fn ($q) => $q->where('name', 'default')])
@@ -123,10 +123,10 @@ class SubscriptionController extends Controller
             'plans'    => collect($plans)->map(fn ($p, $k) => ['key' => $k, 'name' => $p['name']])->values(),
             'filters'  => ['plan' => $filterPlan, 'status' => $filterStatus, 'search' => $request->get('search')],
             'kpis'     => [
-                'total_subscribers' => $activeSubs->count() + $trialSubs->count(),
-                'active'            => $activeSubs->count(),
-                'trialing'          => $trialSubs->count(),
-                'cancelled'         => $cancelledSubs->count(),
+                'total_subscribers' => $activeCount + $trialCount,
+                'active'            => $activeCount,
+                'trialing'          => $trialCount,
+                'cancelled'         => $cancelledCount,
                 'mrr'               => $mrr,   // en centimes
             ],
         ]);

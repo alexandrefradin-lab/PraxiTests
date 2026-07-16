@@ -73,6 +73,8 @@ class DashboardController extends Controller
                     'user'         => $a->user ? ['name' => $a->user->name, 'email' => $a->user->email] : null,
                     'test'         => $a->test ? ['name' => $a->test->name] : null,
                     'completed_at' => $a->completed_at?->diffForHumans(),
+                    // Lien vers le résultat (admin uniquement — même règle que LeadController::show)
+                    'results_url'  => $a->status === 'completed' ? route('results.show', $a->id, false) : null,
                 ])
             : collect();
 

@@ -74,11 +74,14 @@ const statusColor = {
             </Link>
         </div>
 
+        <!-- KPI cliquables : chaque carte mène à sa liste filtrée quand elle existe -->
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-            <div class="pt-card p-5">
+            <component :is="stats.total_users != null ? Link : 'div'"
+                :href="stats.total_users != null ? route('admin.users.index') : undefined"
+                class="pt-card p-5" :class="stats.total_users != null && 'pt-kpi-link'">
                 <p class="text-xs" style="color:var(--text-muted)">Utilisateurs</p>
                 <p class="text-3xl font-semibold mt-1" style="color:var(--text-primary)">{{ stats.total_users ?? '—' }}</p>
-            </div>
+            </component>
             <div class="pt-card p-5">
                 <p class="text-xs" style="color:var(--text-muted)">Tests complétés</p>
                 <p class="text-3xl font-semibold mt-1" style="color:var(--text-primary)">{{ stats.attempts_completed ?? '—' }}</p>
@@ -91,14 +94,14 @@ const statusColor = {
                 <p class="text-xs" style="color:var(--text-muted)">Taux complétion</p>
                 <p class="text-3xl font-semibold mt-1" style="color:var(--text-primary)">{{ stats.completion_rate != null ? stats.completion_rate + '%' : '—' }}</p>
             </div>
-            <div class="pt-card p-5">
+            <Link :href="route('admin.leads.index', { status: 'new' })" class="pt-card p-5 pt-kpi-link">
                 <p class="text-xs" style="color:var(--text-muted)">Nouveaux leads</p>
                 <p class="text-3xl font-semibold mt-1" style="color:var(--text-primary)">{{ stats.leads_new }}</p>
-            </div>
-            <div class="pt-card p-5">
+            </Link>
+            <Link :href="route('admin.leads.index', { status: 'qualified' })" class="pt-card p-5 pt-kpi-link">
                 <p class="text-xs" style="color:var(--text-muted)">Qualifiés</p>
                 <p class="text-3xl font-semibold mt-1" style="color:var(--text-primary)">{{ stats.leads_qualified }}</p>
-            </div>
+            </Link>
         </div>
 
         <!-- Tendance d'activité (admin) -->
@@ -113,13 +116,17 @@ const statusColor = {
             <section class="pt-card p-6">
                 <h2 class="font-semibold mb-4" style="font-family:var(--font-display);color:var(--text-primary)">Tests récents</h2>
                 <div v-if="recent_attempts.length" class="space-y-3">
-                    <div v-for="a in recent_attempts" :key="a.id" class="flex items-center justify-between text-sm border-b pb-3 last:border-0" style="border-color:var(--border-light)">
+                    <component :is="a.results_url ? Link : 'div'" v-for="a in recent_attempts" :key="a.id"
+                        :href="a.results_url ?? undefined"
+                        class="flex items-center justify-between text-sm border-b pb-3 last:border-0"
+                        :class="a.results_url && 'transition hover:opacity-75'"
+                        style="border-color:var(--border-light)">
                         <div>
                             <p class="font-medium" style="color:var(--text-primary)">{{ a.user?.name ?? 'Anonyme' }}</p>
                             <p class="text-xs" style="color:var(--text-muted)">{{ a.test?.name }}</p>
                         </div>
                         <span class="text-xs whitespace-nowrap" style="color:var(--text-muted)">{{ a.completed_at ?? 'en cours' }}</span>
-                    </div>
+                    </component>
                 </div>
                 <p v-else class="text-sm py-8 text-center" style="color:var(--text-muted)">
                     Aucun test passé pour le moment.
@@ -149,3 +156,14 @@ const statusColor = {
         </div>
     </AdminLayout>
 </template>
+
+<style scoped>
+.pt-kpi-link {
+    display: block;
+    transition: transform .12s ease, box-shadow .12s ease;
+}
+.pt-kpi-link:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+}
+</style>

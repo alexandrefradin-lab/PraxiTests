@@ -1,7 +1,8 @@
 <script setup>
-import { ref, computed } from 'vue'
-import { useForm, Link } from '@inertiajs/vue3'
+import { ref, computed, onBeforeUnmount } from 'vue'
+import { useForm, Link, router } from '@inertiajs/vue3'
 import AdminLayout from '@/Layouts/AdminLayout.vue'
+import ConfirmModal from '@/Components/Admin/ConfirmModal.vue'
 
 const props = defineProps({ test: Object, scoring_engines: Array })
 
@@ -31,11 +32,23 @@ const saveMeta = () => {
 // ─── Structure (sections + questions) ────────────────────────────────────────
 
 const TYPES = [
-    { value: 'scale',  label: 'Échelle (1–N)' },
-    { value: 'single', label: 'Choix unique' },
-    { value: 'multi',  label: 'Choix multiple' },
-    { value: 'text',   label: 'Texte libre' },
+    { value: 'scale',       label: 'Échelle (1–N)' },
+    { value: 'single',      label: 'Choix unique' },
+    { value: 'multi',       label: 'Choix multiple' },
+    { value: 'text',        label: 'Texte libre' },
+    { value: 'ranking',     label: 'Classement' },
+    { value: 'situational', label: 'Mise en situation' },
+    { value: 'exercise',    label: 'Exercice' },
 ]
+
+// Types dont les options n'ont pas (encore) d'UI dédiée : édition en JSON brut.
+const ADVANCED_TYPES = ['ranking', 'situational', 'exercise']
+
+// Message d'erreur si la chaîne n'est pas un JSON valide (null si vide ou valide).
+const jsonError = (str) => {
+    if (!str || !str.trim()) return null
+    try { JSON.parse(str); return null } catch (e) { return 'JSON invalide — ' + e.message }
+}
 
 function makeQuestion(order = 0) {
     return {
@@ -53,6 +66,8 @@ function makeQuestion(order = 0) {
         scaleMaxLabel: '',
         // single / multi
         choices: [{ value: '', label: '' }],
+        // ranking / situational / exercise : options en JSON brut
+        optionsStr: '',
         // scoring brut JSON
         scoringStr: '',
     }
@@ -104,6 +119,10 @@ function hydrateQuestion(q) {
         choices:        isChoice && Array.isArray(opts)
             ? opts.map(o => ({ value: String(o.value ?? ''), label: String(o.label ?? '') }))
             : [{ value: '', label: '' }],
+        // Types avancés : on préserve les options existantes en JSON brut
+        // (avant, elles étaient silencieusement écrasées à la sauvegarde).
+        optionsStr:     ADVANCED_TYPES.includes(q.type) && q.options != null
+            ? JSON.stringify(q.options, null, 2) : '',
         scoringStr:     q.scoring ? JSON.stringify(q.scoring, null, 2) : '',
     }
 }
@@ -129,12 +148,13 @@ function serializeQuestion(q, idx) {
         options = q.choices
             .filter(c => c.label)
             .map((c, i) => ({ value: c.value || String(i + 1), label: c.label }))
+    } else if (ADVANCED_TYPES.includes(q.type) && q.optionsStr.trim()) {
+        options = JSON.parse(q.optionsStr)
     }
 
-    let scoring = null
-    if (q.scoringStr.trim()) {
-        try { scoring = JSON.parse(q.scoringStr) } catch { scoring = null }
-    }
+    // Un JSON invalide bloque la sauvegarde en amont (structureJsonInvalid) —
+    // plus jamais d'écrasement silencieux en null.
+    const scoring = q.scoringStr.trim() ? JSON.parse(q.scoringStr) : null
 
     return {
         id:       q.id,
@@ -161,14 +181,53 @@ function serializeSections() {
 
 const structureForm = useForm({ sections: [] })
 
+// Vrai si au moins un champ JSON (scoring ou options avancées) est invalide.
+const structureJsonInvalid = computed(() =>
+    sections.value.some(s => s.questions.some(q =>
+        jsonError(q.scoringStr) || (ADVANCED_TYPES.includes(q.type) && jsonError(q.optionsStr))
+    ))
+)
+
 const saveStructure = () => {
+    if (structureJsonInvalid.value) return
     structureForm.sections = serializeSections()
-    structureForm.put(route('admin.tests.structure', props.test.id))
+    structureForm.put(route('admin.tests.structure', props.test.id), {
+        onSuccess: () => { savedSnapshot.value = snapshot() },
+    })
 }
 
 const totalQuestions = computed(() =>
     sections.value.reduce((n, s) => n + s.questions.length, 0)
 )
+
+// ─── Garde « modifications non enregistrées » ────────────────────────────────
+// Snapshot de la structure hors clés d'UI (_key, open) : replier une section
+// ne compte pas comme une modification.
+const snapshot = () => JSON.stringify(
+    sections.value,
+    (k, v) => (k === '_key' || k === 'open') ? undefined : v,
+)
+const savedSnapshot = ref(snapshot())
+const isDirty = computed(() => meta.isDirty || snapshot() !== savedSnapshot.value)
+
+const onBeforeUnload = (e) => {
+    if (isDirty.value) { e.preventDefault(); e.returnValue = '' }
+}
+window.addEventListener('beforeunload', onBeforeUnload)
+
+// Navigation Inertia (liens internes) : on ne garde que les GET — les
+// soumissions de formulaires (put/post) doivent passer.
+const removeNavGuard = router.on('before', (event) => {
+    if (event.detail.visit.method === 'get' && isDirty.value
+        && !window.confirm('Des modifications non enregistrées seront perdues. Quitter quand même ?')) {
+        event.preventDefault()
+    }
+})
+
+onBeforeUnmount(() => {
+    window.removeEventListener('beforeunload', onBeforeUnload)
+    removeNavGuard()
+})
 
 // ─── Actions sections ─────────────────────────────────────────────────────────
 
@@ -176,9 +235,14 @@ const addSection = () => {
     sections.value.push(makeSection(sections.value.length))
 }
 
-const removeSection = (si) => {
-    if (confirm('Supprimer cette section et toutes ses questions ?')) {
-        sections.value.splice(si, 1)
+// Suppression de section : ConfirmModal (thème) au lieu du confirm() natif
+const confirmingSectionRemoval = ref(null)   // index de la section, ou null
+
+const removeSection = (si) => { confirmingSectionRemoval.value = si }
+
+const doRemoveSection = () => {
+    if (confirmingSectionRemoval.value !== null) {
+        sections.value.splice(confirmingSectionRemoval.value, 1)
     }
 }
 
@@ -308,7 +372,8 @@ const moveQuestionDown = (si, qi) => {
                     <h2 class="text-lg font-semibold" style="font-family:var(--font-display);color:var(--text-primary)">Structure du test</h2>
                     <p class="text-sm mt-0.5" style="color:var(--text-muted)">{{ sections.length }} section(s) · {{ totalQuestions }} question(s)</p>
                 </div>
-                <div class="flex gap-3">
+                <div class="flex items-center gap-3">
+                    <span v-if="isDirty" class="text-xs" style="color:var(--color-warning, #B8860B)">● Modifications non enregistrées</span>
                     <button type="button" @click="addSection" class="pt-btn-ghost text-sm">
                         + Ajouter une section
                     </button>
@@ -316,7 +381,8 @@ const moveQuestionDown = (si, qi) => {
                         v-if="sections.length"
                         type="button"
                         @click="saveStructure"
-                        :disabled="structureForm.processing"
+                        :disabled="structureForm.processing || structureJsonInvalid"
+                        :title="structureJsonInvalid ? 'Corrige les champs JSON invalides avant de sauvegarder' : undefined"
                         class="pt-btn-primary text-sm"
                     >
                         {{ structureForm.processing ? 'Sauvegarde…' : 'Sauvegarder la structure' }}
@@ -451,6 +517,18 @@ const moveQuestionDown = (si, qi) => {
                                             <button type="button" @click="addChoice(q)" class="ac-link-primary text-xs">+ Ajouter une option</button>
                                         </div>
 
+                                        <!-- Ranking / Situational / Exercise : options en JSON brut -->
+                                        <div v-if="ADVANCED_TYPES.includes(q.type)">
+                                            <label class="block text-xs mb-1" style="color:var(--text-muted)">Options (JSON — type avancé)</label>
+                                            <textarea
+                                                v-model="q.optionsStr"
+                                                rows="3"
+                                                class="pt-input text-xs font-mono"
+                                                placeholder='["Élément A", "Élément B", "Élément C"]'
+                                            ></textarea>
+                                            <p v-if="jsonError(q.optionsStr)" class="text-xs mt-1" style="color:var(--color-danger)">{{ jsonError(q.optionsStr) }}</p>
+                                        </div>
+
                                         <!-- Scoring JSON -->
                                         <div>
                                             <label class="block text-xs mb-1" style="color:var(--text-muted)">Scoring (JSON, optionnel)</label>
@@ -460,6 +538,7 @@ const moveQuestionDown = (si, qi) => {
                                                 class="pt-input text-xs font-mono"
                                                 placeholder='{"dimension":"realistic","max":5}'
                                             ></textarea>
+                                            <p v-if="jsonError(q.scoringStr)" class="text-xs mt-1" style="color:var(--color-danger)">{{ jsonError(q.scoringStr) }}</p>
                                         </div>
                                     </div>
 
@@ -492,17 +571,32 @@ const moveQuestionDown = (si, qi) => {
             </div>
 
             <!-- Bouton sauvegarder flottant en bas -->
-            <div v-if="sections.length" class="mt-6 flex justify-end">
+            <div v-if="sections.length" class="mt-6 flex items-center justify-end gap-4">
+                <p v-if="structureJsonInvalid" class="text-xs" style="color:var(--color-danger)">
+                    Un champ JSON (scoring ou options) est invalide — corrige-le pour pouvoir sauvegarder.
+                </p>
                 <button
                     type="button"
                     @click="saveStructure"
-                    :disabled="structureForm.processing"
+                    :disabled="structureForm.processing || structureJsonInvalid"
                     class="pt-btn-primary px-8 py-3"
                 >
                     {{ structureForm.processing ? 'Sauvegarde en cours…' : 'Sauvegarder la structure' }}
                 </button>
             </div>
         </div>
+
+        <ConfirmModal
+            :show="confirmingSectionRemoval !== null"
+            @update:show="confirmingSectionRemoval = null"
+            title="Supprimer cette section ?"
+            confirm-label="Supprimer" danger
+            @confirm="doRemoveSection"
+        >
+            « {{ sections[confirmingSectionRemoval]?.title || 'Sans titre' }} » et ses
+            {{ sections[confirmingSectionRemoval]?.questions.length ?? 0 }} question(s) seront retirées.
+            La suppression ne devient définitive qu'à la sauvegarde de la structure.
+        </ConfirmModal>
     </AdminLayout>
 </template>
 
