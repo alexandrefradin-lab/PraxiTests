@@ -25,6 +25,13 @@ return Application::configure(basePath: dirname(__DIR__))
         // TODO SEC-C3: S'assurer que STRIPE_WEBHOOK_SECRET est défini dans .env et que cashier.webhook_secret est configuré.
         // Voir : https://laravel.com/docs/cashier-stripe#handling-stripe-webhooks
 
+        // Redirection 301 vers le domaine canonique (www.praxiquest.fr) — en tête
+        // du groupe web pour rediriger avant toute session/CSRF. Inactif tant que
+        // CANONICAL_REDIRECT_ENABLED=true n'est pas posé dans le .env prod.
+        $middleware->web(prepend: [
+            \App\Http\Middleware\RedirectToCanonicalHost::class,
+        ]);
+
         $middleware->web(append: [
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,

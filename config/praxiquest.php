@@ -71,6 +71,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Domaine canonique (redirection 301)
+    |--------------------------------------------------------------------------
+    | Le même docroot est servi par praxiquest.decisionpro.fr ET www.praxiquest.fr.
+    | Avant le lancement commercial, activer la redirection canonique pour que
+    | tout le trafic (SEO, liens emails, cookies) converge vers un seul domaine.
+    | ⚠️ Désactivé par défaut : activer via .env prod une fois le domaine
+    | commercial vérifié (CANONICAL_REDIRECT_ENABLED=true).
+    */
+    'canonical' => [
+        'enabled' => env('CANONICAL_REDIRECT_ENABLED', false),
+        'host'    => env('CANONICAL_HOST', 'www.praxiquest.fr'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Contact / support
     |--------------------------------------------------------------------------
     | Adresse affichée sur la page de contact, les pages légales et les emails.
