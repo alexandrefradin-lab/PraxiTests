@@ -80,10 +80,10 @@ class QuotaService
         $subscription = $user->subscription('default');
 
         foreach (config('plans.plans', []) as $key => $plan) {
-            if (filled($plan['stripe_monthly']) && $subscription->hasStripePrice($plan['stripe_monthly'])) {
+            if (filled($plan['stripe_monthly']) && $subscription->hasPrice($plan['stripe_monthly'])) {
                 return $key;
             }
-            if (filled($plan['stripe_yearly']) && $subscription->hasStripePrice($plan['stripe_yearly'])) {
+            if (filled($plan['stripe_yearly']) && $subscription->hasPrice($plan['stripe_yearly'])) {
                 return $key;
             }
         }

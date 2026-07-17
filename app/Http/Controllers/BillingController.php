@@ -26,12 +26,12 @@ class BillingController extends Controller
             $sub = $user->subscription('default');
 
             foreach ($plans as $key => $plan) {
-                if ($sub->hasStripePrice($plan['stripe_monthly'])) {
+                if ($sub->hasPrice($plan['stripe_monthly'])) {
                     $activePlan   = $key;
                     $activePeriod = 'monthly';
                     break;
                 }
-                if ($sub->hasStripePrice($plan['stripe_yearly'])) {
+                if ($sub->hasPrice($plan['stripe_yearly'])) {
                     $activePlan   = $key;
                     $activePeriod = 'yearly';
                     break;
@@ -138,13 +138,13 @@ class BillingController extends Controller
 
         if ($subscription) {
             foreach (config('plans.plans') as $key => $plan) {
-                if ($subscription->hasStripePrice($plan['stripe_monthly'])) {
+                if ($subscription->hasPrice($plan['stripe_monthly'])) {
                     $activePlanKey  = $key;
                     $activePlanName = $plan['name'];
                     $activePeriod   = 'monthly';
                     break;
                 }
-                if ($subscription->hasStripePrice($plan['stripe_yearly'])) {
+                if ($subscription->hasPrice($plan['stripe_yearly'])) {
                     $activePlanKey  = $key;
                     $activePlanName = $plan['name'];
                     $activePeriod   = 'yearly';
