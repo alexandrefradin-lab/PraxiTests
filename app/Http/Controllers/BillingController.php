@@ -131,6 +131,20 @@ class BillingController extends Controller
         $invoices      = $user->invoices();
         $paymentMethod = $user->defaultPaymentMethod();
 
+        // Un abonnement créé via Stripe Checkout attache la carte à l'abonnement
+        // (subscription.default_payment_method), pas au client : sans fallback,
+        // la page affiche « Aucune carte enregistrée » alors qu'une carte existe.
+        if (! $paymentMethod && $subscription) {
+            try {
+                $paymentMethod = $subscription
+                    ->asStripeSubscription(['default_payment_method'])
+                    ->default_payment_method
+                    ?? $user->paymentMethods()->first();
+            } catch (\Throwable $e) {
+                Log::warning('Fallback payment method failed', ['user_id' => $user->id, 'msg' => $e->getMessage()]);
+            }
+        }
+
         // Détails du plan actif
         $activePlanKey  = null;
         $activePlanName = null;
@@ -162,7 +176,7 @@ class BillingController extends Controller
             'activePlanKey'  => $activePlanKey,
             'activePlanName' => $activePlanName,
             'activePeriod'   => $activePeriod,
-            'card'           => $paymentMethod ? [
+            'card'           => $paymentMethod && $paymentMethod->card ? [
                 'brand'    => $paymentMethod->card->brand,
                 'last4'    => $paymentMethod->card->last4,
                 'exp'      => $paymentMethod->card->exp_month . '/' . $paymentMethod->card->exp_year,
