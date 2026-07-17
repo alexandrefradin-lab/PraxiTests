@@ -23,16 +23,8 @@ class MirrorController extends Controller
     {
         $user = $request->user();
 
-        if (! $this->rewards->isRouteUnlocked('praximiroir.index', $user)) {
-            $reward = $this->rewards->rewardForRoute('praximiroir.index');
-            $seuil  = $reward['threshold'] ?? null;
-
-            return redirect()->route('treasure.index')->with(
-                'error',
-                $seuil
-                    ? \App\Support\Parcours::sealedMessage($seuil)
-                    : (\App\Support\Parcours::isCorporate() ? "Ce module est encore verrouillé." : "Ce trésor est encore scellé.")
-            );
+        if ($redirect = $this->rewards->unlockRedirect('praximiroir.index', $user)) {
+            return $redirect;
         }
 
         $journey  = $this->journeys->journeyFor($user);
@@ -75,6 +67,12 @@ class MirrorController extends Controller
     public function show(Request $request, int $day)
     {
         $user     = $request->user();
+
+        // SEC-M1 : le gating Éclats doit aussi couvrir show/complete (pas seulement index).
+        if ($redirect = $this->rewards->unlockRedirect('praximiroir.index', $user)) {
+            return $redirect;
+        }
+
         $journey  = $this->journeys->journeyFor($user);
         $exercise = MirrorExercise::active()->where('day_index', $day)->firstOrFail();
 
@@ -118,6 +116,12 @@ class MirrorController extends Controller
     public function complete(Request $request, int $day)
     {
         $user     = $request->user();
+
+        // SEC-M1 : gating Éclats avant tout octroi de récompense.
+        if ($redirect = $this->rewards->unlockRedirect('praximiroir.index', $user)) {
+            return $redirect;
+        }
+
         $journey  = $this->journeys->journeyFor($user);
         $exercise = MirrorExercise::active()->where('day_index', $day)->firstOrFail();
 

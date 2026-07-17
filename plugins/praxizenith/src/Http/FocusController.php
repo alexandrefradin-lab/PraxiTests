@@ -24,16 +24,8 @@ class FocusController extends Controller
         $user    = $request->user();
 
         // Gating Éclats : la mini-app est un trésor (palier 2400 Éclats).
-        if (! $this->rewards->isRouteUnlocked('praxizenith.index', $user)) {
-            $reward = $this->rewards->rewardForRoute('praxizenith.index');
-            $seuil  = $reward['threshold'] ?? null;
-
-            return redirect()->route('treasure.index')->with(
-                'error',
-                $seuil
-                    ? \App\Support\Parcours::sealedMessage($seuil)
-                    : (\App\Support\Parcours::isCorporate() ? "Ce module est encore verrouillé." : "Ce trésor est encore scellé.")
-            );
+        if ($redirect = $this->rewards->unlockRedirect('praxizenith.index', $user)) {
+            return $redirect;
         }
 
         $journey = $this->journeys->journeyFor($user);
@@ -76,6 +68,12 @@ class FocusController extends Controller
     public function show(Request $request, int $day)
     {
         $user     = $request->user();
+
+        // SEC-M1 : le gating Éclats doit aussi couvrir show/complete (pas seulement index).
+        if ($redirect = $this->rewards->unlockRedirect('praxizenith.index', $user)) {
+            return $redirect;
+        }
+
         $journey  = $this->journeys->journeyFor($user);
         $exercise = FocusExercise::active()->where('day_index', $day)->firstOrFail();
 
@@ -119,6 +117,12 @@ class FocusController extends Controller
     public function complete(Request $request, int $day)
     {
         $user     = $request->user();
+
+        // SEC-M1 : gating Éclats avant tout octroi de récompense.
+        if ($redirect = $this->rewards->unlockRedirect('praxizenith.index', $user)) {
+            return $redirect;
+        }
+
         $journey  = $this->journeys->journeyFor($user);
         $exercise = FocusExercise::active()->where('day_index', $day)->firstOrFail();
 

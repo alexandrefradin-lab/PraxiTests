@@ -187,6 +187,18 @@ class InvitationController extends Controller
      */
     public function store(Request $request)
     {
+        // Quota mensuel de dossiers (grille V1) — appliqué uniquement quand le
+        // paywall est actif (praxiquest.billing.enforced). Voir QuotaService.
+        $quotas = app(\Praxis\Core\Billing\QuotaService::class);
+        if (! $quotas->canCreateDossier($request->user())) {
+            $quota = $quotas->dossierQuota($request->user());
+
+            return back()->withErrors([
+                'email' => "Quota mensuel atteint ({$quota} dossiers). "
+                    . 'Passez au palier supérieur ou attendez le mois prochain.',
+            ]);
+        }
+
         $data = $request->validate([
             'test_ids'   => ['required', 'array', 'min:1'],
             'test_ids.*' => ['integer', 'exists:tests,id'],
@@ -215,6 +227,8 @@ class InvitationController extends Controller
         TestInvitation::create([
             'test_id'                 => $testIds[0],
             'professional_account_id' => $professionalAccountId,
+            // Attribution du dossier à son créateur (quota mensuel V1).
+            'created_by'              => $user->id,
             'email'                   => $data['email'],
             'first_name'              => $data['first_name'] ?? null,
             'last_name'               => $data['last_name'] ?? null,

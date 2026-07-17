@@ -26,16 +26,9 @@ class ExerciseController extends Controller
         $user  = $request->user();
 
         // Gating « cadeau » : la mini-app elle-même est un trésor (palier d'Éclats).
-        if (! $this->rewards->isRouteUnlocked('praxiboost.index', $user)) {
-            $reward = $this->rewards->rewardForRoute('praxiboost.index');
-            $seuil  = $reward['threshold'] ?? null;
-
-            return redirect()->route('treasure.index')->with(
-                'error',
-                $seuil
-                    ? \App\Support\Parcours::sealedMessage($seuil)
-                    : (\App\Support\Parcours::isCorporate() ? "Ce module est encore verrouillé." : "Ce trésor est encore scellé.")
-            );
+        // (show/complete gardent leur propre gating par seuil d'exercice.)
+        if ($redirect = $this->rewards->unlockRedirect('praxiboost.index', $user)) {
+            return $redirect;
         }
 
         $total = $this->gamification->totalEclats($user);

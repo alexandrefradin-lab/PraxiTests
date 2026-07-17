@@ -1,11 +1,16 @@
 <?php
 
 /**
- * Plans d'abonnement PraxiQuest
+ * Plans d'abonnement PraxiQuest — grille V1 (étude de marché 2026-07-16).
  *
- * stripe_price_id : ID du Price Stripe (ex: price_xxx)
- * Créer les produits & prices dans le dashboard Stripe,
- * puis renseigner les IDs ici (ou via les variables d'env).
+ * stripe_monthly / stripe_yearly : IDs des Prices Stripe (ex: price_xxx).
+ * Créer les produits & prices dans le dashboard Stripe, puis renseigner
+ * les IDs via les variables d'env.
+ *
+ * available : false = palier affiché « Bientôt disponible », non souscriptible
+ *   (Cabinet/Centre attendent le multi-comptes structure — ProfessionalAccount).
+ * quota_dossiers : nombre d'invitations candidat par mois calendaire. Appliqué
+ *   uniquement quand le paywall est actif (praxiquest.billing.enforced).
  */
 return [
 
@@ -13,59 +18,64 @@ return [
 
     'plans' => [
 
-        'starter' => [
-            'name'           => 'Starter',
-            'description'    => 'Parfait pour démarrer — accès à tous les tests de base.',
-            'price_monthly'  => 1900,   // centimes
-            'price_yearly'   => 19000,
-            'stripe_monthly' => env('STRIPE_PRICE_STARTER_MONTHLY', ''),
-            'stripe_yearly'  => env('STRIPE_PRICE_STARTER_YEARLY', ''),
+        'independant' => [
+            'name'           => 'Indépendant',
+            'description'    => 'Pour le consultant en bilan de compétences : tout le produit, un prix simple.',
+            'price_monthly'  => 3900,   // centimes
+            'price_yearly'   => 39000,  // 2 mois offerts
+            'stripe_monthly' => env('STRIPE_PRICE_INDEPENDANT_MONTHLY', ''),
+            'stripe_yearly'  => env('STRIPE_PRICE_INDEPENDANT_YEARLY', ''),
+            'available'      => true,
+            'quota_dossiers' => 5,
             'features'       => [
-                '5 tests disponibles',
-                'Synthèse IA (résumé court)',
-                'Rapport PDF',
-                'Support email',
-            ],
-            'highlighted'    => false,
-            'color'          => '#6B7280',
-        ],
-
-        'pro' => [
-            'name'           => 'Pro',
-            'description'    => 'L\'essentiel pour un accompagnement complet.',
-            'price_monthly'  => 4900,
-            'price_yearly'   => 49000,
-            'stripe_monthly' => env('STRIPE_PRICE_PRO_MONTHLY', ''),
-            'stripe_yearly'  => env('STRIPE_PRICE_PRO_YEARLY', ''),
-            'features'       => [
-                'Tous les tests disponibles',
-                'Synthèse IA complète + 15 métiers',
-                'Rapports PDF illimités',
-                'Invitations candidats (50/mois)',
-                'Tableau de bord pro',
-                'Support prioritaire',
+                '5 dossiers candidats / mois — tous les tests inclus',
+                '12 tests psychométriques (RIASEC, Big Five, valeurs, EQ-i, stress, biais cognitifs, TDAH, hypersensibilité, 360°, gestion du temps, entrepreneuriat, orientation express)',
+                'Synthèse IA rédigée + pistes métiers + plans d\'action',
+                'Grimoire, Oracle et parcours d\'accompagnement 30-60 jours',
+                'Rapports PDF à votre marque',
+                'Invitations en un lien, relances et campagnes email',
+                'Exports CSV (dossiers Qualiopi)',
             ],
             'highlighted'    => true,
+            'color'          => '#A67520',
+        ],
+
+        'cabinet' => [
+            'name'           => 'Cabinet',
+            'description'    => 'Pour les cabinets de 2 à 5 consultants — comptes d\'équipe et vue consolidée.',
+            'price_monthly'  => 9900,
+            'price_yearly'   => 99000,
+            'stripe_monthly' => env('STRIPE_PRICE_CABINET_MONTHLY', ''),
+            'stripe_yearly'  => env('STRIPE_PRICE_CABINET_YEARLY', ''),
+            'available'      => false, // en attente du multi-comptes (ProfessionalAccount)
+            'quota_dossiers' => 20,
+            'features'       => [
+                '20 dossiers candidats / mois',
+                '3 comptes consultants',
+                'Tout Indépendant inclus',
+                'Vue consolidée du cabinet',
+            ],
+            'highlighted'    => false,
             'color'          => '#1B2A4A',
         ],
 
-        'enterprise' => [
-            'name'           => 'Enterprise',
-            'description'    => 'Pour les cabinets et organismes à fort volume.',
-            'price_monthly'  => 9900,
-            'price_yearly'   => 99000,
-            'stripe_monthly' => env('STRIPE_PRICE_ENTERPRISE_MONTHLY', ''),
-            'stripe_yearly'  => env('STRIPE_PRICE_ENTERPRISE_YEARLY', ''),
+        'centre' => [
+            'name'           => 'Centre',
+            'description'    => 'Pour les centres et réseaux multi-sites — sur devis.',
+            'price_monthly'  => 24900,
+            'price_yearly'   => 249000,
+            'stripe_monthly' => env('STRIPE_PRICE_CENTRE_MONTHLY', ''),
+            'stripe_yearly'  => env('STRIPE_PRICE_CENTRE_YEARLY', ''),
+            'available'      => false, // en attente du multi-comptes (ProfessionalAccount)
+            'quota_dossiers' => 60,
             'features'       => [
-                'Tout Pro +',
-                'Invitations illimitées',
-                'White-label (logo + couleurs)',
-                'Export données (CSV / API)',
-                'Compte multi-utilisateurs',
-                'SLA + support dédié',
+                '60 dossiers candidats / mois',
+                'Comptes consultants illimités',
+                'Tout Cabinet inclus',
+                'Onboarding accompagné',
             ],
             'highlighted'    => false,
-            'color'          => '#B8860B',
+            'color'          => '#7B1515',
         ],
 
     ],

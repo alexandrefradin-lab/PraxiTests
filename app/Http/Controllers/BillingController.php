@@ -61,6 +61,14 @@ class BillingController extends Controller
 
         $user      = $request->user();
         $plan      = config('plans.plans.' . $request->plan);
+
+        // Paliers non ouverts (Cabinet/Centre en attente du multi-comptes) :
+        // affichés « Bientôt disponible », jamais souscriptibles.
+        if (! ($plan['available'] ?? true)) {
+            return redirect()->route('billing.plans')
+                ->with('error', "Le palier {$plan['name']} arrive bientôt. Contactez-nous pour être prévenu·e : " . config('praxiquest.contact.email'));
+        }
+
         $priceId   = $request->period === 'yearly'
             ? $plan['stripe_yearly']
             : $plan['stripe_monthly'];

@@ -19,7 +19,9 @@ use Illuminate\Support\Facades\Route;
 // (pas par token d'invitation), donc la vérification d'email s'applique.
 // NB : ne PAS ajouter 'verified' aux routes candidats (token d'invitation).
 // '2fa' : si l'admin/pro a activé le 2FA, la session doit être confirmée (audit A-2).
-Route::middleware(['auth', 'verified', 'role:admin|professional', '2fa'])
+// 'subscribed' : paywall pro — inactif tant que PRAXIQUEST_BILLING_ENFORCED=false
+// (phase bêta) ; les admins restent exemptés dans EnsureSubscribed.
+Route::middleware(['auth', 'verified', 'role:admin|professional', '2fa', 'subscribed'])
     ->prefix('admin')->name('admin.')
     ->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');

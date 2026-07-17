@@ -1,6 +1,6 @@
 <script setup>
 import { ref, reactive, computed, onMounted, onBeforeUnmount, watch } from 'vue'
-import { Head } from '@inertiajs/vue3'
+import { Head, router } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import MarkdownText from '@/Components/MarkdownText.vue'
 const props = defineProps({
@@ -177,12 +177,51 @@ watch(() => props.attempt?.ai_pending, (pending) => {
     }
 }, { immediate: true })
 
+// ── Polling IA pendant ai_pending ────────────────────────────────────────
+// L'écran ai_pending est rendu HORS CandidateLayout (le poller du layout n'est
+// donc jamais monté). Sans ce poller local, la page restait figée sur
+// « Ton Grimoire se révèle… » indéfiniment. Même logique que Grimoire.vue.
+let pollTimer = null
+const pollCount = ref(0)
+const aiFailed = ref(false)
+// Après 5 min (60 × 5 s) sans réponse, on propose un rafraîchissement manuel.
+const pendingTooLong = computed(() => pollCount.value >= 60)
+
+function startResultPolling() {
+    if (pollTimer) return
+    pollCount.value = 0
+    pollTimer = setInterval(async () => {
+        try {
+            const r = await fetch(route('results.status', props.attempt.id), { headers: { Accept: 'application/json' } })
+            const data = await r.json()
+            pollCount.value++
+            if (data.ai_ready) {
+                stopResultPolling()
+                router.reload()   // recharge : ai_pending = false → affichage des résultats
+            } else if (data.ai_failed) {
+                aiFailed.value = true
+                stopResultPolling()
+            }
+        } catch (e) { /* retry au prochain tick */ }
+    }, 5000)
+}
+function stopResultPolling() {
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null }
+}
+function retryPending() {
+    aiFailed.value = false
+    router.reload()
+}
+
 onBeforeUnmount(() => {
     if (rafId) cancelAnimationFrame(rafId)
+    stopResultPolling()
 })
 
 onMounted(() => {
-    if (props.ai_pending || !props.result?.ai_synthesis) return
+    // Cas synthèse en cours : on lance le poller local et on s'arrête là.
+    if (props.ai_pending) { startResultPolling(); return }
+    if (!props.result?.ai_synthesis) return
 
     // Accessibilité / pas de rétention : tout afficher d'emblée.
     if (prefersReducedMotion) { revealed.value = true; ctaVisible.value = true; return }
@@ -202,15 +241,31 @@ onMounted(() => {
             <!-- Ligne décorative -->
             <div class="ac-deco-line"></div>
 
-            <!-- Points pulsants -->
-            <div class="ac-pulse-dots">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
+            <!-- État échec : la génération IA a échoué -->
+            <template v-if="aiFailed">
+                <h1 class="ac-pending-title" style="margin-top:2rem">La révélation n'a pas abouti</h1>
+                <p class="ac-pending-sub">Une erreur est survenue pendant l'analyse. Réessaie dans un instant.</p>
+                <button type="button" class="ac-pending-retry" @click="retryPending">Réessayer</button>
+            </template>
 
-            <h1 class="ac-pending-title">Ton Grimoire se révèle…</h1>
-            <p class="ac-pending-sub">L'IA analyse ton Épreuve · 1 à 2 minutes</p>
+            <!-- État normal : analyse en cours -->
+            <template v-else>
+                <!-- Points pulsants -->
+                <div class="ac-pulse-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+
+                <h1 class="ac-pending-title">Ton Grimoire se révèle…</h1>
+                <p class="ac-pending-sub">L'IA analyse ton Épreuve · 1 à 2 minutes</p>
+
+                <!-- Attente anormalement longue : proposer un rafraîchissement -->
+                <div v-if="pendingTooLong" style="margin-top:1.5rem">
+                    <p class="ac-pending-sub" style="margin-bottom:0.75rem">L'analyse prend plus de temps que prévu.</p>
+                    <button type="button" class="ac-pending-retry" @click="retryPending">Rafraîchir</button>
+                </div>
+            </template>
 
             <!-- Ligne décorative bas -->
             <div class="ac-deco-line" style="margin-top: 2rem;"></div>
@@ -431,6 +486,23 @@ onMounted(() => {
     font-size: 12px;
     color: var(--text-secondary);
     letter-spacing: 0.03em;
+}
+
+.ac-pending-retry {
+    margin-top: 1.25rem;
+    padding: 0.6rem 1.6rem;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--bg-base);
+    background: var(--color-accent);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+.ac-pending-retry:hover {
+    background: var(--color-primary-dark);
 }
 
 /* ═══ PAGE RÉSULTATS ═════════════════════════════════════════════════════ */

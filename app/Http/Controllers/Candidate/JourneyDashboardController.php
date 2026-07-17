@@ -7,6 +7,7 @@ use App\Models\JourneyProgress;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Praxis\Core\Gamification\GamificationEngine;
+use Praxis\Core\Gamification\RewardCatalog;
 use Praxis\Core\Journey\JourneyEngine;
 use Praxis\Core\Journey\JourneyRegistry;
 
@@ -20,11 +21,18 @@ class JourneyDashboardController extends Controller
     public function __construct(
         protected JourneyEngine $engine,
         protected GamificationEngine $gamification,
+        protected RewardCatalog $rewards,
     ) {}
 
     public function index(Request $request, string $plugin)
     {
         abort_unless(JourneyRegistry::has($plugin), 404);
+
+        // SEC-M1 : gating Éclats (le déblocage journalier ne suffit pas — sans
+        // ce garde-fou, la mini-app premium était accessible par URL directe).
+        if ($redirect = $this->rewards->journeyUnlockRedirect($plugin, $request->user())) {
+            return $redirect;
+        }
 
         $config = JourneyRegistry::get($plugin);
         $userId = $request->user()->id;
@@ -68,6 +76,11 @@ class JourneyDashboardController extends Controller
     public function show(Request $request, string $plugin, int $day)
     {
         abort_unless(JourneyRegistry::has($plugin), 404);
+
+        // SEC-M1 : gating Éclats avant le déblocage journalier.
+        if ($redirect = $this->rewards->journeyUnlockRedirect($plugin, $request->user())) {
+            return $redirect;
+        }
 
         $config = JourneyRegistry::get($plugin);
         $userId = $request->user()->id;
@@ -120,6 +133,12 @@ class JourneyDashboardController extends Controller
     public function complete(Request $request, string $plugin, int $day)
     {
         abort_unless(JourneyRegistry::has($plugin), 404);
+
+        // SEC-M1 : gating Éclats avant tout octroi de récompense.
+        if ($redirect = $this->rewards->journeyUnlockRedirect($plugin, $request->user())) {
+            return $redirect;
+        }
+
         $userId = $request->user()->id;
 
         abort_unless($this->engine->isUnlocked($userId, $plugin, $day), 403);

@@ -143,20 +143,9 @@ class LibraryController extends Controller
      */
     protected function sealed(Request $request, string $plugin): ?RedirectResponse
     {
-        $routeName = "{$plugin}.index";
-
-        if ($this->rewards->isRouteUnlocked($routeName, $request->user())) {
-            return null;
-        }
-
-        $reward = $this->rewards->rewardForRoute($routeName);
-        $seuil  = $reward['threshold'] ?? null;
-
-        return redirect()->route('treasure.index')->with(
-            'error',
-            $seuil
-                ? \App\Support\Parcours::sealedMessage($seuil)
-                : (\App\Support\Parcours::isCorporate() ? "Ce module est encore verrouillé." : "Ce trésor est encore scellé.")
-        );
+        // SEC-M1 : garde par slug de plugin (couvre les mini-apps de type journey
+        // que isRouteUnlocked laissait passer — le message de redirection est géré
+        // par RewardCatalog).
+        return $this->rewards->pluginUnlockRedirect($plugin, $request->user());
     }
 }

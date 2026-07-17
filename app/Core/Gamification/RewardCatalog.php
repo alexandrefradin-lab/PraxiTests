@@ -186,6 +186,17 @@ class RewardCatalog
             ->first(fn ($r) => $r['entry']['type'] === 'route' && ($r['entry']['name'] ?? null) === $routeName);
     }
 
+    /**
+     * Récompense adossée à un parcours 60 jours (entry.type === 'journey').
+     * Avant, ces plugins échappaient à rewardForRoute (qui ne matche que 'route')
+     * → isRouteUnlocked retournait toujours true → gating inopérant.
+     */
+    public function rewardForJourney(string $slug): ?array
+    {
+        return $this->all()
+            ->first(fn ($r) => $r['entry']['type'] === 'journey' && ($r['entry']['slug'] ?? null) === $slug);
+    }
+
     public function isTestUnlocked(string $slug, User $user): bool
     {
         $reward = $this->rewardForTestSlug($slug);
@@ -206,5 +217,84 @@ class RewardCatalog
         }
 
         return $this->gamification->totalEclats($user) >= $reward['threshold'];
+    }
+
+    /** Déblocage d'une mini-app enregistrée comme parcours 60 jours. */
+    public function isJourneyUnlocked(string $slug, User $user): bool
+    {
+        $reward = $this->rewardForJourney($slug);
+
+        if ($reward === null) {
+            return true;
+        }
+
+        return $this->gamification->totalEclats($user) >= $reward['threshold'];
+    }
+
+    /**
+     * Garde de déblocage pour une mini-app à route dédiée (praxilead, praximiroir,
+     * praxizenith…). Retourne une redirection vers le Trésor si verrouillée, null
+     * sinon. À appeler en tête de index/show/complete pour fermer le contournement
+     * par URL directe (SEC-M1).
+     */
+    public function unlockRedirect(string $routeName, User $user): ?\Illuminate\Http\RedirectResponse
+    {
+        if ($this->isRouteUnlocked($routeName, $user)) {
+            return null;
+        }
+
+        return $this->sealedRedirect($this->rewardForRoute($routeName)['threshold'] ?? null);
+    }
+
+    /** Garde de déblocage pour une mini-app « parcours 60 jours » (JourneyRegistry). */
+    public function journeyUnlockRedirect(string $slug, User $user): ?\Illuminate\Http\RedirectResponse
+    {
+        if ($this->isJourneyUnlocked($slug, $user)) {
+            return null;
+        }
+
+        return $this->sealedRedirect($this->rewardForJourney($slug)['threshold'] ?? null);
+    }
+
+    /**
+     * Garde de déblocage UNIVERSELLE par slug de plugin, quel que soit le type
+     * d'entrée (route, journey, test). C'est la garde à privilégier quand on ne
+     * connaît que le slug du plugin : elle couvre les mini-apps de type journey
+     * que isRouteUnlocked laissait passer (SEC-M1).
+     */
+    public function rewardForPlugin(string $slug): ?array
+    {
+        return $this->all()->firstWhere('plugin_slug', $slug);
+    }
+
+    public function isPluginUnlocked(string $slug, User $user): bool
+    {
+        $reward = $this->rewardForPlugin($slug);
+
+        if ($reward === null) {
+            return true;
+        }
+
+        return $this->gamification->totalEclats($user) >= $reward['threshold'];
+    }
+
+    public function pluginUnlockRedirect(string $slug, User $user): ?\Illuminate\Http\RedirectResponse
+    {
+        if ($this->isPluginUnlocked($slug, $user)) {
+            return null;
+        }
+
+        return $this->sealedRedirect($this->rewardForPlugin($slug)['threshold'] ?? null);
+    }
+
+    /** Redirection commune « trésor scellé » (message adapté au parcours). */
+    private function sealedRedirect(?int $threshold): \Illuminate\Http\RedirectResponse
+    {
+        return redirect()->route('treasure.index')->with(
+            'error',
+            $threshold
+                ? \App\Support\Parcours::sealedMessage($threshold)
+                : (\App\Support\Parcours::isCorporate() ? "Ce module est encore verrouillé." : "Ce trésor est encore scellé.")
+        );
     }
 }

@@ -87,10 +87,15 @@ const needsConfirmButton = computed(() => {
     return !t || !SELF_ADVANCING_TYPES.includes(t)
 })
 
+// Message d'erreur de sauvegarde (réseau instable) — affiché sous la carte
+// au lieu d'un échec totalement silencieux.
+const saveError = ref('')
+
 const recordAndAdvance = () => {
     if (!currentQuestion.value) return
     if (isSubmitting.value || !hasValue(value.value)) return
     isSubmitting.value = true
+    saveError.value = ''
     const time = Math.round((Date.now() - startedAt.value) / 1000)
     const qid = currentQuestion.value.id
     const val = value.value
@@ -102,16 +107,25 @@ const recordAndAdvance = () => {
         preserveScroll: true,
         preserveState: true,
         onSuccess: () => {
-            isSubmitting.value = false
             savedAnswers.value = { ...savedAnswers.value, [qid]: val }
             if (currentIndex.value + 1 >= totalQuestions.value) {
-                router.post(route('attempt.complete', props.attempt.id))
+                // Dernière question : on GARDE isSubmitting à true jusqu'à la
+                // redirection pour empêcher un double POST de complétion (scoring
+                // + dispatch IA). Le verrou n'est relâché qu'en cas d'erreur.
+                router.post(route('attempt.complete', props.attempt.id), {}, {
+                    onError: () => {
+                        isSubmitting.value = false
+                        saveError.value = "La finalisation a échoué. Vérifie ta connexion et réessaie."
+                    },
+                })
             } else {
+                isSubmitting.value = false
                 goTo(currentIndex.value + 1)
             }
         },
         onError: () => {
             isSubmitting.value = false
+            saveError.value = "Réponse non enregistrée — vérifie ta connexion et réessaie."
         },
     })
 }
@@ -407,6 +421,9 @@ const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
                             {{ isSubmitting ? '…' : (isLastQuestion ? 'Terminer l\'Épreuve →' : 'Valider et continuer →') }}
                         </button>
                     </div>
+
+                    <!-- Erreur de sauvegarde (réseau) : plus jamais d'échec silencieux -->
+                    <p v-if="saveError" class="ac-save-error" role="alert">{{ saveError }}</p>
 
                             </div>
                         </Transition>
@@ -1028,6 +1045,14 @@ const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
     margin-top: 2.5rem;
     display: flex;
     justify-content: center;
+}
+
+.ac-save-error {
+    margin-top: 1rem;
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: var(--color-danger, #B03020);
 }
 
 .ac-btn-primary {

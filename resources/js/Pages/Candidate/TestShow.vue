@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { router, Link, Head } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import { useParcours } from '@/composables/useParcours'
@@ -9,19 +9,29 @@ const { L, isCorporate, testLabel, vouvoyer } = useParcours()
 const props = defineProps({
     test: Object,
     profile_complete: Boolean,
-    already_attempted: Boolean,    // tentative completed existante
-    attempt_in_progress: Object,   // tentative in_progress si elle existe
+    already_attempted: Boolean,       // une tentative completed existe
+    completed_attempt_id: Number,     // id de la dernière tentative terminée (lien résultats)
+    attempt_in_progress: Object,      // tentative in_progress si elle existe
 })
 
 const totalQuestions = computed(() =>
     props.test.sections?.reduce((acc, s) => acc + (s.questions?.length ?? 0), 0) ?? 0
 )
 
+// Verrou anti double-submit : le démarrage dispatche du scoring + IA, il ne
+// doit partir qu'une fois.
+const starting = ref(false)
 const start = () => {
+    if (starting.value) return
+    starting.value = true
     if (props.attempt_in_progress) {
-        router.get(route('attempt.show', props.attempt_in_progress.id))
+        router.get(route('attempt.show', props.attempt_in_progress.id), {}, {
+            onFinish: () => { starting.value = false },
+        })
     } else {
-        router.post(route('attempt.start', props.test.slug))
+        router.post(route('attempt.start', props.test.slug), {}, {
+            onFinish: () => { starting.value = false },
+        })
     }
 }
 </script>
@@ -163,8 +173,8 @@ const start = () => {
                 </div>
                 <div class="flex flex-col sm:flex-row gap-3">
                     <Link
-                        v-if="already_attempted.result_id"
-                        :href="route('results.show', already_attempted.result_id)"
+                        v-if="completed_attempt_id"
+                        :href="route('results.show', completed_attempt_id)"
                         class="pt-btn-ghost flex-1 py-3 text-sm text-center"
                         style="font-family:'Space Grotesk',sans-serif;"
                     >
@@ -172,10 +182,11 @@ const start = () => {
                     </Link>
                     <button
                         @click="start"
+                        :disabled="starting"
                         class="pt-btn-primary flex-1 py-3 text-sm font-semibold"
                         style="font-family:'Space Grotesk',sans-serif;"
                     >
-                        Repasser l'Épreuve →
+                        {{ starting ? 'Ouverture…' : "Repasser l'Épreuve →" }}
                     </button>
                 </div>
             </template>
@@ -198,10 +209,11 @@ const start = () => {
                 </div>
                 <button
                     @click="start"
+                    :disabled="starting"
                     class="pt-btn-primary w-full py-3 text-base font-semibold"
                     style="font-family:'Space Grotesk',sans-serif;"
                 >
-                    Reprendre l'Épreuve →
+                    {{ starting ? 'Ouverture…' : "Reprendre l'Épreuve →" }}
                 </button>
             </template>
 
@@ -211,10 +223,11 @@ const start = () => {
                     <button
                         v-if="profile_complete"
                         @click="start"
+                        :disabled="starting"
                         class="pt-btn-primary w-full py-3 text-base font-semibold"
                         style="font-family:'Space Grotesk',sans-serif;"
                     >
-                        Commencer l'Épreuve
+                        {{ starting ? 'Ouverture…' : "Commencer l'Épreuve" }}
                     </button>
                     <Link
                         v-else

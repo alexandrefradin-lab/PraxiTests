@@ -14,6 +14,21 @@ return [
         'multitenant' => env('PRAXIQUEST_MULTITENANT', false), // non implémenté — activer manuellement
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Facturation — interrupteur du paywall
+    |--------------------------------------------------------------------------
+    | enforced = false (défaut) : phase bêta, accès pro libre, aucun quota.
+    | enforced = true : les routes professionnelles exigent un abonnement actif
+    |   (middleware 'subscribed') et le quota mensuel de dossiers du plan
+    |   s'applique à la création d'invitations (config plans.quota_dossiers).
+    | Bascule le jour J via .env : PRAXIQUEST_BILLING_ENFORCED=true
+    | puis php artisan config:cache.
+    */
+    'billing' => [
+        'enforced' => env('PRAXIQUEST_BILLING_ENFORCED', false),
+    ],
+
     'profile' => [
         'statuses' => [
             'employee'    => 'Salarié',

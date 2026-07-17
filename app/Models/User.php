@@ -31,6 +31,10 @@ class User extends Authenticatable implements MustVerifyEmail
         'last_login_at'              => 'datetime',
         'terms_accepted_at'          => 'datetime',
         'password'                   => 'hashed',
+        // SEC-M3 : secret TOTP chiffré au repos (via APP_KEY). Une exfiltration
+        // de la base ne livre plus les secrets 2FA en clair. Migration de
+        // chiffrement des secrets existants : 2026_07_16_120001_encrypt_two_factor_secret.
+        'two_factor_secret'          => 'encrypted',
         'two_factor_recovery_codes'  => 'array',
     ];
 

@@ -34,8 +34,12 @@ class AuthController extends Controller
             return back()->withErrors(['email' => 'Identifiants invalides.']);
         }
 
-        // ── 2FA requis pour admin/pro avec 2FA activé ──────────────────────
-        if ($user->hasTwoFactorEnabled() && ($user->hasRole('admin') || $user->hasRole('professional'))) {
+        // ── 2FA requis dès qu'il est activé, quel que soit le rôle ──────────
+        // Avant, le défi n'était déclenché que pour admin/pro : un candidat qui
+        // activait le 2FA voyait son second facteur silencieusement ignoré au
+        // login (mot de passe seul suffisait). Le défi s'applique désormais à
+        // tout compte ayant activé le 2FA (SEC-M2).
+        if ($user->hasTwoFactorEnabled()) {
             $request->session()->put('two_factor_user_id', $user->id);
             $request->session()->put('two_factor_remember', $request->boolean('remember'));
             $request->session()->regenerate();
@@ -162,6 +166,18 @@ class AuthController extends Controller
                 ));
                 // Garder l'ID pour qu'AttemptController puisse le lier à la tentative
                 session(['pending_invitation_id' => $invitation->id]);
+
+                // UX/robustesse — Inscription via lien d'invitation : l'adresse est
+                // déjà prouvée par le lien reçu à cet email. On marque l'email vérifié
+                // pour que le candidat enchaîne directement sur ses épreuves. Sans ça,
+                // s'il vérifiait depuis un autre appareil, la session (et son
+                // pending_invitation_id) était perdue → tentative jamais rattachée à
+                // l'invitation → suivi pro silencieusement cassé.
+                if (! $user->hasVerifiedEmail()
+                    && $invitation->email
+                    && mb_strtolower($invitation->email) === mb_strtolower($user->email)) {
+                    $user->markEmailAsVerified();
+                }
             }
         }
 

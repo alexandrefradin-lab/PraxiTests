@@ -81,7 +81,7 @@ class ConseillerDashboardController extends Controller
             ->get()
             ->keyBy('invitation_id');
 
-        $candidates = $invitations->map(function (TestInvitation $inv) use ($attempts) {
+        $candidates = $invitations->map(function (TestInvitation $inv) use ($attempts, $isAdmin) {
             $attempt = $attempts->get($inv->id);
             $jobs    = $this->decodeJson($attempt?->result?->suggested_jobs);
 
@@ -96,6 +96,9 @@ class ConseillerDashboardController extends Controller
                 'has_ai'     => (bool) ($attempt?->result?->ai_synthesis),
                 'jobs_count' => is_array($jobs) ? count($jobs) : 0,
                 'attempt_id' => $attempt?->id,
+                // Le pro n'ouvre le résultat que si le candidat a consenti au
+                // partage (SEC-M12) ; l'admin voit tout. Évite un lien qui 403.
+                'can_view_result' => $isAdmin || (bool) $inv->consent_share_professional,
             ];
         })->values();
 

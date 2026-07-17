@@ -26,7 +26,7 @@ const streak = computed(() => props.engagement?.streak ?? 0)
 const apply = () => {
     if (applying.value || appliedToday.value) return
     applying.value = true
-    router.post(route('dailytip.apply', props.plugin), {}, {
+    router.post(route('daily.tip.apply', { plugin: props.plugin }), {}, {
         preserveScroll: true,
         onFinish: () => { applying.value = false },
     })

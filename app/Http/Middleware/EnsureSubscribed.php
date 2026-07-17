@@ -17,6 +17,13 @@ class EnsureSubscribed
 {
     public function handle(Request $request, Closure $next): Response
     {
+        // Interrupteur paywall : en phase bêta (billing.enforced = false),
+        // le middleware laisse passer tout le monde. Bascule via .env
+        // PRAXIQUEST_BILLING_ENFORCED=true (cf. config/praxiquest.php).
+        if (! config('praxiquest.billing.enforced')) {
+            return $next($request);
+        }
+
         $user = $request->user();
 
         if (! $user) {

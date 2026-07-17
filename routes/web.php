@@ -28,9 +28,10 @@ Route::get('/email/unsubscribe/{user}', \App\Http\Controllers\UnsubscribeControl
     ->middleware('signed')
     ->name('email.unsubscribe');
 
-// NOTE : Le middleware 'subscribed' (EnsureSubscribed) est disponible mais
-// non appliqué ici — accès libre en phase bêta. Pour activer le paywall,
-// ajouter 'subscribed' au middleware group ci-dessous.
+// NOTE : Le paywall pro ('subscribed') est appliqué aux routes professionnelles
+// (routes/admin.php) mais reste inactif tant que PRAXIQUEST_BILLING_ENFORCED=false
+// (config praxiquest.billing.enforced). Les routes candidat ci-dessous restent
+// volontairement hors paywall : le candidat est invité par un pro, il ne paie pas.
 // Groupe candidat — 'verified' impose la confirmation d'email avant l'accès aux
 // tests/résultats. Flux complet dans routes/auth.php (verification.*). Kill-switch
 // via config praxiquest.security.require_email_verification + exemption staff

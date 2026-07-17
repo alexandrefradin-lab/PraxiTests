@@ -64,16 +64,22 @@ class TestController extends Controller
             ->where('status', 'in_progress')
             ->first();
 
-        $alreadyCompleted = TestAttempt::where('user_id', $user->id)
+        // Dernière tentative terminée : on renvoie son id pour le lien « Voir ma
+        // Révélation » (route results.show = {attempt}). Avant, only exists() était
+        // envoyé → le lien testait already_attempted.result_id (toujours undefined)
+        // et ne s'affichait jamais.
+        $completedAttempt = TestAttempt::where('user_id', $user->id)
             ->where('test_id', $test->id)
             ->where('status', 'completed')
-            ->exists();
+            ->latest('completed_at')
+            ->first();
 
         return Inertia::render('Candidate/TestShow', [
-            'test'               => $test->load('sections.questions'),
-            'profile_complete'   => $user->profile?->isComplete() ?? false,
-            'already_attempted'  => $alreadyCompleted,
-            'attempt_in_progress' => $inProgress ? $inProgress->only('id') : null,
+            'test'                 => $test->load('sections.questions'),
+            'profile_complete'     => $user->profile?->isComplete() ?? false,
+            'already_attempted'    => (bool) $completedAttempt,
+            'completed_attempt_id' => $completedAttempt?->id,
+            'attempt_in_progress'  => $inProgress ? $inProgress->only('id') : null,
         ]);
     }
 }

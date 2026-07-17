@@ -190,15 +190,21 @@ const openRate = (c) => (c.delivered > 0 ? Math.round((c.opened / c.delivered) *
                                     </div>
                                 </td>
                                 <td class="py-3 text-right">
+                                    <!-- Lien résultat : seulement si consentement (pro) ou admin -->
                                     <Link
-                                        v-if="c.attempt_id"
+                                        v-if="c.attempt_id && c.has_ai && c.can_view_result"
                                         :href="`/results/${c.attempt_id}`"
                                         class="text-xs font-medium"
                                         style="color: var(--pt-navy)"
                                     >
-                                        <span v-if="c.has_ai">Voir ({{ c.jobs_count }} métiers)</span>
-                                        <span v-else style="color:var(--text-muted)">En attente IA</span>
+                                        Voir ({{ c.jobs_count }} métiers)
                                     </Link>
+                                    <span v-else-if="c.attempt_id && c.has_ai && !c.can_view_result"
+                                        class="text-xs" style="color:var(--text-muted)"
+                                        title="Le candidat n'a pas consenti au partage de ses résultats">
+                                        Non partagé
+                                    </span>
+                                    <span v-else-if="c.attempt_id" class="text-xs" style="color:var(--text-muted)">En attente IA</span>
                                     <span v-else class="text-xs" style="color:var(--text-muted)">—</span>
                                 </td>
                             </tr>

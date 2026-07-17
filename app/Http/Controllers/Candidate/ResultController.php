@@ -15,15 +15,43 @@ class ResultController extends Controller
     use BuildsBrandedPdf;
 
     /**
-     * Résultats consultables par leur propriétaire, et par les admins
-     * (suivi des leads depuis le back-office). Les comptes professionnels
-     * restent exclus : leur cloisonnement multi-tenant sera traité à part.
+     * Résultats consultables par leur propriétaire, par les admins (suivi des
+     * leads), et par le professionnel invitant SI le candidat a consenti au
+     * partage (consent_share_professional). C'est la vue résultat pro promise à
+     * l'inscription — lecture seule (les pages de résultats n'ont aucune action
+     * de mutation), cloisonnée au compte professionnel de l'invitation.
      */
     protected function authorizeAttempt(TestAttempt $attempt): void
     {
+        $user = auth()->user();
+
         abort_unless(
-            $attempt->user_id === auth()->id() || auth()->user()->hasRole('admin'),
+            $attempt->user_id === $user->id
+                || $user->hasRole('admin')
+                || $this->professionalMayView($attempt, $user),
             403
+        );
+    }
+
+    /**
+     * Vrai si $user est un professionnel dont un compte a émis l'invitation
+     * liée à cette tentative ET que le candidat a consenti au partage.
+     */
+    protected function professionalMayView(TestAttempt $attempt, \App\Models\User $user): bool
+    {
+        if (! $user->hasRole('professional')) {
+            return false;
+        }
+
+        $invitation = $attempt->invitation; // BelongsTo (peut être null : tentative organique)
+        if ($invitation === null || ! $invitation->consent_share_professional) {
+            return false;
+        }
+
+        return in_array(
+            $invitation->professional_account_id,
+            $user->professionalAccountIds(),
+            true
         );
     }
 
@@ -168,6 +196,7 @@ class ResultController extends Controller
         return response()->json([
             'ai_ready'   => (bool) $attempt->result?->ai_synthesis,
             'jobs_ready' => !empty($attempt->result?->suggested_jobs),
+            'ai_failed'  => (bool) $attempt->result?->ai_failed,
         ]);
     }
 

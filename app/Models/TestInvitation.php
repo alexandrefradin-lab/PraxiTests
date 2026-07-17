@@ -14,6 +14,7 @@ class TestInvitation extends Model
     protected $fillable = [
         'test_id',
         'professional_account_id',
+        'created_by',
         'email',
         'first_name',
         'last_name',

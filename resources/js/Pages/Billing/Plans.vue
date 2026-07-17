@@ -17,6 +17,7 @@ const period = ref(props.activePeriod ?? 'monthly')
 const form = useForm({ plan: '', period: '' })
 
 function subscribe(planKey) {
+    if (props.plans[planKey]?.available === false) return
     form.plan   = planKey
     form.period = period.value
     form.post(route('billing.checkout'))
@@ -97,6 +98,7 @@ const planList = computed(() =>
                         padding: '1.75rem',
                         position: 'relative',
                         boxShadow: plan.highlighted ? 'var(--shadow-elevated)' : 'var(--shadow-xs)',
+                        opacity: plan.available === false ? 0.65 : 1,
                     }"
                 >
                     <!-- Badge populaire -->
@@ -105,6 +107,14 @@ const planList = computed(() =>
                         style="position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: var(--color-primary); color: var(--color-accent); font-size: 11px; font-weight: 700; letter-spacing: 0.05em; border-radius: 20px; padding: 3px 14px; white-space: nowrap"
                     >
                         LE PLUS POPULAIRE
+                    </div>
+
+                    <!-- Badge palier à venir -->
+                    <div
+                        v-else-if="plan.available === false"
+                        style="position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: var(--pt-cream); color: var(--pt-navy); border: 1px solid var(--pt-border); font-size: 11px; font-weight: 700; letter-spacing: 0.05em; border-radius: 20px; padding: 3px 14px; white-space: nowrap"
+                    >
+                        BIENTÔT DISPONIBLE
                     </div>
 
                     <!-- Couleur / nom -->
@@ -143,13 +153,13 @@ const planList = computed(() =>
                     <!-- CTA -->
                     <button
                         @click="subscribe(plan.key)"
-                        :disabled="form.processing || activePlan === plan.key"
+                        :disabled="form.processing || activePlan === plan.key || plan.available === false"
                         :style="{
                             width: '100%',
                             padding: '12px',
                             borderRadius: '10px',
                             border: 'none',
-                            cursor: (form.processing || activePlan === plan.key) ? 'default' : 'pointer',
+                            cursor: (form.processing || activePlan === plan.key || plan.available === false) ? 'default' : 'pointer',
                             fontWeight: '600',
                             fontSize: '14px',
                             transition: 'all 0.15s',
@@ -166,7 +176,10 @@ const planList = computed(() =>
                             border: plan.highlighted ? 'none' : '1px solid var(--pt-border)',
                         }"
                     >
-                        <template v-if="activePlan === plan.key && activePeriod === period">
+                        <template v-if="plan.available === false">
+                            Bientôt disponible
+                        </template>
+                        <template v-else-if="activePlan === plan.key && activePeriod === period">
                             ✓ Plan actuel
                         </template>
                         <template v-else-if="form.processing && form.plan === plan.key">

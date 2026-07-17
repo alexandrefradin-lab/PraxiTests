@@ -154,7 +154,7 @@ function emblem(slug) {
                     {{ isCorporate ? 'Votre profil est incomplet.' : "Ton Identité n'est pas encore forgée." }}
                 </p>
                 <p class="text-sm" style="color:var(--text-secondary); font-family:'Inter',sans-serif;">
-                    {{ isCorporate ? 'Complétez votre profil pour accéder aux évaluations.' : 'Complete ton profil pour débloquer les Épreuves.' }}
+                    {{ isCorporate ? 'Complétez votre profil pour accéder aux évaluations.' : 'Complète ton profil pour débloquer les Épreuves.' }}
                 </p>
                 <Link
                     :href="route('onboarding.show')"
@@ -173,7 +173,12 @@ function emblem(slug) {
                 :key="test.id"
                 class="pt-card ac-card-ornate p-6 flex flex-col transition-all duration-200 group"
                 :style="{ cursor: profile_complete ? 'pointer' : 'default' }"
+                :role="profile_complete ? 'link' : null"
+                :tabindex="profile_complete ? 0 : null"
+                :aria-label="profile_complete ? `${testLabel(test)} — ${L.ctaTest}` : null"
                 @click="goToTest(test)"
+                @keydown.enter="goToTest(test)"
+                @keydown.space.prevent="goToTest(test)"
             >
                 <!-- Badge type + emblème + complété (numéro en mode Corporate) -->
                 <div class="flex items-start justify-between mb-3 gap-3">
@@ -337,5 +342,10 @@ html[data-theme="corporate"] .pt-card:hover {
 .group:hover .pt-emblem {
     border-color: var(--color-primary);
     transform: rotate(-4deg) scale(1.05);
+}
+/* Focus clavier visible sur les cartes de test navigables */
+.ac-card-ornate[role="link"]:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
 }
 </style>
