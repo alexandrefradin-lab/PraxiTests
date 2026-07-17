@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InsightsRetryController;
 use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\Admin\PluginController;
+use App\Http\Controllers\Admin\SalesConsoleController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\SubscriptionController;
 use App\Http\Controllers\Admin\TestEditorController;
@@ -66,6 +67,10 @@ Route::middleware(['auth', 'verified', 'role:admin', '2fa'])
 
         Route::get('subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions');
         Route::get('subscriptions/export', [SubscriptionController::class, 'export'])->name('subscriptions.export');
+
+        // ── Console des ventes (superadmin) : MRR/ARR, particuliers vs cabinets ─
+        Route::get('sales', [SalesConsoleController::class, 'index'])->name('sales');
+        Route::get('sales/export', [SalesConsoleController::class, 'export'])->name('sales.export');
 
         // ── Gestion des utilisateurs ───────────────────────────────────────────
         Route::get('users', [UserController::class, 'index'])->name('users.index');
