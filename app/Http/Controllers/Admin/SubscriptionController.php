@@ -21,20 +21,22 @@ class SubscriptionController extends Controller
         $filterStatus = $request->get('status'); // active | trialing | cancelled | none
 
         // --- KPIs : agrégats SQL (scopes Cashier) — on ne charge plus la table en mémoire ---
-        $activeCount    = Subscription::where('name', 'default')->active()->notOnGracePeriod()->count();
-        $trialCount     = Subscription::where('name', 'default')->onTrial()->count();
-        $cancelledCount = Subscription::where('name', 'default')->canceled()->count();
+        $activeCount    = Subscription::where('type', 'default')->active()->notOnGracePeriod()->count();
+        $trialCount     = Subscription::where('type', 'default')->onTrial()->count();
+        $cancelledCount = Subscription::where('type', 'default')->canceled()->count();
 
         // MRR : comptage groupé par price ID Stripe → montant mensuel
         $priceMap = $this->buildPriceMap($plans);
-        $mrr = Subscription::where('name', 'default')->active()->notOnGracePeriod()
+        $mrr = Subscription::where('type', 'default')->active()->notOnGracePeriod()
             ->selectRaw('stripe_price, COUNT(*) as subs_count')
             ->groupBy('stripe_price')
             ->pluck('subs_count', 'stripe_price')
             ->reduce(fn ($sum, $count, $price) => $sum + ($priceMap[$price] ?? 0) * $count, 0);
 
         // --- Liste utilisateurs avec abonnement ---
-        $query = User::with(['subscription' => fn ($q) => $q->where('name', 'default')])
+        // NB : `subscription()` de Cashier n'est pas une relation Eloquent —
+        // on eager-load `subscriptions` (filtrée) et on prend la première.
+        $query = User::with(['subscriptions' => fn ($q) => $q->where('type', 'default')->latest()])
             ->orderByDesc('created_at');
 
         // Recherche nom / email
@@ -51,7 +53,7 @@ class SubscriptionController extends Controller
             ]);
             if ($priceIds) {
                 $query->whereHas('subscriptions', fn ($q) =>
-                    $q->where('name', 'default')->whereIn('stripe_price', $priceIds)
+                    $q->where('type', 'default')->whereIn('stripe_price', $priceIds)
                 );
             }
         }
@@ -59,20 +61,20 @@ class SubscriptionController extends Controller
         // Filtre statut
         if ($filterStatus === 'active') {
             $query->whereHas('subscriptions', fn ($q) =>
-                $q->where('name', 'default')->whereNull('ends_at')->whereNotNull('trial_ends_at')->where('trial_ends_at', '<', now())
-                  ->orWhere(fn ($q2) => $q2->where('name', 'default')->whereNull('ends_at')->whereNull('trial_ends_at'))
+                $q->where('type', 'default')->whereNull('ends_at')->whereNotNull('trial_ends_at')->where('trial_ends_at', '<', now())
+                  ->orWhere(fn ($q2) => $q2->where('type', 'default')->whereNull('ends_at')->whereNull('trial_ends_at'))
             );
         } elseif ($filterStatus === 'trialing') {
             $query->whereHas('subscriptions', fn ($q) =>
-                $q->where('name', 'default')->where('trial_ends_at', '>', now())
+                $q->where('type', 'default')->where('trial_ends_at', '>', now())
             );
         } elseif ($filterStatus === 'cancelled') {
             $query->whereHas('subscriptions', fn ($q) =>
-                $q->where('name', 'default')->whereNotNull('ends_at')
+                $q->where('type', 'default')->whereNotNull('ends_at')
             );
         } elseif ($filterStatus === 'none') {
             $query->whereDoesntHave('subscriptions', fn ($q) =>
-                $q->where('name', 'default')
+                $q->where('type', 'default')
             );
         }
 
@@ -80,7 +82,7 @@ class SubscriptionController extends Controller
 
         // Enrichir chaque user avec les infos plan + statut
         $users->getCollection()->transform(function ($user) use ($plans, $priceMap) {
-            $sub = $user->subscription;
+            $sub = $user->subscriptions->first();
 
             $planKey  = null;
             $planName = null;
@@ -143,15 +145,15 @@ class SubscriptionController extends Controller
 
         \App\Models\AuditLog::record('subscription.exported', null, []);
 
-        $q = User::with(['subscription' => fn ($sub) => $sub->where('name', 'default')])
-            ->whereHas('subscriptions', fn ($sub) => $sub->where('name', 'default'))
+        $q = User::with(['subscriptions' => fn ($sub) => $sub->where('type', 'default')->latest()])
+            ->whereHas('subscriptions', fn ($sub) => $sub->where('type', 'default'))
             ->orderByDesc('created_at');
 
         return $this->streamCsv('abonnements-' . now()->format('Y-m-d') . '.csv', [
             'Nom', 'Email', 'Plan', 'Période', 'Statut', 'Fin essai', 'Fin abonnement', 'MRR (€)', 'Inscrit le',
         ], function () use ($q, $plans, $priceMap) {
             foreach ($q->lazy(200) as $user) {
-                $sub = $user->subscription;
+                $sub = $user->subscriptions->first();
                 $planName = null;
                 $period   = null;
                 foreach ($plans as $plan) {
