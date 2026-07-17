@@ -30,6 +30,10 @@ class SalesConsoleController extends Controller
         $priceMap       = $this->buildPriceMap($plans);
         $cabinetUserIds = $this->cabinetUserIds();
         $search         = $request->string('search')->toString();
+        $filterPlan     = $request->get('plan');
+        $filterStatus   = $request->get('status'); // active | trialing | cancelled
+        $subFilter      = $this->subscriptionFilter($plans, $filterPlan, $filterStatus);
+        $hasSubFilter   = ($filterPlan && isset($plans[$filterPlan])) || in_array($filterStatus, ['active', 'trialing', 'cancelled'], true);
 
         // ── KPIs abonnements (agrégats SQL, rien en mémoire) ──────────────────
         // « Actif » = payant : hors essai et hors résiliation en cours.
@@ -85,7 +89,7 @@ class SalesConsoleController extends Controller
         // ── Onglet Particuliers : abonnés hors cabinet ─────────────────────────
         $particuliers = User::query()
             ->with(['subscriptions' => fn ($q) => $q->where('type', 'default')->latest()])
-            ->whereHas('subscriptions', fn ($q) => $q->where('type', 'default'))
+            ->whereHas('subscriptions', $subFilter)
             ->when($cabinetUserIds, fn ($q) => $q->whereNotIn('id', $cabinetUserIds))
             ->when($search !== '', fn ($q) => $q->where(fn ($x) => $x
                 ->where('email', 'like', "%{$search}%")
@@ -96,9 +100,13 @@ class SalesConsoleController extends Controller
             ->through(fn ($u) => $this->presentUser($u, $plans, $priceMap));
 
         // ── Onglet Cabinets : comptes pro + facturation du propriétaire ────────
+        // Sans filtre abonnement, on montre TOUS les cabinets (y compris le
+        // pipeline en trial, sans abonnement Stripe). Avec filtre, on restreint
+        // aux cabinets dont le propriétaire a un abonnement correspondant.
         $cabinets = ProfessionalAccount::query()
             ->withCount('members')
             ->with(['owner.subscriptions' => fn ($q) => $q->where('type', 'default')->latest()])
+            ->when($hasSubFilter, fn ($q) => $q->whereHas('owner', fn ($o) => $o->whereHas('subscriptions', $subFilter)))
             ->when($search !== '', fn ($q) => $q->where(fn ($x) => $x
                 ->where('company_name', 'like', "%{$search}%")
                 ->orWhereHas('owner', fn ($o) => $o
@@ -127,7 +135,8 @@ class SalesConsoleController extends Controller
             'trend'          => $trend,
             'particuliers'   => $particuliers,
             'cabinets'       => $cabinets,
-            'filters'        => ['search' => $search],
+            'plans'          => collect($plans)->map(fn ($p, $k) => ['key' => $k, 'name' => $p['name']])->values(),
+            'filters'        => ['search' => $search, 'plan' => $filterPlan, 'status' => $filterStatus],
         ]);
     }
 
@@ -207,6 +216,36 @@ class SalesConsoleController extends Controller
     private function baseQuery()
     {
         return Subscription::where('type', 'default');
+    }
+
+    /**
+     * Closure de filtrage d'une relation `subscriptions` selon plan et statut,
+     * réutilisable en whereHas (particuliers directs, ou via owner des cabinets).
+     */
+    private function subscriptionFilter(array $plans, ?string $filterPlan, ?string $filterStatus): \Closure
+    {
+        return function ($q) use ($plans, $filterPlan, $filterStatus) {
+            $q->where('type', 'default');
+
+            if ($filterPlan && isset($plans[$filterPlan])) {
+                $priceIds = array_filter([
+                    $plans[$filterPlan]['stripe_monthly'] ?? null,
+                    $plans[$filterPlan]['stripe_yearly'] ?? null,
+                ]);
+                if ($priceIds) {
+                    $q->whereIn('stripe_price', $priceIds);
+                }
+            }
+
+            if ($filterStatus === 'active') {
+                $q->whereNull('ends_at')
+                  ->where(fn ($x) => $x->whereNull('trial_ends_at')->orWhere('trial_ends_at', '<', now()));
+            } elseif ($filterStatus === 'trialing') {
+                $q->where('trial_ends_at', '>', now());
+            } elseif ($filterStatus === 'cancelled') {
+                $q->whereNotNull('ends_at');
+            }
+        };
     }
 
     /**

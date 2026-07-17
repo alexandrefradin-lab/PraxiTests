@@ -22,24 +22,35 @@ const props = defineProps({
     trend:          Array,
     particuliers:   Object,
     cabinets:       Object,
+    plans:          Array,
     filters:        Object,
 })
 
 // ---- Onglet actif : Particuliers | Cabinets ----
 const tab = ref('particuliers')
 
-// ---- Recherche live avec debounce (pattern des autres listes admin) ----
+// ---- Filtres live avec debounce (pattern des autres listes admin) ----
 const filterSearch = ref(props.filters.search ?? '')
+const filterPlan   = ref(props.filters.plan   ?? '')
+const filterStatus = ref(props.filters.status ?? '')
 let timer = null
-watch(filterSearch, () => {
+watch([filterSearch, filterPlan, filterStatus], () => {
     clearTimeout(timer)
     timer = setTimeout(() => {
         router.get(route('admin.sales'), {
             search: filterSearch.value || undefined,
+            plan:   filterPlan.value   || undefined,
+            status: filterStatus.value || undefined,
         }, { preserveState: true, preserveScroll: true, replace: true })
     }, 250)
 })
 onUnmounted(() => clearTimeout(timer))
+
+function resetFilters() {
+    filterSearch.value = ''
+    filterPlan.value   = ''
+    filterStatus.value = ''
+}
 
 // ---- Formatage ----
 const formatMoney = (cents) => new Intl.NumberFormat('fr-FR', {
@@ -225,12 +236,34 @@ const statusCards = computed(() => [
                 >Cabinets ({{ cabinets.total }})</button>
             </div>
 
-            <div class="ml-auto flex items-end gap-3">
+            <div class="ml-auto flex flex-wrap items-end gap-3">
                 <div>
                     <label for="sales-search" class="pt-label mb-1">Recherche</label>
                     <input id="sales-search" v-model="filterSearch"
                         placeholder="Nom, email ou cabinet…" class="pt-input text-sm py-1.5">
                 </div>
+                <div>
+                    <label for="sales-plan" class="pt-label mb-1">Plan</label>
+                    <select id="sales-plan" v-model="filterPlan" class="pt-input text-sm py-1.5">
+                        <option value="">Tous les plans</option>
+                        <option v-for="p in plans" :key="p.key" :value="p.key">{{ p.name }}</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="sales-status" class="pt-label mb-1">Statut</label>
+                    <select id="sales-status" v-model="filterStatus" class="pt-input text-sm py-1.5">
+                        <option value="">Tous</option>
+                        <option value="active">Actif</option>
+                        <option value="trialing">Essai</option>
+                        <option value="cancelled">Résilié</option>
+                    </select>
+                </div>
+                <button
+                    v-if="filterSearch || filterPlan || filterStatus"
+                    @click="resetFilters"
+                    class="text-sm underline hover:no-underline pb-2"
+                    style="color:var(--text-muted)"
+                >Effacer</button>
                 <a :href="route('admin.sales.export', { segment: tab })" class="ac-btn-ghost text-sm py-1.5 px-4">
                     Exporter CSV
                 </a>

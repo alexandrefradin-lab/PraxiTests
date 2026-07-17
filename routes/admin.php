@@ -9,7 +9,6 @@ use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\Admin\PluginController;
 use App\Http\Controllers\Admin\SalesConsoleController;
 use App\Http\Controllers\Admin\SettingsController;
-use App\Http\Controllers\Admin\SubscriptionController;
 use App\Http\Controllers\Admin\TestEditorController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\InvitationController;
@@ -65,12 +64,11 @@ Route::middleware(['auth', 'verified', 'role:admin', '2fa'])
         // Test de connexion IA : valide clé + modèle du fournisseur sélectionné
         Route::post('settings/test-connection', [SettingsController::class, 'testConnection'])->name('settings.test-connection');
 
-        Route::get('subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions');
-        Route::get('subscriptions/export', [SubscriptionController::class, 'export'])->name('subscriptions.export');
-
-        // ── Console des ventes (superadmin) : MRR/ARR, particuliers vs cabinets ─
+        // ── Console des ventes : gestion EXCLUSIVE des abonnements (MRR/ARR,
+        // particuliers vs cabinets). L'ancienne page Abonnements est absorbée.
         Route::get('sales', [SalesConsoleController::class, 'index'])->name('sales');
         Route::get('sales/export', [SalesConsoleController::class, 'export'])->name('sales.export');
+        Route::redirect('subscriptions', '/admin/sales');
 
         // ── Gestion des utilisateurs ───────────────────────────────────────────
         Route::get('users', [UserController::class, 'index'])->name('users.index');
