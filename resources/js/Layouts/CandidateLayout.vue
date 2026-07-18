@@ -343,7 +343,8 @@ watch(() => page.props.gamification?.level, (newLevel) => {
                                             <div class="cand-user-menu-item-sub">Statut, parcours, CV</div>
                                         </div>
                                     </Link>
-                                    <Link :href="route('billing.manage')" class="cand-user-menu-item" role="menuitem" @click="closeUserMenu">
+                                    <!-- L'abonnement ne concerne que les professionnels -->
+                                    <Link v-if="$page.props.auth?.is_pro" :href="route('billing.manage')" class="cand-user-menu-item" role="menuitem" @click="closeUserMenu">
                                         <i class="ti ti-credit-card"></i>
                                         <div>
                                             <div>Mon abonnement</div>
@@ -552,7 +553,8 @@ watch(() => page.props.gamification?.level, (newLevel) => {
                             <i class="ti ti-user-circle"></i>
                             <span>Mon identité</span>
                         </Link>
-                        <Link :href="route('billing.manage')"
+                        <!-- L'abonnement ne concerne que les professionnels -->
+                        <Link v-if="$page.props.auth?.is_pro" :href="route('billing.manage')"
                             class="cand-drawer-link"
                             :class="{ 'cand-drawer-link--active': isActive('/billing') }">
                             <i class="ti ti-credit-card"></i>

@@ -13,9 +13,17 @@ class BillingController extends Controller
     /**
      * Page de sélection des plans.
      */
-    public function plans(Request $request): Response
+    public function plans(Request $request): Response|\Illuminate\Http\RedirectResponse
     {
         $user  = $request->user();
+
+        // L'abonnement ne concerne que les professionnels : un candidat qui
+        // atteint cette URL est renvoyé vers la page de vente publique.
+        // (subscribe/success restent accessibles : le rôle pro s'y attribue.)
+        if (! $user->hasRole('professional') && ! $user->hasRole('admin') && ! $user->subscribed('default')) {
+            return redirect()->route('structures.show');
+        }
+
         $plans = config('plans.plans');
 
         // Détecter le plan actif et la période (monthly/yearly)
@@ -174,9 +182,15 @@ class BillingController extends Controller
     /**
      * Page de gestion de l'abonnement (portail Stripe).
      */
-    public function manage(Request $request): Response
+    public function manage(Request $request): Response|\Illuminate\Http\RedirectResponse
     {
         $user = $request->user();
+
+        // Réservé aux professionnels (cf. plans()) — un candidat sans
+        // abonnement n'a rien à gérer ici.
+        if (! $user->hasRole('professional') && ! $user->hasRole('admin') && ! $user->subscribed('default')) {
+            return redirect()->route('structures.show');
+        }
 
         $subscription  = $user->subscription('default');
         $invoices      = $user->invoices();

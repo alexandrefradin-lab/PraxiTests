@@ -25,6 +25,9 @@ class HandleInertiaRequests extends Middleware
                 // Réglages…) aux professionnels. Purement cosmétique — la sécurité
                 // reste portée par le middleware role: des routes.
                 'is_admin' => (bool) $request->user()?->hasRole('admin'),
+                // L'abonnement ne concerne que les professionnels : les entrées
+                // « Mon abonnement » du layout candidat sont masquées aux autres.
+                'is_pro' => (bool) ($request->user()?->hasRole('professional') || $request->user()?->hasRole('admin')),
             ],
             // Badge d'incident dans la sidebar admin : nombre de synthèses IA en
             // échec. Caché 60 s (même donnée que l'alerte du dashboard).
