@@ -3,6 +3,7 @@
 namespace Praxis\Plugins\PraxiMum\Scoring;
 
 use App\Models\TestAttempt;
+use Praxis\Core\Scoring\SocialDesirability;
 use Praxis\Core\TestEngine\Contracts\ScoringEngineContract;
 use Praxis\Core\TestEngine\NormInterpreter;
 use Praxis\Plugins\PraxiMum\Archetypes\ArchetypeResolver;
@@ -92,11 +93,15 @@ class BigFiveScoringEngine implements ScoringEngineContract
 
         // Correction douce de désirabilité : un biais de présentation positive
         // gonfle les scores. On régresse alors chaque dimension vers la moyenne
-        // (T=50) proportionnellement au biais détecté (audit 2026-06-21).
-        if ($dsPct >= 60) {
-            $shrink = $dsPct >= 75 ? 0.80 : 0.90;   // biais fort / modéré
+        // (T=50) proportionnellement au biais détecté. Échelle en % (score HAUT
+        // = biais), seuils historiques 60/75 — mécanique partagée avec les
+        // échelles de contrôle Marlowe-Crowne de praxiemo/praxisens via le
+        // service Praxis\Core\Scoring\SocialDesirability.
+        $dsNiveau = SocialDesirability::levelFromBiasPercent($dsPct);
+        $shrink   = SocialDesirability::shrinkFactor($dsNiveau);
+        if ($shrink < 1.0) {
             foreach ($scoresDim as $dim => $data) {
-                $T = max(20, min(80, (int) round(50 + ($data['T'] - 50) * $shrink)));
+                $T = max(20, min(80, (int) round(SocialDesirability::shrink($data['T'], 50, $shrink))));
                 $scoresDim[$dim] = [
                     'T'      => $T,
                     'pct'    => $this->tToPct($T),
@@ -137,9 +142,10 @@ class BigFiveScoringEngine implements ScoringEngineContract
             'scores_facette'   => $scoresFacette,
             'archetype'        => $archetype,
             'desirabilite'     => [
-                'brut'  => $dsBrut,
-                'pct'   => $dsPct,
-                'alert' => $dsPct >= 75,
+                'brut'   => $dsBrut,
+                'pct'    => $dsPct,
+                'niveau' => $dsNiveau,
+                'alert'  => $dsNiveau === SocialDesirability::FORT,
             ],
             'meta_dimensions'  => Catalog::dimensions(),
             'meta_facettes'    => Catalog::facettes(),

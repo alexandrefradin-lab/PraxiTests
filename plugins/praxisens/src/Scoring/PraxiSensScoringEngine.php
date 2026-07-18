@@ -3,6 +3,7 @@
 namespace Praxis\Plugins\PraxiSens\Scoring;
 
 use App\Models\TestAttempt;
+use Praxis\Core\Scoring\SocialDesirability;
 use Praxis\Core\TestEngine\Contracts\ScoringEngineContract;
 use Praxis\Core\TestEngine\NormInterpreter;
 use Praxis\Plugins\PraxiSens\Data\Questions;
@@ -74,11 +75,7 @@ class PraxiSensScoringEngine implements ScoringEngineContract
         // milieu d'échelle (3 sur 1-5) : un profil « trop parfait » minimise
         // souvent sa sensibilité, la correction ramène vers une zone plus plausible.
         $ds     = $this->desirabilite($ctrlSum, $ctrlCount);
-        $shrink = match ($ds['niveau']) {
-            'Biais fort'   => 0.80,
-            'Biais modéré' => 0.90,
-            default        => 1.0,
-        };
+        $shrink = SocialDesirability::shrinkFactor($ds['niveau']);
 
         // ── 3. Scores bruts (moyenne 1-5) et normalisés (0-100) ──
         $rawScores  = [];
@@ -87,7 +84,7 @@ class PraxiSensScoringEngine implements ScoringEngineContract
             $n   = $counts[$dimKey];
             $avg = $n > 0 ? $sums[$dimKey] / $n : 1.0;
             if ($shrink < 1.0) {
-                $avg = 3.0 + ($avg - 3.0) * $shrink;
+                $avg = SocialDesirability::shrink($avg, 3.0, $shrink);
             }
             $rawScores[$dimKey]  = round($avg, 2);
             $normalized[$dimKey] = (int) round(($avg - 1) / (self::SCALE_MAX - 1) * 100);
@@ -129,42 +126,22 @@ class PraxiSensScoringEngine implements ScoringEngineContract
     }
 
     /**
-     * Score de désirabilité sociale sur les items de contrôle (dimension 'ctrl').
-     *
-     * Items style Marlowe-Crowne : ils décrivent des comportements humains normaux
-     * que presque tout le monde reconnaît avoir PARFOIS. Répondre « Pas du tout
-     * d'accord » (1) à ces items = présentation trop parfaite = biais probable.
-     * C'est donc un score BAS qui signale un biais, pas un score élevé.
-     * Plage totale : 6 (min) à 30 (max) — 6 items, échelle 1-5.
-     * Seuils alignés sur praxiemo (moyenne ≤ 2 → fort, ≤ 3 → modéré) :
-     *   <= 12 → Biais fort   (réponses trop parfaites, image très positive de soi)
-     *   <= 18 → Biais modéré (légère tendance à la présentation avantageuse)
-     *   >  18 → Fiable       (admission de faiblesses humaines normales)
+     * Items de contrôle style Marlowe-Crowne (dimension 'ctrl'), échelle 1-5
+     * → plage 6-30. Seuils et correction délégués au service partagé
+     * Praxis\Core\Scoring\SocialDesirability : les seuils sont proportionnels
+     * à l'échelle (fort ≤ 14, modéré ≤ 22 ici) — les anciens seuils absolus
+     * 12/18 recopiés de praxiemo (plage 6-24) rendaient ce test moins sévère
+     * que l'EQ-i pour un même niveau de présentation flatteuse.
      */
     protected function desirabilite(int $sum, int $count): array
     {
-        // Anciennes passations (avant l'ajout de l'échelle de validité) :
-        // aucun item de contrôle en base, on ne mesure rien plutôt que d'inventer.
-        if ($count === 0) {
-            return ['score' => null, 'niveau' => 'Non mesuré', 'alerte' => false, 'message' => ''];
-        }
-
-        // Item de contrôle manquant = 1 (convention praxiemo : l'absence de réponse
-        // ne doit jamais rendre le profil plus fiable qu'il ne l'est).
-        $sum += max(0, self::CTRL_COUNT - $count);
-
-        if ($sum <= 12) {
-            return [
-                'score'   => $sum,
-                'niveau'  => 'Biais fort',
-                'alerte'  => true,
-                'message' => "Vos réponses semblent orientées vers une image très positive de vous-même. Votre profil de sensibilité reflète peut-être davantage ce que vous souhaiteriez montrer que ce que vous vivez au quotidien. Un regard plus nuancé sur vos ressentis pourrait affiner ces résultats.",
-            ];
-        }
-        if ($sum <= 18) {
-            return ['score' => $sum, 'niveau' => 'Biais modéré', 'alerte' => false, 'message' => ''];
-        }
-        return ['score' => $sum, 'niveau' => 'Fiable', 'alerte' => false, 'message' => ''];
+        return SocialDesirability::fromControlSum(
+            sum: $sum,
+            answered: $count,
+            itemCount: self::CTRL_COUNT,
+            itemMax: self::SCALE_MAX,
+            messageFort: "Vos réponses semblent orientées vers une image très positive de vous-même. Votre profil de sensibilité reflète peut-être davantage ce que vous souhaiteriez montrer que ce que vous vivez au quotidien. Un regard plus nuancé sur vos ressentis pourrait affiner ces résultats.",
+        );
     }
 
     /**

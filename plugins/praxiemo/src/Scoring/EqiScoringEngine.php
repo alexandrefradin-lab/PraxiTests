@@ -3,6 +3,7 @@
 namespace Praxis\Plugins\PraxiEmo\Scoring;
 
 use App\Models\TestAttempt;
+use Praxis\Core\Scoring\SocialDesirability;
 use Praxis\Core\TestEngine\Contracts\ScoringEngineContract;
 use Praxis\Core\TestEngine\NormInterpreter;
 use Praxis\Plugins\PraxiEmo\Data\Dimensions;
@@ -38,16 +39,11 @@ class EqiScoringEngine implements ScoringEngineContract
 
         // Correction douce de désirabilité : en cas de biais de présentation,
         // on régresse chaque dimension vers le milieu d'échelle (12,5 sur 5-20)
-        // pour ne pas survaloriser une auto-image flatteuse. La mesure de biais
-        // était jusqu'ici calculée mais inactive (audit 2026-06-21).
-        $shrink = match ($ds['niveau']) {
-            'Biais fort'   => 0.80,
-            'Biais modéré' => 0.90,
-            default        => 1.0,
-        };
+        // pour ne pas survaloriser une auto-image flatteuse.
+        $shrink = SocialDesirability::shrinkFactor($ds['niveau']);
         if ($shrink < 1.0) {
             foreach ($scoresDim as $dimId => $raw) {
-                $scoresDim[$dimId] = (int) round(12.5 + ($raw - 12.5) * $shrink);
+                $scoresDim[$dimId] = (int) round(SocialDesirability::shrink($raw, 12.5, $shrink));
             }
         }
 
@@ -102,31 +98,28 @@ class EqiScoringEngine implements ScoringEngineContract
         return                    ['QE Très élevé', "Vous faites partie des profils à haute intelligence émotionnelle. Votre capacité à comprendre et réguler vos émotions est remarquable."];
     }
 
+    /**
+     * Items Marlowe-Crowne (indices 80-85), échelle 1-4 → plage 6-24.
+     * Seuils et correction délégués au service partagé
+     * Praxis\Core\Scoring\SocialDesirability (fort ≤ 12, modéré ≤ 18 ici).
+     */
     protected function desirabilite(array $byIdx): array
     {
         $sum = 0;
+        $answered = 0;
         for ($i = 80; $i <= 85; $i++) {
-            $sum += $byIdx[$i] ?? 1;
+            if (isset($byIdx[$i])) {
+                $sum += $byIdx[$i];
+                $answered++;
+            }
         }
-        // Items Marlowe-Crowne (indices 80-85) : ils décrivent des comportements humains
-        // normaux que presque tout le monde reconnaît avoir PARFOIS.
-        // Répondre « Jamais » (1) à ces items = présentation trop parfaite = biais probable.
-        // C'est donc un score BAS qui signale un biais, pas un score élevé.
-        // Plage totale : 6 (min) à 24 (max).
-        //   <= 12 → Biais fort   (réponses trop parfaites, image très positive de soi)
-        //   <= 18 → Biais modéré (légère tendance à la présentation avantageuse)
-        //   >  18 → Fiable       (admission de faiblesses humaines normales)
-        if ($sum <= 12) {
-            return [
-                'score'   => $sum,
-                'niveau'  => 'Biais fort',
-                'alerte'  => true,
-                'message' => "Vos réponses semblent orientées vers une image très positive de vous-même. Les scores ci-dessus reflètent peut-être davantage ce que vous souhaiteriez être que ce que vous vivez au quotidien. Un regard plus nuancé pourrait révéler des pistes de développement précieuses.",
-            ];
-        }
-        if ($sum <= 18) {
-            return ['score' => $sum, 'niveau' => 'Biais modéré', 'alerte' => false, 'message' => ''];
-        }
-        return ['score' => $sum, 'niveau' => 'Fiable', 'alerte' => false, 'message' => ''];
+
+        return SocialDesirability::fromControlSum(
+            sum: $sum,
+            answered: $answered,
+            itemCount: 6,
+            itemMax: 4,
+            messageFort: "Vos réponses semblent orientées vers une image très positive de vous-même. Les scores ci-dessus reflètent peut-être davantage ce que vous souhaiteriez être que ce que vous vivez au quotidien. Un regard plus nuancé pourrait révéler des pistes de développement précieuses.",
+        );
     }
 }

@@ -59,6 +59,30 @@ composer dump-autoload
   - `norm_scores` : enrichi par `NormInterpreter::enrich()` — dots + labels
   - `meta` : libellés des dimensions
 
+### Échelle de validité (désirabilité sociale) — utiliser le service core
+- **Ne jamais recoder** le mécanisme : utiliser `Praxis\Core\Scoring\SocialDesirability`
+  (trois implémentations dupliquées ont divergé avant la factorisation de juillet 2026).
+- Items de contrôle style Marlowe-Crowne (comportements humains normaux que
+  presque tout le monde admet avoir PARFOIS ; une admission basse = biais) :
+
+```php
+$ds = SocialDesirability::fromControlSum(
+    sum: $ctrlSum, answered: $ctrlCount,
+    itemCount: 6, itemMax: 5,            // adapter à l'échelle du test
+    messageFort: "…message de restitution contextualisé…",
+);
+$shrink = SocialDesirability::shrinkFactor($ds['niveau']);
+if ($shrink < 1.0) {
+    $avg = SocialDesirability::shrink($avg, $midpoint, $shrink); // régression douce
+}
+```
+
+- Les seuils sont **proportionnels à l'échelle** (fort ≤ 1/3, modéré ≤ 2/3 de la
+  plage d'admission) — ne pas copier des seuils absolus d'un autre plugin.
+- Exposer le résultat sous la clé `desirabilite` (`{score, niveau, alerte, message}`)
+  pour la restitution front.
+- Références : `praxiemo/src/Scoring/EqiScoringEngine.php`, `praxisens/src/Scoring/PraxiSensScoringEngine.php`.
+
 ### Normes (`database/seeders/NormsSeeder.php`)
 - Renseigner `mean` et `std_dev` par dimension dans les unités de `raw_scores`
 - Indiquer la `source` (référence bibliographique ou "À calculer")
