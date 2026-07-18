@@ -252,10 +252,24 @@ class BillingController extends Controller
 
     /**
      * Page de succès après Checkout.
+     *
+     * Filet de sécurité du listener GrantProfessionalRoleOnSubscription : si le
+     * webhook Stripe n'est pas encore passé au moment du retour de checkout, le
+     * rôle 'professional' est posé ici (un abonnement = un compte pro).
      */
     public function success(Request $request): Response
     {
-        return Inertia::render('Billing/Success');
+        $user = $request->user();
+
+        if ($user->subscribed('default')
+            && ! $user->hasRole('professional')
+            && ! $user->hasRole('admin')) {
+            $user->assignRole('professional');
+        }
+
+        return Inertia::render('Billing/Success', [
+            'isPro' => $user->hasRole('professional') || $user->hasRole('admin'),
+        ]);
     }
 
     /**
