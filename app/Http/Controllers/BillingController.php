@@ -121,6 +121,57 @@ class BillingController extends Controller
     }
 
     /**
+     * Arrivée du tunnel PDV /structures : consomme l'intention d'achat mise en
+     * session par StructuresController::start() et redirige vers Stripe
+     * Checkout. Route GET (auth + verified) : un invité passe d'abord par
+     * inscription + vérification email, l'intention survit en session.
+     */
+    public function subscribe(Request $request)
+    {
+        $intent = $request->session()->pull('subscribe_intent');
+
+        if (! $intent || ! isset(config('plans.plans')[$intent['plan'] ?? ''])) {
+            return redirect()->route('billing.plans');
+        }
+
+        $user      = $request->user();
+        $plan      = config('plans.plans.' . $intent['plan']);
+        $priceId   = ($intent['period'] ?? 'monthly') === 'yearly'
+            ? $plan['stripe_yearly']
+            : $plan['stripe_monthly'];
+
+        if (! ($plan['available'] ?? true) || blank($priceId)) {
+            Log::warning('Subscribe PDV sans Price ID ou plan indisponible', $intent);
+            return redirect()->route('billing.plans')
+                ->with('error', "Ce plan n'est pas encore disponible. Merci de réessayer plus tard ou de contacter le support.");
+        }
+
+        if ($user->subscribed('default')) {
+            return redirect()->route('billing.manage')
+                ->with('success', 'Tu as déjà un abonnement actif.');
+        }
+
+        try {
+            $checkout = $user
+                ->newSubscription('default', $priceId)
+                ->trialDays(config('plans.default_trial_days'))
+                ->allowPromotionCodes()
+                ->checkout([
+                    'success_url' => route('billing.success') . '?session_id={CHECKOUT_SESSION_ID}',
+                    'cancel_url'  => route('structures.show'),
+                ]);
+
+            return redirect()->away($checkout->url);
+        } catch (IncompletePayment $e) {
+            return redirect()->route('cashier.payment', [$e->payment->id, 'redirect' => route('billing.manage')]);
+        } catch (\Throwable $e) {
+            Log::error('Stripe subscribe PDV failed', ['user_id' => $user->id, 'plan' => $intent['plan'], 'msg' => $e->getMessage()]);
+            return redirect()->route('billing.plans')
+                ->with('error', "Le paiement n'a pas pu être initié. Réessaie dans un instant ou contacte le support.");
+        }
+    }
+
+    /**
      * Page de gestion de l'abonnement (portail Stripe).
      */
     public function manage(Request $request): Response

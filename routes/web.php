@@ -18,6 +18,11 @@ use App\Http\Controllers\LegalController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// ─── Page de vente publique « Structures » (PDV → checkout Stripe) ───────────
+Route::get('/structures',       [\App\Http\Controllers\StructuresController::class, 'show'])->name('structures.show');
+Route::get('/structures/essai', [\App\Http\Controllers\StructuresController::class, 'start'])->name('structures.start');
+
 Route::get('/cgu', [LegalController::class, 'cgu'])->name('cgu');
 Route::get('/confidentialite', [LegalController::class, 'confidentialite'])->name('confidentialite');
 Route::get('/mentions-legales', [LegalController::class, 'mentions'])->name('mentions');
@@ -138,6 +143,7 @@ Route::middleware(['auth'])->prefix('mon-parcours')->name('beliefs.')->group(fun
 // ─── Billing / Stripe ────────────────────────────────────────────────────────
 Route::middleware(['auth', 'verified'])->prefix('billing')->name('billing.')->group(function () {
     Route::get('/plans',    [BillingController::class, 'plans'])->name('plans');
+    Route::get('/subscribe',[BillingController::class, 'subscribe'])->name('subscribe');
     Route::post('/checkout',[BillingController::class, 'checkout'])->name('checkout');
     Route::get('/manage',   [BillingController::class, 'manage'])->name('manage');
     Route::get('/portal',   [BillingController::class, 'portal'])->name('portal');

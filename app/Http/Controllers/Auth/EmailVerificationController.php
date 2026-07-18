@@ -45,6 +45,12 @@ class EmailVerificationController extends Controller
 
         $request->fulfill(); // marque l'email comme vérifié + déclenche l'événement Verified
 
+        // Tunnel PDV /structures : reprendre le paiement là où il s'était arrêté.
+        if ($request->session()->has('subscribe_intent')) {
+            return redirect()->route('billing.subscribe')
+                ->with('success', 'Votre adresse email a bien été confirmée.');
+        }
+
         return redirect()->intended(route('onboarding.show') . '?verified=1')
             ->with('success', 'Votre adresse email a bien été confirmée. Bienvenue dans la Quête !');
     }

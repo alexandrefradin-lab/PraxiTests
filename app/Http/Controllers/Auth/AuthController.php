@@ -181,6 +181,14 @@ class AuthController extends Controller
             }
         }
 
+        // Tunnel PDV /structures : une intention d'achat en session prime sur
+        // l'onboarding candidat. Si l'email n'est pas encore vérifié, le
+        // middleware 'verified' de billing.subscribe enverra d'abord vers la
+        // page de vérification — l'intention reste en session.
+        if ($request->session()->has('subscribe_intent')) {
+            return redirect()->route('billing.subscribe');
+        }
+
         return redirect()->route('onboarding.show');
     }
 
