@@ -53,8 +53,11 @@ class JourneyNudgeMail extends Mailable
             ? "🔥 Ton streak de {$this->streak} jours se ferme ce soir"
             : "Jour {$this->day} sur {$this->totalDays} t'attend — ferme ce soir";
 
+        // Version texte brut en alternative multipart : sans elle, SpamAssassin
+        // pénalise l'email (MIME_HTML_ONLY) et le score de délivrabilité chute.
         return $this
             ->subject($subject)
+            ->text('mail.journey_nudge_text')
             ->view('mail.journey_nudge', [
                 'firstName'      => $firstName,
                 'day'            => $this->day,

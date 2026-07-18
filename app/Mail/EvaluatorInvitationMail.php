@@ -24,12 +24,15 @@ class EvaluatorInvitationMail extends Mailable implements \Illuminate\Contracts\
     {
         $link = route('eval360.land', $this->invitation->token);
 
+        // Version texte brut en alternative multipart : sans elle, SpamAssassin
+        // pénalise l'email (MIME_HTML_ONLY) et le score de délivrabilité chute.
         return $this
             ->subject("{$this->candidateName} sollicite votre regard — feedback 360°")
             ->view('mail.evaluator_invitation', [
                 'candidateName' => $this->candidateName,
                 'relationLabel' => $this->invitation->relationLabel(),
                 'link'          => $link,
-            ]);
+            ])
+            ->text('mail.evaluator_invitation_text');
     }
 }
