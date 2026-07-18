@@ -34,8 +34,11 @@ class CandidateInvitationMail extends Mailable
         // désérialisation de la queue) pour éviter un N+1 et garantir le nom.
         $this->invitation->loadMissing('test');
 
+        // Version texte brut en alternative multipart : sans elle, SpamAssassin
+        // pénalise l'email (MIME_HTML_ONLY) et le score de délivrabilité chute.
         return new Content(
             view: 'emails.candidate-invitation',
+            text: 'emails.candidate-invitation-text',
         );
     }
 }
