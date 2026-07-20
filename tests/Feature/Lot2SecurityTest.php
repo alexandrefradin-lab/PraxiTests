@@ -86,6 +86,15 @@ function lot2RegisterJourney(string $slug, int $threshold): void
     ]);
 }
 
+/** Crée un compte professionnel valide (owner_user_id est NOT NULL en schéma). */
+function lot2Account(string $name): ProfessionalAccount
+{
+    return ProfessionalAccount::create([
+        'owner_user_id' => User::factory()->create()->id,
+        'company_name'  => $name,
+    ]);
+}
+
 function lot2Professional(ProfessionalAccount $account): User
 {
     Role::firstOrCreate(['name' => 'professional', 'guard_name' => 'web']);
@@ -144,7 +153,7 @@ it('keeps the daily tip apply route name stable', function () {
 // ─── 3. Inscription via invitation : auto-vérif email + rattachement ─────────
 
 it('links the invitation and verifies the email when registering via an invitation token', function () {
-    $account    = ProfessionalAccount::create(['name' => 'Cabinet', 'email' => 'cab@x.fr']);
+    $account    = lot2Account('Cabinet');
     $test       = lot2Test();
     $invitation = TestInvitation::create([
         'test_id'                 => $test->id,
@@ -213,7 +222,7 @@ function lot2CompletedAttempt(ProfessionalAccount $account, bool $consent): Test
 }
 
 it('lets the inviting professional view a consented candidate result', function () {
-    $account = ProfessionalAccount::create(['name' => 'Cab A', 'email' => 'a@x.fr']);
+    $account = lot2Account('Cab A');
     $pro     = lot2Professional($account);
     $attempt = lot2CompletedAttempt($account, consent: true);
 
@@ -223,7 +232,7 @@ it('lets the inviting professional view a consented candidate result', function 
 });
 
 it('forbids the professional when the candidate did not consent', function () {
-    $account = ProfessionalAccount::create(['name' => 'Cab B', 'email' => 'b@x.fr']);
+    $account = lot2Account('Cab B');
     $pro     = lot2Professional($account);
     $attempt = lot2CompletedAttempt($account, consent: false);
 
@@ -233,8 +242,8 @@ it('forbids the professional when the candidate did not consent', function () {
 });
 
 it('forbids a professional from another account even with consent', function () {
-    $accountOwner = ProfessionalAccount::create(['name' => 'Cab C', 'email' => 'c@x.fr']);
-    $accountOther = ProfessionalAccount::create(['name' => 'Cab D', 'email' => 'd@x.fr']);
+    $accountOwner = lot2Account('Cab C');
+    $accountOther = lot2Account('Cab D');
     $proOther     = lot2Professional($accountOther);
     $attempt      = lot2CompletedAttempt($accountOwner, consent: true);
 

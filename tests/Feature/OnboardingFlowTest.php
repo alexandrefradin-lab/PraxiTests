@@ -12,6 +12,12 @@ beforeEach(function () {
     Queue::fake();
 });
 
+/** Faux PDF avec de vrais magic bytes : la validation finfo (CvUploadRequest) rejette les fakes remplis de zéros. */
+function onboardingFakePdf(string $name = 'cv.pdf'): UploadedFile
+{
+    return UploadedFile::fake()->createWithContent($name, "%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\ntrailer\n<< >>\n%%EOF\n");
+}
+
 // ─── Accès ───────────────────────────────────────────────────────────────────
 
 it('redirects guests from onboarding', function () {
@@ -30,7 +36,7 @@ it('shows onboarding form to authenticated user', function () {
 
 it('creates a profile on first onboarding submission', function () {
     $user = User::factory()->create();
-    $cv   = UploadedFile::fake()->create('mon-cv.pdf', 200, 'application/pdf');
+    $cv   = onboardingFakePdf('mon-cv.pdf');
 
     $this->actingAs($user)
         ->post(route('onboarding.store'), [
@@ -38,6 +44,7 @@ it('creates a profile on first onboarding submission', function () {
             'status_since'       => now()->subMonths(6)->format('Y-m-d'),
             'current_role'       => 'Développeur',
             'industry'           => 'Tech',
+            'problematique'      => 'Faire le point sur ma carrière.',
             'cv'                 => $cv,
             'consent_data'       => '1',
             'consent_marketing'  => false,
@@ -55,13 +62,14 @@ it('creates a profile on first onboarding submission', function () {
 
 it('dispatches CV extraction job after profile creation', function () {
     $user = User::factory()->create();
-    $cv   = UploadedFile::fake()->create('cv.pdf', 100, 'application/pdf');
+    $cv   = onboardingFakePdf();
 
     $this->actingAs($user)->post(route('onboarding.store'), [
-        'status'       => 'jobseeker',
-        'status_since' => now()->subYear()->format('Y-m-d'),
-        'cv'           => $cv,
-        'consent_data' => '1',
+        'status'        => 'jobseeker',
+        'status_since'  => now()->subYear()->format('Y-m-d'),
+        'problematique' => 'Retrouver un emploi qui me correspond.',
+        'cv'            => $cv,
+        'consent_data'  => '1',
     ]);
 
     Queue::assertPushed(ExtractCvDataJob::class);
@@ -128,7 +136,7 @@ it('replaces cv and re-dispatches extraction job when new cv uploaded on update'
     $user = User::factory()->create();
     Profile::factory()->for($user)->cvUploaded()->create();
 
-    $newCv = UploadedFile::fake()->create('nouveau-cv.pdf', 150, 'application/pdf');
+    $newCv = onboardingFakePdf('nouveau-cv.pdf');
 
     $this->actingAs($user)->put(route('profile.update'), [
         'status'       => 'employee',

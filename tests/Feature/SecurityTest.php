@@ -179,8 +179,8 @@ it('prevents professional A from seeing leads of professional B', function () {
     $proA = secMakeProfessional();
     $proB = secMakeProfessional();
 
-    $accountA = ProfessionalAccount::create(['name' => 'Cabinet A', 'email' => 'a@cabinet.fr']);
-    $accountB = ProfessionalAccount::create(['name' => 'Cabinet B', 'email' => 'b@cabinet.fr']);
+    $accountA = ProfessionalAccount::create(['owner_user_id' => $proA->id, 'company_name' => 'Cabinet A']);
+    $accountB = ProfessionalAccount::create(['owner_user_id' => $proB->id, 'company_name' => 'Cabinet B']);
 
     $proA->professionalAccounts()->attach($accountA->id, ['role' => 'owner']);
     $proB->professionalAccounts()->attach($accountB->id, ['role' => 'owner']);
@@ -209,8 +209,8 @@ it('prevents professional A from accessing the lead show page of professional B'
     $proA = secMakeProfessional();
     $proB = secMakeProfessional();
 
-    $accountA = ProfessionalAccount::create(['name' => 'Cabinet A2', 'email' => 'a2@cabinet.fr']);
-    $accountB = ProfessionalAccount::create(['name' => 'Cabinet B2', 'email' => 'b2@cabinet.fr']);
+    $accountA = ProfessionalAccount::create(['owner_user_id' => $proA->id, 'company_name' => 'Cabinet A2']);
+    $accountB = ProfessionalAccount::create(['owner_user_id' => $proB->id, 'company_name' => 'Cabinet B2']);
 
     $proA->professionalAccounts()->attach($accountA->id, ['role' => 'member']);
     $proB->professionalAccounts()->attach($accountB->id, ['role' => 'owner']);

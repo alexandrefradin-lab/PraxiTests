@@ -8,6 +8,12 @@ beforeEach(function () {
     Storage::fake('local');
 });
 
+/** Faux PDF avec de vrais magic bytes : la validation finfo (CvUploadRequest) rejette les fakes remplis de zéros. */
+function secUploadFakePdf(string $name = 'cv.pdf'): UploadedFile
+{
+    return UploadedFile::fake()->createWithContent($name, "%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\ntrailer\n<< >>\n%%EOF\n");
+}
+
 // ─── Validation MIME ──────────────────────────────────────────────────────────
 
 it('rejects a file with an invalid extension as CV', function () {
@@ -57,14 +63,15 @@ it('rejects oversized CV', function () {
 
 it('stores the CV in the local (non-public) disk', function () {
     $user = User::factory()->create();
-    $cv   = UploadedFile::fake()->create('cv.pdf', 200, 'application/pdf');
+    $cv   = secUploadFakePdf();
 
     $this->actingAs($user)
         ->post(route('onboarding.store'), [
-            'status'       => 'employee',
-            'status_since' => now()->subMonths(6)->format('Y-m-d'),
-            'cv'           => $cv,
-            'consent_data' => '1',
+            'status'        => 'employee',
+            'status_since'  => now()->subMonths(6)->format('Y-m-d'),
+            'problematique' => 'Faire évoluer ma carrière.',
+            'cv'            => $cv,
+            'consent_data'  => '1',
         ]);
 
     $profile = $user->fresh()->profile;
@@ -99,15 +106,16 @@ it('prevents a user from overwriting another user CV path via tampering', functi
     $userB = User::factory()->create();
     \App\Models\Profile::factory()->for($userB)->cvUploaded()->create();
 
-    $cv = UploadedFile::fake()->create('cv.pdf', 100, 'application/pdf');
+    $cv = secUploadFakePdf();
 
     // UserA soumet l'onboarding : le CV doit être stocké dans cvs/{userA->id}
     $this->actingAs($userA)
         ->post(route('onboarding.store'), [
-            'status'       => 'employee',
-            'status_since' => now()->subMonths(3)->format('Y-m-d'),
-            'cv'           => $cv,
-            'consent_data' => '1',
+            'status'        => 'employee',
+            'status_since'  => now()->subMonths(3)->format('Y-m-d'),
+            'problematique' => 'Sécuriser mon parcours professionnel.',
+            'cv'            => $cv,
+            'consent_data'  => '1',
         ]);
 
     $profileA = $userA->fresh()->profile;

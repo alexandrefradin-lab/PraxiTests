@@ -23,6 +23,11 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/structures',       [\App\Http\Controllers\StructuresController::class, 'show'])->name('structures.show');
 Route::get('/structures/essai', [\App\Http\Controllers\StructuresController::class, 'start'])->name('structures.start');
 
+// Installeur neutralisé (défense en profondeur) : en prod Apache sert
+// public/install.php directement (auto-verrouillé via storage/app/.installed) ;
+// sur les stacks où tout passe par index.php (nginx, tests), refus explicite.
+Route::any('/install.php', fn () => abort(403));
+
 Route::get('/cgu', [LegalController::class, 'cgu'])->name('cgu');
 Route::get('/confidentialite', [LegalController::class, 'confidentialite'])->name('confidentialite');
 Route::get('/mentions-legales', [LegalController::class, 'mentions'])->name('mentions');

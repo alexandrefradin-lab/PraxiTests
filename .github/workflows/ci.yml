@@ -22,6 +22,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # ── Répertoires storage ───────────────────────────────────────────────────
+      # storage/.gitignore ignore tout le contenu (déploiement OVH) : les
+      # sous-dossiers n'existent pas au checkout. Sans framework/views, tout
+      # rendu Blade/Inertia échoue (« Please provide a valid cache path »).
+      - name: Prepare storage directories
+        run: mkdir -p storage/framework/{cache/data,sessions,testing,views} storage/logs storage/app bootstrap/cache
+
       # ── PHP ───────────────────────────────────────────────────────────────────
       - name: Setup PHP ${{ matrix.php }}
         uses: shivammathur/setup-php@v2

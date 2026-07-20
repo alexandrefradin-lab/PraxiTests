@@ -126,6 +126,11 @@ class GdprController extends Controller
             return back()->withErrors(['password' => 'Mot de passe incorrect.']);
         }
 
+        // Déconnecter AVANT de supprimer : logout() régénère le remember_token
+        // via un save() du modèle. Appelé après forceDelete(), ce save
+        // ré-insérerait la ligne utilisateur supprimée (résurrection du compte).
+        auth()->logout();
+
         DB::transaction(function () use ($user) {
             // 1. Annuler l'abonnement Stripe si actif
             $this->cancelSubscription($user);
@@ -143,8 +148,7 @@ class GdprController extends Controller
             $user->forceDelete();
         });
 
-        // Déconnecter la session
-        auth()->logout();
+        // Invalider la session
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
