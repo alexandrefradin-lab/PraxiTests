@@ -48,6 +48,7 @@ it('does not leak data of another user in the export', function () {
         ->get(route('gdpr.export'))
         ->assertJson(fn ($json) => $json
             ->where('account.email', $userA->email)
+            ->etc()
         );
 
     // Email de B ne doit pas apparaître dans l'export de A

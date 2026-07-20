@@ -19,7 +19,7 @@ it('detects iso-strain profile (high demands + low latitude + low support)', fun
         soutien:  array_fill(1, 8, 1),     // min
         ee:       array_fill(1, 9, 0),
         dp:       array_fill(1, 5, 0),
-        ap:       array_fill(1, 8, 3),     // après inversion = 0
+        ap:       array_fill(1, 8, 4),     // raw 4 → converti 3 → après inversion = 0
     );
     $r = $this->engine->score($attempt);
     expect($r['profile'])->toBe('iso_strain');
@@ -40,7 +40,7 @@ it('inverts AP scores correctly (high AP raw = low PA score)', function () {
     $attempt = praxicareAttempt(
         demandes: array_fill(1, 9, 2), latitude: array_fill(1, 9, 2), soutien: array_fill(1, 8, 2),
         ee: array_fill(1, 9, 0), dp: array_fill(1, 5, 0),
-        ap: array_fill(1, 8, 3),  // raw 3 → after inversion (3-3) = 0 → score 0/24 = forte AP
+        ap: array_fill(1, 8, 4),  // raw 4 → converti 1..4→0..3 puis inversé (3-3) = 0 → score 0/24
     );
     $r = $this->engine->score($attempt);
     expect($r['mbi']['ap'])->toBe(0);

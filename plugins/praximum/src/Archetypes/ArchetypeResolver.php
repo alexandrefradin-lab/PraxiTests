@@ -69,4 +69,10 @@ class ArchetypeResolver
         }
         return $best;
     }
+
+    /** Retourne tous les archétypes (utile pour admin / catalogue). */
+    public static function all(): array
+    {
+        return array_values(self::map());
+    }
 }

@@ -144,7 +144,8 @@ it('records an answer for the current attempt', function () {
         ->assertRedirect();
 
     expect($attempt->answers()->where('question_id', $question->id)->exists())->toBeTrue();
-    expect($attempt->answers()->where('question_id', $question->id)->value('value'))->toBe('4');
+    // Le cast 'array' de TestAnswer.value redonne l'entier envoyé.
+    expect($attempt->answers()->where('question_id', $question->id)->value('value'))->toBe(4);
 });
 
 it('blocks answering on another user attempt', function () {
@@ -176,6 +177,11 @@ it('completes an attempt and creates a result', function () {
         'progress'         => [],
     ]);
 
+    // Répondre à toutes les questions obligatoires (garde audit risque #3)
+    foreach ($test->sections->first()->questions as $q) {
+        $attempt->answers()->create(['question_id' => $q->id, 'value' => 3, 'time_spent_seconds' => 5]);
+    }
+
     $this->actingAs($user)
         ->post(route('attempt.complete', $attempt))
         ->assertRedirect();
@@ -193,6 +199,11 @@ it('dispatches GenerateAttemptInsights job after completion', function () {
         'user_id' => $user->id, 'test_id' => $test->id,
         'status' => 'in_progress', 'started_at' => now(), 'last_activity_at' => now(), 'progress' => [],
     ]);
+
+    // Répondre à toutes les questions obligatoires (garde audit risque #3)
+    foreach ($test->sections->first()->questions as $q) {
+        $attempt->answers()->create(['question_id' => $q->id, 'value' => 3, 'time_spent_seconds' => 5]);
+    }
 
     $this->actingAs($user)->post(route('attempt.complete', $attempt));
 

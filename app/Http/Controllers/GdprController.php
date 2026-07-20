@@ -133,9 +133,13 @@ class GdprController extends Controller
             // 2. Supprimer le CV du stockage
             $this->deleteCvFile($user);
 
-            // 3. Supprimer toutes les données utilisateur (cascade en DB)
-            //    Les tentatives, réponses, résultats, profil sont supprimés
-            //    par cascade DB (foreignId(...)->cascadeOnDelete())
+            // 3. Purger les données psychométriques : test_attempts.user_id est
+            //    en nullOnDelete (passations anonymes/360), donc sans cette purge
+            //    explicite les tentatives — et par cascade DB les réponses et
+            //    résultats — survivraient anonymisées au lieu d'être effacées.
+            $user->attempts()->forceDelete();
+
+            // 4. Supprimer le compte (le profil suit par cascade DB)
             $user->forceDelete();
         });
 

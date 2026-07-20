@@ -69,6 +69,7 @@ function grimFakeDriver(?string $json = null): AIDriverContract
         public function model(): string { return 'fake-model'; }
         public function generate(string $prompt, array $options = []): string { return $this->json; }
         public function chat(array $messages, array $options = []): string { return $this->json; }
+        public function chatMany(array $batch, array $options = []): array { return array_map(fn () => $this->json, $batch); }
         public function generateJson(string $prompt, array $schema = [], array $options = []): array { return json_decode($this->json, true); }
         public function lastUsage(): array { return ['input_tokens' => 10, 'output_tokens' => 20]; }
     };
@@ -186,6 +187,7 @@ it('writes a failed status when the AI throws', function () {
         public function model(): string { return 'boom'; }
         public function generate(string $prompt, array $options = []): string { throw new RuntimeException('AI down'); }
         public function chat(array $messages, array $options = []): string { throw new RuntimeException('AI down'); }
+        public function chatMany(array $batch, array $options = []): array { throw new RuntimeException('AI down'); }
         public function generateJson(string $prompt, array $schema = [], array $options = []): array { throw new RuntimeException('AI down'); }
         public function lastUsage(): array { return []; }
     };

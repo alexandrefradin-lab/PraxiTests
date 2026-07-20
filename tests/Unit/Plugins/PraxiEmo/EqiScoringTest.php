@@ -20,7 +20,7 @@ it('classifies QE Très élevé when all answers max', function () {
 });
 
 it('classifies QE Faible when all answers min', function () {
-    $attempt = praxiemoAttempt(answer: 1);
+    $attempt = praxiemoAttempt(answer: 1, dsAnswer: 4); // DS=24 → Fiable, pas de correction de biais
     $r = $this->engine->score($attempt);
     expect($r['niveau_qe'])->toBe('QE Faible');
     expect($r['score_global'])->toBe(80);
