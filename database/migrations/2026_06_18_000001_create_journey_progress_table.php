@@ -1,0 +1,35 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        // Table partagee par les 5 plugins parcours : ne la creer qu'une fois.
+        if (Schema::hasTable('journey_progress')) {
+            return;
+        }
+        Schema::create('journey_progress', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string('plugin_slug');                          // 'praxizen'
+            $table->unsignedSmallInteger('day');                    // 1-60
+            $table->timestamp('completed_at')->nullable();
+            $table->unsignedSmallInteger('duration_actual')->nullable(); // en secondes
+            $table->tinyInteger('felt_score')->nullable();          // 1-5 étoiles ressenti
+            $table->text('notes')->nullable();
+            $table->timestamps();
+
+            $table->unique(['user_id', 'plugin_slug', 'day']);
+            $table->index(['user_id', 'plugin_slug']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('journey_progress');
+    }
+};

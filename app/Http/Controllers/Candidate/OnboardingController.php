@@ -155,9 +155,11 @@ class OnboardingController extends Controller
             $updateData['current_role'] = $updateData['current_role'] ?: $data['cv_job_title'];
             $updateData['industry']     = $updateData['industry'] ?: $data['cv_sector'];
         } elseif ($request->hasFile('cv')) {
-            // Nouveau fichier CV : valider + remplacer
+            // Nouveau fichier CV : vérifier les magic bytes puis remplacer.
+            // NB : pas de validateResolved() ici — les règles 'cv' sont déjà
+            // appliquées par $request->validate() ci-dessus, et un FormRequest
+            // instancié via createFrom() n'a pas de container (erreur 500).
             $cvRequest = CvUploadRequest::createFrom($request);
-            $cvRequest->validateResolved();
             $cvRequest->validateMagicBytes();
 
             $newPath = $this->storeCv($request);

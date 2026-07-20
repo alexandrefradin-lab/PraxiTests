@@ -69,12 +69,6 @@ class CvUploadRequest extends FormRequest
         ];
 
         if (!in_array($realMime, $allowedMimes, true)) {
-            $this->failedValidation(
-                \Illuminate\Support\Facades\Validator::make([], [])
-                    ->errors()
-                    ->add('cv', 'Le contenu du fichier CV n\'est pas valide (format non autorisé).')
-            );
-
             throw \Illuminate\Validation\ValidationException::withMessages([
                 'cv' => ['Le contenu du fichier CV n\'est pas valide (format non autorisé).'],
             ]);
