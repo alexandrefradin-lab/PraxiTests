@@ -1,6 +1,6 @@
 <script setup>
-import { computed } from 'vue'
-import { Link, Head } from '@inertiajs/vue3'
+import { computed, ref } from 'vue'
+import { Link, Head, router } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import { useParcours } from '@/composables/useParcours'
 
@@ -9,7 +9,12 @@ const { L, isCorporate, testLabel, vouvoyer } = useParcours()
 const props = defineProps({
     treasure: {
         type: Object,
-        default: () => ({ total: 0, unlocked_count: 0, total_count: 0, has_profile: false, items: [] }),
+        default: () => ({
+            total: 0, spent: 0, available: 0,
+            gate_open: false,
+            armory: { completed: 0, total: 0, remaining: 0, all_done: false },
+            unlocked_count: 0, total_count: 0, has_profile: false, items: [],
+        }),
     },
     profile_complete: { type: Boolean, default: false },
 })
@@ -22,6 +27,29 @@ const unlockedPct = computed(() => {
     const total = props.treasure.total_count || 0
     return total > 0 ? Math.round((props.treasure.unlocked_count / total) * 100) : 0
 })
+
+const gateOpen = computed(() => props.treasure.gate_open === true)
+const armory   = computed(() => props.treasure.armory ?? { completed: 0, total: 0, remaining: 0 })
+
+const armoryPct = computed(() => {
+    const total = armory.value.total || 0
+    return total > 0 ? Math.round((armory.value.completed / total) * 100) : 0
+})
+
+// Déblocage en cours : neutralise le bouton pour que le double-clic ne parte
+// pas deux fois (le service est déjà idempotent côté serveur, c'est la ceinture).
+const unlocking = ref(null)
+
+function unlock(item) {
+    if (unlocking.value || !item.affordable) return
+
+    unlocking.value = item.plugin_slug
+
+    router.post(route('treasure.unlock', item.plugin_slug), {}, {
+        preserveScroll: true,
+        onFinish: () => { unlocking.value = null },
+    })
+}
 </script>
 
 <template>
@@ -70,13 +98,58 @@ const unlockedPct = computed(() => {
             </div>
         </div>
 
-        <!-- ── Bandeau Éclats détenus ── -->
+        <!-- ── Porte d'entrée : Épreuves non terminées ── -->
+        <div v-if="!gateOpen" class="trs-gate mb-8">
+            <i class="ti ti-lock text-xl shrink-0" style="color:var(--color-primary);"></i>
+            <div style="flex:1;">
+                <p class="text-sm font-semibold mb-1" style="color:var(--text-primary); font-family:'Space Grotesk',sans-serif;">
+                    {{ isCorporate ? 'La bibliothèque de modules est verrouillée.' : 'La Salle du Trésor est encore scellée.' }}
+                </p>
+                <p class="text-sm" style="color:var(--text-secondary); font-family:'Inter',sans-serif; margin:0;">
+                    <template v-if="armory.total > 0">
+                        {{ isCorporate ? 'Terminez' : 'Accomplis' }}
+                        <strong style="color:var(--text-primary);">{{ isCorporate ? 'toutes les évaluations' : 'toutes les Épreuves' }}</strong>
+                        {{ isCorporate ? 'pour y accéder' : 'pour en briser le sceau' }} —
+                        <strong style="font-family:'Space Mono',monospace; color:var(--text-primary);">{{ armory.completed }}/{{ armory.total }}</strong>
+                        {{ isCorporate ? 'terminées' : 'accomplies' }}.
+                    </template>
+                    <template v-else>
+                        {{ isCorporate ? "Aucune évaluation n'est disponible pour le moment." : "Aucune Épreuve n'est disponible pour le moment." }}
+                    </template>
+                </p>
+
+                <div v-if="armory.total > 0" class="mt-3" style="display:flex;align-items:center;gap:0.75rem;">
+                    <div style="flex:1;height:6px;border-radius:99px;background:rgba(140,122,94,0.2);overflow:hidden;">
+                        <div :style="{ width: armoryPct + '%', height:'100%', background:'var(--color-primary)', borderRadius:'99px', transition:'width 0.4s ease' }"></div>
+                    </div>
+                    <span style="font-size:0.72rem;font-weight:600;color:var(--text-secondary);flex-shrink:0;">{{ armoryPct }}%</span>
+                </div>
+
+                <Link
+                    v-if="armory.remaining > 0"
+                    :href="route('tests.index')"
+                    class="inline-flex items-center gap-1 mt-3 text-sm font-semibold transition-opacity hover:opacity-70"
+                    style="color:var(--color-primary); font-family:'Inter',sans-serif; text-decoration:underline; text-underline-offset:3px;"
+                >
+                    &#x2192; {{ isCorporate ? 'Reprendre les évaluations' : 'Reprendre mes Épreuves' }}
+                    ({{ armory.remaining }} {{ armory.remaining > 1 ? 'restantes' : 'restante' }})
+                </Link>
+            </div>
+        </div>
+
+        <!-- ── Portefeuille d'Éclats ── -->
         <div class="trs-eclats mb-8">
             <i class="ti ti-diamond text-xl shrink-0" style="color:var(--color-primary);"></i>
             <p class="text-sm" style="color:var(--text-secondary); font-family:'Inter',sans-serif; margin:0;">
-                {{ isCorporate ? 'Vous détenez' : 'Tu détiens' }}
-                <strong style="font-family:'Space Mono',monospace; color:var(--text-primary); font-weight:700;">{{ treasure.total }} {{ L.xpName }}</strong>.
-                {{ isCorporate ? 'Poursuivez vos évaluations pour en accumuler et débloquer la suite.' : 'Continue tes Épreuves pour en accumuler et débloquer la suite.' }}
+                {{ isCorporate ? 'Vous disposez de' : 'Tu disposes de' }}
+                <strong style="font-family:'Space Mono',monospace; color:var(--text-primary); font-weight:700;">{{ treasure.available }} {{ L.xpName }}</strong>
+                {{ isCorporate ? 'à dépenser' : 'à dépenser' }}<template v-if="treasure.spent > 0"> ({{ treasure.total }} {{ isCorporate ? 'gagnés' : 'gagnés' }}, {{ treasure.spent }} {{ isCorporate ? 'déjà investis' : 'déjà investis' }})</template>.
+                <template v-if="gateOpen">
+                    {{ isCorporate ? 'Choisissez le module que vous souhaitez débloquer.' : "Choisis le trésor que tu veux ouvrir." }}
+                </template>
+                <template v-else>
+                    {{ isCorporate ? 'Ils resteront disponibles à la fin de vos évaluations.' : "Ils t'attendront à la fin de tes Épreuves." }}
+                </template>
             </p>
         </div>
 
@@ -108,6 +181,9 @@ const unlockedPct = computed(() => {
                     ? `Vous avancez à votre rythme, vous gagnez des ${L.xpName.toLowerCase()} à chaque pratique accomplie,`
                     : 'Tu avances à ton rythme, tu gagnes des Éclats à chaque pratique accomplie,' }}
                 {{ isCorporate ? "et vous conservez l'accès au module" : "et tu conserves l'accès au module" }} <strong style="color:var(--text-primary);">pour toujours</strong> {{ isCorporate ? 'une fois débloqué.' : 'une fois révélé.' }}
+                {{ isCorporate
+                    ? 'Chaque déblocage vous coûte des points : à vous de choisir dans quel ordre les investir.'
+                    : "Chaque ouverture te coûte des Éclats : à toi de choisir dans quel ordre les dépenser." }}
             </p>
         </div>
 
@@ -210,19 +286,54 @@ const unlockedPct = computed(() => {
                     {{ item.match_reason }}
                 </p>
 
-                <!-- Progression (verrouillé) -->
+                <!-- Coût + ouverture (verrouillé) -->
                 <div v-if="!item.unlocked" class="mt-4">
                     <div class="flex justify-between mb-1.5" style="font-family:'Space Mono',monospace; font-size:11px; color:var(--text-secondary);">
                         <span>{{ item.progress_pct }}%</span>
-                        <span>{{ item.threshold }} {{ L.xpName }}</span>
+                        <span>{{ item.cost }} {{ L.xpName }}</span>
                     </div>
                     <div style="height:6px;background:rgba(140,122,94,0.2);border-radius:999px;overflow:hidden;">
                         <div :style="{ width: item.progress_pct + '%', height:'100%', background:'var(--color-primary)', borderRadius:'999px', transition:'width 0.4s ease' }"></div>
                     </div>
-                    <p class="mt-2" style="font-family:'Inter',sans-serif; font-size:0.8rem; font-weight:600; color:var(--color-primary-dark);">
+
+                    <!-- Porte fermée : les Épreuves d'abord -->
+                    <p
+                        v-if="!gateOpen"
+                        class="mt-2"
+                        style="font-family:'Inter',sans-serif; font-size:0.8rem; font-weight:600; color:var(--text-muted);"
+                    >
                         <i class="ti ti-lock"></i>
-                        Encore {{ item.remaining }} {{ L.xpName }} pour le {{ isCorporate ? 'débloquer' : 'révéler' }}
+                        {{ isCorporate ? 'Terminez toutes les évaluations pour débloquer' : "Accomplis toutes tes Épreuves pour l'ouvrir" }}
                     </p>
+
+                    <!-- Porte ouverte, solde insuffisant -->
+                    <p
+                        v-else-if="!item.affordable"
+                        class="mt-2"
+                        style="font-family:'Inter',sans-serif; font-size:0.8rem; font-weight:600; color:var(--color-primary-dark);"
+                    >
+                        <i class="ti ti-lock"></i>
+                        {{ isCorporate ? 'Encore' : 'Encore' }} {{ item.missing }} {{ L.xpName }}
+                        {{ isCorporate ? 'pour le débloquer' : 'pour le révéler' }}
+                    </p>
+
+                    <!-- Porte ouverte, solde suffisant : le choix appartient au candidat -->
+                    <button
+                        v-else
+                        type="button"
+                        class="pt-btn-primary text-xs px-4 py-2 mt-3 w-full justify-center"
+                        :class="{ 'opacity-40 pointer-events-none': unlocking === item.plugin_slug || !profile_complete }"
+                        :disabled="unlocking === item.plugin_slug || !profile_complete"
+                        @click="unlock(item)"
+                    >
+                        <template v-if="unlocking === item.plugin_slug">
+                            {{ isCorporate ? 'Déblocage…' : 'Ouverture…' }}
+                        </template>
+                        <template v-else>
+                            <i class="ti ti-key"></i>
+                            {{ isCorporate ? 'Débloquer pour' : 'Ouvrir pour' }} {{ item.cost }} {{ L.xpName }}
+                        </template>
+                    </button>
                 </div>
 
                 <!-- Footer (débloqué) -->
@@ -286,6 +397,17 @@ const unlockedPct = computed(() => {
     border-left: 3px solid var(--color-primary);
     border-radius: var(--r-lg);
     padding: 1rem 1.25rem;
+}
+
+/* ── Porte d'entrée (Épreuves à terminer) ── */
+.trs-gate {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.85rem;
+    background: var(--bg-elevated);
+    border: 2px solid var(--color-primary);
+    border-radius: var(--r-lg);
+    padding: 1.15rem 1.35rem;
 }
 
 /* ── Carte trésor (base .pt-card + accent or) ── */

@@ -25,9 +25,10 @@ class ExerciseController extends Controller
     {
         $user  = $request->user();
 
-        // Gating « cadeau » : la mini-app elle-même est un trésor (palier d'Éclats).
-        // (show/complete gardent leur propre gating par seuil d'exercice.)
-        if ($redirect = $this->rewards->unlockRedirect('praxiboost.index', $user)) {
+        // Gating « cadeau » : la mini-app elle-même doit avoir été OUVERTE dans
+        // La Salle du Trésor. Les paliers par exercice ci-dessous restent, eux,
+        // basés sur le CUMUL d'Éclats (progression interne, insensible aux dépenses).
+        if ($redirect = $this->rewards->pluginUnlockRedirect('praxiboost', $user)) {
             return $redirect;
         }
 
@@ -70,6 +71,11 @@ class ExerciseController extends Controller
     public function show(Request $request, string $slug)
     {
         $user = $request->user();
+
+        if ($redirect = $this->rewards->pluginUnlockRedirect('praxiboost', $user)) {
+            return $redirect;
+        }
+
         $exercise = DevExercise::active()->where('slug', $slug)->firstOrFail();
 
         $total = $this->gamification->totalEclats($user);
@@ -106,6 +112,11 @@ class ExerciseController extends Controller
     public function complete(Request $request, string $slug)
     {
         $user = $request->user();
+
+        if ($redirect = $this->rewards->pluginUnlockRedirect('praxiboost', $user)) {
+            return $redirect;
+        }
+
         $exercise = DevExercise::active()->where('slug', $slug)->firstOrFail();
 
         $total = $this->gamification->totalEclats($user);

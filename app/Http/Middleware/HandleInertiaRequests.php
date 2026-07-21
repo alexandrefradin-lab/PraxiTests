@@ -52,14 +52,19 @@ class HandleInertiaRequests extends Middleware
                         $user = $request->user();
                         $data = app(\Praxis\Core\Gamification\GamificationEngine::class)
                             ->globalProgressOf($user);
-                        // Nombre de trésors débloqués (comparaison par seuil, sans matching profil)
-                        // Utilisé par le Layout pour afficher un badge "nouveau trésor" sur le menu.
+                        // Mini-apps réellement ouvertes (déblocage choisi et persisté)
+                        // + solde d'Éclats dépensable. Utilisés par le Layout pour le
+                        // badge "nouveau trésor" et l'affichage du portefeuille.
                         try {
-                            $data['treasure_unlocked_count'] = app(\Praxis\Core\Gamification\RewardCatalog::class)
-                                ->all()
-                                ->filter(fn ($r) => ($data['xp_total'] ?? 0) >= ($r['threshold'] ?? PHP_INT_MAX))
-                                ->count();
+                            $spent = \App\Models\MiniAppUnlock::spentBy($user->id);
+                            $data['eclats_spent']     = $spent;
+                            $data['eclats_available'] = max(0, ($data['xp_total'] ?? 0) - $spent);
+                            $data['treasure_unlocked_count'] = count(
+                                \App\Models\MiniAppUnlock::slugsFor($user->id)
+                            );
                         } catch (\Throwable $e) {
+                            $data['eclats_spent']     = 0;
+                            $data['eclats_available'] = $data['xp_total'] ?? 0;
                             $data['treasure_unlocked_count'] = 0;
                         }
                         return $data;

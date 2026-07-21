@@ -76,8 +76,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/panel/{panel}/proceed',             [\App\Http\Controllers\Candidate\Panel360Controller::class, 'proceed'])->name('panel360.proceed');
     Route::delete('/panel/invitation/{invitation}',   [\App\Http\Controllers\Candidate\Panel360Controller::class, 'removeInvitation'])->name('panel360.invitation.destroy');
 
-    // La Salle du Trésor — apps offertes en récompense (déblocage par paliers d'Éclats)
+    // La Salle du Trésor — mini-apps offertes en récompense. La salle s'ouvre
+    // quand toutes les Épreuves sont passées ; le candidat choisit ensuite
+    // laquelle ouvrir en dépensant ses Éclats.
     Route::get('/salle-du-tresor', [TreasureController::class, 'index'])->name('treasure.index');
+    Route::post('/salle-du-tresor/{slug}/ouvrir', [TreasureController::class, 'unlock'])
+        ->middleware('throttle:12,1')->name('treasure.unlock');
 
     // Le Grimoire — relecture globale transversale de tous les tests
     Route::get('/grimoire',          [GrimoireController::class, 'show'])->name('grimoire.show');
