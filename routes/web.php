@@ -11,6 +11,7 @@ use App\Http\Controllers\Candidate\ResultController;
 use App\Http\Controllers\Candidate\TestController;
 use App\Http\Controllers\Candidate\TreasureController;
 use App\Http\Controllers\BillingController;
+use App\Http\Controllers\EasterEggController;
 use App\Http\Controllers\GdprController;
 use App\Http\Controllers\BlockingBeliefsController;
 use App\Http\Controllers\HomeController;
@@ -30,7 +31,7 @@ Route::any('/install.php', fn () => abort(403));
 
 // Easter egg « Le Faux Bouton » — cible du lien discret de la page 404.
 // Publique : la découverte est ouverte à tous, seule la récompense demande un compte.
-Route::get('/nulle-part', [\App\Http\Controllers\EasterEggController::class, 'nullePart'])->name('nulle-part');
+Route::get('/nulle-part', [EasterEggController::class, 'nullePart'])->name('nulle-part');
 
 Route::get('/cgu', [LegalController::class, 'cgu'])->name('cgu');
 Route::get('/confidentialite', [LegalController::class, 'confidentialite'])->name('confidentialite');

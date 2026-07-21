@@ -1,48 +1,97 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import { router } from '@inertiajs/vue3'
+import { useParcours } from '@/composables/useParcours'
 
-// Chaque secret a sa mise en scène. Les Éclats et le badge, eux, viennent
-// du serveur (EasterEggRegistry) — rien ici n'est une source de vérité.
+const { isCorporate, L } = useParcours()
+
+// Chaque secret a sa mise en scène, déclinée dans les deux parcours (le
+// registre « quête » et le registre cabinet de conseil). Les Éclats et le
+// badge, eux, viennent du serveur — rien ici n'est une source de vérité.
 const EGGS = {
     konami: {
-        seal: '👁',
-        kicker: '— Séquence ancienne reconnue —',
-        title: "L'Oracle s'éveille",
-        paragraphs: [
-            "Depuis les premiers jours de PraxiQuest, une clé ancienne sommeille dans l'ombre. Ceux qui la connaissent accèdent à une vérité que peu voient : <em>la curiosité est déjà une forme d'intelligence.</em>",
-            "Tu viens de rejoindre l'ordre des Éveillés.",
-        ],
-        cta: 'Continuer mon voyage',
-        badge: 'Éveillé',
-        againTitle: 'Déjà Éveillé',
-        againText: "Tu portes déjà la marque des initiés. Le secret ne peut être révélé qu'une seule fois.",
+        medieval: {
+            seal: '👁',
+            kicker: '— Séquence ancienne reconnue —',
+            title: "L'Oracle s'éveille",
+            paragraphs: [
+                "Depuis les premiers jours de PraxiQuest, une clé ancienne sommeille dans l'ombre. Ceux qui la connaissent accèdent à une vérité que peu voient : <em>la curiosité est déjà une forme d'intelligence.</em>",
+                "Tu viens de rejoindre l'ordre des Éveillés.",
+            ],
+            cta: 'Continuer mon voyage',
+            badge: 'Éveillé',
+            againTitle: 'Déjà Éveillé',
+            againText: "Tu portes déjà la marque des initiés. Le secret ne peut être révélé qu'une seule fois.",
+        },
+        corporate: {
+            seal: '◈',
+            kicker: '— Séquence non documentée —',
+            title: 'Fonction non répertoriée',
+            paragraphs: [
+                "Une combinaison de touches héritée des premières versions de PraxiQuest ouvre cette fenêtre. Elle n'est mentionnée nulle part dans l'interface.",
+                "<em>La curiosité est une compétence professionnelle.</em> Elle ne figure sur aucun référentiel, et elle explique pourtant une bonne part des trajectoires.",
+            ],
+            cta: 'Reprendre',
+            badge: 'Perspicacité',
+            againTitle: 'Déjà découverte',
+            againText: "Cette fonction vous est déjà attribuée. Elle ne peut être débloquée qu'une seule fois.",
+        },
     },
     faux_bouton: {
-        seal: '🧭',
-        kicker: '— Chemin non répertorié —',
-        title: 'Nulle part',
-        paragraphs: [
-            "Tu as suivi un lien qui annonçait ne mener à rien. C'était vrai, et tu y es allé quand même.",
-            "<em>Se perdre volontairement est une compétence.</em> Elle n'apparaît sur aucun bilan, mais c'est elle qui fait bifurquer les parcours.",
-        ],
-        cta: 'Reprendre un chemin',
-        badge: 'Égaré',
-        againTitle: 'Déjà venu ici',
-        againText: "Tu connais déjà ce non-lieu. On ne se perd pas deux fois au même endroit.",
+        medieval: {
+            seal: '🧭',
+            kicker: '— Chemin non répertorié —',
+            title: 'Nulle part',
+            paragraphs: [
+                "Tu as suivi un lien qui annonçait ne mener à rien. C'était vrai, et tu y es allé quand même.",
+                "<em>Se perdre volontairement est une compétence.</em> Elle n'apparaît sur aucun bilan, mais c'est elle qui fait bifurquer les parcours.",
+            ],
+            cta: 'Reprendre un chemin',
+            badge: 'Égaré',
+            againTitle: 'Déjà venu ici',
+            againText: "Tu connais déjà ce non-lieu. On ne se perd pas deux fois au même endroit.",
+        },
+        corporate: {
+            seal: '◇',
+            kicker: '— Page non référencée —',
+            title: 'Nulle part',
+            paragraphs: [
+                "Vous avez suivi un lien qui annonçait ne mener à rien. C'était exact, et vous y êtes allé quand même.",
+                "<em>L'exploration sans objectif défini reste un mode de recherche légitime.</em> Elle produit rarement ce qu'on attendait, souvent ce dont on avait besoin.",
+            ],
+            cta: 'Revenir',
+            badge: 'Exploration',
+            againTitle: 'Déjà consultée',
+            againText: "Vous connaissez déjà cette page. On ne s'égare pas deux fois au même endroit.",
+        },
     },
     grimoire_inverse: {
-        seal: '✒',
-        kicker: '— Lecture à rebours —',
-        title: 'Le Scribe',
-        paragraphs: [
-            "Tu as remonté le Grimoire à contre-sens, sans jamais toucher la souris. C'est ainsi que travaillaient les copistes : à l'envers, pour relire ce que l'auteur croyait avoir écrit.",
-            "<em>Une page cachée s'ouvre dans ton sommaire.</em>",
-        ],
-        cta: 'Lire les marginalia',
-        badge: 'Scribe',
-        againTitle: 'Déjà Scribe',
-        againText: "Les marginalia te sont déjà ouvertes. Elles t'attendent dans le sommaire du Grimoire.",
+        medieval: {
+            seal: '✒',
+            kicker: '— Lecture à rebours —',
+            title: 'Le Scribe',
+            paragraphs: [
+                "Tu as remonté le Grimoire à contre-sens, sans jamais toucher la souris. C'est ainsi que travaillaient les copistes : à l'envers, pour relire ce que l'auteur croyait avoir écrit.",
+                "<em>Une page cachée s'ouvre dans ton sommaire.</em>",
+            ],
+            cta: 'Lire les marginalia',
+            badge: 'Scribe',
+            againTitle: 'Déjà Scribe',
+            againText: "Les marginalia te sont déjà ouvertes. Elles t'attendent dans le sommaire du Grimoire.",
+        },
+        corporate: {
+            seal: '✎',
+            kicker: '— Lecture à rebours —',
+            title: 'Relecture inversée',
+            paragraphs: [
+                "Vous avez remonté votre dossier de synthèse section par section, en sens inverse, sans utiliser la souris. C'est la méthode des correcteurs professionnels : à l'envers, on lit ce qui est écrit plutôt que ce qu'on croit avoir écrit.",
+                "<em>Une section supplémentaire s'ouvre dans votre sommaire.</em>",
+            ],
+            cta: 'Consulter les notes',
+            badge: 'Relecture critique',
+            againTitle: 'Déjà débloquée',
+            againText: "Les notes de marge vous sont déjà accessibles depuis le sommaire de votre dossier.",
+        },
     },
 }
 
@@ -58,7 +107,10 @@ const eclats = ref(0)
 const badgeName = ref('')
 const alreadyClaimed = ref(false)
 
-const egg = computed(() => EGGS[props.slug] ?? EGGS.konami)
+const egg = computed(() => {
+    const def = EGGS[props.slug] ?? EGGS.konami
+    return isCorporate.value ? def.corporate : def.medieval
+})
 
 async function claim() {
     if (loading.value || claimed.value) return
@@ -79,13 +131,18 @@ async function claim() {
             alreadyClaimed.value = true
         } else {
             eclats.value = data.eclats ?? 0
-            badgeName.value = data.badge_name ?? egg.value.badge
+            // Le libellé du parcours prime : le nom en base est écrit au
+            // registre « quête » et détonnerait en corporate. data.badge_name
+            // ne sert que de filet si une variante oublie le sien.
+            badgeName.value = egg.value.badge || data.badge_name || ''
             claimed.value = true
             // Permet à la page hôte de révéler ce que le secret débloque.
             emit('claimed', props.slug)
         }
     } catch (e) {
-        // réseau : on ferme silencieusement
+        // Réseau ou réponse non-JSON : on ferme sans déranger, mais on trace.
+        // Un échec muet ici a déjà masqué une route cassée pendant des mois.
+        console.warn('[easter-egg] claim échoué', props.slug, e)
         emit('close')
     } finally {
         loading.value = false
@@ -137,9 +194,11 @@ watch(() => props.show, (val) => {
                         <p v-for="(para, i) in egg.paragraphs" :key="i" class="ee-text" v-html="para"></p>
                         <div class="ee-reward" aria-live="polite">
                             <span class="ee-eclats">+{{ eclats }}</span>
-                            <span class="ee-eclats-label">Éclats</span>
+                            <span class="ee-eclats-label">{{ L.xpName }}</span>
                         </div>
-                        <p class="ee-badge-note">🏅 Badge « {{ badgeName }} » débloqué dans ton profil</p>
+                        <p class="ee-badge-note">
+                            🏅 Badge « {{ badgeName }} » débloqué dans {{ isCorporate ? 'votre' : 'ton' }} profil
+                        </p>
                         <button class="ee-btn" @click="close">{{ egg.cta }}</button>
                     </div>
                 </div>
