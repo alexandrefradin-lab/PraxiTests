@@ -3,6 +3,7 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { Head, Link, router } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import MarkdownText from '@/Components/MarkdownText.vue'
+import EasterEgg from '@/Components/EasterEgg.vue'
 import { useParcours } from '@/composables/useParcours'
 
 const { L, isCorporate, testLabel, vouvoyer } = useParcours()
@@ -40,9 +41,10 @@ const tabs = computed(() => {
 
     // Page apocryphe — n'apparaît au sommaire qu'une fois le secret trouvé.
     if (marginaliaUnlocked.value) {
+        const m = corp ? MARGINALIA.corporate : MARGINALIA.medieval
         mapped.push({
-            key: 'marginalia', label: 'Marginalia', tocLabel: 'Marginalia',
-            pg: '✒', roman: corp ? '05' : '✦',
+            key: 'marginalia', label: m.tabLabel, tocLabel: m.tabLabel,
+            pg: m.pg, roman: corp ? '05' : '✦',
         })
     }
     return mapped
@@ -81,21 +83,51 @@ function onEggClosed() {
     if (marginaliaUnlocked.value) activeTab.value = 'marginalia'
 }
 
-// Notes de copiste — le contenu de la page apocryphe.
-const marginalia = [
-    {
-        note: 'En marge du folio des Voies',
-        text: "Un métier n'est pas une destination, c'est une hypothèse. On l'écrit au crayon, on la teste, on la rature. Les bilans qui ne raturent rien n'ont rien testé.",
+// Contenu de la page apocryphe. Le registre « copiste » ne passe pas en
+// corporate (cf. directive de vocabulaire) : chaque parcours a sa version.
+const MARGINALIA = {
+    medieval: {
+        tabLabel: 'Marginalia',
+        pg: '✒',
+        title: 'Marginalia',
+        intro: "Notes laissées dans les marges par les copistes qui ont relu ce Grimoire avant toi. Elles ne font partie d'aucune analyse.",
+        notes: [
+            {
+                note: 'En marge du folio des Voies',
+                text: "Un métier n'est pas une destination, c'est une hypothèse. On l'écrit au crayon, on la teste, on la rature. Les bilans qui ne raturent rien n'ont rien testé.",
+            },
+            {
+                note: 'En marge du folio des Épreuves',
+                text: "Aucun test ne dit qui quelqu'un est. Il dit comment cette personne a répondu, un jour, dans un certain état d'esprit. C'est déjà beaucoup — à condition de ne pas confondre les deux.",
+            },
+            {
+                note: "En bas de page, d'une autre main",
+                text: "Le copiste qui relit à l'envers ne cherche pas le sens : il cherche les fautes. C'est pour ça qu'il les trouve. Relire son parcours à rebours fonctionne pareil.",
+            },
+        ],
     },
-    {
-        note: 'En marge du folio des Épreuves',
-        text: "Aucun test ne dit qui quelqu'un est. Il dit comment cette personne a répondu, un jour, dans un certain état d'esprit. C'est déjà beaucoup — à condition de ne pas confondre les deux.",
+    corporate: {
+        tabLabel: 'Notes de marge',
+        pg: '✎',
+        title: 'Notes de marge',
+        intro: "Remarques laissées en marge par les relecteurs de ce type de dossier. Elles ne font partie d'aucune analyse et n'engagent aucune recommandation.",
+        notes: [
+            {
+                note: 'En marge de la section Pistes',
+                text: "Un métier n'est pas une destination, c'est une hypothèse de travail. On la formule, on la teste, on la révise. Un bilan qui ne révise rien n'a rien testé.",
+            },
+            {
+                note: 'En marge de la section Évaluations',
+                text: "Aucune évaluation ne dit qui vous êtes. Elle dit comment vous avez répondu, un jour donné, dans un certain état d'esprit. C'est déjà beaucoup — à condition de ne pas confondre les deux.",
+            },
+            {
+                note: "Ajouté d'une autre main",
+                text: "Le correcteur qui relit à l'envers ne cherche pas le sens : il cherche les écarts. C'est pour cela qu'il les trouve. Relire son parcours à rebours produit le même effet.",
+            },
+        ],
     },
-    {
-        note: 'En bas de page, d\'une autre main',
-        text: "Le copiste qui relit à l'envers ne cherche pas le sens : il cherche les fautes. C'est pour ça qu'il les trouve. Relire son parcours à rebours fonctionne pareil.",
-    },
-]
+}
+const marginalia = computed(() => isCorporate.value ? MARGINALIA.corporate : MARGINALIA.medieval)
 
 // ── Ajustement des voies par préférences (curseurs) ──────────────────────
 // Re-tri 100 % côté front, non sauvegardé : on pondère 5 axes décrivant chaque
@@ -392,7 +424,7 @@ function fitClass(score) {
                         :tabindex="activeTab === tab.key ? 0 : -1"
                         class="grim-toc-item"
                         :class="{ 'grim-toc-item--active': activeTab === tab.key }"
-                        @click="activeTab = tab.key"
+                        @click="onTabClick($event, tab.key)"
                         @keydown="onTabKeydown"
                     >
                         <span class="grim-toc-num">{{ tab.roman }}</span>
@@ -609,6 +641,22 @@ function fitClass(score) {
 
                 </div>
 
+                <!-- ── Page apocryphe : Marginalia (easter egg) ────────── -->
+                <div v-if="marginaliaUnlocked" v-show="activeTab === 'marginalia'" role="tabpanel" id="panel-marginalia" aria-labelledby="tab-marginalia">
+                    <section class="grim-marginalia">
+                        <div class="grim-section-head">
+                            <h2 class="grim-section-title">{{ marginalia.title }}</h2>
+                            <p class="grim-voies-intro">{{ marginalia.intro }}</p>
+                        </div>
+                        <div class="grim-marg-list">
+                            <figure v-for="(m, i) in marginalia.notes" :key="i" class="grim-marg">
+                                <figcaption class="grim-marg-note">{{ m.note }}</figcaption>
+                                <blockquote class="grim-marg-text">{{ m.text }}</blockquote>
+                            </figure>
+                        </div>
+                    </section>
+                </div>
+
                 </main>
                 </div><!-- /grim-body -->
 
@@ -649,6 +697,13 @@ function fitClass(score) {
                 </footer>
             </div>
         </div>
+
+        <EasterEgg
+            :show="showEgg"
+            slug="grimoire_inverse"
+            @claimed="marginaliaUnlocked = true"
+            @close="onEggClosed"
+        />
     </CandidateLayout>
 </template>
 
@@ -734,6 +789,34 @@ function fitClass(score) {
     align-items: start;
 }
 .grim-main { min-width: 0; }
+
+/* ── Marginalia (page apocryphe) ─────────────────────────────────────── */
+.grim-marg-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2.75rem;
+    margin-top: 1.5rem;
+}
+.grim-marg {
+    margin: 0;
+    padding-left: 1.5rem;
+    border-left: 1px solid var(--border-mid);
+}
+.grim-marg-note {
+    font-family: var(--font-data);
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: .6rem;
+}
+.grim-marg-text {
+    margin: 0;
+    font-style: italic;
+    font-size: 1.02rem;
+    line-height: 1.8;
+    color: var(--text-secondary);
+}
 
 /* ── Table des matières latérale ───────────────────────────────────────── */
 .grim-toc {
