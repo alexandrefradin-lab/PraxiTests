@@ -34,7 +34,9 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: mbstring, pdo, pdo_sqlite, sqlite3, openssl, fileinfo, json, tokenizer, xml, ctype, curl, bcmath, intl
+          # gd : requis par App\Support\ChartRenderer (graphiques des rapports PDF).
+          # Sans lui, le code des graphiques n'est jamais exécuté par les tests.
+          extensions: mbstring, pdo, pdo_sqlite, sqlite3, openssl, fileinfo, json, tokenizer, xml, ctype, curl, bcmath, intl, gd
           coverage: xdebug
           tools: composer:v2
 

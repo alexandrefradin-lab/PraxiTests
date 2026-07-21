@@ -121,14 +121,10 @@ class ChartRenderer
                     (int) ($cx + $p['cos'] * $R), (int) ($cy + $p['sin'] * $R), $spoke);
             }
 
-            // Labels des anneaux (axe vertical, côté droit du centre)
+            /* Pas de graduation chiffrée sur les anneaux : chaque axe porte déjà
+               sa valeur sous son libellé, et le « 100 » venait heurter le sommet
+               supérieur. Les anneaux suffisent comme repère d'échelle. */
             $fs = (float) ($o['label_size'] ?? 10) * $ss;
-            for ($r = 1; $r <= $rings; $r++) {
-                $f = $r / $rings;
-                $rly = $cy - $R * $f + 3 * $ss;
-                self::text($im, $font, $fs * 0.62, $cx + 5 * $ss, $rly,
-                    (string) (int) round($max * $f), $ringLbl, 'start');
-            }
 
             // Polygone de données — remplissage + contour
             $poly = [];
@@ -248,17 +244,32 @@ class ChartRenderer
             $frame = imagecolorallocatealpha($im, 42, 30, 8, 108);
             imagerectangle($im, (int) $x0, (int) $y0, (int) ($x0 + $pw), (int) ($y0 + $ph), $frame);
 
-            // Point candidat : disque or cerné de blanc, sans halo.
+            /* Point candidat : disque or cerné de blanc, sans halo, ET nommé.
+               Sans cette annotation, rien ne dit au lecteur que ce point le
+               représente — il le prenait pour une décoration du cadran. */
             $core = imagecolorallocate($im, 166, 117, 32);
             $edge = imagecolorallocate($im, 255, 255, 255);
             $cxp = $px($lat);
             $cyp = $py($dem);
             self::disc($im, $cxp, $cyp, 5.5 * $ss, $core, $edge);
 
+            // « Vous », posé du côté où il reste de la place dans le cadran.
+            $vousRight = ($cxp - $x0) < $pw * 0.72;
+            self::text(
+                $im,
+                $font,
+                9 * $ss,
+                $vousRight ? $cxp + 11 * $ss : $cxp - 11 * $ss,
+                $cyp,
+                'Vous',
+                imagecolorallocate($im, 28, 20, 8),
+                $vousRight ? 'start' : 'end'
+            );
+
             // Libellés d'axes.
             $axc = imagecolorallocate($im, 138, 124, 100);
-            self::text($im, $font, 9.5 * $ss, $x0 + $pw / 2, $ch - 14 * $ss, 'LATITUDE DÉCISIONNELLE →', $axc, 'mid');
-            self::vtext($im, $font, 9.5 * $ss, 16 * $ss, $y0 + $ph / 2, 'DEMANDES PSYCHO →', $axc, 'mid');
+            self::text($im, $font, 9 * $ss, $x0 + $pw / 2, $ch - 14 * $ss, 'LATITUDE DÉCISIONNELLE →', $axc, 'mid');
+            self::vtext($im, $font, 9 * $ss, 16 * $ss, $y0 + $ph / 2, 'DEMANDES PSYCHOLOGIQUES →', $axc, 'mid');
 
             return self::down($im, $W, $H);
         } catch (\Throwable $e) {
@@ -268,26 +279,39 @@ class ChartRenderer
 
     /* ═══════════════════════════ Primitives ════════════════════════════ */
 
+    /**
+     * Fond blanc opaque, et non transparent : le papier du rapport est blanc,
+     * et un fond alpha ne survit pas au rééchantillonnage d'imagescale() — il
+     * ressortait en aplat gris #F5F5F5 derrière le graphique, visible sur la
+     * page (constaté à l'écran, invisible dans le code comme dans les mesures).
+     */
     private static function canvas(int $w, int $h)
     {
         $im = imagecreatetruecolor($w, $h);
-        imagesavealpha($im, true);
-        imagealphablending($im, false);
-        imagefill($im, 0, 0, imagecolorallocatealpha($im, 0, 0, 0, 127));
         imagealphablending($im, true);
+        imagefilledrectangle($im, 0, 0, $w, $h, imagecolorallocate($im, 255, 255, 255));
 
         return $im;
     }
 
-    /** Réduction bicubique + sortie data-URI. */
+    /**
+     * Réduction + sortie data-URI.
+     *
+     * imagecopyresampled sur un fond blanc explicite, et non imagescale() en
+     * bicubique : ce dernier introduit un léger ringing qui ramenait le blanc
+     * du fond à #FDFDFD, soit un liseré de vignette perceptible sur le papier.
+     */
     private static function down($im, int $w, int $h): ?string
     {
-        $out = imagescale($im, $w, $h, IMG_BICUBIC);
-        imagedestroy($im);
+        $out = imagecreatetruecolor($w, $h);
         if ($out === false) {
+            imagedestroy($im);
             return null;
         }
-        imagesavealpha($out, true);
+        imagefilledrectangle($out, 0, 0, $w, $h, imagecolorallocate($out, 255, 255, 255));
+        imagecopyresampled($out, $im, 0, 0, 0, 0, $w, $h, imagesx($im), imagesy($im));
+        imagedestroy($im);
+        imagesavealpha($out, false);
         ob_start();
         imagepng($out);
         $data = ob_get_clean();

@@ -216,6 +216,12 @@
     @font-face { font-family:'Lato'; font-style:normal; font-weight:bold;   src:url("{{ resource_path('fonts/Lato-Bold.ttf') }}") format("truetype"); }
     @font-face { font-family:'Lato'; font-style:italic; font-weight:normal; src:url("{{ resource_path('fonts/Lato-Italic.ttf') }}") format("truetype"); }
     @font-face { font-family:'Lato'; font-style:italic; font-weight:bold;   src:url("{{ resource_path('fonts/Lato-BoldItalic.ttf') }}") format("truetype"); }
+    {{-- Space Grotesk Bold : police du wordmark PraxiQuest, identique à celle de
+         l'application (--font-display). Réservée au logo, jamais au texte.
+         Instance STATIQUE : php-font-lib n'interpole pas les axes d'une police
+         variable et rendrait le logo en Regular. Licence OFL, cf. resources/fonts. --}}
+    @font-face { font-family:'SpaceGrotesk'; font-style:normal; font-weight:normal; src:url("{{ resource_path('fonts/SpaceGrotesk-Bold.ttf') }}") format("truetype"); }
+    @font-face { font-family:'SpaceGrotesk'; font-style:normal; font-weight:bold;   src:url("{{ resource_path('fonts/SpaceGrotesk-Bold.ttf') }}") format("truetype"); }
     @endif
 
     /* @page margin : top = bandeau 48px + filet 1px + respiration 13px
@@ -264,12 +270,13 @@
     .run-header table { width: 100%; height: 48px; border-collapse: collapse; }
     .run-header td { vertical-align: middle; padding: 0; }
 
+    /* Wordmark : police de la marque, pas celle du document. */
     .rh-brand {
-        font-family: "Lora", "DejaVu Serif", serif;
-        font-size: 12px;
+        font-family: "SpaceGrotesk", "Lato", "DejaVu Sans", sans-serif;
+        font-size: 11.5px;
         font-weight: bold;
         color: #FFFFFF;
-        letter-spacing: 0.4px;
+        letter-spacing: 0;
     }
     .rh-brand-q { color: {{ $primary }}; }
 
@@ -353,11 +360,11 @@
         margin-top: 6px;
     }
     .cov-brand {
-        font-family: "Lora", "DejaVu Serif", serif;
-        font-size: 13px;
+        font-family: "SpaceGrotesk", "Lato", "DejaVu Sans", sans-serif;
+        font-size: 12.5px;
         font-weight: bold;
         color: {{ $ink }};
-        letter-spacing: 0.3px;
+        letter-spacing: 0;
     }
     .cov-brand span { color: {{ $goldDark }}; }
     .cov-emis {
