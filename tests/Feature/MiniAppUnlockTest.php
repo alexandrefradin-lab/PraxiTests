@@ -231,6 +231,16 @@ it('ne facture pas deux fois une mini-app déjà ouverte', function () {
         ->and($service->spentEclats($user))->toBe(200);
 });
 
+it('refuse un slug de mini-app inconnu', function () {
+    mauMiniApp('minireal', 100);
+
+    $user = mauReadyCandidate(1000);
+
+    $this->actingAs($user)->post(route('treasure.unlock', 'nexistepas'));
+
+    expect(MiniAppUnlock::where('user_id', $user->id)->count())->toBe(0);
+});
+
 // ─── 5. Garde d'accès (contournement par URL directe) ───────────────────────
 
 it('bloque une mini-app non ouverte même avec assez d Éclats', function () {

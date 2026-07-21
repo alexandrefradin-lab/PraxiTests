@@ -42,12 +42,6 @@ class MiniAppUnlockService
         return max(0, $this->gamification->totalEclats($user) - $this->spentEclats($user));
     }
 
-    /** @return string[] slugs des mini-apps déjà ouvertes */
-    public function unlockedSlugs(User $user): array
-    {
-        return MiniAppUnlock::slugsFor($user->id);
-    }
-
     public function hasUnlocked(User $user, string $slug): bool
     {
         return MiniAppUnlock::where('user_id', $user->id)
@@ -117,6 +111,10 @@ class MiniAppUnlockService
                 ]);
             } catch (UniqueConstraintViolationException) {
                 // Déblocage concurrent arrivé en premier : rien à facturer.
+                // Filet de dernier recours, non couvert par les tests (il faudrait
+                // deux requêtes réellement simultanées) : le verrou ci-dessus doit
+                // déjà l'empêcher. C'est la violation d'unicité sur user_badges,
+                // qui a produit des 500 en production, qui justifie de le garder.
                 return [
                     'reward'  => $reward,
                     'cost'    => 0,
