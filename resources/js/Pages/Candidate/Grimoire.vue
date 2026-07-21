@@ -13,6 +13,7 @@ const props = defineProps({
     ai_pending:    Boolean,
     voies_pending: Boolean,   // synthèse affichée, mais pistes encore en génération
     is_empty:      Boolean,
+    marginalia_unlocked: { type: Boolean, default: false },
 })
 
 const voies = computed(() => props.grimoire?.voies ?? [])
@@ -35,9 +36,66 @@ const tabs = computed(() => {
         { key: 'pistes',   label: `${voies.value.length || pistesCount.value} Pistes métiers`, tocLabel: corp ? 'Pistes' : 'Voies', pg: String(voies.value.length || pistesCount.value) },
     ]
     const romans = ['I', 'II', 'III', 'IV']
-    return base.map((t, i) => ({ ...t, roman: corp ? String(i + 1).padStart(2, '0') : romans[i] }))
+    const mapped = base.map((t, i) => ({ ...t, roman: corp ? String(i + 1).padStart(2, '0') : romans[i] }))
+
+    // Page apocryphe — n'apparaît au sommaire qu'une fois le secret trouvé.
+    if (marginaliaUnlocked.value) {
+        mapped.push({
+            key: 'marginalia', label: 'Marginalia', tocLabel: 'Marginalia',
+            pg: '✒', roman: corp ? '05' : '✦',
+        })
+    }
+    return mapped
 })
 const activeTab = ref('synthese')
+
+// ── Easter egg « Le Grimoire à l'envers » ────────────────────────────────
+// Remonter les 4 sections dans l'ordre inverse, au clavier uniquement.
+// Un clic souris sur le sommaire remet le compteur à zéro : c'est la
+// contrainte qui rend la découverte volontaire plutôt qu'accidentelle.
+const REVERSE_ORDER = ['pistes', 'ia', 'tests', 'synthese']
+const marginaliaUnlocked = ref(props.marginalia_unlocked)
+const showEgg = ref(false)
+let keyTrail = []
+
+function noteKeyboardTab(key) {
+    if (marginaliaUnlocked.value) return
+    keyTrail.push(key)
+    if (keyTrail.length > REVERSE_ORDER.length) keyTrail.shift()
+    if (keyTrail.length === REVERSE_ORDER.length
+        && keyTrail.every((k, i) => k === REVERSE_ORDER[i])) {
+        keyTrail = []
+        showEgg.value = true
+    }
+}
+
+function onTabClick(e, key) {
+    activeTab.value = key
+    // e.detail === 0 : clic synthétisé par le clavier (Entrée/Espace) — on ne
+    // pénalise pas la navigation clavier, seulement la souris.
+    if (e.detail > 0) keyTrail = []
+}
+
+function onEggClosed() {
+    showEgg.value = false
+    if (marginaliaUnlocked.value) activeTab.value = 'marginalia'
+}
+
+// Notes de copiste — le contenu de la page apocryphe.
+const marginalia = [
+    {
+        note: 'En marge du folio des Voies',
+        text: "Un métier n'est pas une destination, c'est une hypothèse. On l'écrit au crayon, on la teste, on la rature. Les bilans qui ne raturent rien n'ont rien testé.",
+    },
+    {
+        note: 'En marge du folio des Épreuves',
+        text: "Aucun test ne dit qui quelqu'un est. Il dit comment cette personne a répondu, un jour, dans un certain état d'esprit. C'est déjà beaucoup — à condition de ne pas confondre les deux.",
+    },
+    {
+        note: 'En bas de page, d\'une autre main',
+        text: "Le copiste qui relit à l'envers ne cherche pas le sens : il cherche les fautes. C'est pour ça qu'il les trouve. Relire son parcours à rebours fonctionne pareil.",
+    },
+]
 
 // ── Ajustement des voies par préférences (curseurs) ──────────────────────
 // Re-tri 100 % côté front, non sauvegardé : on pondère 5 axes décrivant chaque
@@ -245,6 +303,7 @@ function onTabKeydown(e) {
         ? (current + 1) % keys.length
         : (current - 1 + keys.length) % keys.length
     activeTab.value = keys[next]
+    noteKeyboardTab(keys[next])
     // Move focus to the newly active tab button
     const btn = document.getElementById('tab-' + keys[next])
     if (btn) btn.focus()

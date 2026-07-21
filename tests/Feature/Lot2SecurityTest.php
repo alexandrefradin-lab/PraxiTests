@@ -107,7 +107,7 @@ function lot2Professional(ProfessionalAccount $account): User
 
 // ─── 1. Gating Éclats sur les parcours (SEC-M1) ──────────────────────────────
 
-it('redirects a journey mini-app to the treasure room when the Éclats threshold is not reached', function () {
+it('redirects a journey mini-app to the treasure room when it has not been unlocked', function () {
     lot2RegisterJourney('lot2journeylocked', 500);
     $user = User::factory()->create(); // 0 Éclat
 
@@ -125,7 +125,10 @@ it('redirects a journey mini-app to the treasure room when the Éclats threshold
         ->assertRedirect(route('treasure.index'));
 });
 
-it('allows a journey mini-app once the Éclats threshold is reached', function () {
+it('allows a journey mini-app once it has been unlocked in the treasure room', function () {
+    // Depuis que les Éclats se dépensent, atteindre le palier NE suffit PLUS :
+    // la mini-app doit avoir été explicitement choisie et payée (mini_app_unlocks).
+    // Cf. tests/Feature/MiniAppUnlockTest.php pour le parcours de déblocage complet.
     lot2RegisterJourney('lot2journeyopen', 500);
     $user = User::factory()->create();
     GamificationProgress::create([
@@ -133,6 +136,13 @@ it('allows a journey mini-app once the Éclats threshold is reached', function (
         'test_id'  => null,
         'xp_total' => 600,
         'level'    => 1,
+    ]);
+
+    \App\Models\MiniAppUnlock::create([
+        'user_id'     => $user->id,
+        'plugin_slug' => 'lot2journeyopen',
+        'cost_eclats' => 500,
+        'unlocked_at' => now(),
     ]);
 
     $this->actingAs($user)

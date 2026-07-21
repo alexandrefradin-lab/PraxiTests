@@ -1,16 +1,64 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { router } from '@inertiajs/vue3'
+
+// Chaque secret a sa mise en scène. Les Éclats et le badge, eux, viennent
+// du serveur (EasterEggRegistry) — rien ici n'est une source de vérité.
+const EGGS = {
+    konami: {
+        seal: '👁',
+        kicker: '— Séquence ancienne reconnue —',
+        title: "L'Oracle s'éveille",
+        paragraphs: [
+            "Depuis les premiers jours de PraxiQuest, une clé ancienne sommeille dans l'ombre. Ceux qui la connaissent accèdent à une vérité que peu voient : <em>la curiosité est déjà une forme d'intelligence.</em>",
+            "Tu viens de rejoindre l'ordre des Éveillés.",
+        ],
+        cta: 'Continuer mon voyage',
+        badge: 'Éveillé',
+        againTitle: 'Déjà Éveillé',
+        againText: "Tu portes déjà la marque des initiés. Le secret ne peut être révélé qu'une seule fois.",
+    },
+    faux_bouton: {
+        seal: '🧭',
+        kicker: '— Chemin non répertorié —',
+        title: 'Nulle part',
+        paragraphs: [
+            "Tu as suivi un lien qui annonçait ne mener à rien. C'était vrai, et tu y es allé quand même.",
+            "<em>Se perdre volontairement est une compétence.</em> Elle n'apparaît sur aucun bilan, mais c'est elle qui fait bifurquer les parcours.",
+        ],
+        cta: 'Reprendre un chemin',
+        badge: 'Égaré',
+        againTitle: 'Déjà venu ici',
+        againText: "Tu connais déjà ce non-lieu. On ne se perd pas deux fois au même endroit.",
+    },
+    grimoire_inverse: {
+        seal: '✒',
+        kicker: '— Lecture à rebours —',
+        title: 'Le Scribe',
+        paragraphs: [
+            "Tu as remonté le Grimoire à contre-sens, sans jamais toucher la souris. C'est ainsi que travaillaient les copistes : à l'envers, pour relire ce que l'auteur croyait avoir écrit.",
+            "<em>Une page cachée s'ouvre dans ton sommaire.</em>",
+        ],
+        cta: 'Lire les marginalia',
+        badge: 'Scribe',
+        againTitle: 'Déjà Scribe',
+        againText: "Les marginalia te sont déjà ouvertes. Elles t'attendent dans le sommaire du Grimoire.",
+    },
+}
 
 const props = defineProps({
     show: { type: Boolean, default: false },
+    slug: { type: String, default: 'konami' },
 })
-const emit = defineEmits(['close'])
+const emit = defineEmits(['close', 'claimed'])
 
 const claimed = ref(false)
 const loading = ref(false)
 const eclats = ref(0)
+const badgeName = ref('')
 const alreadyClaimed = ref(false)
+
+const egg = computed(() => EGGS[props.slug] ?? EGGS.konami)
 
 async function claim() {
     if (loading.value || claimed.value) return
@@ -24,13 +72,17 @@ async function claim() {
                 'Accept': 'application/json',
             },
             credentials: 'same-origin',
+            body: JSON.stringify({ slug: props.slug }),
         })
         const data = await res.json()
         if (data.already_claimed) {
             alreadyClaimed.value = true
         } else {
-            eclats.value = data.eclats ?? 42
+            eclats.value = data.eclats ?? 0
+            badgeName.value = data.badge_name ?? egg.value.badge
             claimed.value = true
+            // Permet à la page hôte de révéler ce que le secret débloque.
+            emit('claimed', props.slug)
         }
     } catch (e) {
         // réseau : on ferme silencieusement
@@ -63,7 +115,7 @@ watch(() => props.show, (val) => {
                         <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <circle cx="60" cy="60" r="55" stroke="#c9a84c" stroke-width="2" stroke-dasharray="4 3" class="ee-seal-ring"/>
                             <circle cx="60" cy="60" r="44" stroke="#c9a84c" stroke-width="1.5" opacity="0.6"/>
-                            <text x="60" y="68" text-anchor="middle" font-size="42" class="ee-seal-eye">👁</text>
+                            <text x="60" y="68" text-anchor="middle" font-size="42" class="ee-seal-eye">{{ egg.seal }}</text>
                         </svg>
                     </div>
 
@@ -73,30 +125,22 @@ watch(() => props.show, (val) => {
                     </div>
 
                     <div v-else-if="alreadyClaimed" class="ee-body">
-                        <h2 class="ee-title">Déjà Éveillé</h2>
-                        <p class="ee-text">
-                            Tu portes déjà la marque des initiés. Le secret ne peut être révélé qu'une seule fois.
-                        </p>
+                        <h2 class="ee-title">{{ egg.againTitle }}</h2>
+                        <p class="ee-text">{{ egg.againText }}</p>
                         <button class="ee-btn" @click="close">Fermer</button>
                     </div>
 
                     <div v-else class="ee-body">
-                        <p class="ee-kicker">— Séquence ancienne reconnue —</p>
-                        <h2 class="ee-title">L'Oracle s'éveille</h2>
-                        <p class="ee-text">
-                            Depuis les premiers jours de PraxiQuest, une clé ancienne sommeille dans l'ombre.
-                            Ceux qui la connaissent accèdent à une vérité que peu voient :
-                            <em>la curiosité est déjà une forme d'intelligence.</em>
-                        </p>
-                        <p class="ee-text">
-                            Tu viens de rejoindre l'ordre des Éveillés.
-                        </p>
+                        <p class="ee-kicker">{{ egg.kicker }}</p>
+                        <h2 class="ee-title">{{ egg.title }}</h2>
+                        <!-- eslint-disable-next-line vue/no-v-html -- copie statique du composant, aucune donnée utilisateur -->
+                        <p v-for="(para, i) in egg.paragraphs" :key="i" class="ee-text" v-html="para"></p>
                         <div class="ee-reward" aria-live="polite">
                             <span class="ee-eclats">+{{ eclats }}</span>
                             <span class="ee-eclats-label">Éclats</span>
                         </div>
-                        <p class="ee-badge-note">🏅 Badge « Éveillé » débloqué dans ton profil</p>
-                        <button class="ee-btn" @click="close">Continuer mon voyage</button>
+                        <p class="ee-badge-note">🏅 Badge « {{ badgeName }} » débloqué dans ton profil</p>
+                        <button class="ee-btn" @click="close">{{ egg.cta }}</button>
                     </div>
                 </div>
             </div>

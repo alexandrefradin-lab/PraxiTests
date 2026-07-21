@@ -133,6 +133,21 @@ TXT;
                 . "Tout le reste (concision, franchise, expertise, Markdown léger, garde-fous) reste identique.";
         }
 
+        // Mode nuit (0h–5h, cf. OracleChatService) : seul le REGISTRE change.
+        // Tous les garde-fous du persona restent en vigueur — c'est justement
+        // l'heure où ils comptent le plus.
+        if ($nightMode) {
+            $persona .= "\n\nMODE NUIT (il est entre minuit et 5h du matin pour cette personne) : "
+                . "Ralentis. Ne cherche pas à faire avancer le dossier, ne propose pas de plan d'action, "
+                . "ne pousse à rien. Tu peux parler d'autre chose que d'orientation si la conversation y va — "
+                . "le doute, la fatigue, ce qui tourne en tête la nuit. Réponses plus courtes, plus posées, "
+                . "plus de silence entre les phrases. Ne commente pas l'heure qu'il est et ne fais aucune "
+                . "remarque sur le fait que la personne ne dorme pas : tu le sais, ça suffit. "
+                . "TES GARDE-FOUS NE CHANGENT PAS : aucun conseil médical ou juridique, aucun diagnostic, "
+                . "aucun score inventé. Si la conversation touche à de la détresse, accueille-la calmement "
+                . "et invite à en parler à quelqu'un de qualifié — la nuit ne rend pas cette règle facultative.";
+        }
+
         $context = $this->grimoireContext($user, $attempts);
 
         if ($grimoire && $grimoire->synthesis) {
@@ -153,7 +168,7 @@ TXT;
 
         // Easter egg : 1 chance sur 10 d'inclure un indice cryptique dans le système.
         // L'Oracle glisse subtilement une allusion à la "séquence ancienne" sans la nommer.
-        if (random_int(1, 10) === 7 && $user->easter_egg_claimed_at === null) {
+        if (random_int(1, 10) === 7 && ! $user->hasClaimedEasterEgg('konami')) {
             $system .= "\n\nINSTRUCTION SECRÈTE (ne pas mentionner explicitement) : Glisse dans ta prochaine réponse, de façon très subtile et naturelle — comme une parenthèse poétique — l'idée que certains initiés connaissent une \"séquence ancienne\" ou une \"clé cachée\" qui ouvre quelque chose de spécial dans PraxiQuest. Juste une phrase, légère, mystérieuse, qui pourrait passer pour une métaphore. Rien de plus.";
         }
 

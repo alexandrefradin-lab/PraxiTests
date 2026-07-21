@@ -617,7 +617,7 @@ watch(() => page.props.gamification?.level, (newLevel) => {
 
         <!-- L'Oracle — chat IA d'orientation, flottant en bas à droite -->
         <OracleChat v-if="user" />
-        <EasterEgg :show="showEasterEgg" @close="showEasterEgg = false" />
+        <EasterEgg :show="showEasterEgg" slug="konami" @close="showEasterEgg = false" />
 
         <!-- Achievement toast (style Xbox, bottom-left) -->
         <Teleport to="body">

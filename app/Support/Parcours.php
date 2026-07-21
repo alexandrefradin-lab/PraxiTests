@@ -28,7 +28,23 @@ class Parcours
     public static function sealedMessage(int $seuil, ?User $user = null): string
     {
         return self::isCorporate($user)
-            ? "Ce module est encore verrouillé. Il se débloque à {$seuil} points."
-            : "Ce trésor est encore scellé. Il se révèle à {$seuil} Éclats.";
+            ? "Ce module est encore verrouillé. Il s'ouvre pour {$seuil} points."
+            : "Ce trésor est encore scellé. Il s'ouvre pour {$seuil} Éclats.";
+    }
+
+    /** Solde insuffisant pour ouvrir la mini-app choisie. */
+    public static function notEnoughEclatsMessage(int $missing, ?User $user = null): string
+    {
+        return self::isCorporate($user)
+            ? "Il vous manque {$missing} points pour débloquer ce module."
+            : "Il te manque {$missing} Éclats pour ouvrir ce trésor.";
+    }
+
+    /** Confirmation d'ouverture d'une mini-app. */
+    public static function unlockedMessage(string $name, int $balance, ?User $user = null): string
+    {
+        return self::isCorporate($user)
+            ? "« {$name} » est débloqué. Solde restant : {$balance} points."
+            : "« {$name} » t'appartient désormais. Il te reste {$balance} Éclats.";
     }
 }

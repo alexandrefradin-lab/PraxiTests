@@ -1,6 +1,6 @@
 <script setup>
-import { computed } from 'vue'
-import { Link, Head } from '@inertiajs/vue3'
+import { computed, ref } from 'vue'
+import { Link, Head, router } from '@inertiajs/vue3'
 import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 import { useParcours } from '@/composables/useParcours'
 
@@ -9,7 +9,11 @@ const { L, isCorporate, testLabel, vouvoyer } = useParcours()
 const props = defineProps({
     treasure: {
         type: Object,
-        default: () => ({ total: 0, unlocked_count: 0, total_count: 0, has_profile: false, items: [] }),
+        default: () => ({
+            total: 0, spent: 0, available: 0,
+            choice_enabled: false,
+            unlocked_count: 0, total_count: 0, has_profile: false, items: [],
+        }),
     },
     profile_complete: { type: Boolean, default: false },
 })
@@ -22,6 +26,24 @@ const unlockedPct = computed(() => {
     const total = props.treasure.total_count || 0
     return total > 0 ? Math.round((props.treasure.unlocked_count / total) * 100) : 0
 })
+
+// Interrupteur serveur (PRAXIQUEST_TREASURE_CHOICE_ENABLED). Off = régime
+// historique : déblocage automatique au palier, aucun achat, aucune porte.
+const choiceEnabled = computed(() => props.treasure.choice_enabled === true)
+// Déblocage en cours : neutralise le bouton pour que le double-clic ne parte
+// pas deux fois (le service est déjà idempotent côté serveur, c'est la ceinture).
+const unlocking = ref(null)
+
+function unlock(item) {
+    if (unlocking.value || !item.affordable) return
+
+    unlocking.value = item.plugin_slug
+
+    router.post(route('treasure.unlock', item.plugin_slug), {}, {
+        preserveScroll: true,
+        onFinish: () => { unlocking.value = null },
+    })
+}
 </script>
 
 <template>
@@ -70,8 +92,19 @@ const unlockedPct = computed(() => {
             </div>
         </div>
 
-        <!-- ── Bandeau Éclats détenus ── -->
-        <div class="trs-eclats mb-8">
+        <!-- ── Portefeuille d'Éclats (régime « choix ») ── -->
+        <div v-if="choiceEnabled" class="trs-eclats mb-8">
+            <i class="ti ti-diamond text-xl shrink-0" style="color:var(--color-primary);"></i>
+            <p class="text-sm" style="color:var(--text-secondary); font-family:'Inter',sans-serif; margin:0;">
+                {{ isCorporate ? 'Vous disposez de' : 'Tu disposes de' }}
+                <strong style="font-family:'Space Mono',monospace; color:var(--text-primary); font-weight:700;">{{ treasure.available }} {{ L.xpName }}</strong>
+                à dépenser<template v-if="treasure.spent > 0"> ({{ treasure.total }} gagnés, {{ treasure.spent }} déjà investis)</template>.
+                {{ isCorporate ? 'Choisissez le module que vous souhaitez débloquer.' : "Choisis le trésor que tu veux ouvrir." }}
+            </p>
+        </div>
+
+        <!-- ── Éclats détenus (régime historique) ── -->
+        <div v-else class="trs-eclats mb-8">
             <i class="ti ti-diamond text-xl shrink-0" style="color:var(--color-primary);"></i>
             <p class="text-sm" style="color:var(--text-secondary); font-family:'Inter',sans-serif; margin:0;">
                 {{ isCorporate ? 'Vous détenez' : 'Tu détiens' }}
@@ -108,6 +141,9 @@ const unlockedPct = computed(() => {
                     ? `Vous avancez à votre rythme, vous gagnez des ${L.xpName.toLowerCase()} à chaque pratique accomplie,`
                     : 'Tu avances à ton rythme, tu gagnes des Éclats à chaque pratique accomplie,' }}
                 {{ isCorporate ? "et vous conservez l'accès au module" : "et tu conserves l'accès au module" }} <strong style="color:var(--text-primary);">pour toujours</strong> {{ isCorporate ? 'une fois débloqué.' : 'une fois révélé.' }}
+                <template v-if="choiceEnabled">{{ isCorporate
+                    ? 'Chaque déblocage vous coûte des points : à vous de choisir dans quel ordre les investir.'
+                    : "Chaque ouverture te coûte des Éclats : à toi de choisir dans quel ordre les dépenser." }}</template>
             </p>
         </div>
 
@@ -210,19 +246,44 @@ const unlockedPct = computed(() => {
                     {{ item.match_reason }}
                 </p>
 
-                <!-- Progression (verrouillé) -->
+                <!-- Coût + ouverture (verrouillé) -->
                 <div v-if="!item.unlocked" class="mt-4">
                     <div class="flex justify-between mb-1.5" style="font-family:'Space Mono',monospace; font-size:11px; color:var(--text-secondary);">
                         <span>{{ item.progress_pct }}%</span>
-                        <span>{{ item.threshold }} {{ L.xpName }}</span>
+                        <span>{{ item.cost }} {{ L.xpName }}</span>
                     </div>
                     <div style="height:6px;background:rgba(140,122,94,0.2);border-radius:999px;overflow:hidden;">
                         <div :style="{ width: item.progress_pct + '%', height:'100%', background:'var(--color-primary)', borderRadius:'999px', transition:'width 0.4s ease' }"></div>
                     </div>
-                    <p class="mt-2" style="font-family:'Inter',sans-serif; font-size:0.8rem; font-weight:600; color:var(--color-primary-dark);">
+
+                    <!-- Solde insuffisant -->
+                    <p
+                        v-if="!item.affordable"
+                        class="mt-2"
+                        style="font-family:'Inter',sans-serif; font-size:0.8rem; font-weight:600; color:var(--color-primary-dark);"
+                    >
                         <i class="ti ti-lock"></i>
-                        Encore {{ item.remaining }} {{ L.xpName }} pour le {{ isCorporate ? 'débloquer' : 'révéler' }}
+                        {{ isCorporate ? 'Encore' : 'Encore' }} {{ item.missing }} {{ L.xpName }}
+                        {{ isCorporate ? 'pour le débloquer' : 'pour le révéler' }}
                     </p>
+
+                    <!-- Porte ouverte, solde suffisant : le choix appartient au candidat -->
+                    <button
+                        v-else
+                        type="button"
+                        class="pt-btn-primary text-xs px-4 py-2 mt-3 w-full justify-center"
+                        :class="{ 'opacity-40 pointer-events-none': unlocking === item.plugin_slug || !profile_complete }"
+                        :disabled="unlocking === item.plugin_slug || !profile_complete"
+                        @click="unlock(item)"
+                    >
+                        <template v-if="unlocking === item.plugin_slug">
+                            {{ isCorporate ? 'Déblocage…' : 'Ouverture…' }}
+                        </template>
+                        <template v-else>
+                            <i class="ti ti-key"></i>
+                            {{ isCorporate ? 'Débloquer pour' : 'Ouvrir pour' }} {{ item.cost }} {{ L.xpName }}
+                        </template>
+                    </button>
                 </div>
 
                 <!-- Footer (débloqué) -->

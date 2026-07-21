@@ -150,6 +150,9 @@ class GrimoireController extends Controller
             'ai_pending'   => $aiPending,
             'voies_pending' => $voiesPending,
             'is_empty'     => false,
+            // Easter egg « Le Grimoire à l'envers » : la page apocryphe reste
+            // ouverte une fois découverte (source de vérité = user_easter_eggs).
+            'marginalia_unlocked' => $user->hasClaimedEasterEgg('grimoire_inverse'),
         ]);
     }
 

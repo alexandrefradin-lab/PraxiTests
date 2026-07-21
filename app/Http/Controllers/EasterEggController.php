@@ -3,42 +3,80 @@
 namespace App\Http\Controllers;
 
 use App\Models\Badge;
+use App\Models\UserEasterEgg;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Praxis\Core\Gamification\BadgeEvaluator;
+use Praxis\Core\Gamification\EasterEggRegistry;
 use Praxis\Core\Gamification\GamificationEngine;
 
 class EasterEggController extends Controller
 {
+    /**
+     * « Le Faux Bouton » — destination du lien discret de la page 404.
+     * Volontairement publique : on peut se perdre sans être connecté. Le
+     * claim, lui, reste derrière l'auth (la page ne l'appelle pas pour un
+     * visiteur anonyme).
+     */
+    public function nullePart(): \Inertia\Response
+    {
+        return \Inertia\Inertia::render('Public/NullePart', [
+            'can_claim' => auth()->check(),
+        ]);
+    }
+
     public function claim(Request $request, GamificationEngine $engine, BadgeEvaluator $evaluator): JsonResponse
     {
+        // Le client n'envoie qu'un slug : les Éclats et le badge viennent du
+        // registre serveur, jamais de la requête.
+        $validated = $request->validate([
+            'slug' => ['required', 'string', Rule::in(EasterEggRegistry::slugs())],
+        ]);
+
+        $slug = $validated['slug'];
+        $egg  = EasterEggRegistry::get($slug);
         $user = $request->user();
 
-        // Anti-replay : un seul claim par utilisateur
-        if ($user->easter_egg_claimed_at !== null) {
+        // Anti-replay porté par l'index unique (user_id, slug) : deux requêtes
+        // concurrentes ne peuvent pas créditer deux fois.
+        try {
+            UserEasterEgg::create([
+                'user_id'    => $user->id,
+                'slug'       => $slug,
+                'claimed_at' => now(),
+            ]);
+        } catch (UniqueConstraintViolationException) {
             return response()->json(['already_claimed' => true]);
         }
 
-        // Marquer comme claimé
-        $user->update(['easter_egg_claimed_at' => now()]);
+        // Clé d'idempotence historique pour le Konami : elle protège les
+        // comptes crédités avant la refonte multi-eggs, dont la ligne
+        // user_easter_eggs a été reconstituée par backfill.
+        $idempotencyKey = $slug === 'konami'
+            ? "easter_egg:{$user->id}"
+            : "easter_egg:{$slug}:{$user->id}";
 
-        // +42 Éclats (idempotency key = "easter_egg:{user_id}")
         $engine->awardXp(
             $user,
-            42,
+            $egg['eclats'],
             'easter_egg',
             null,
-            [],
-            false, // pas d'éval badges ici, on le fait manuellement
-            "easter_egg:{$user->id}",
+            ['egg' => $slug],
+            false, // pas d'éval badges ici, on le fait manuellement juste après
+            $idempotencyKey,
         );
 
-        // Badge "Éveillé"
-        $badge = Badge::where('slug', 'eveille')->first();
+        $badge = Badge::where('slug', $egg['badge'])->first();
         if ($badge && ! $user->badges()->where('badges.id', $badge->id)->exists()) {
-            $evaluator->award($user, $badge, ['source' => 'konami']);
+            $evaluator->award($user, $badge, ['source' => $slug]);
         }
 
-        return response()->json(['success' => true, 'eclats' => 42]);
+        return response()->json([
+            'success'    => true,
+            'eclats'     => $egg['eclats'],
+            'badge_name' => $badge?->name,
+        ]);
     }
 }

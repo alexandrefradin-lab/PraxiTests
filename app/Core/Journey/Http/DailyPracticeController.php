@@ -155,17 +155,8 @@ abstract class DailyPracticeController extends Controller
     {
         $user = $request->user();
 
-        // Gating Éclats : la mini-app est un trésor (palier défini dans RewardCatalog).
-        if (! $this->rewards->isRouteUnlocked($this->slug() . '.index', $user)) {
-            $reward = $this->rewards->rewardForRoute($this->slug() . '.index');
-            $seuil  = $reward['threshold'] ?? null;
-
-            return redirect()->route('treasure.index')->with(
-                'error',
-                $seuil
-                    ? \App\Support\Parcours::sealedMessage($seuil)
-                    : (\App\Support\Parcours::isCorporate() ? "Ce module est encore verrouillé." : "Ce trésor est encore scellé.")
-            );
+        if ($sealed = $this->rewards->pluginUnlockRedirect($this->slug(), $user)) {
+            return $sealed;
         }
 
         $journey = $this->journeys->journeyFor($user);
@@ -202,7 +193,14 @@ abstract class DailyPracticeController extends Controller
 
     public function show(Request $request, int $day)
     {
-        $user      = $request->user();
+        $user = $request->user();
+
+        // Même garde qu'en index : sans elle, la mini-app restait accessible
+        // par URL directe sans avoir jamais été ouverte (SEC-M1).
+        if ($sealed = $this->rewards->pluginUnlockRedirect($this->slug(), $user)) {
+            return $sealed;
+        }
+
         $journey   = $this->journeys->journeyFor($user);
         $itemModel = $this->itemModel();
         $item      = $itemModel::active()->where('day_index', $day)->firstOrFail();
@@ -233,7 +231,12 @@ abstract class DailyPracticeController extends Controller
 
     public function complete(Request $request, int $day)
     {
-        $user      = $request->user();
+        $user = $request->user();
+
+        if ($sealed = $this->rewards->pluginUnlockRedirect($this->slug(), $user)) {
+            return $sealed;
+        }
+
         $journey   = $this->journeys->journeyFor($user);
         $itemModel = $this->itemModel();
         $item      = $itemModel::active()->where('day_index', $day)->firstOrFail();
