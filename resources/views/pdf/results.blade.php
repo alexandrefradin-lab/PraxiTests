@@ -269,6 +269,10 @@
     }
     .run-header table { width: 100%; height: 48px; border-collapse: collapse; }
     .run-header td { vertical-align: middle; padding: 0; }
+    /* Largeur réservée au logo : sans elle, un intitulé de test long comprime
+       la cellule jusqu'à couper le wordmark en deux lignes, « Quest » passant
+       alors sous le bandeau (constaté sur un rendu de charge). */
+    .run-header td.brand { width: 120px; }
 
     /* Wordmark : police de la marque, pas celle du document. */
     .rh-brand {
@@ -277,6 +281,7 @@
         font-weight: bold;
         color: #FFFFFF;
         letter-spacing: 0;
+        white-space: nowrap;
     }
     .rh-brand-q { color: {{ $primary }}; }
 
@@ -568,11 +573,13 @@
 <div class="run-header">
     <table>
         <tr>
-            <td style="vertical-align:middle;">
+            <td class="brand" style="vertical-align:middle;">
                 <div class="rh-brand">Praxi<span class="rh-brand-q">Quest</span></div>
             </td>
             <td style="vertical-align:middle; text-align:right;">
-                <div class="rh-info">{{ $test->name }} &middot; {{ $candidate }}</div>
+                {{-- Titre courant : un rappel, pas l'intitulé complet. Écrêté
+                     pour tenir dans le bandeau quel que soit le nom du test. --}}
+                <div class="rh-info">{{ \Illuminate\Support\Str::limit($test->name, 52) }} &middot; {{ $candidate }}</div>
             </td>
         </tr>
     </table>

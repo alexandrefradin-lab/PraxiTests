@@ -166,6 +166,9 @@
     }
     .run-header table { width: 100%; height: 48px; border-collapse: collapse; }
     .run-header td { vertical-align: middle; padding: 0; }
+    /* Largeur réservée au logo : sans elle, un nom long comprime la cellule
+       jusqu'à couper le wordmark en deux lignes (constaté sur un rendu de charge). */
+    .run-header td.brand { width: 120px; }
     /* Wordmark : police de la marque, pas celle du document. */
     .rh-brand {
         font-family: 'SpaceGrotesk', 'Lato', 'DejaVu Sans', sans-serif;
@@ -173,6 +176,7 @@
         font-weight: bold;
         color: #FFFFFF;
         letter-spacing: 0;
+        white-space: nowrap;
     }
     .rh-brand span { color: {{ $primary }}; }
     .rh-info {
@@ -344,7 +348,7 @@
 <div class="run-header">
     <table>
         <tr>
-            <td style="vertical-align:middle;">
+            <td class="brand" style="vertical-align:middle;">
                 <div class="rh-brand">Praxi<span>Quest</span></div>
             </td>
             <td style="vertical-align:middle; text-align:right;">
