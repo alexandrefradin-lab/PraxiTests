@@ -4,7 +4,8 @@
  * Déblocage CHOISI des mini-apps de La Salle du Trésor.
  *
  * Règles couvertes :
- *  1. Porte d'entrée — rien ne s'ouvre tant que TOUTES les Épreuves ne sont pas passées.
+ *  1. Au fil de l'eau — les Éclats se gagnent en passant les Épreuves, et une
+ *     mini-app s'ouvre dès que le solde le permet. Aucune condition d'avancement.
  *  2. Choix — le candidat décide quelle mini-app ouvrir, dans l'ordre qu'il veut.
  *  3. Dépense — les Éclats sont débités du portefeuille (le cumul, lui, ne bouge pas).
  *  4. Idempotence — un double-clic n'ouvre ni ne facture deux fois.
@@ -37,7 +38,7 @@ beforeEach(function () {
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-/** Une Épreuve publiée : elle compte dans la porte d'entrée. */
+/** Une Épreuve publiée. */
 function mauTest(?string $slug = null): Test
 {
     $test = Test::create([
@@ -89,14 +90,18 @@ function mauMiniApp(string $slug, int $cost): void
     ]);
 }
 
+/**
+ * Crédite des Éclats. Cumulable : gamification_progress porte un unique
+ * (user_id, test_id), un second create() sur la même ligne violerait la contrainte.
+ */
 function mauGiveEclats(User $user, int $amount): void
 {
-    GamificationProgress::create([
-        'user_id'  => $user->id,
-        'test_id'  => null,
-        'xp_total' => $amount,
-        'level'    => 1,
-    ]);
+    $row = GamificationProgress::firstOrCreate(
+        ['user_id' => $user->id, 'test_id' => null],
+        ['xp_total' => 0, 'level' => 1],
+    );
+
+    $row->increment('xp_total', $amount);
 }
 
 function mauCompleteEpreuve(User $user, Test $test): void
@@ -112,7 +117,7 @@ function mauCompleteEpreuve(User $user, Test $test): void
     ]);
 }
 
-/** Candidat ayant tout terminé et disposant de $eclats. */
+/** Candidat en cours de parcours, disposant de $eclats. */
 function mauReadyCandidate(int $eclats, int $epreuves = 2): User
 {
     $user = User::factory()->create();
@@ -126,44 +131,53 @@ function mauReadyCandidate(int $eclats, int $epreuves = 2): User
     return $user;
 }
 
-// ─── 1. Porte d'entrée : toutes les Épreuves ────────────────────────────────
+// ─── 1. Au fil de l'eau : aucune condition d'avancement ─────────────────────
 
-it('refuse d ouvrir une mini-app tant que toutes les Épreuves ne sont pas passées', function () {
-    mauMiniApp('minigate', 100);
+it('ouvre une mini-app des que le solde suffit, sans exiger la fin des Épreuves', function () {
+    mauMiniApp('minitot', 100);
 
+    // Aucune Épreuve terminée : seuls comptent les Éclats déjà gagnés.
     $user = User::factory()->create();
-    mauCompleteEpreuve($user, mauTest()); // 1 Épreuve sur 2
-    mauTest();                          // celle-ci reste à faire
-    mauGiveEclats($user, 10_000);             // les Éclats ne suffisent pas : la porte prime
+    mauGiveEclats($user, 500);
 
-    $this->actingAs($user)
-        ->post(route('treasure.unlock', 'minigate'))
-        ->assertRedirect();
+    $this->actingAs($user)->post(route('treasure.unlock', 'minitot'));
 
-    expect(MiniAppUnlock::where('user_id', $user->id)->count())->toBe(0);
-});
-
-it('ouvre la porte quand la dernière Épreuve est passée', function () {
-    mauMiniApp('minigateopen', 100);
-
-    $user = mauReadyCandidate(500);
-
-    $this->actingAs($user)
-        ->post(route('treasure.unlock', 'minigateopen'));
-
-    expect(MiniAppUnlock::where('user_id', $user->id)->where('plugin_slug', 'minigateopen')->exists())
+    expect(MiniAppUnlock::where('user_id', $user->id)->where('plugin_slug', 'minitot')->exists())
         ->toBeTrue();
 });
 
-it('garde la porte fermée si aucune Épreuve n est publiée', function () {
-    mauMiniApp('minivide', 100);
+it('ouvre une mini-app en cours de parcours, une Épreuve sur deux terminée', function () {
+    mauMiniApp('minimilieu', 300);
 
     $user = User::factory()->create();
-    mauGiveEclats($user, 10_000);
+    mauCompleteEpreuve($user, mauTest()); // 1 Épreuve sur 2
+    mauTest();                            // celle-ci reste à passer
+    mauGiveEclats($user, 400);
 
-    $this->actingAs($user)->post(route('treasure.unlock', 'minivide'));
+    $this->actingAs($user)->post(route('treasure.unlock', 'minimilieu'));
 
-    expect(MiniAppUnlock::where('user_id', $user->id)->count())->toBe(0);
+    expect(MiniAppUnlock::slugsFor($user->id))->toContain('minimilieu')
+        ->and(app(MiniAppUnlockService::class)->availableEclats($user))->toBe(100);
+});
+
+it('ouvre les mini-apps petit a petit, au rythme des Éclats gagnes', function () {
+    mauMiniApp('minipalier1', 200);
+    mauMiniApp('minipalier2', 500);
+
+    $user = User::factory()->create();
+    mauGiveEclats($user, 300); // de quoi n'ouvrir que la première
+
+    $this->actingAs($user)->post(route('treasure.unlock', 'minipalier1'));
+    $this->actingAs($user)->post(route('treasure.unlock', 'minipalier2'));
+
+    expect(MiniAppUnlock::slugsFor($user->id))->toBe(['minipalier1']);
+
+    // Le candidat continue ses Épreuves et gagne de quoi s'offrir la seconde.
+    mauGiveEclats($user, 500);
+    $this->actingAs($user)->post(route('treasure.unlock', 'minipalier2'));
+
+    expect(MiniAppUnlock::slugsFor($user->id))->toContain('minipalier2')
+        ->and(MiniAppUnlock::where('user_id', $user->id)->count())->toBe(2);
 });
 
 // ─── 2. Le candidat choisit ─────────────────────────────────────────────────
@@ -291,7 +305,6 @@ it('expose le portefeuille et l état de la porte à la Salle du Trésor', funct
     expect($treasure['total'])->toBe(1000)
         ->and($treasure['spent'])->toBe(400)
         ->and($treasure['available'])->toBe(600)
-        ->and($treasure['gate_open'])->toBeTrue()
         ->and($treasure['unlocked_count'])->toBe(1);
 
     $item = collect($treasure['items'])->firstWhere('plugin_slug', 'minipayload');
@@ -355,7 +368,6 @@ it('expose un payload sans porte ni depense quand le choix est desactive', funct
     $treasure = app(\Praxis\Core\Gamification\RewardCatalog::class)->forUser($user);
 
     expect($treasure['choice_enabled'])->toBeFalse()
-        ->and($treasure['gate_open'])->toBeTrue()   // pas de porte en régime historique
         ->and($treasure['spent'])->toBe(0)
         ->and($treasure['available'])->toBe(1000)
         ->and($treasure['unlocked_count'])->toBe(1); // débloqué par le seul palier

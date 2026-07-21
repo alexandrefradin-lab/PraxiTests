@@ -11,8 +11,7 @@ const props = defineProps({
         type: Object,
         default: () => ({
             total: 0, spent: 0, available: 0,
-            choice_enabled: false, gate_open: false,
-            armory: { completed: 0, total: 0, remaining: 0, all_done: false },
+            choice_enabled: false,
             unlocked_count: 0, total_count: 0, has_profile: false, items: [],
         }),
     },
@@ -31,14 +30,6 @@ const unlockedPct = computed(() => {
 // Interrupteur serveur (PRAXIQUEST_TREASURE_CHOICE_ENABLED). Off = régime
 // historique : déblocage automatique au palier, aucun achat, aucune porte.
 const choiceEnabled = computed(() => props.treasure.choice_enabled === true)
-const gateOpen      = computed(() => props.treasure.gate_open === true)
-const armory   = computed(() => props.treasure.armory ?? { completed: 0, total: 0, remaining: 0 })
-
-const armoryPct = computed(() => {
-    const total = armory.value.total || 0
-    return total > 0 ? Math.round((armory.value.completed / total) * 100) : 0
-})
-
 // Déblocage en cours : neutralise le bouton pour que le double-clic ne parte
 // pas deux fois (le service est déjà idempotent côté serveur, c'est la ceinture).
 const unlocking = ref(null)
@@ -101,45 +92,6 @@ function unlock(item) {
             </div>
         </div>
 
-        <!-- ── Porte d'entrée : Épreuves non terminées ── -->
-        <div v-if="choiceEnabled && !gateOpen" class="trs-gate mb-8">
-            <i class="ti ti-lock text-xl shrink-0" style="color:var(--color-primary);"></i>
-            <div style="flex:1;">
-                <p class="text-sm font-semibold mb-1" style="color:var(--text-primary); font-family:'Space Grotesk',sans-serif;">
-                    {{ isCorporate ? 'La bibliothèque de modules est verrouillée.' : 'La Salle du Trésor est encore scellée.' }}
-                </p>
-                <p class="text-sm" style="color:var(--text-secondary); font-family:'Inter',sans-serif; margin:0;">
-                    <template v-if="armory.total > 0">
-                        {{ isCorporate ? 'Terminez' : 'Accomplis' }}
-                        <strong style="color:var(--text-primary);">{{ isCorporate ? 'toutes les évaluations' : 'toutes les Épreuves' }}</strong>
-                        {{ isCorporate ? 'pour y accéder' : 'pour en briser le sceau' }} —
-                        <strong style="font-family:'Space Mono',monospace; color:var(--text-primary);">{{ armory.completed }}/{{ armory.total }}</strong>
-                        {{ isCorporate ? 'terminées' : 'accomplies' }}.
-                    </template>
-                    <template v-else>
-                        {{ isCorporate ? "Aucune évaluation n'est disponible pour le moment." : "Aucune Épreuve n'est disponible pour le moment." }}
-                    </template>
-                </p>
-
-                <div v-if="armory.total > 0" class="mt-3" style="display:flex;align-items:center;gap:0.75rem;">
-                    <div style="flex:1;height:6px;border-radius:99px;background:rgba(140,122,94,0.2);overflow:hidden;">
-                        <div :style="{ width: armoryPct + '%', height:'100%', background:'var(--color-primary)', borderRadius:'99px', transition:'width 0.4s ease' }"></div>
-                    </div>
-                    <span style="font-size:0.72rem;font-weight:600;color:var(--text-secondary);flex-shrink:0;">{{ armoryPct }}%</span>
-                </div>
-
-                <Link
-                    v-if="armory.remaining > 0"
-                    :href="route('tests.index')"
-                    class="inline-flex items-center gap-1 mt-3 text-sm font-semibold transition-opacity hover:opacity-70"
-                    style="color:var(--color-primary); font-family:'Inter',sans-serif; text-decoration:underline; text-underline-offset:3px;"
-                >
-                    &#x2192; {{ isCorporate ? 'Reprendre les évaluations' : 'Reprendre mes Épreuves' }}
-                    ({{ armory.remaining }} {{ armory.remaining > 1 ? 'restantes' : 'restante' }})
-                </Link>
-            </div>
-        </div>
-
         <!-- ── Portefeuille d'Éclats (régime « choix ») ── -->
         <div v-if="choiceEnabled" class="trs-eclats mb-8">
             <i class="ti ti-diamond text-xl shrink-0" style="color:var(--color-primary);"></i>
@@ -147,12 +99,7 @@ function unlock(item) {
                 {{ isCorporate ? 'Vous disposez de' : 'Tu disposes de' }}
                 <strong style="font-family:'Space Mono',monospace; color:var(--text-primary); font-weight:700;">{{ treasure.available }} {{ L.xpName }}</strong>
                 à dépenser<template v-if="treasure.spent > 0"> ({{ treasure.total }} gagnés, {{ treasure.spent }} déjà investis)</template>.
-                <template v-if="gateOpen">
-                    {{ isCorporate ? 'Choisissez le module que vous souhaitez débloquer.' : "Choisis le trésor que tu veux ouvrir." }}
-                </template>
-                <template v-else>
-                    {{ isCorporate ? 'Ils resteront disponibles à la fin de vos évaluations.' : "Ils t'attendront à la fin de tes Épreuves." }}
-                </template>
+                {{ isCorporate ? 'Choisissez le module que vous souhaitez débloquer.' : "Choisis le trésor que tu veux ouvrir." }}
             </p>
         </div>
 
@@ -309,19 +256,9 @@ function unlock(item) {
                         <div :style="{ width: item.progress_pct + '%', height:'100%', background:'var(--color-primary)', borderRadius:'999px', transition:'width 0.4s ease' }"></div>
                     </div>
 
-                    <!-- Porte fermée : les Épreuves d'abord -->
+                    <!-- Solde insuffisant -->
                     <p
-                        v-if="choiceEnabled && !gateOpen"
-                        class="mt-2"
-                        style="font-family:'Inter',sans-serif; font-size:0.8rem; font-weight:600; color:var(--text-muted);"
-                    >
-                        <i class="ti ti-lock"></i>
-                        {{ isCorporate ? 'Terminez toutes les évaluations pour débloquer' : "Accomplis toutes tes Épreuves pour l'ouvrir" }}
-                    </p>
-
-                    <!-- Porte ouverte, solde insuffisant -->
-                    <p
-                        v-else-if="!item.affordable"
+                        v-if="!item.affordable"
                         class="mt-2"
                         style="font-family:'Inter',sans-serif; font-size:0.8rem; font-weight:600; color:var(--color-primary-dark);"
                     >
@@ -410,17 +347,6 @@ function unlock(item) {
     border-left: 3px solid var(--color-primary);
     border-radius: var(--r-lg);
     padding: 1rem 1.25rem;
-}
-
-/* ── Porte d'entrée (Épreuves à terminer) ── */
-.trs-gate {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.85rem;
-    background: var(--bg-elevated);
-    border: 2px solid var(--color-primary);
-    border-radius: var(--r-lg);
-    padding: 1.15rem 1.35rem;
 }
 
 /* ── Carte trésor (base .pt-card + accent or) ── */

@@ -32,25 +32,6 @@ class Parcours
             : "Ce trésor est encore scellé. Il s'ouvre pour {$seuil} Éclats.";
     }
 
-    /**
-     * Porte d'entrée de La Salle du Trésor : il reste des Épreuves à passer.
-     * $remaining = 0 signifie qu'aucune Épreuve n'est publiée (catalogue vide).
-     */
-    public static function armorySealedMessage(int $remaining, ?User $user = null): string
-    {
-        if ($remaining <= 0) {
-            return self::isCorporate($user)
-                ? "Aucun module n'est disponible pour le moment."
-                : "Aucun trésor n'est accessible pour le moment.";
-        }
-
-        $s = $remaining > 1 ? 's' : '';
-
-        return self::isCorporate($user)
-            ? "Terminez d'abord toutes les évaluations : il vous en reste {$remaining} à passer."
-            : "La Salle du Trésor reste scellée : il te reste {$remaining} Épreuve{$s} à accomplir.";
-    }
-
     /** Solde insuffisant pour ouvrir la mini-app choisie. */
     public static function notEnoughEclatsMessage(int $missing, ?User $user = null): string
     {

@@ -27,7 +27,6 @@ class MiniAppUnlockService
     public function __construct(
         protected GamificationEngine $gamification,
         protected RewardCatalog $catalog,
-        protected TestCompletionService $tests,
     ) {}
 
     /** Éclats déjà dépensés en déblocages. */
@@ -90,12 +89,8 @@ class MiniAppUnlockService
             ];
         }
 
-        // Porte d'entrée : toutes les Épreuves doivent être passées.
-        $progress = $this->tests->summary($user);
-        if (! $progress['all_done']) {
-            throw new MiniAppUnlockException(Parcours::armorySealedMessage($progress['remaining'], $user));
-        }
-
+        // Aucune condition d'avancement : les Éclats se gagnent au fil des
+        // Épreuves et s'ouvrent au fil de l'eau. Le seul frein est le solde.
         $cost = (int) $reward['threshold'];
 
         return DB::transaction(function () use ($user, $slug, $reward, $cost) {

@@ -128,11 +128,9 @@ class RewardCatalog
         $spent     = $choice ? MiniAppUnlock::spentBy($user->id) : 0;
         $available = max(0, $total - $spent);
 
-        $owned    = array_flip($this->unlockedSlugs($user));
-        $armory   = app(TestCompletionService::class)->summary($user);
-        $gateOpen = $choice ? $armory['all_done'] : true;
+        $owned = array_flip($this->unlockedSlugs($user));
 
-        $items = $this->all()->map(function (array $r) use ($choice, $available, $owned, $gateOpen, $user) {
+        $items = $this->all()->map(function (array $r) use ($choice, $available, $owned, $user) {
             $cost     = (int) $r['threshold'];
             $unlocked = $choice
                 ? isset($owned[$r['plugin_slug']])
@@ -155,7 +153,7 @@ class RewardCatalog
                 'unlocked'      => $unlocked,
                 'cost'          => $cost,
                 // En régime historique rien ne s'achète : pas de bouton d'ouverture.
-                'affordable'    => $choice && $gateOpen && ! $unlocked && $missing === 0,
+                'affordable'    => $choice && ! $unlocked && $missing === 0,
                 'missing'       => $unlocked ? 0 : $missing,
                 'remaining'     => $unlocked ? 0 : $missing,
                 'progress_pct'  => $unlocked ? 100 : $progress,
@@ -184,8 +182,6 @@ class RewardCatalog
             'spent'           => $spent,
             'available'       => $available,
             'choice_enabled'  => $choice,
-            'gate_open'       => $gateOpen,
-            'armory'          => $armory,
             'unlocked_count'  => $unlockedCount,
             'total_count'     => count($sorted),
             'has_profile'     => $user->profileGrimoire?->status === 'ready',
@@ -333,17 +329,6 @@ class RewardCatalog
      */
     private function sealedRedirect(?int $threshold, User $user): \Illuminate\Http\RedirectResponse
     {
-        // La porte d'entrée n'existe qu'en régime « choix » : sans le flag, le
-        // seul motif de verrouillage reste le palier d'Éclats non atteint.
-        $armory = $this->choiceEnabled()
-            ? app(TestCompletionService::class)->summary($user)
-            : ['all_done' => true, 'remaining' => 0];
-
-        if (! $armory['all_done']) {
-            return redirect()->route('treasure.index')
-                ->with('error', \App\Support\Parcours::armorySealedMessage($armory['remaining'], $user));
-        }
-
         return redirect()->route('treasure.index')->with(
             'error',
             $threshold
