@@ -323,9 +323,8 @@ class RewardCatalog
     }
 
     /**
-     * Redirection commune « trésor scellé ». Le message distingue les deux
-     * raisons possibles : la porte d'entrée (Épreuves non terminées) ou la
-     * mini-app simplement pas encore choisie.
+     * Redirection commune « trésor scellé » : la mini-app n'a pas encore été
+     * ouverte (régime « choix ») ou son palier n'est pas atteint (historique).
      */
     private function sealedRedirect(?int $threshold, User $user): \Illuminate\Http\RedirectResponse
     {

@@ -327,7 +327,7 @@ it('debloque automatiquement au palier quand le choix est desactive', function (
     $user = User::factory()->create();
     mauGiveEclats($user, 600); // palier franchi, aucune Épreuve terminée
 
-    // Ni porte d'entrée, ni achat : l'accès est immédiat, comme avant.
+    // Aucun achat : l'accès est immédiat au palier, comme avant.
     $this->actingAs($user)
         ->get(route('journey.index', ['plugin' => 'legacyauto']))
         ->assertOk();

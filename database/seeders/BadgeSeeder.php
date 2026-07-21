@@ -46,6 +46,18 @@ class BadgeSeeder extends Seeder
                 'icon' => 'sparkles', 'xp_reward' => 0, // XP attribués directement par l\'EasterEggController
                 'criteria' => ['type' => 'easter_egg'],
             ],
+            [
+                'slug' => 'egare', 'name' => 'Égaré',
+                'description' => 'Tu as suivi un chemin qui n\'existait pas.',
+                'icon' => 'compass-off', 'xp_reward' => 0, // cf. EasterEggController
+                'criteria' => ['type' => 'easter_egg'],
+            ],
+            [
+                'slug' => 'scribe', 'name' => 'Scribe',
+                'description' => 'Tu as lu le Grimoire à l\'envers.',
+                'icon' => 'feather', 'xp_reward' => 0, // cf. EasterEggController
+                'criteria' => ['type' => 'easter_egg'],
+            ],
         ];
 
         foreach ($badges as $b) {

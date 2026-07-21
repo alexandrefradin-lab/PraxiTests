@@ -108,6 +108,17 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->belongsToMany(Badge::class, 'user_badges')->withPivot(['earned_at', 'context']);
     }
 
+    public function easterEggs(): HasMany
+    {
+        return $this->hasMany(UserEasterEgg::class);
+    }
+
+    /** Ce secret a-t-il déjà été découvert par cet utilisateur ? */
+    public function hasClaimedEasterEgg(string $slug): bool
+    {
+        return $this->easterEggs()->where('slug', $slug)->exists();
+    }
+
     public function gamificationProgress(): HasMany
     {
         return $this->hasMany(GamificationProgress::class);

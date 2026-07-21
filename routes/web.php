@@ -28,6 +28,10 @@ Route::get('/structures/essai', [\App\Http\Controllers\StructuresController::cla
 // sur les stacks où tout passe par index.php (nginx, tests), refus explicite.
 Route::any('/install.php', fn () => abort(403));
 
+// Easter egg « Le Faux Bouton » — cible du lien discret de la page 404.
+// Publique : la découverte est ouverte à tous, seule la récompense demande un compte.
+Route::get('/nulle-part', [\App\Http\Controllers\EasterEggController::class, 'nullePart'])->name('nulle-part');
+
 Route::get('/cgu', [LegalController::class, 'cgu'])->name('cgu');
 Route::get('/confidentialite', [LegalController::class, 'confidentialite'])->name('confidentialite');
 Route::get('/mentions-legales', [LegalController::class, 'mentions'])->name('mentions');
@@ -76,9 +80,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/panel/{panel}/proceed',             [\App\Http\Controllers\Candidate\Panel360Controller::class, 'proceed'])->name('panel360.proceed');
     Route::delete('/panel/invitation/{invitation}',   [\App\Http\Controllers\Candidate\Panel360Controller::class, 'removeInvitation'])->name('panel360.invitation.destroy');
 
-    // La Salle du Trésor — mini-apps offertes en récompense. La salle s'ouvre
-    // quand toutes les Épreuves sont passées ; le candidat choisit ensuite
-    // laquelle ouvrir en dépensant ses Éclats.
+    // La Salle du Trésor — mini-apps offertes en récompense. Les Éclats se
+    // gagnent au fil des Épreuves ; le candidat choisit laquelle ouvrir dès que
+    // son solde le permet (route unlock inactive tant que le flag treasure
+    // .choice_enabled est à false — cf. config/praxiquest.php).
     Route::get('/salle-du-tresor', [TreasureController::class, 'index'])->name('treasure.index');
     Route::post('/salle-du-tresor/{slug}/ouvrir', [TreasureController::class, 'unlock'])
         ->middleware('throttle:12,1')->name('treasure.unlock');
@@ -106,7 +111,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/oracle/messages',      [OracleController::class, 'message'])->middleware('throttle:20,1')->name('oracle.message');
     Route::delete('/oracle/messages',    [OracleController::class, 'clear'])->name('oracle.clear');
 
-    // Easter egg — Konami Code
+    // Easter eggs — récompense d'un secret découvert. Le slug envoyé est
+    // validé contre EasterEggRegistry ; Éclats et badge viennent du serveur.
     Route::post('/easter-egg/claim', [EasterEggController::class, 'claim'])
         ->middleware('throttle:5,1')->name('easter-egg.claim');
 

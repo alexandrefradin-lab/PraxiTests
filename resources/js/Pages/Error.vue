@@ -11,6 +11,12 @@ defineProps({
             <p class="error-code">{{ status }}</p>
             <p class="error-msg">{{ message }}</p>
             <a href="/" class="error-back">← Retour à l'accueil</a>
+
+            <!-- Easter egg « Le Faux Bouton » : uniquement sur les 404, discret
+                 au point de passer pour une coquille. C'est le but. -->
+            <p v-if="status === 404" class="error-nowhere">
+                <a href="/nulle-part">ce chemin n'existe pas non plus</a>
+            </p>
         </div>
     </div>
 </template>
@@ -47,4 +53,17 @@ defineProps({
     border-bottom: 1px solid currentColor;
 }
 .error-back:hover { opacity: .75; }
+.error-nowhere {
+    margin: 3.5rem 0 0;
+    font-size: .68rem;
+    letter-spacing: .02em;
+}
+.error-nowhere a {
+    color: var(--text-muted);
+    text-decoration: none;
+    opacity: .35;
+    transition: opacity .3s ease;
+}
+.error-nowhere a:hover,
+.error-nowhere a:focus-visible { opacity: .9; }
 </style>
