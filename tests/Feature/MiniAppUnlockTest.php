@@ -33,7 +33,7 @@ beforeEach(function () {
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 /** Une Épreuve publiée : elle compte dans la porte d'entrée. */
-function mauTest(string $slug = null): Test
+function mauTest(?string $slug = null): Test
 {
     $test = Test::create([
         'slug'              => $slug ?? 'epreuve-' . uniqid(),
