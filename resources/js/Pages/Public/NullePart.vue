@@ -1,7 +1,12 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { Head } from '@inertiajs/vue3'
 import EasterEgg from '@/Components/EasterEgg.vue'
+import { useParcours } from '@/composables/useParcours'
+
+// Page publique : un visiteur non connecté suit sa préférence localStorage,
+// gérée par le composable — pas besoin de cas particulier ici.
+const { isCorporate } = useParcours()
 
 const props = defineProps({
     // Faux pour un visiteur anonyme : la page reste lisible, mais rien
@@ -10,6 +15,28 @@ const props = defineProps({
 })
 
 const showEgg = ref(false)
+
+const COPY = {
+    medieval: {
+        signature: "— l'Oracle",
+        back: 'Reprendre un chemin',
+        paragraphs: [
+            "Cette page ne mène à rien. Elle n'est reliée à aucun menu, aucun parcours, aucun tableau de bord. Tu es arrivé ici en cliquant sur un lien qui t'annonçait exactement ça.",
+            "On passe beaucoup de temps, dans un bilan de compétences, à chercher <em>la</em> direction. Celle qui serait la bonne. Et pendant ce temps-là, l'expérience la plus utile est souvent celle qu'on n'avait pas prévue : le stage qui ne débouche sur rien, le métier essayé six mois, la conversation avec quelqu'un dont le travail ne t'intéressait pas.",
+            "Se perdre n'est pas une panne dans le parcours. C'est une partie du parcours. La seule chose qui distingue une errance d'un détour utile, c'est ce qu'on en ramène.",
+        ],
+    },
+    corporate: {
+        signature: '— votre conseiller',
+        back: 'Revenir à l\'accueil',
+        paragraphs: [
+            "Cette page ne mène à rien. Elle n'est reliée à aucun menu, aucun parcours, aucun tableau de bord. Vous êtes arrivé ici en cliquant sur un lien qui vous annonçait exactement cela.",
+            "On passe beaucoup de temps, dans un bilan de compétences, à chercher <em>la</em> direction — celle qui serait la bonne. Pendant ce temps, l'expérience la plus instructive est souvent celle qui n'était pas prévue : la mission qui ne débouche sur rien, le poste occupé six mois, l'échange avec quelqu'un dont le métier ne vous intéressait pas.",
+            "S'égarer n'est pas un incident de parcours. C'est une partie du parcours. Ce qui distingue une errance d'un détour utile, c'est uniquement ce qu'on en retire.",
+        ],
+    },
+}
+const copy = computed(() => isCorporate.value ? COPY.corporate : COPY.medieval)
 
 // Petite latence : on laisse le texte s'installer avant que la modale
 // n'arrive. Se faire récompenser trop vite tuerait le moment.
@@ -25,29 +52,12 @@ onMounted(() => {
         <div class="np-inner">
             <p class="np-kicker">Nulle part</p>
 
-            <p class="np-para">
-                Cette page ne mène à rien. Elle n'est reliée à aucun menu, aucun parcours,
-                aucun tableau de bord. Tu es arrivé ici en cliquant sur un lien qui
-                t'annonçait exactement ça.
-            </p>
+            <!-- eslint-disable-next-line vue/no-v-html -- copie statique du composant, aucune donnée utilisateur -->
+            <p v-for="(para, i) in copy.paragraphs" :key="i" class="np-para" v-html="para"></p>
 
-            <p class="np-para">
-                On passe beaucoup de temps, dans un bilan de compétences, à chercher
-                <em>la</em> direction. Celle qui serait la bonne. Et pendant ce temps-là,
-                l'expérience la plus utile est souvent celle qu'on n'avait pas prévue :
-                le stage qui ne débouche sur rien, le métier essayé six mois, la
-                conversation avec quelqu'un dont le travail ne t'intéressait pas.
-            </p>
+            <p class="np-signature">{{ copy.signature }}</p>
 
-            <p class="np-para">
-                Se perdre n'est pas une panne dans le parcours. C'est une partie du
-                parcours. La seule chose qui distingue une errance d'un détour utile,
-                c'est ce qu'on en ramène.
-            </p>
-
-            <p class="np-signature">— l'Oracle</p>
-
-            <a href="/" class="np-back">Reprendre un chemin</a>
+            <a href="/" class="np-back">{{ copy.back }}</a>
         </div>
 
         <EasterEgg :show="showEgg" slug="faux_bouton" @close="showEgg = false" />

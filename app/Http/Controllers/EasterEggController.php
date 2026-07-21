@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Badge;
 use App\Models\UserEasterEgg;
+use App\Support\Parcours;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Inertia\Inertia;
+use Inertia\Response;
 use Praxis\Core\Gamification\BadgeEvaluator;
 use Praxis\Core\Gamification\EasterEggRegistry;
 use Praxis\Core\Gamification\GamificationEngine;
@@ -20,10 +23,10 @@ class EasterEggController extends Controller
      * claim, lui, reste derrière l'auth (la page ne l'appelle pas pour un
      * visiteur anonyme).
      */
-    public function nullePart(): \Inertia\Response
+    public function nullePart(Request $request): Response
     {
-        return \Inertia\Inertia::render('Public/NullePart', [
-            'can_claim' => auth()->check(),
+        return Inertia::render('Public/NullePart', [
+            'can_claim' => $request->user() !== null,
         ]);
     }
 
@@ -76,7 +79,9 @@ class EasterEggController extends Controller
         return response()->json([
             'success'    => true,
             'eclats'     => $egg['eclats'],
-            'badge_name' => $badge?->name,
+            // Libellé résolu selon le parcours : la base porte désormais les
+            // deux variantes, le composant n'a plus à les dupliquer.
+            'badge_name' => $badge?->displayName(Parcours::isCorporate($user)),
         ]);
     }
 }

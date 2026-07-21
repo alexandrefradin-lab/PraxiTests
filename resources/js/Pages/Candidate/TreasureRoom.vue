@@ -16,7 +16,17 @@ const props = defineProps({
         }),
     },
     profile_complete: { type: Boolean, default: false },
+    badges: {
+        type: Object,
+        default: () => ({ items: [], earned_count: 0, total_count: 0 }),
+    },
 })
+
+// ── Distinctions ─────────────────────────────────────────────────────────
+// Les badges secrets non obtenus arrivent déjà masqués du serveur (name
+// « ??? ») : rien à cacher ici, le front n'en sait pas plus que l'affichage.
+const badgeItems = computed(() => props.badges?.items ?? [])
+const badgesLabel = computed(() => isCorporate.value ? 'Distinctions' : 'Hauts faits')
 
 const recommendedCount = computed(() =>
     props.treasure.items?.filter(i => i.recommended).length ?? 0
@@ -322,6 +332,74 @@ function unlock(item) {
             </p>
         </div>
 
+        <!-- ── Distinctions / Hauts faits ────────────────────────────────── -->
+        <section v-if="badgeItems.length" class="mt-12">
+            <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
+                <div>
+                    <h2
+                        class="font-bold tracking-tight leading-none"
+                        style="font-family:var(--font-display); color:var(--text-primary); font-size:1.6rem;"
+                    >
+                        {{ badgesLabel }}
+                    </h2>
+                    <p class="mt-2 text-sm" style="color:var(--text-secondary); font-family:var(--font-body);">
+                        {{ isCorporate
+                            ? 'Les distinctions obtenues au fil de votre parcours.'
+                            : 'Ce que tu as accompli en chemin — et ce qu’il te reste à découvrir.' }}
+                    </p>
+                </div>
+                <span
+                    class="text-sm whitespace-nowrap self-start sm:self-end pb-0.5"
+                    style="font-family:'Space Mono',monospace; color:var(--text-secondary);"
+                >
+                    {{ badges.earned_count }}/{{ badges.total_count }} {{ isCorporate ? 'obtenues' : 'obtenus' }}
+                </span>
+            </div>
+
+            <div class="flex items-center gap-3 mt-5 mb-6">
+                <div class="h-px flex-1" style="background:linear-gradient(to right, var(--color-primary), transparent);"></div>
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 0L9.6 6.4L16 8L9.6 9.6L8 16L6.4 9.6L0 8L6.4 6.4L8 0Z" fill="var(--color-primary)" opacity="0.5"/>
+                </svg>
+                <div class="h-px flex-1" style="background:linear-gradient(to left, var(--color-primary), transparent);"></div>
+            </div>
+
+            <div class="grid gap-4" style="grid-template-columns:repeat(auto-fill,minmax(230px,1fr));">
+                <article
+                    v-for="b in badgeItems"
+                    :key="b.slug"
+                    class="trs-badge"
+                    :class="{ 'trs-badge--earned': b.earned, 'trs-badge--secret': b.secret }"
+                >
+                    <i
+                        class="ti shrink-0"
+                        :class="'ti-' + b.icon"
+                        :style="{ fontSize: '22px', color: b.earned ? 'var(--color-primary)' : 'var(--text-muted)' }"
+                        aria-hidden="true"
+                    ></i>
+                    <div style="min-width:0;">
+                        <p
+                            class="font-semibold"
+                            style="font-family:'Space Grotesk',sans-serif; font-size:0.9rem; margin:0 0 0.2rem;"
+                            :style="{ color: b.earned ? 'var(--text-primary)' : 'var(--text-muted)' }"
+                        >
+                            {{ b.name }}
+                        </p>
+                        <p class="text-xs leading-relaxed" style="color:var(--text-secondary); font-family:'Inter',sans-serif; margin:0;">
+                            {{ b.description }}
+                        </p>
+                        <p
+                            v-if="b.earned_at"
+                            class="mt-2"
+                            style="font-family:'Space Mono',monospace; font-size:10px; color:var(--text-muted); margin-bottom:0;"
+                        >
+                            {{ isCorporate ? 'Obtenue le' : 'Obtenu le' }} {{ b.earned_at }}
+                        </p>
+                    </div>
+                </article>
+            </div>
+        </section>
+
     </CandidateLayout>
 </template>
 
@@ -361,6 +439,29 @@ function unlock(item) {
 }
 .trs-card--locked {
     opacity: 0.8;
+}
+
+/* ── Distinctions / Hauts faits ─────────────────────────────────────── */
+.trs-badge {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.8rem;
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--r-lg);
+    background: transparent;
+    opacity: 0.6;
+    transition: opacity 0.2s ease, border-color 0.2s ease;
+}
+.trs-badge--earned {
+    opacity: 1;
+    background: var(--bg-elevated);
+    border-left: 3px solid var(--color-primary);
+}
+/* Le secret reste discret : ni bordure d'accent, ni relief. */
+.trs-badge--secret {
+    border-style: dashed;
+    opacity: 0.45;
 }
 
 /* ── Badge statut ── */
