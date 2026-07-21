@@ -110,19 +110,33 @@ class RewardCatalog
         return ['type' => 'none', 'url' => null];
     }
 
+    /**
+     * Déblocage CHOISI actif ? Livré à false : la bascule se fait via
+     * PRAXIQUEST_TREASURE_CHOICE_ENABLED (cf. config/praxiquest.php).
+     */
+    public function choiceEnabled(): bool
+    {
+        return (bool) config('praxiquest.treasure.choice_enabled', false);
+    }
+
     public function forUser(User $user): array
     {
-        $total     = $this->gamification->totalEclats($user);
-        $spent     = MiniAppUnlock::spentBy($user->id);
+        $choice = $this->choiceEnabled();
+        $total  = $this->gamification->totalEclats($user);
+
+        // Régime historique : pas de dépense, pas de porte, le cumul fait foi.
+        $spent     = $choice ? MiniAppUnlock::spentBy($user->id) : 0;
         $available = max(0, $total - $spent);
 
-        $owned  = array_flip($this->unlockedSlugs($user));
-        $armory = app(TestCompletionService::class)->summary($user);
-        $gateOpen = $armory['all_done'];
+        $owned    = array_flip($this->unlockedSlugs($user));
+        $armory   = app(TestCompletionService::class)->summary($user);
+        $gateOpen = $choice ? $armory['all_done'] : true;
 
-        $items = $this->all()->map(function (array $r) use ($available, $owned, $gateOpen, $user) {
-            $unlocked = isset($owned[$r['plugin_slug']]);
+        $items = $this->all()->map(function (array $r) use ($choice, $available, $owned, $gateOpen, $user) {
             $cost     = (int) $r['threshold'];
+            $unlocked = $choice
+                ? isset($owned[$r['plugin_slug']])
+                : $available >= $cost;
             $missing  = max(0, $cost - $available);
 
             // Progression = avancement du PORTEFEUILLE vers le coût, pas du cumul :
@@ -140,7 +154,8 @@ class RewardCatalog
             return array_merge($clean, [
                 'unlocked'      => $unlocked,
                 'cost'          => $cost,
-                'affordable'    => $gateOpen && ! $unlocked && $missing === 0,
+                // En régime historique rien ne s'achète : pas de bouton d'ouverture.
+                'affordable'    => $choice && $gateOpen && ! $unlocked && $missing === 0,
                 'missing'       => $unlocked ? 0 : $missing,
                 'remaining'     => $unlocked ? 0 : $missing,
                 'progress_pct'  => $unlocked ? 100 : $progress,
@@ -168,6 +183,7 @@ class RewardCatalog
             'total'           => $total,
             'spent'           => $spent,
             'available'       => $available,
+            'choice_enabled'  => $choice,
             'gate_open'       => $gateOpen,
             'armory'          => $armory,
             'unlocked_count'  => $unlockedCount,
@@ -234,6 +250,11 @@ class RewardCatalog
     {
         if ($reward === null) {
             return true; // pas un cadeau : accès libre
+        }
+
+        // Régime historique (flag off) : le cumul d'Éclats fait foi, comme avant.
+        if (! $this->choiceEnabled()) {
+            return $this->gamification->totalEclats($user) >= $reward['threshold'];
         }
 
         return in_array($reward['plugin_slug'], $this->unlockedSlugs($user), true);
@@ -312,7 +333,11 @@ class RewardCatalog
      */
     private function sealedRedirect(?int $threshold, User $user): \Illuminate\Http\RedirectResponse
     {
-        $armory = app(TestCompletionService::class)->summary($user);
+        // La porte d'entrée n'existe qu'en régime « choix » : sans le flag, le
+        // seul motif de verrouillage reste le palier d'Éclats non atteint.
+        $armory = $this->choiceEnabled()
+            ? app(TestCompletionService::class)->summary($user)
+            : ['all_done' => true, 'remaining' => 0];
 
         if (! $armory['all_done']) {
             return redirect()->route('treasure.index')

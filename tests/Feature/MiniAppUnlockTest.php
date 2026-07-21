@@ -28,6 +28,11 @@ beforeEach(function () {
     Queue::fake();
     Mail::fake();
     Cache::flush(); // reward_catalog_v2 + eclats.{id}
+
+    // Ces tests décrivent le régime « choix ». Il est livré DÉSACTIVÉ
+    // (PRAXIQUEST_TREASURE_CHOICE_ENABLED) : on l'active explicitement ici.
+    // Le régime historique a ses propres tests en fin de fichier.
+    config()->set('praxiquest.treasure.choice_enabled', true);
 });
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -293,5 +298,71 @@ it('expose le portefeuille et l état de la porte à la Salle du Trésor', funct
 
     expect($item['unlocked'])->toBeTrue()
         ->and($item['cost'])->toBe(400)
+        ->and($item['url'])->not->toBeNull();
+});
+
+// ─── 7. Régime HISTORIQUE (flag off) — comportement livré par défaut ─────────
+//
+// La feature est livrée désactivée : tant que PRAXIQUEST_TREASURE_CHOICE_ENABLED
+// reste à false, plus rien ne doit changer pour les candidats. C'est ce qui rend
+// ce lot déployable sans relecture — ces tests sont la garantie.
+
+it('debloque automatiquement au palier quand le choix est desactive', function () {
+    config()->set('praxiquest.treasure.choice_enabled', false);
+    mauMiniApp('legacyauto', 500);
+
+    $user = User::factory()->create();
+    mauGiveEclats($user, 600); // palier franchi, aucune Épreuve terminée
+
+    // Ni porte d'entrée, ni achat : l'accès est immédiat, comme avant.
+    $this->actingAs($user)
+        ->get(route('journey.index', ['plugin' => 'legacyauto']))
+        ->assertOk();
+
+    expect(MiniAppUnlock::where('user_id', $user->id)->count())->toBe(0);
+});
+
+it('garde la mini-app scellee sous le palier quand le choix est desactive', function () {
+    config()->set('praxiquest.treasure.choice_enabled', false);
+    mauMiniApp('legacylocked', 500);
+
+    $user = User::factory()->create();
+    mauGiveEclats($user, 100);
+
+    $this->actingAs($user)
+        ->get(route('journey.index', ['plugin' => 'legacylocked']))
+        ->assertRedirect(route('treasure.index'));
+});
+
+it('refuse tout achat quand le choix est desactive', function () {
+    config()->set('praxiquest.treasure.choice_enabled', false);
+    mauMiniApp('legacybuy', 100);
+
+    $user = mauReadyCandidate(5000); // tout terminé, largement les moyens
+
+    $this->actingAs($user)->post(route('treasure.unlock', 'legacybuy'));
+
+    expect(MiniAppUnlock::where('user_id', $user->id)->count())->toBe(0);
+});
+
+it('expose un payload sans porte ni depense quand le choix est desactive', function () {
+    config()->set('praxiquest.treasure.choice_enabled', false);
+    mauMiniApp('legacypayload', 400);
+
+    $user = User::factory()->create();
+    mauGiveEclats($user, 1000); // aucune Épreuve terminée
+
+    $treasure = app(\Praxis\Core\Gamification\RewardCatalog::class)->forUser($user);
+
+    expect($treasure['choice_enabled'])->toBeFalse()
+        ->and($treasure['gate_open'])->toBeTrue()   // pas de porte en régime historique
+        ->and($treasure['spent'])->toBe(0)
+        ->and($treasure['available'])->toBe(1000)
+        ->and($treasure['unlocked_count'])->toBe(1); // débloqué par le seul palier
+
+    $item = collect($treasure['items'])->firstWhere('plugin_slug', 'legacypayload');
+
+    expect($item['unlocked'])->toBeTrue()
+        ->and($item['affordable'])->toBeFalse()      // aucun bouton d'achat
         ->and($item['url'])->not->toBeNull();
 });

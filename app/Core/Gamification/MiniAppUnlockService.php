@@ -61,6 +61,16 @@ class MiniAppUnlockService
      */
     public function unlock(User $user, string $slug): array
     {
+        // Interrupteur global : tant que le déblocage choisi n'est pas activé,
+        // rien ne s'achète (la route existe mais reste inopérante).
+        if (! $this->catalog->choiceEnabled()) {
+            throw new MiniAppUnlockException(
+                Parcours::isCorporate($user)
+                    ? "Le déblocage des modules n'est pas encore ouvert."
+                    : "La Salle du Trésor n'est pas encore ouverte au choix."
+            );
+        }
+
         $reward = $this->catalog->rewardForPlugin($slug);
 
         if ($reward === null) {

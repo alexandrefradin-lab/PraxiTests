@@ -11,7 +11,7 @@ const props = defineProps({
         type: Object,
         default: () => ({
             total: 0, spent: 0, available: 0,
-            gate_open: false,
+            choice_enabled: false, gate_open: false,
             armory: { completed: 0, total: 0, remaining: 0, all_done: false },
             unlocked_count: 0, total_count: 0, has_profile: false, items: [],
         }),
@@ -28,7 +28,10 @@ const unlockedPct = computed(() => {
     return total > 0 ? Math.round((props.treasure.unlocked_count / total) * 100) : 0
 })
 
-const gateOpen = computed(() => props.treasure.gate_open === true)
+// Interrupteur serveur (PRAXIQUEST_TREASURE_CHOICE_ENABLED). Off = régime
+// historique : déblocage automatique au palier, aucun achat, aucune porte.
+const choiceEnabled = computed(() => props.treasure.choice_enabled === true)
+const gateOpen      = computed(() => props.treasure.gate_open === true)
 const armory   = computed(() => props.treasure.armory ?? { completed: 0, total: 0, remaining: 0 })
 
 const armoryPct = computed(() => {
@@ -99,7 +102,7 @@ function unlock(item) {
         </div>
 
         <!-- ── Porte d'entrée : Épreuves non terminées ── -->
-        <div v-if="!gateOpen" class="trs-gate mb-8">
+        <div v-if="choiceEnabled && !gateOpen" class="trs-gate mb-8">
             <i class="ti ti-lock text-xl shrink-0" style="color:var(--color-primary);"></i>
             <div style="flex:1;">
                 <p class="text-sm font-semibold mb-1" style="color:var(--text-primary); font-family:'Space Grotesk',sans-serif;">
@@ -137,19 +140,29 @@ function unlock(item) {
             </div>
         </div>
 
-        <!-- ── Portefeuille d'Éclats ── -->
-        <div class="trs-eclats mb-8">
+        <!-- ── Portefeuille d'Éclats (régime « choix ») ── -->
+        <div v-if="choiceEnabled" class="trs-eclats mb-8">
             <i class="ti ti-diamond text-xl shrink-0" style="color:var(--color-primary);"></i>
             <p class="text-sm" style="color:var(--text-secondary); font-family:'Inter',sans-serif; margin:0;">
                 {{ isCorporate ? 'Vous disposez de' : 'Tu disposes de' }}
                 <strong style="font-family:'Space Mono',monospace; color:var(--text-primary); font-weight:700;">{{ treasure.available }} {{ L.xpName }}</strong>
-                {{ isCorporate ? 'à dépenser' : 'à dépenser' }}<template v-if="treasure.spent > 0"> ({{ treasure.total }} {{ isCorporate ? 'gagnés' : 'gagnés' }}, {{ treasure.spent }} {{ isCorporate ? 'déjà investis' : 'déjà investis' }})</template>.
+                à dépenser<template v-if="treasure.spent > 0"> ({{ treasure.total }} gagnés, {{ treasure.spent }} déjà investis)</template>.
                 <template v-if="gateOpen">
                     {{ isCorporate ? 'Choisissez le module que vous souhaitez débloquer.' : "Choisis le trésor que tu veux ouvrir." }}
                 </template>
                 <template v-else>
                     {{ isCorporate ? 'Ils resteront disponibles à la fin de vos évaluations.' : "Ils t'attendront à la fin de tes Épreuves." }}
                 </template>
+            </p>
+        </div>
+
+        <!-- ── Éclats détenus (régime historique) ── -->
+        <div v-else class="trs-eclats mb-8">
+            <i class="ti ti-diamond text-xl shrink-0" style="color:var(--color-primary);"></i>
+            <p class="text-sm" style="color:var(--text-secondary); font-family:'Inter',sans-serif; margin:0;">
+                {{ isCorporate ? 'Vous détenez' : 'Tu détiens' }}
+                <strong style="font-family:'Space Mono',monospace; color:var(--text-primary); font-weight:700;">{{ treasure.total }} {{ L.xpName }}</strong>.
+                {{ isCorporate ? 'Poursuivez vos évaluations pour en accumuler et débloquer la suite.' : 'Continue tes Épreuves pour en accumuler et débloquer la suite.' }}
             </p>
         </div>
 
@@ -181,9 +194,9 @@ function unlock(item) {
                     ? `Vous avancez à votre rythme, vous gagnez des ${L.xpName.toLowerCase()} à chaque pratique accomplie,`
                     : 'Tu avances à ton rythme, tu gagnes des Éclats à chaque pratique accomplie,' }}
                 {{ isCorporate ? "et vous conservez l'accès au module" : "et tu conserves l'accès au module" }} <strong style="color:var(--text-primary);">pour toujours</strong> {{ isCorporate ? 'une fois débloqué.' : 'une fois révélé.' }}
-                {{ isCorporate
+                <template v-if="choiceEnabled">{{ isCorporate
                     ? 'Chaque déblocage vous coûte des points : à vous de choisir dans quel ordre les investir.'
-                    : "Chaque ouverture te coûte des Éclats : à toi de choisir dans quel ordre les dépenser." }}
+                    : "Chaque ouverture te coûte des Éclats : à toi de choisir dans quel ordre les dépenser." }}</template>
             </p>
         </div>
 
@@ -298,7 +311,7 @@ function unlock(item) {
 
                     <!-- Porte fermée : les Épreuves d'abord -->
                     <p
-                        v-if="!gateOpen"
+                        v-if="choiceEnabled && !gateOpen"
                         class="mt-2"
                         style="font-family:'Inter',sans-serif; font-size:0.8rem; font-weight:600; color:var(--text-muted);"
                     >

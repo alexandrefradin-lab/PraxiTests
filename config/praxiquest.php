@@ -29,6 +29,25 @@ return [
         'enforced' => env('PRAXIQUEST_BILLING_ENFORCED', false),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Salle du Trésor — interrupteur du déblocage CHOISI
+    |--------------------------------------------------------------------------
+    | choice_enabled = false (défaut) : comportement historique — une mini-app
+    |   se débloque toute seule dès que le CUMUL d'Éclats franchit son palier.
+    | choice_enabled = true : les Éclats deviennent une monnaie. Le candidat doit
+    |   d'abord terminer TOUTES ses Épreuves, puis il choisit quelle mini-app
+    |   ouvrir en dépensant son solde (table mini_app_unlocks).
+    |
+    | Les déblocages déjà acquis sous l'ancien régime sont repris par la
+    | migration 2026_07_21_000002 : la bascule ne retire jamais un accès.
+    | Bascule via .env : PRAXIQUEST_TREASURE_CHOICE_ENABLED=true
+    | puis php artisan config:cache.
+    */
+    'treasure' => [
+        'choice_enabled' => env('PRAXIQUEST_TREASURE_CHOICE_ENABLED', false),
+    ],
+
     'profile' => [
         'statuses' => [
             'employee'    => 'Salarié',

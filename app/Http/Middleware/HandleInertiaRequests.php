@@ -56,12 +56,23 @@ class HandleInertiaRequests extends Middleware
                         // + solde d'Éclats dépensable. Utilisés par le Layout pour le
                         // badge "nouveau trésor" et l'affichage du portefeuille.
                         try {
-                            $spent = \App\Models\MiniAppUnlock::spentBy($user->id);
-                            $data['eclats_spent']     = $spent;
-                            $data['eclats_available'] = max(0, ($data['xp_total'] ?? 0) - $spent);
-                            $data['treasure_unlocked_count'] = count(
-                                \App\Models\MiniAppUnlock::slugsFor($user->id)
-                            );
+                            $catalog = app(\Praxis\Core\Gamification\RewardCatalog::class);
+
+                            if ($catalog->choiceEnabled()) {
+                                $spent = \App\Models\MiniAppUnlock::spentBy($user->id);
+                                $data['eclats_spent']     = $spent;
+                                $data['eclats_available'] = max(0, ($data['xp_total'] ?? 0) - $spent);
+                                $data['treasure_unlocked_count'] = count(
+                                    \App\Models\MiniAppUnlock::slugsFor($user->id)
+                                );
+                            } else {
+                                // Régime historique : déblocage par comparaison de seuil.
+                                $data['eclats_spent']     = 0;
+                                $data['eclats_available'] = $data['xp_total'] ?? 0;
+                                $data['treasure_unlocked_count'] = $catalog->all()
+                                    ->filter(fn ($r) => ($data['xp_total'] ?? 0) >= ($r['threshold'] ?? PHP_INT_MAX))
+                                    ->count();
+                            }
                         } catch (\Throwable $e) {
                             $data['eclats_spent']     = 0;
                             $data['eclats_available'] = $data['xp_total'] ?? 0;
