@@ -10,8 +10,9 @@ namespace App\Support;
  * anti-crénelage propre) renvoyés en data-URI base64, que dompdf intègre comme
  * une simple image.
  *
- * Palette « Codex » (alignée sur results.blade.php) :
- *   or #A67520 · or brûlé #7D5510 · encre #2A1E08 · label #6B5A3E · filet #CBBE9E.
+ * Palette « éditorial clair » (alignée sur results.blade.php) : papier nu,
+ * filets fins, un seul accent employé en trait et en aplat très dilué.
+ *   or #A67520 · encre #1C1408 · label #8A7C64 · filet ink @ alpha 105-116.
  *
  * Toutes les méthodes sont défensives : si GD/FreeType/police manquent, elles
  * renvoient null — le template retombe alors sur ses barres HTML (aucune
@@ -64,22 +65,19 @@ class ChartRenderer
             // Marge plus généreuse (68 vs 58) pour les libellés longs
             $R  = min($cw, $ch) / 2 - 70 * $ss;
 
-            $font  = self::font();
-            $fontB = self::font(true);
+            $font = self::font();
 
-            // Palette couleurs
-            $parchBg = imagecolorallocatealpha($im, 250, 248, 244, 20);  // fond parchemin léger
-            $ringOut = imagecolorallocatealpha($im, 42,  30,  8,  78);   // anneau extérieur (sombre)
-            $ringIn  = imagecolorallocatealpha($im, 42,  30,  8, 108);   // anneaux intérieurs
-            $spoke   = imagecolorallocatealpha($im, 42,  30,  8, 112);   // rayons
-            $fill    = imagecolorallocatealpha($im, $accent[0], $accent[1], $accent[2], 86);  // +opaque
+            // Palette « éditorial clair » : papier nu, filets, un seul accent.
+            $ringOut = imagecolorallocatealpha($im, 42,  30,  8,  95);   // anneau extérieur
+            $ringIn  = imagecolorallocatealpha($im, 42,  30,  8, 112);   // anneaux intérieurs
+            $spoke   = imagecolorallocatealpha($im, 42,  30,  8, 116);   // rayons
+            $fill    = imagecolorallocatealpha($im, $accent[0], $accent[1], $accent[2], 104); // aplat très léger
             $line    = imagecolorallocate($im, $accent[0], $accent[1], $accent[2]);
-            $haloC   = imagecolorallocatealpha($im, $accent[0], $accent[1], $accent[2], 105); // halo dot
-            $dot     = imagecolorallocate($im, 125, 85, 16);
-            $dotE    = imagecolorallocate($im, 250, 248, 244);
-            $txt     = imagecolorallocate($im, 28, 20, 8);
-            $val     = imagecolorallocate($im, 125, 85, 16);
-            $ringLbl = imagecolorallocatealpha($im, 42, 30, 8, 92);  // valeurs 25/50/75/100
+            $dot     = imagecolorallocate($im, $accent[0], $accent[1], $accent[2]);
+            $dotE    = imagecolorallocate($im, 255, 255, 255);
+            $txt     = imagecolorallocate($im, 28, 20, 8);      // encre — nom de dimension
+            $val     = imagecolorallocate($im, 138, 124, 100);  // gris chaud — valeur
+            $ringLbl = imagecolorallocatealpha($im, 42, 30, 8, 105);  // graduations 25/50/75/100
 
             // Pré-calcul des sommets
             $pts = [];
@@ -94,16 +92,15 @@ class ChartRenderer
                 ];
             }
 
-            // Fond parchemin de la zone radar
+            // Contour de la zone radar (aucun fond : le papier reste nu)
             $bgPoly = [];
             foreach ($pts as $p) {
                 $bgPoly[] = $cx + $p['cos'] * $R;
                 $bgPoly[] = $cy + $p['sin'] * $R;
             }
-            self::filledPoly($im, $bgPoly, $parchBg);
 
             // Anneaux intérieurs
-            imagesetthickness($im, max(1, (int) round($ss * 0.8)));
+            imagesetthickness($im, max(1, (int) round($ss * 0.7)));
             for ($r = 1; $r < $rings; $r++) {
                 $f = $r / $rings;
                 $poly = [];
@@ -113,10 +110,10 @@ class ChartRenderer
                 }
                 self::closedPoly($im, $poly, $ringIn);
             }
-            // Anneau extérieur plus épais et plus sombre
-            imagesetthickness($im, max(1, (int) round($ss * 1.3)));
+            // Anneau extérieur — à peine plus marqué que les anneaux internes
+            imagesetthickness($im, max(1, (int) round($ss * 0.9)));
             self::closedPoly($im, $bgPoly, $ringOut);
-            imagesetthickness($im, max(1, (int) round($ss * 0.8)));
+            imagesetthickness($im, max(1, (int) round($ss * 0.7)));
 
             // Rayons
             foreach ($pts as $p) {
@@ -140,25 +137,24 @@ class ChartRenderer
                 $poly[] = $cy + $p['sin'] * $R * $p['ratio'];
             }
             self::filledPoly($im, $poly, $fill);
-            imagesetthickness($im, max(2, (int) round($ss * 1.8)));
+            imagesetthickness($im, max(1, (int) round($ss * 1.2)));
             self::closedPoly($im, $poly, $line);
 
-            // Sommets : halo + disque
+            // Sommets : disque or plein, cerné de blanc. Aucun halo.
             imagesetthickness($im, 1);
             foreach ($pts as $p) {
                 $dx = $cx + $p['cos'] * $R * $p['ratio'];
                 $dy = $cy + $p['sin'] * $R * $p['ratio'];
-                self::disc($im, $dx, $dy, 7.5 * $ss, $haloC, $haloC);  // halo translucide
-                self::disc($im, $dx, $dy, 5.2 * $ss, $dot,   $dotE);   // disque or (was 4.3)
+                self::disc($im, $dx, $dy, 3.8 * $ss, $dot, $dotE);
             }
 
-            // Labels d'axes — offset 20*$ss (was 15) pour éviter la troncature
+            // Labels d'axes — offset 20*$ss pour éviter la troncature
             foreach ($pts as $p) {
                 $lx = $cx + $p['cos'] * ($R + 20 * $ss);
                 $ly = $cy + $p['sin'] * ($R + 20 * $ss);
                 $anchor = $p['cos'] > 0.30 ? 'start' : ($p['cos'] < -0.30 ? 'end' : 'mid');
-                self::text($im, $fontB ?? $font, $fs * 0.92, $lx, $ly - 4 * $ss, $p['label'], $txt, $anchor);
-                self::text($im, $font,           $fs * 0.80, $lx, $ly + 9 * $ss,
+                self::text($im, $font, $fs * 0.92, $lx, $ly - 4 * $ss, $p['label'], $txt, $anchor);
+                self::text($im, $font, $fs * 0.80, $lx, $ly + 9 * $ss,
                     (string) round($p['value']), $val, $anchor);
             }
 
@@ -209,8 +205,7 @@ class ChartRenderer
             $pw = $cw - $mL - $mR;
             $ph = $ch - $mT - $mB;
 
-            $font  = self::font();
-            $fontB = self::font(true);
+            $font = self::font();
 
             $px = fn ($v) => $x0 + ($v / $scale) * $pw;            // latitude → x
             $py = fn ($v) => $y0 + $ph - ($v / $scale) * $ph;       // demandes → y (haut = élevé)
@@ -229,38 +224,39 @@ class ChartRenderer
                 ['passif',  $x0,  $ty,  $tx,        $y0 + $ph],
                 ['detendu', $tx,  $ty,  $x0 + $pw,  $y0 + $ph],
             ];
+            /* Cadrans : teinte de la config, très diluée — elle situe sans
+               dominer. Seul le cadran du candidat garde un libellé en encre. */
             foreach ($quad as [$key, $ax, $ay, $bx, $by]) {
                 $c = $col($key);
-                $fillc = imagecolorallocatealpha($im, $c[0], $c[1], $c[2], 105);
+                $fillc = imagecolorallocatealpha($im, $c[0], $c[1], $c[2], 118);
                 imagefilledrectangle($im, (int) $ax, (int) $ay, (int) $bx, (int) $by, $fillc);
                 // Étiquette du cadran (centrée).
                 $label = $profiles[$key]['label'] ?? ucfirst($key);
-                $faint = imagecolorallocatealpha($im, $c[0], $c[1], $c[2], $profile === $key ? 84 : 40);
-                self::text($im, $fontB ?? $font, 11 * $ss, ($ax + $bx) / 2, ($ay + $by) / 2, $label, $faint, 'mid');
+                $lblC  = $profile === $key
+                    ? imagecolorallocate($im, 28, 20, 8)              // encre
+                    : imagecolorallocate($im, 154, 142, 120);         // gris chaud
+                self::text($im, $font, 10 * $ss, ($ax + $bx) / 2, ($ay + $by) / 2, $label, $lblC, 'mid');
             }
 
-            // Seuils.
-            $gold = imagecolorallocatealpha($im, 166, 117, 32, 70);
-            imagesetthickness($im, max(1, (int) round($ss)));
+            // Seuils — filets discrets.
+            $gold = imagecolorallocatealpha($im, 166, 117, 32, 88);
+            imagesetthickness($im, max(1, (int) round($ss * 0.7)));
             imageline($im, (int) $tx, (int) $y0, (int) $tx, (int) ($y0 + $ph), $gold);
             imageline($im, (int) $x0, (int) $ty, (int) ($x0 + $pw), (int) $ty, $gold);
 
-            // Cadre.
-            $frame = imagecolorallocatealpha($im, 42, 30, 8, 95);
+            // Cadre — hairline.
+            $frame = imagecolorallocatealpha($im, 42, 30, 8, 108);
             imagerectangle($im, (int) $x0, (int) $y0, (int) ($x0 + $pw), (int) ($y0 + $ph), $frame);
 
-            // Point candidat (halo + cœur).
-            $pc = $col($profile ?? 'actif');
-            $halo = imagecolorallocatealpha($im, $pc[0], $pc[1], $pc[2], 105);
-            $core = imagecolorallocate($im, $pc[0], $pc[1], $pc[2]);
-            $edge = imagecolorallocate($im, 240, 232, 212);
+            // Point candidat : disque or cerné de blanc, sans halo.
+            $core = imagecolorallocate($im, 166, 117, 32);
+            $edge = imagecolorallocate($im, 255, 255, 255);
             $cxp = $px($lat);
             $cyp = $py($dem);
-            self::disc($im, $cxp, $cyp, 13 * $ss, $halo, $halo);
-            self::disc($im, $cxp, $cyp, 6.5 * $ss, $core, $edge);
+            self::disc($im, $cxp, $cyp, 5.5 * $ss, $core, $edge);
 
             // Libellés d'axes.
-            $axc = imagecolorallocate($im, 107, 90, 62);
+            $axc = imagecolorallocate($im, 138, 124, 100);
             self::text($im, $font, 9.5 * $ss, $x0 + $pw / 2, $ch - 14 * $ss, 'LATITUDE DÉCISIONNELLE →', $axc, 'mid');
             self::vtext($im, $font, 9.5 * $ss, 16 * $ss, $y0 + $ph / 2, 'DEMANDES PSYCHO →', $axc, 'mid');
 
