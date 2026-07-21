@@ -68,6 +68,12 @@ ok "Test Orientation Express (RIASEC) OK"
 php artisan db:seed --class=EntrepreneurTestSeeder --force --no-interaction
 ok "Test Compétences entrepreneuriales OK"
 
+# Badges (updateOrCreate par slug, idempotent). Indispensable des qu'un badge
+# est ajoute : sans lui, l'attribution est silencieusement sans effet cote
+# applicatif (Badge::where(...)->first() renvoie null, aucun badge accorde).
+php artisan db:seed --class=BadgeSeeder --force --no-interaction
+ok "Referentiel des badges OK"
+
 msg "Découverte et activation des nouveaux plugins..."
 php artisan praxiquest:plugins:discover --sync
 ok "Plugins découverts"
