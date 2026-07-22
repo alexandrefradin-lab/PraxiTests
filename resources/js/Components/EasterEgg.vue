@@ -106,6 +106,8 @@ const loading = ref(false)
 const eclats = ref(0)
 const badgeName = ref('')
 const alreadyClaimed = ref(false)
+const failed = ref(false)
+const failedStatus = ref(null)
 
 const egg = computed(() => {
     const def = EGGS[props.slug] ?? EGGS.konami
@@ -126,6 +128,16 @@ async function claim() {
             credentials: 'same-origin',
             body: JSON.stringify({ slug: props.slug }),
         })
+        // Une reponse d'erreur ne porte ni eclats ni badge_name : sans ce
+        // garde-fou, le repli cote client affichait "+0 Eclats" et un nom de
+        // badge inventé, donnant une fausse impression de succes alors que
+        // rien n'etait enregistre.
+        if (! res.ok) {
+            console.warn('[easter-egg] claim refuse', props.slug, res.status)
+            failed.value = true
+            failedStatus.value = res.status
+            return
+        }
         const data = await res.json()
         if (data.already_claimed) {
             alreadyClaimed.value = true
@@ -178,6 +190,18 @@ watch(() => props.show, (val) => {
                     <!-- Contenu -->
                     <div v-if="loading" class="ee-body">
                         <p class="ee-sub">Invocation en cours…</p>
+                    </div>
+
+                    <!-- Echec : on le dit, plutot que de simuler une reussite. -->
+                    <div v-else-if="failed" class="ee-body">
+                        <h2 class="ee-title">Le sceau resiste</h2>
+                        <p class="ee-text">
+                            {{ isCorporate
+                                ? 'Vous avez bien trouvé le secret, mais il n’a pas pu être enregistré. Rien ne vous a été attribué — réessayez dans un instant.'
+                                : 'Tu as bien trouvé le secret, mais il n’a pas pu être scellé. Rien ne t’a été attribué — retente dans un instant.' }}
+                        </p>
+                        <p class="ee-badge-note">Code {{ failedStatus }}</p>
+                        <button class="ee-btn" @click="close">Fermer</button>
                     </div>
 
                     <div v-else-if="alreadyClaimed" class="ee-body">
