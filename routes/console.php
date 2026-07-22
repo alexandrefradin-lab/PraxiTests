@@ -85,3 +85,21 @@ Schedule::call(function () {
         ->where('expires_at', '<', now())
         ->update(['status' => 'expired']);
 })->daily()->name('invitations:expire');
+
+// ── Purge des empreintes d'appareils ─────────────────────────────────────
+// Le dispositif anti-partage ne conserve les empreintes que le temps de sa
+// fenêtre d'observation (protection.sharing.window_days), avec une marge.
+// Au-delà, elles n'ont plus d'utilité — et une donnée conservée sans usage
+// est une donnée à ne pas conserver (minimisation RGPD).
+Schedule::call(function () {
+    $days = (int) config('protection.sharing.window_days', 30) * 2;
+
+    \App\Models\UserDevice::where('last_seen_at', '<', now()->subDays($days))
+        ->where('trusted', false)
+        ->delete();
+
+    // Les alertes traitées ne servent plus après un an.
+    \App\Models\ProtectionAlert::whereNotNull('resolved_at')
+        ->where('resolved_at', '<', now()->subYear())
+        ->delete();
+})->daily()->name('protection:purge');

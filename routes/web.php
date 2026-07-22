@@ -56,17 +56,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/onboarding', [OnboardingController::class, 'store'])->name('onboarding.store');
 
     // Liste des tests dispo
-    Route::get('/tests', [TestController::class, 'index'])->name('tests.index');
-    Route::get('/tests/{test:slug}', [TestController::class, 'show'])->name('tests.show');
+    // 'protect-content' : ces routes servent le patrimoine de PraxiQuest
+    // (énoncés, barèmes, restitutions). Le middleware repère l'aspiration
+    // méthodique du catalogue — cf. config/protection.php, volet scraping.
+    // Les routes de polling (…/status) en sont volontairement exclues :
+    // leur cadence normale est élevée et fausserait la détection.
+    Route::get('/tests', [TestController::class, 'index'])->middleware('protect-content')->name('tests.index');
+    Route::get('/tests/{test:slug}', [TestController::class, 'show'])->middleware('protect-content')->name('tests.show');
 
     // Tentative en cours
     Route::post('/tests/{test:slug}/start', [AttemptController::class, 'start'])->name('attempt.start');
-    Route::get('/attempt/{attempt}', [AttemptController::class, 'show'])->name('attempt.show');
+    Route::get('/attempt/{attempt}', [AttemptController::class, 'show'])->middleware('protect-content')->name('attempt.show');
     Route::post('/attempt/{attempt}/answer', [AttemptController::class, 'answer'])->name('attempt.answer');
     Route::post('/attempt/{attempt}/complete', [AttemptController::class, 'complete'])->name('attempt.complete');
 
     // Restitution
-    Route::get('/results/{attempt}', [ResultController::class, 'show'])->name('results.show');
+    Route::get('/results/{attempt}', [ResultController::class, 'show'])->middleware('protect-content')->name('results.show');
     Route::get('/results/{attempt}/status', [ResultController::class, 'status'])->name('results.status');
     Route::get('/results/{attempt}/pdf', [ResultController::class, 'pdf'])->name('results.pdf');
 
@@ -89,7 +94,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('throttle:12,1')->name('treasure.unlock');
 
     // Le Grimoire — relecture globale transversale de tous les tests
-    Route::get('/grimoire',          [GrimoireController::class, 'show'])->name('grimoire.show');
+    Route::get('/grimoire',          [GrimoireController::class, 'show'])->middleware('protect-content')->name('grimoire.show');
     Route::get('/grimoire/status',   [GrimoireController::class, 'status'])->name('grimoire.status');
     Route::get('/grimoire/pdf',      [GrimoireController::class, 'pdf'])->name('grimoire.pdf');
     Route::post('/grimoire/refresh', [GrimoireController::class, 'refresh'])

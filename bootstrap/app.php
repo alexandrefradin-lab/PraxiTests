@@ -29,6 +29,11 @@ return Application::configure(basePath: dirname(__DIR__))
         // du groupe web pour rediriger avant toute session/CSRF. Inactif tant que
         // CANONICAL_REDIRECT_ENABLED=true n'est pas posé dans le .env prod.
         $middleware->web(prepend: [
+            // Verrou de licence : une instance redéployée hors des domaines
+            // licenciés ne doit rien servir. En tête de groupe, avant même la
+            // session. Inactif tant que PRAXIQUEST_LICENSE_ENFORCED=true n'est
+            // pas posé dans le .env (cf. config/protection.php).
+            \App\Http\Middleware\VerifyLicense::class,
             \App\Http\Middleware\RedirectToCanonicalHost::class,
         ]);
 
@@ -37,6 +42,10 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
             // En-têtes de sécurité HTTP par défaut sur toutes les réponses (cf. audit F-7).
             \App\Http\Middleware\SecurityHeaders::class,
+            // Détection de partage / revente d'accès professionnels. N'agit que
+            // sur les comptes authentifiés portant un rôle surveillé, et n'écrit
+            // en base qu'une fois par appareil et par quart d'heure.
+            \App\Http\Middleware\TrackDevice::class,
         ]);
 
         $middleware->alias([
@@ -45,6 +54,9 @@ return Application::configure(basePath: dirname(__DIR__))
             '2fa'        => \App\Http\Middleware\EnsureTwoFactorAuthenticated::class,
             // Surcharge l'alias 'verified' natif : ajoute kill-switch + exemption staff.
             'verified'   => \App\Http\Middleware\EnsureEmailVerified::class,
+            // Anti-aspiration du contenu : à poser sur les routes qui servent
+            // les énoncés de tests, les barèmes et les restitutions.
+            'protect-content' => \App\Http\Middleware\ProtectContent::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

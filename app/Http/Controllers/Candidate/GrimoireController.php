@@ -279,7 +279,7 @@ class GrimoireController extends Controller
             'grimoire' => $grimoire,
             'brand'    => $opts['brand'],
             'org'      => $opts['org'],
-        ], "{$slug}-grimoire-{$user->id}.pdf");
+        ], "{$slug}-grimoire-{$user->id}.pdf", "grimoire:{$grimoire->id}");
     }
 
     /** Bouton "Régénérer" — force une nouvelle relecture. */

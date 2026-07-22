@@ -215,7 +215,7 @@ class ResultController extends Controller
             'org'      => $opts['org'],
             'sections' => $opts['sections'],
             'statuses' => config('praxiquest.profile.statuses', []),
-        ], "{$slug}-synthese-{$attempt->id}.pdf");
+        ], "{$slug}-synthese-{$attempt->id}.pdf", "results:{$attempt->id}");
     }
 
     public function history()

@@ -17,14 +17,22 @@ trait BuildsBrandedPdf
      * dompdf lève une exception — on retente avec embedFonts=false pour tomber
      * sur les polices DejaVu déjà mises en cache, garantissant un PDF sans 500.
      *
+     * Le rapport est tatoué d'un code de traçage nominatif (cf. DocumentWatermark) :
+     * si le PDF ressort hors du cadre prévu, le code désigne le compte qui l'a
+     * téléchargé. Le tatouage est passé à la vue sous la clé `watermark` ;
+     * une vue qui l'ignore reste parfaitement fonctionnelle.
+     *
      * @param  string  $view      Nom de la vue Blade (ex: 'pdf.results')
      * @param  array   $data      Variables transmises à la vue
      * @param  string  $filename  Nom du fichier téléchargé
+     * @param  string|null  $document  Identifiant stable du document tracé (ex. 'results:42')
      */
-    protected function downloadBrandedPdf(string $view, array $data, string $filename): \Symfony\Component\HttpFoundation\Response
+    protected function downloadBrandedPdf(string $view, array $data, string $filename, ?string $document = null): \Symfony\Component\HttpFoundation\Response
     {
         // Garantit un dossier cache dompdf inscriptible (OVH peut bloquer storage/fonts).
         $fontCache = $this->resolveFontCacheDir();
+
+        $data['watermark'] = $this->buildWatermark($document ?? $view, $filename);
 
         $render = function (bool $embedFonts) use ($view, $data, $fontCache): string {
             $html = view($view, array_merge($data, ['embedFonts' => $embedFonts]))->render();
@@ -79,6 +87,34 @@ trait BuildsBrandedPdf
             'Content-Type'        => 'application/pdf',
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ]);
+    }
+
+    /**
+     * Prépare le tatouage de traçage et journalise le téléchargement.
+     * Ne doit jamais empêcher la production du rapport : en cas d'anomalie,
+     * on rend le PDF sans tatouage plutôt qu'une 500.
+     */
+    private function buildWatermark(string $document, string $filename): ?array
+    {
+        try {
+            $service = app(\Praxis\Core\Protection\DocumentWatermark::class);
+            $user    = request()?->user();
+            $stamp   = $service->stamp($user, $document);
+
+            if ($stamp !== null) {
+                $service->logDownload($user, $document, $stamp['code']);
+            }
+
+            return $stamp;
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('PDF : tatouage de traçage indisponible.', [
+                'error'    => $e->getMessage(),
+                'document' => $document,
+                'file'     => $filename,
+            ]);
+
+            return null;
+        }
     }
 
     /**
