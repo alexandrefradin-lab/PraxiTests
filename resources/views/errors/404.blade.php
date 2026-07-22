@@ -172,6 +172,20 @@
             color: var(--text-muted);
             opacity: 0.55;
         }
+        /* Easter egg : assez discret pour passer pour une coquille, assez
+           lisible pour qui regarde vraiment. */
+        .nowhere {
+            margin-top: 2.25rem;
+            font-size: 11px;
+        }
+        .nowhere a {
+            color: var(--text-muted);
+            text-decoration: none;
+            opacity: 0.3;
+            transition: opacity 0.3s ease;
+        }
+        .nowhere a:hover,
+        .nowhere a:focus-visible { opacity: 0.85; }
     </style>
 </head>
 <body>
@@ -227,6 +241,13 @@
         </a>
 
         <p class="footer-note">PraxiQuest — Évaluer. Orienter. Transformer.</p>
+
+        {{-- Easter egg « Le Faux Bouton ». Ce template Blade est la 404 servie
+             lors d'un accès direct à une URL ; la page Inertia Error.vue ne sort
+             que sur une navigation interne (cf. bootstrap/app.php, en-tête
+             X-Inertia). Le lien doit donc exister aux DEUX endroits, sinon le
+             secret est introuvable par le chemin le plus naturel. --}}
+        <p class="nowhere"><a href="/nulle-part">ce chemin n'existe pas non plus</a></p>
     </div>
 
 </body>
