@@ -368,8 +368,8 @@ function unlock(item) {
                 <article
                     v-for="b in badgeItems"
                     :key="b.slug"
-                    class="trs-badge"
-                    :class="{ 'trs-badge--earned': b.earned, 'trs-badge--secret': b.secret }"
+                    class="trs-award"
+                    :class="{ 'trs-award--earned': b.earned, 'trs-award--secret': b.secret }"
                 >
                     <i
                         class="ti shrink-0"
@@ -441,8 +441,11 @@ function unlock(item) {
     opacity: 0.8;
 }
 
-/* ── Distinctions / Hauts faits ─────────────────────────────────────── */
-.trs-badge {
+/* ── Distinctions / Hauts faits ─────────────────────────────────────────
+   NE PAS renommer en .trs-badge : ce nom est déjà pris plus bas par la
+   pastille de statut des cartes de trésor, déclarée après, qui écraserait
+   padding/typo et dont l'uppercase + Space Mono fuiraient ici. */
+.trs-award {
     display: flex;
     align-items: flex-start;
     gap: 0.8rem;
@@ -453,13 +456,13 @@ function unlock(item) {
     opacity: 0.6;
     transition: opacity 0.2s ease, border-color 0.2s ease;
 }
-.trs-badge--earned {
+.trs-award--earned {
     opacity: 1;
     background: var(--bg-elevated);
     border-left: 3px solid var(--color-primary);
 }
 /* Le secret reste discret : ni bordure d'accent, ni relief. */
-.trs-badge--secret {
+.trs-award--secret {
     border-style: dashed;
     opacity: 0.45;
 }
