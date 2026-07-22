@@ -113,7 +113,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Easter eggs — récompense d'un secret découvert. Le slug envoyé est
     // validé contre EasterEggRegistry ; Éclats et badge viennent du serveur.
-    Route::post('/easter-egg/claim', [EasterEggController::class, 'claim'])
+    // Nom PLEINEMENT QUALIFIE volontairement (comme /nulle-part plus haut) :
+    // ce fichier n'a pas de namespace et Laravel 11 n'applique plus de prefixe
+    // controleur, donc un nom court sans `use` se resout en la chaine
+    // "EasterEggController" -> 500 au dispatch. L'import a ete perdu deux fois
+    // par des squash-merges ; le FQN ne peut pas l'etre.
+    Route::post('/easter-egg/claim', [\App\Http\Controllers\EasterEggController::class, 'claim'])
         ->middleware('throttle:5,1')->name('easter-egg.claim');
 
     // Journey 60 jours
