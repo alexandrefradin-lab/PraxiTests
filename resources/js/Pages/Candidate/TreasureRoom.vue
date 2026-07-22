@@ -371,31 +371,16 @@ function unlock(item) {
                     class="trs-award"
                     :class="{ 'trs-award--earned': b.earned, 'trs-award--secret': b.secret }"
                 >
-                    <i
-                        class="ti shrink-0"
-                        :class="'ti-' + b.icon"
-                        :style="{ fontSize: '22px', color: b.earned ? 'var(--color-primary)' : 'var(--text-muted)' }"
-                        aria-hidden="true"
-                    ></i>
-                    <div style="min-width:0;">
-                        <p
-                            class="font-semibold"
-                            style="font-family:'Space Grotesk',sans-serif; font-size:0.9rem; margin:0 0 0.2rem;"
-                            :style="{ color: b.earned ? 'var(--text-primary)' : 'var(--text-muted)' }"
-                        >
-                            {{ b.name }}
-                        </p>
-                        <p class="text-xs leading-relaxed" style="color:var(--text-secondary); font-family:'Inter',sans-serif; margin:0;">
-                            {{ b.description }}
-                        </p>
-                        <p
-                            v-if="b.earned_at"
-                            class="mt-2"
-                            style="font-family:'Space Mono',monospace; font-size:10px; color:var(--text-muted); margin-bottom:0;"
-                        >
-                            {{ isCorporate ? 'Obtenue le' : 'Obtenu le' }} {{ b.earned_at }}
-                        </p>
+                    <div class="trs-award-head">
+                        <span class="trs-award-medal" aria-hidden="true">
+                            <i class="ti" :class="'ti-' + b.icon"></i>
+                        </span>
+                        <p class="trs-award-name">{{ b.name }}</p>
                     </div>
+                    <p class="trs-award-desc">{{ b.description }}</p>
+                    <p v-if="b.earned_at" class="trs-award-date">
+                        {{ isCorporate ? 'Obtenue le' : 'Obtenu le' }} {{ b.earned_at }}
+                    </p>
                 </article>
             </div>
         </section>
@@ -445,27 +430,91 @@ function unlock(item) {
    NE PAS renommer en .trs-badge : ce nom est déjà pris plus bas par la
    pastille de statut des cartes de trésor, déclarée après, qui écraserait
    padding/typo et dont l'uppercase + Space Mono fuiraient ici. */
+/* Colonne : la date se cale en bas, donc toutes les cartes d'une meme
+   ligne alignent leur pied quelle que soit la longueur du texte. */
 .trs-award {
     display: flex;
-    align-items: flex-start;
-    gap: 0.8rem;
-    padding: 1rem 1.1rem;
+    flex-direction: column;
+    gap: 0.5rem;
+    height: 100%;
+    padding: 1.05rem 1.15rem 0.95rem;
     border: 1px solid var(--glass-border);
     border-radius: var(--r-lg);
     background: transparent;
-    opacity: 0.6;
-    transition: opacity 0.2s ease, border-color 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
+
+.trs-award-head {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+/* Medaillon circulaire, echo des pastilles d'icone des cartes de tresor. */
+.trs-award-medal {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(166, 117, 32, 0.09);
+    color: var(--text-muted);
+    font-size: 15px;
+}
+
+.trs-award-name {
+    margin: 0;
+    min-width: 0;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 0.92rem;
+    line-height: 1.25;
+    color: var(--text-muted);
+}
+
+.trs-award-desc {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    line-height: 1.55;
+    color: var(--text-secondary);
+}
+
+/* margin-top auto : pousse la date au pied de la carte. */
+.trs-award-date {
+    margin: auto 0 0;
+    padding-top: 0.6rem;
+    border-top: 1px solid var(--glass-border);
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+}
+
+/* ── Obtenu : relief, or, et reaction au survol comme les cartes tresor ── */
 .trs-award--earned {
-    opacity: 1;
     background: var(--bg-elevated);
     border-left: 3px solid var(--color-primary);
 }
-/* Le secret reste discret : ni bordure d'accent, ni relief. */
+.trs-award--earned .trs-award-medal {
+    background: rgba(166, 117, 32, 0.16);
+    color: var(--color-primary);
+}
+.trs-award--earned .trs-award-name { color: var(--text-primary); }
+.trs-award--earned:hover {
+    transform: translateY(-2px);
+    border-color: var(--color-primary);
+    box-shadow: 0 6px 20px rgba(166, 117, 32, 0.14);
+}
+
+/* ── Secret : discret, sans accent, texte en italique ── */
 .trs-award--secret {
     border-style: dashed;
-    opacity: 0.45;
+    opacity: 0.55;
 }
+.trs-award--secret .trs-award-desc { font-style: italic; }
 
 /* ── Badge statut ── */
 .trs-badge {
