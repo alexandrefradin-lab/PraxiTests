@@ -74,6 +74,11 @@ class EasterEggController extends Controller
         $badge = Badge::where('slug', $egg['badge'])->first();
         if ($badge && ! $user->badges()->where('badges.id', $badge->id)->exists()) {
             $evaluator->award($user, $badge, ['source' => $slug]);
+
+            // Ce badge peut être le dernier manquant : une passe d'évaluation
+            // est nécessaire pour que « Constellation » se déclenche, award()
+            // n'évaluant rien de lui-même.
+            $evaluator->evaluate($user->fresh(), ['type' => 'easter_egg_claimed']);
         }
 
         return response()->json([

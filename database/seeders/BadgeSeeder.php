@@ -82,6 +82,36 @@ class BadgeSeeder extends Seeder
                 'hidden' => true,
                 'criteria' => ['type' => 'easter_egg'],
             ],
+            [
+                'slug' => 'dechiffreur', 'name' => 'Déchiffreur',
+                'description' => 'Tu as lu ce qui était écrit à l\'encre invisible.',
+                'name_corporate' => 'Lecture attentive',
+                'description_corporate' => 'Vous avez trouvé une note dissimulée dans votre dossier.',
+                'icon' => 'eyeglass', 'xp_reward' => 0,
+                'hidden' => true,
+                'criteria' => ['type' => 'easter_egg'],
+            ],
+            [
+                'slug' => 'nuance', 'name' => 'Nuance',
+                'description' => 'Tu as changé cinq fois d\'avis sur la même question. Ce n\'est pas de l\'indécision.',
+                'name_corporate' => 'Nuance',
+                'description_corporate' => 'Vous avez révisé cinq fois votre réponse à une même question.',
+                'icon' => 'scale', 'xp_reward' => 0,
+                'hidden' => true,
+                'criteria' => ['type' => 'easter_egg'],
+            ],
+            [
+                // Méta-badge : ne s'attribue que lorsque TOUS les autres sont
+                // obtenus, secrets compris. Caché, sinon il annoncerait le
+                // nombre exact de secrets restants.
+                'slug' => 'constellation', 'name' => 'Constellation',
+                'description' => 'Tu as réuni tous les hauts faits. Il n\'en restait aucun.',
+                'name_corporate' => 'Parcours complet',
+                'description_corporate' => 'Vous avez obtenu l\'ensemble des distinctions.',
+                'icon' => 'stars', 'xp_reward' => 100,
+                'hidden' => true,
+                'criteria' => ['type' => 'all_badges'],
+            ],
         ];
 
         foreach ($badges as $b) {

@@ -53,6 +53,7 @@ class BadgeEvaluator
             'cv_uploaded'      => (bool) ($user->profile?->cv_path),
             'fast_completion'  => $this->fastCompletion($user, $criteria),
             'all_questions_answered' => $event['type'] === 'attempt_completed',
+            'all_badges'       => $this->allOtherBadgesEarned($user),
             default            => null,
         };
 
@@ -61,6 +62,29 @@ class BadgeEvaluator
         }
 
         return (bool) $result;
+    }
+
+    /**
+     * Méta-critère : tous les badges SAUF les méta-badges eux-mêmes.
+     *
+     * L'exclusion est indispensable — un méta-badge qui se compterait dans sa
+     * propre cible ne serait jamais atteignable. Elle porte sur le TYPE de
+     * critère, pas sur un slug, pour qu'un second méta-badge ne casse pas le
+     * premier.
+     */
+    protected function allOtherBadgesEarned(User $user): bool
+    {
+        $cibles = Badge::all()
+            ->reject(fn (Badge $b) => ($b->criteria['type'] ?? null) === 'all_badges')
+            ->pluck('id');
+
+        if ($cibles->isEmpty()) {
+            return false;
+        }
+
+        $obtenus = $user->badges()->whereIn('badges.id', $cibles)->count();
+
+        return $obtenus >= $cibles->count();
     }
 
     protected function fastCompletion(User $user, array $criteria): bool

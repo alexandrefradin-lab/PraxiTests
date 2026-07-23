@@ -64,9 +64,20 @@ class TestEngine
 
     public function recordAnswer(TestAttempt $attempt, int $questionId, mixed $value, int $timeSpent = 0): void
     {
+        // Compter les vrais changements d'avis (easter egg « Le Doute ») : on
+        // n'incrémente que si une réponse existait ET que la valeur diffère.
+        // L'autosave renvoie régulièrement la même valeur — la compter ferait
+        // passer pour de l'hésitation ce qui n'est qu'un enregistrement.
+        $existing = $attempt->answers()->where('question_id', $questionId)->first();
+        $changed  = $existing !== null && $existing->value !== $value;
+
         $attempt->answers()->updateOrCreate(
             ['question_id' => $questionId],
-            ['value' => $value, 'time_spent_seconds' => $timeSpent]
+            [
+                'value'              => $value,
+                'time_spent_seconds' => $timeSpent,
+                'revisions'          => ($existing->revisions ?? 0) + ($changed ? 1 : 0),
+            ]
         );
 
         $attempt->update(['last_activity_at' => now()]);

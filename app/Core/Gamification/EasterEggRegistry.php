@@ -25,6 +25,13 @@ final class EasterEggRegistry
 
         // Grimoire parcouru à rebours, au clavier uniquement.
         'grimoire_inverse' => ['eclats' => 33, 'badge' => 'scribe'],
+
+        // Phrase écrite à l'encre du parchemin, révélée en sélectionnant le
+        // texte du Grimoire.
+        'encre_invisible' => ['eclats' => 21, 'badge' => 'dechiffreur'],
+
+        // Cinq changements d'avis sur une même question d'une épreuve.
+        'doute' => ['eclats' => 21, 'badge' => 'nuance'],
     ];
 
     /** @return array{eclats:int,badge:string}|null */

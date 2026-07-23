@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class TestAnswer extends Model
 {
     // cf. audit E-6 — $fillable explicite (protection mass assignment)
-    protected $fillable = ['attempt_id', 'question_id', 'value', 'time_spent_seconds'];
+    protected $fillable = ['attempt_id', 'question_id', 'value', 'time_spent_seconds', 'revisions'];
     protected $casts = ['value' => 'array'];
 
     public function attempt(): BelongsTo

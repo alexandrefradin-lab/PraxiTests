@@ -195,11 +195,21 @@ class AttemptController extends Controller
 
         $attempt->loadMissing('test');
 
-        return redirect()->route('results.show', $attempt)
+        $redirect = redirect()->route('results.show', $attempt)
             ->with('achievement', [
                 'name' => $attempt->test->name,
                 'xp'   => config('gamification.xp.complete_test', 200),
             ]);
+
+        // Easter egg « Le Doute » — révélé à la fin, jamais pendant l'épreuve :
+        // signaler les révisions en direct influencerait les réponses, ce qui
+        // fausserait la mesure.
+        $aDoute = $attempt->answers()->where('revisions', '>=', 5)->exists();
+        if ($aDoute && ! $attempt->user->hasClaimedEasterEgg('doute')) {
+            $redirect->with('easter_egg', 'doute');
+        }
+
+        return $redirect;
     }
 
     protected function authorizeAttempt(TestAttempt $attempt): void

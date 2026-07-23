@@ -13,12 +13,16 @@ const mobileOpen = ref(false)
 const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a']
 const konamiIdx = ref(0)
 const showEasterEgg = ref(false)
+// Slug du secret en cours d'ouverture : 'konami' par défaut (déclencheur
+// clavier ci-dessous), remplacé quand le serveur en signale un autre.
+const easterEggSlug = ref('konami')
 
 function onKonami(e) {
     if (e.key === KONAMI[konamiIdx.value]) {
         konamiIdx.value++
         if (konamiIdx.value === KONAMI.length) {
             konamiIdx.value = 0
+            easterEggSlug.value = 'konami'
             showEasterEgg.value = true
         }
     } else {
@@ -197,6 +201,15 @@ watch(() => page.props.flash?.achievement, (achievement) => {
         clearTimeout(achievementTimeout)
         achievementTimeout = setTimeout(() => { showAchievement.value = false }, 4500)
     }
+}, { immediate: true })
+
+// Secret détecté côté serveur (« Le Doute ») : le slug arrive en flash. On
+// laisse le toast « épreuve terminée » vivre sa vie avant d'ouvrir la modale,
+// sinon les deux se disputent l'écran.
+watch(() => page.props.flash?.easter_egg, (slug) => {
+    if (!slug) return
+    easterEggSlug.value = slug
+    setTimeout(() => { showEasterEgg.value = true }, 1800)
 }, { immediate: true })
 
 // ─── Level Up overlay ─────────────────────────────────────────────────────
@@ -617,7 +630,7 @@ watch(() => page.props.gamification?.level, (newLevel) => {
 
         <!-- L'Oracle — chat IA d'orientation, flottant en bas à droite -->
         <OracleChat v-if="user" />
-        <EasterEgg :show="showEasterEgg" slug="konami" @close="showEasterEgg = false" />
+        <EasterEgg :show="showEasterEgg" :slug="easterEggSlug" @close="showEasterEgg = false" />
 
         <!-- Achievement toast (style Xbox, bottom-left) -->
         <Teleport to="body">

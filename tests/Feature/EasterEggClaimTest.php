@@ -37,9 +37,39 @@ beforeEach(function () {
 
 function eggUser(): User
 {
-    $user = User::factory()->create(['email_verified_at' => now()]);
+    return User::factory()->create(['email_verified_at' => now()]);
+}
 
-    return $user;
+/** Une tentative en cours + l'id d'une question, pour tester les révisions. */
+function eggAttempt(User $user): array
+{
+    $test = \App\Models\Test::create([
+        'slug'              => 'egg-epreuve-' . uniqid(),
+        'name'              => 'Épreuve',
+        'type'              => 'questionnaire',
+        'scoring_engine'    => 'default',
+        'estimated_minutes' => 5,
+        'published'         => true,
+    ]);
+    $section = \App\Models\TestSection::create(['test_id' => $test->id, 'title' => 'S', 'order' => 0]);
+    $question = \App\Models\TestQuestion::create([
+        'section_id' => $section->id,
+        'order'      => 0,
+        'type'       => 'scale',
+        'prompt'     => 'Une question',
+        'options'    => ['min' => 1, 'max' => 5],
+        'required'   => true,
+    ]);
+    $attempt = \App\Models\TestAttempt::create([
+        'user_id'          => $user->id,
+        'test_id'          => $test->id,
+        'status'           => 'in_progress',
+        'started_at'       => now(),
+        'last_activity_at' => now(),
+        'progress'         => [],
+    ]);
+
+    return [$attempt, $question->id];
 }
 
 it('récompense un secret découvert et le trace en base', function () {
@@ -85,4 +115,49 @@ it('rejette un slug absent du registre serveur', function () {
 it('exige une authentification', function () {
     $this->postJson(route('easter-egg.claim'), ['slug' => 'konami'])
         ->assertStatus(401);
+});
+
+it('attribue Constellation quand tous les autres badges sont obtenus', function () {
+    $user = eggUser();
+
+    // Catalogue minimal : deux badges ordinaires + le meta-badge.
+    Badge::create(['slug' => 'a', 'name' => 'A', 'criteria' => ['type' => 'easter_egg'], 'xp_reward' => 0]);
+    Badge::create(['slug' => 'b', 'name' => 'B', 'criteria' => ['type' => 'easter_egg'], 'xp_reward' => 0]);
+    $meta = Badge::create([
+        'slug' => 'constellation', 'name' => 'Constellation',
+        'criteria' => ['type' => 'all_badges'], 'xp_reward' => 0,
+    ]);
+
+    $evaluator = app(\Praxis\Core\Gamification\BadgeEvaluator::class);
+
+    // Il manque 'eveille', 'a' et 'b' : le meta ne doit PAS tomber.
+    $evaluator->evaluate($user, ['type' => 'test']);
+    expect($user->fresh()->badges()->where('slug', 'constellation')->exists())->toBeFalse();
+
+    // On donne tout le reste : le meta doit alors tomber, sans se compter lui-meme.
+    foreach (['eveille', 'a', 'b'] as $slug) {
+        $evaluator->award($user, Badge::where('slug', $slug)->first());
+    }
+    \Illuminate\Support\Facades\Cache::flush();
+    $evaluator->evaluate($user->fresh(), ['type' => 'test']);
+
+    expect($user->fresh()->badges()->where('slug', 'constellation')->exists())->toBeTrue();
+});
+
+it('ne compte que les vrais changements de reponse', function () {
+    $user = eggUser();
+    $engine = app(\Praxis\Core\TestEngine\TestEngine::class);
+
+    [$attempt, $questionId] = eggAttempt($user);
+
+    $engine->recordAnswer($attempt, $questionId, 3);
+    $engine->recordAnswer($attempt, $questionId, 3); // autosave : valeur identique
+    $engine->recordAnswer($attempt, $questionId, 3);
+
+    expect($attempt->answers()->where('question_id', $questionId)->value('revisions'))->toBe(0);
+
+    $engine->recordAnswer($attempt, $questionId, 4);
+    $engine->recordAnswer($attempt, $questionId, 2);
+
+    expect($attempt->answers()->where('question_id', $questionId)->value('revisions'))->toBe(2);
 });

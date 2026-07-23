@@ -58,6 +58,9 @@ const activeTab = ref('synthese')
 const REVERSE_ORDER = ['pistes', 'ia', 'tests', 'synthese']
 const marginaliaUnlocked = ref(props.marginalia_unlocked)
 const showEgg = ref(false)
+// Deux secrets vivent sur cette page : la lecture a rebours et l'encre
+// invisible. Le slug dit lequel la modale doit raconter.
+const eggSlug = ref('grimoire_inverse')
 let keyTrail = []
 
 function noteKeyboardTab(key) {
@@ -67,6 +70,7 @@ function noteKeyboardTab(key) {
     if (keyTrail.length === REVERSE_ORDER.length
         && keyTrail.every((k, i) => k === REVERSE_ORDER[i])) {
         keyTrail = []
+        eggSlug.value = 'grimoire_inverse'
         showEgg.value = true
     }
 }
@@ -79,8 +83,14 @@ function onTabClick(e, key) {
 }
 
 function onEggClosed() {
+    const etaitInverse = eggSlug.value === 'grimoire_inverse'
     showEgg.value = false
-    if (marginaliaUnlocked.value) activeTab.value = 'marginalia'
+    // Ouvrir les marginalia n'a de sens que pour le secret qui les debloque.
+    if (etaitInverse && marginaliaUnlocked.value) activeTab.value = 'marginalia'
+}
+
+function onEggClaimed(slug) {
+    if (slug === 'grimoire_inverse') marginaliaUnlocked.value = true
 }
 
 // Contenu de la page apocryphe. Le registre « copiste » ne passe pas en
@@ -128,6 +138,27 @@ const MARGINALIA = {
     },
 }
 const marginalia = computed(() => isCorporate.value ? MARGINALIA.corporate : MARGINALIA.medieval)
+
+// ── Easter egg « L'Encre Invisible » ─────────────────────────────────────
+// Une phrase écrite dans la couleur du parchemin, sous la synthèse. Elle ne
+// se lit qu'en sélectionnant le texte (souris ou Ctrl+A).
+const ENCRE = "Ce que tu viens de lire a été écrit pour toi, mais c'est toi qui décides si c'est vrai."
+const encreTrouvee = ref(false)
+
+function onSelectionChange() {
+    if (encreTrouvee.value) return
+    const sel = window.getSelection()
+    if (!sel || sel.isCollapsed) return
+    // Un extrait suffit : la sélection peut couper la phrase aux deux bouts.
+    if (sel.toString().includes('mais c\'est toi qui décides')) {
+        encreTrouvee.value = true
+        eggSlug.value = 'encre_invisible'
+        showEgg.value = true
+    }
+}
+
+onMounted(() => document.addEventListener('selectionchange', onSelectionChange))
+onUnmounted(() => document.removeEventListener('selectionchange', onSelectionChange))
 
 // ── Ajustement des voies par préférences (curseurs) ──────────────────────
 // Re-tri 100 % côté front, non sauvegardé : on pondère 5 axes décrivant chaque
@@ -445,6 +476,13 @@ function fitClass(score) {
                         <div class="grim-scroll">
                             <h2 class="grim-scroll-title">Le fil conducteur</h2>
                             <p v-for="(para, i) in synthParagraphs" :key="i" class="grim-para">{{ para }}</p>
+
+                            <!-- Easter egg « L'Encre Invisible » : écrit dans la
+                                 couleur du parchemin, donc illisible tant qu'on
+                                 ne sélectionne pas le texte. aria-hidden : ne
+                                 pas polluer la lecture d'écran d'un texte que
+                                 rien n'annonce. -->
+                            <p class="grim-encre" aria-hidden="true">{{ ENCRE }}</p>
                         </div>
                     </section>
                 </div>
@@ -700,8 +738,8 @@ function fitClass(score) {
 
         <EasterEgg
             :show="showEgg"
-            slug="grimoire_inverse"
-            @claimed="marginaliaUnlocked = true"
+            :slug="eggSlug"
+            @claimed="onEggClaimed"
             @close="onEggClosed"
         />
     </CandidateLayout>
@@ -789,6 +827,20 @@ function fitClass(score) {
     align-items: start;
 }
 .grim-main { min-width: 0; }
+
+/* ── Encre invisible (easter egg) ────────────────────────────────────────
+   color: transparent + ::selection colore : le texte n'existe visuellement
+   qu'une fois selectionne. user-select reste actif, c'est tout l'interet. */
+.grim-encre {
+    margin: 1.5rem 0 0;
+    color: transparent;
+    font-style: italic;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    cursor: default;
+}
+.grim-encre::selection        { color: var(--color-primary); background: rgba(166, 117, 32, 0.14); }
+.grim-encre::-moz-selection   { color: var(--color-primary); background: rgba(166, 117, 32, 0.14); }
 
 /* ── Marginalia (page apocryphe) ─────────────────────────────────────── */
 .grim-marg-list {

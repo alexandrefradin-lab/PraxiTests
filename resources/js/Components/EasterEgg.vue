@@ -93,6 +93,62 @@ const EGGS = {
             againText: "Les notes de marge vous sont déjà accessibles depuis le sommaire de votre dossier.",
         },
     },
+    encre_invisible: {
+        medieval: {
+            seal: '🔍',
+            kicker: '— Encre révélée —',
+            title: "L'Encre Invisible",
+            paragraphs: [
+                "Une phrase dormait sous la synthèse, écrite dans la couleur du parchemin. Il fallait passer la main dessus pour qu'elle apparaisse.",
+                "<em>Les copistes cachaient leurs vraies pensées entre les lignes.</em> Tu viens de lire l'une d'elles.",
+            ],
+            cta: 'Refermer le Grimoire',
+            badge: 'Déchiffreur',
+            againTitle: 'Encre déjà lue',
+            againText: "Tu as déjà révélé cette phrase. Une encre invisible ne se découvre qu'une fois.",
+        },
+        corporate: {
+            seal: '◱',
+            kicker: '— Note dissimulée —',
+            title: 'Lecture attentive',
+            paragraphs: [
+                "Une phrase était écrite sous la synthèse, dans la couleur du fond. Il fallait sélectionner le texte pour la faire apparaître.",
+                "<em>Ce qui compte est rarement mis en évidence.</em> Vous venez d'en faire l'expérience.",
+            ],
+            cta: 'Revenir au dossier',
+            badge: 'Lecture attentive',
+            againTitle: 'Note déjà lue',
+            againText: "Vous avez déjà révélé cette note. Elle ne se découvre qu'une fois.",
+        },
+    },
+    doute: {
+        medieval: {
+            seal: '⚖',
+            kicker: '— Balance intérieure —',
+            title: 'Le Doute',
+            paragraphs: [
+                "Sur une même question, tu as changé d'avis cinq fois. L'épreuve ne t'a rien dit sur le moment : t'avertir aurait faussé tes réponses.",
+                "<em>Ce n'est pas de l'indécision, c'est de l'honnêteté intellectuelle.</em> Les gens qui ne reviennent jamais sur leur premier réflexe se trompent tout aussi souvent — ils le savent moins.",
+            ],
+            cta: 'Voir mes résultats',
+            badge: 'Nuance',
+            againTitle: 'Déjà reconnu',
+            againText: "Cette qualité t'est déjà attribuée. Elle n'avait pas besoin d'être comptée deux fois.",
+        },
+        corporate: {
+            seal: '◐',
+            kicker: '— Révision de jugement —',
+            title: 'Nuance',
+            paragraphs: [
+                "Sur une même question, vous avez révisé votre réponse cinq fois. L'évaluation ne l'a pas signalé sur le moment : vous en avertir aurait influencé vos réponses.",
+                "<em>Réviser son jugement n'est pas de l'indécision.</em> C'est une compétence, et elle est rarement mesurée.",
+            ],
+            cta: 'Voir mes résultats',
+            badge: 'Nuance',
+            againTitle: 'Déjà reconnue',
+            againText: "Cette distinction vous est déjà attribuée.",
+        },
+    },
 }
 
 const props = defineProps({

@@ -96,6 +96,9 @@ class HandleInertiaRequests extends Middleware
                 'warning'     => fn () => $request->session()->get('warning'),
                 'status'      => fn () => $request->session()->get('status'),
                 'achievement' => fn () => $request->session()->get('achievement'),
+                // Secret détecté côté serveur (ex. « Le Doute ») : le slug
+                // remonte au layout, qui ouvre la modale et poste le claim.
+                'easter_egg'  => fn () => $request->session()->get('easter_egg'),
             ],
         ]);
     }
