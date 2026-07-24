@@ -364,19 +364,18 @@ function unlock(item) {
                 <div class="h-px flex-1" style="background:linear-gradient(to left, var(--color-primary), transparent);"></div>
             </div>
 
-            <div class="grid gap-4" style="grid-template-columns:repeat(auto-fill,minmax(230px,1fr));">
+            <div class="grid gap-4" style="grid-template-columns:repeat(auto-fill,minmax(190px,1fr));">
                 <article
                     v-for="b in badgeItems"
                     :key="b.slug"
                     class="trs-award"
                     :class="{ 'trs-award--earned': b.earned, 'trs-award--secret': b.secret }"
                 >
-                    <div class="trs-award-head">
-                        <span class="trs-award-medal" aria-hidden="true">
-                            <i class="ti" :class="'ti-' + b.icon"></i>
-                        </span>
-                        <p class="trs-award-name">{{ b.name }}</p>
-                    </div>
+                    <!-- Médaillon : sceau de cire gravé une fois obtenu, vierge tant qu'il ne l'est pas. -->
+                    <span class="trs-medal" aria-hidden="true">
+                        <i class="ti" :class="'ti-' + b.icon"></i>
+                    </span>
+                    <p class="trs-award-name">{{ b.name }}</p>
                     <p class="trs-award-desc">{{ b.description }}</p>
                     <p v-if="b.earned_at" class="trs-award-date">
                         {{ isCorporate ? 'Obtenue le' : 'Obtenu le' }} {{ b.earned_at }}
@@ -427,49 +426,73 @@ function unlock(item) {
 }
 
 /* ── Distinctions / Hauts faits ─────────────────────────────────────────
-   NE PAS renommer en .trs-badge : ce nom est déjà pris plus bas par la
-   pastille de statut des cartes de trésor, déclarée après, qui écraserait
-   padding/typo et dont l'uppercase + Space Mono fuiraient ici. */
-/* Colonne : la date se cale en bas, donc toutes les cartes d'une meme
-   ligne alignent leur pied quelle que soit la longueur du texte. */
+   Vitrine de trophées : médaillon centré, nom dessous, la date scellée au
+   pied. NE PAS renommer .trs-medal/.trs-award en .trs-badge : ce nom est
+   déjà pris plus bas par la pastille de statut des cartes de trésor, qui
+   écraserait padding et typo. */
 .trs-award {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    align-items: center;
+    text-align: center;
+    gap: 0.55rem;
     height: 100%;
-    padding: 1.05rem 1.15rem 0.95rem;
+    padding: 1.5rem 1rem 1.1rem;
     border: 1px solid var(--glass-border);
     border-radius: var(--r-lg);
     background: transparent;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
-.trs-award-head {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-}
-
-/* Medaillon circulaire, echo des pastilles d'icone des cartes de tresor. */
-.trs-award-medal {
+/* ── Le médaillon ───────────────────────────────────────────────────────
+   Disque en trois couches : le corps métallique (fond), un liseré grave
+   (::before) et un reflet en haut (::after). Etat par defaut = sceau vierge
+   (creux, terne) ; l'or n'arrive qu'une fois obtenu. */
+.trs-medal {
+    position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
-    width: 30px;
-    height: 30px;
+    width: 62px;
+    height: 62px;
     border-radius: 50%;
-    background: rgba(166, 117, 32, 0.09);
+    font-size: 26px;
     color: var(--text-muted);
-    font-size: 15px;
+    background:
+        radial-gradient(circle at 50% 38%, #E7DCC4 0%, #D8CEB5 55%, #C9BE9F 100%);
+    box-shadow:
+        inset 0 1px 1px rgba(255, 255, 255, 0.5),
+        inset 0 -2px 4px rgba(120, 96, 48, 0.18),
+        0 2px 4px rgba(80, 60, 20, 0.12);
+    transition: transform 0.25s ease;
 }
+/* Liseré intérieur gravé */
+.trs-medal::before {
+    content: '';
+    position: absolute;
+    inset: 5px;
+    border-radius: 50%;
+    border: 1px solid rgba(120, 96, 48, 0.22);
+}
+/* Reflet lumineux en haut du disque */
+.trs-medal::after {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: 14px;
+    right: 14px;
+    height: 34%;
+    border-radius: 50%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0));
+    pointer-events: none;
+}
+.trs-medal > i { position: relative; z-index: 1; }
 
 .trs-award-name {
-    margin: 0;
-    min-width: 0;
+    margin: 0.2rem 0 0;
     font-family: 'Space Grotesk', sans-serif;
     font-weight: 600;
-    font-size: 0.92rem;
+    font-size: 0.95rem;
     line-height: 1.25;
     color: var(--text-muted);
 }
@@ -477,44 +500,63 @@ function unlock(item) {
 .trs-award-desc {
     margin: 0;
     font-family: 'Inter', sans-serif;
-    font-size: 0.8rem;
-    line-height: 1.55;
+    font-size: 0.78rem;
+    line-height: 1.5;
     color: var(--text-secondary);
+    max-width: 22ch;
 }
 
-/* margin-top auto : pousse la date au pied de la carte. */
+/* margin-top auto : la date se scelle au pied, cartes alignées en bas. */
 .trs-award-date {
-    margin: auto 0 0;
-    padding-top: 0.6rem;
-    border-top: 1px solid var(--glass-border);
+    margin: auto auto 0;
+    padding-top: 0.65rem;
     font-family: 'Space Mono', monospace;
     font-size: 10px;
     letter-spacing: 0.06em;
     color: var(--text-muted);
 }
 
-/* ── Obtenu : relief, or, et reaction au survol comme les cartes tresor ── */
+/* ── Obtenu : médaille d'or frappée, carte en relief chaud ────────────── */
 .trs-award--earned {
-    background: var(--bg-elevated);
-    border-left: 3px solid var(--color-primary);
+    background: linear-gradient(180deg, var(--bg-elevated), rgba(216, 206, 181, 0.4));
+    border-color: rgba(166, 117, 32, 0.35);
 }
-.trs-award--earned .trs-award-medal {
-    background: rgba(166, 117, 32, 0.16);
-    color: var(--color-primary);
+.trs-award--earned .trs-medal {
+    color: #3B2A0C;
+    background:
+        radial-gradient(circle at 50% 34%, #E8C466 0%, #C99030 46%, #9A6E1E 78%, #7D5510 100%);
+    box-shadow:
+        inset 0 1px 2px rgba(255, 240, 200, 0.7),
+        inset 0 -3px 6px rgba(80, 52, 8, 0.45),
+        0 3px 8px rgba(122, 85, 16, 0.35);
 }
+.trs-award--earned .trs-medal::before { border-color: rgba(255, 240, 200, 0.35); }
 .trs-award--earned .trs-award-name { color: var(--text-primary); }
-.trs-award--earned:hover {
-    transform: translateY(-2px);
-    border-color: var(--color-primary);
-    box-shadow: 0 6px 20px rgba(166, 117, 32, 0.14);
-}
 
-/* ── Secret : discret, sans accent, texte en italique ── */
+.trs-award--earned:hover {
+    transform: translateY(-3px);
+    border-color: var(--color-primary);
+    box-shadow: 0 10px 26px rgba(166, 117, 32, 0.2);
+}
+.trs-award--earned:hover .trs-medal { transform: rotate(-4deg) scale(1.05); }
+
+/* ── Secret : sceau non frappé, en attente ────────────────────────────── */
 .trs-award--secret {
     border-style: dashed;
-    opacity: 0.55;
 }
-.trs-award--secret .trs-award-desc { font-style: italic; }
+.trs-award--secret .trs-medal {
+    background: repeating-conic-gradient(
+        rgba(140, 122, 94, 0.10) 0deg 12deg,
+        rgba(140, 122, 94, 0.04) 12deg 24deg
+    );
+    box-shadow: inset 0 0 0 1px rgba(140, 122, 94, 0.18);
+    opacity: 0.7;
+}
+.trs-award--secret .trs-award-name,
+.trs-award--secret .trs-award-desc {
+    color: var(--text-muted);
+    font-style: italic;
+}
 
 /* ── Badge statut ── */
 .trs-badge {
