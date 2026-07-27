@@ -97,10 +97,12 @@ class TwoFactorChallengeController extends Controller
             $remember = $request->session()->get('two_factor_remember', false);
             Auth::loginUsingId($userId, $remember);
             $request->session()->regenerate();
-            $user->update([
+            // forceFill : champs hors $fillable (cf. AuthController::login).
+            // update() les ignorerait silencieusement.
+            $user->forceFill([
                 'last_login_at' => now(),
                 'last_login_ip' => $request->ip(),
-            ]);
+            ])->save();
         }
 
         // Marquer le 2FA comme confirmé dans cette session
