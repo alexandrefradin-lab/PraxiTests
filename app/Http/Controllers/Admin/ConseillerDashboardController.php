@@ -27,9 +27,10 @@ class ConseillerDashboardController extends Controller
         $isAdmin = $user->hasRole('admin');
 
         // Comptes professionnels accessibles. null => admin (pas de filtre).
+        // Source unique : User::professionalAccountIds() (comme AuthorizesTenant).
         $accountIds = $isAdmin
             ? null
-            : ($user->professionalAccounts()->pluck('professional_accounts.id')->all() ?: [0]);
+            : ($user->professionalAccountIds() ?: [0]);
 
         $scopeInvitations = fn ($q) => $isAdmin ? $q : $q->whereIn('professional_account_id', $accountIds);
 

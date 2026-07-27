@@ -18,9 +18,10 @@ class DashboardController extends Controller
 
         // Cloisonnement multi-tenant (audit risque #4) : les professionnels
         // ne voient que les données liées à leurs comptes.
+        // Source unique : User::professionalAccountIds() (comme AuthorizesTenant).
         $accountIds = $isAdmin
             ? null
-            : $user->professionalAccounts()->pluck('professional_accounts.id')->all();
+            : $user->professionalAccountIds();
 
         // Les stats globales (users, attempts) ne sont visibles que par l'admin.
         // Les pros voient uniquement leurs leads et candidats.
