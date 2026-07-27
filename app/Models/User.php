@@ -76,8 +76,12 @@ class User extends Authenticatable implements MustVerifyEmail
 
         if (!$found) return false;
 
-        // Consommer le code (usage unique)
-        $this->updateQuietly(['two_factor_recovery_codes' => $remaining]);
+        // Consommer le code (usage unique).
+        // forceFill : two_factor_recovery_codes est hors $fillable (anti
+        // mass-assignment) ; update()/updateQuietly() passerait par fill() qui
+        // l'ignore silencieusement → la consommation ne serait jamais persistée
+        // et le code resterait réutilisable (bug de sécurité, audit Phase 0).
+        $this->forceFill(['two_factor_recovery_codes' => $remaining])->saveQuietly();
 
         return true;
     }
