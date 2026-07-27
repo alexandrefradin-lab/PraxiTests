@@ -75,6 +75,9 @@ it('rattache l invitation au premier compte professionnel de son créateur', fun
 
 it('rattache l invitation d un admin à aucun compte (null)', function () {
     Mail::fake();
+    // Sans ce kill-switch, le middleware 2FA redirige l'admin vers l'activation
+    // avant le contrôleur (cf. AdminTwoFactorTest) : store() ne serait jamais exercé.
+    config(['praxiquest.security.admin_2fa_required' => false]);
     $admin = fatMakeUser('admin');
     // Même détenteur d'un compte, l'admin invite hors cloisonnement.
     fatMakeAccountFor($admin, 'Cabinet Admin');
@@ -118,6 +121,7 @@ it('rattache la campagne au premier compte professionnel de son créateur', func
 });
 
 it('rattache la campagne d un admin à aucun compte (null)', function () {
+    config(['praxiquest.security.admin_2fa_required' => false]);
     $admin = fatMakeUser('admin');
     fatMakeAccountFor($admin, 'Cabinet Admin');
 
