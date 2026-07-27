@@ -50,7 +50,11 @@ class AuthController extends Controller
         // ── Connexion directe (2FA non activé) ────────────────────────────
         Auth::login($user, $request->boolean('remember'));
         $request->session()->regenerate();
-        $user->update(['last_login_at' => now(), 'last_login_ip' => $request->ip()]);
+        // forceFill : last_login_at / last_login_ip sont hors $fillable (anti
+        // mass-assignment). update() passerait par fill() qui les ignore
+        // silencieusement → la date/IP de connexion n'étaient jamais enregistrées
+        // (colonne « dernière connexion » vide en admin). Audit Phase 0.
+        $user->forceFill(['last_login_at' => now(), 'last_login_ip' => $request->ip()])->save();
 
         return redirect()->intended(route('home'));
     }
