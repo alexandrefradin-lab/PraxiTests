@@ -89,6 +89,15 @@
     --pt-gold-hover:      var(--color-primary-dark);
     --pt-gold-border:     rgba(166,117,32,0.4);
     --pt-gold-pale:       rgba(166,117,32,0.12);
+    /* Tokens sémantiques (audit 2026-07-28) : les pages de résultat des plugins
+       référençaient var(--pt-danger, #DC2626)… sans définition → couleurs Tailwind
+       brutes hors palette. Alias sur les tokens de thème (suivent Parchemin/Corporate) ;
+       warning/indigo : valeurs on-palette (pas d'équivalent --color-*). */
+    --pt-danger:          var(--color-danger);
+    --pt-success:         var(--color-success);
+    --pt-info:            var(--color-signal);
+    --pt-warning:         #B5791F;
+    --pt-indigo:          #5B4C9E;
     --pt-text:            var(--text-primary);
     --pt-text-light:      var(--text-secondary);
     --pt-text-muted:      var(--text-muted);
