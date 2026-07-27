@@ -38,7 +38,7 @@ class TestNormsSeeder extends Seeder
             'E' => ['mean' => 6.5,  'sd' => 3.4, 'n' => 0], // Entreprenant — leadership
             'C' => ['mean' => 6.0,  'sd' => 3.1, 'n' => 0], // Conventionnel — organisation
         ];
-        foreach ($riasec as $dim => [$mean, $sd, $n]) {
+        foreach ($riasec as $dim => ['mean' => $mean, 'sd' => $sd, 'n' => $n]) {
             $rows[] = ['test_slug' => 'praximet-riasec', 'dimension' => $dim,
                 'mean' => $mean, 'std_dev' => $sd, 'n_responses' => $n, 'group_key' => 'all',
                 'source' => 'Barème indicatif provisoire — modèle RIASEC, estimation interne non étalonnée',
