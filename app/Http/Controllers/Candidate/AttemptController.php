@@ -98,11 +98,38 @@ class AttemptController extends Controller
         $attempt->load([
             'test',
             'test.sections'           => fn ($q) => $q->select('id', 'test_id', 'title', 'description', 'order')->orderBy('order'),
-            'test.sections.questions' => fn ($q) => $q->select('id', 'section_id', 'order', 'type', 'prompt', 'helper', 'options', 'required')->orderBy('order'),
+            'test.sections.questions' => fn ($q) => $q->select('id', 'section_id', 'order', 'type', 'prompt', 'helper', 'options', 'meta', 'required')->orderBy('order'),
             'answers'                 => fn ($q) => $q->select('id', 'attempt_id', 'question_id', 'value'),
             'user.badges',
         ]);
         abort_unless($attempt->user !== null, 404, 'User not found');
+
+        // Mélange déterministe des options pour les questions qui le demandent
+        // (meta.shuffle) — ex. tests d'aptitude (PraxiCog). Graine stable par
+        // (tentative, question) : l'ordre reste identique en cas de retour arrière,
+        // mais diffère d'une tentative/candidat à l'autre → aucune clé positionnelle
+        // partageable. Le scoring compare la VALEUR choisie (pas la position), donc
+        // le résultat est inchangé. 100% opt-in : sans meta.shuffle, rien ne bouge.
+        foreach ($attempt->test->sections as $section) {
+            foreach ($section->questions as $q) {
+                $meta = is_array($q->meta) ? $q->meta : [];
+                if (empty($meta['shuffle']) || !is_array($q->options)) {
+                    continue;
+                }
+                $opts    = $this->shuffleDeterministic($q->options, $attempt->id . '-' . $q->id);
+                $letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+                foreach ($opts as $k => &$o) {
+                    // Réétiqueter uniquement les options FIGURÉES (libellé = repère
+                    // A/B/C/D) pour un affichage ordonné ; les options textuelles
+                    // gardent leur libellé (c'est la réponse elle-même).
+                    if (is_array($o) && !empty($o['figure'])) {
+                        $o['label'] = $letters[$k] ?? (string) ($k + 1);
+                    }
+                }
+                unset($o);
+                $q->options = $opts;
+            }
+        }
 
         // Laisser un plugin overrider la page de passation via un filtre
         // (calqué sur 'results.inertia_page'). Ex : PraxiTempo → 'PraxiTempoPlay'.
@@ -132,6 +159,42 @@ class AttemptController extends Controller
                 'final'   => $this->narrative->messageFor('final', $attempt),
             ],
         ]);
+    }
+
+    /**
+     * Fisher-Yates déterministe seedé par une chaîne (PRNG xorshift local).
+     * N'altère pas le RNG global (mt_rand) — deux appels avec la même graine
+     * produisent le même ordre, garantissant la stabilité au retour arrière.
+     *
+     * @param  array<int,mixed>  $items
+     * @return array<int,mixed>
+     */
+    private function shuffleDeterministic(array $items, string $seed): array
+    {
+        $items = array_values($items);
+        $n     = count($items);
+        if ($n < 2) {
+            return $items;
+        }
+
+        $state = crc32($seed) & 0xFFFFFFFF;
+        if ($state === 0) {
+            $state = 1;
+        }
+        $next = function () use (&$state): int {
+            $state ^= ($state << 13) & 0xFFFFFFFF;
+            $state ^= ($state >> 17);
+            $state ^= ($state << 5)  & 0xFFFFFFFF;
+            $state &= 0xFFFFFFFF;
+            return $state;
+        };
+
+        for ($i = $n - 1; $i > 0; $i--) {
+            $j = $next() % ($i + 1);
+            [$items[$i], $items[$j]] = [$items[$j], $items[$i]];
+        }
+
+        return $items;
     }
 
     public function answer(Request $request, TestAttempt $attempt)

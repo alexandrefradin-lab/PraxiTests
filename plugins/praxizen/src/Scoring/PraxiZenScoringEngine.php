@@ -57,7 +57,7 @@ class PraxiZenScoringEngine implements ScoringEngineContract
         }
 
         // Score global de bien-être (moyenne pondérée des 5 dimensions)
-        $globalScore = (int) round(array_sum($normalized) / count($normalized));
+        $globalScore = (int) round(array_sum($normalized) / max(1, count($normalized)));
 
         // Identification des dimensions faibles et fortes
         $sorted      = $normalized;

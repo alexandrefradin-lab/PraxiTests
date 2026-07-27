@@ -1,0 +1,14 @@
+{
+    "slug":             "praxicog",
+    "name":             "PraxiCog — Raisonnement & aptitude cognitive",
+    "version":          "1.0.0",
+    "author":           "Praxis Accompagnement",
+    "type":             "assessment",
+    "description":      "Test indicatif d'aptitude au raisonnement (logique, verbal, numérique, spatial). Restitution en profil + niveaux, sans score de QI. Items originaux, chronométrés.",
+    "service_provider": "Praxis\\Plugins\\PraxiCog\\PluginServiceProvider",
+    "namespace":        "Praxis\\Plugins\\PraxiCog",
+    "permissions":      [],
+
+    "_scoring_engine_key": "praxicog-scoring",
+    "_result_page":        "PraxiCogResult"
+}

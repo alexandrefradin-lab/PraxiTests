@@ -70,7 +70,7 @@ class PLUGIN_CLASSScoringEngine implements ScoringEngineContract
 
         // ── 5. Profil global (optionnel) ───────────────────────────────────
         // Calculer un score global ou un profil typologique si besoin.
-        $globalScore = (int) round(array_sum($normalized) / count($normalized));
+        $globalScore = (int) round(array_sum($normalized) / max(1, count($normalized)));
 
         // ── 6. Retourner le résultat ───────────────────────────────────────
         // Conventions :

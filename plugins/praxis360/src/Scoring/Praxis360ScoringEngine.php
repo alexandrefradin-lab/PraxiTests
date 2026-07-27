@@ -82,7 +82,7 @@ class Praxis360ScoringEngine implements ScoringEngineContract
         }
 
         // ── 5. Score global (moyenne des dimensions normalisées) ──────────
-        $globalScore = (int) round(array_sum($normalized) / count($normalized));
+        $globalScore = (int) round(array_sum($normalized) / max(1, count($normalized)));
 
         // ── 6. Forces / axes de progrès (sur les moyennes brutes) ─────────
         $ranked = $rawScores;

@@ -43,7 +43,7 @@ class PraxiFlowScoringEngine implements ScoringEngineContract
         }
 
         // ── 4. Score global (moyenne des normalisés) ─────────────────────────
-        $globalScore = (int) round(array_sum($normScores) / count($normScores));
+        $globalScore = (int) round(array_sum($normScores) / max(1, count($normScores)));
 
         // ── 5. Niveau de productivité global ────────────────────────────────
         [$niveau, $phrase] = $this->interpretGlobal($globalScore);

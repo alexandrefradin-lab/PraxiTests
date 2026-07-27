@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, onBeforeUnmount } from 'vue'
 import { router, Head, Link } from '@inertiajs/vue3'
 import { useParcours } from '@/composables/useParcours'
 
@@ -51,11 +51,41 @@ const ghostQuestions = computed(() => {
 
 const hasValue = (v) => !(v === null || v === undefined || v === '' || (Array.isArray(v) && !v.length))
 
+// ── Chronométrage par item (tests d'aptitude, ex. PraxiCog) ─────────────────
+// Actif UNIQUEMENT si la question porte meta.time_limit ET n'a pas encore été
+// répondue (donc jamais en relecture). À expiration : réponse « non répondue »
+// (value = -1) → item compté faux par le scoring, puis on avance. 100% additif :
+// les tests sans meta.time_limit ne sont pas affectés.
+const remaining = ref(null)
+let timerId = null
+
+const clearTimer = () => {
+    if (timerId) { clearInterval(timerId); timerId = null }
+}
+
+const startTimer = () => {
+    clearTimer()
+    const limit   = currentQuestion.value?.meta?.time_limit
+    const already = savedAnswers.value[currentQuestion.value?.id] !== undefined
+    if (!limit || already) { remaining.value = null; return }
+    remaining.value = limit
+    timerId = setInterval(() => {
+        remaining.value = Math.max(0, (remaining.value ?? 0) - 1)
+        if (remaining.value <= 0) {
+            clearTimer()
+            if (!isSubmitting.value) { value.value = -1; recordAndAdvance() }
+        }
+    }, 1000)
+}
+
+onBeforeUnmount(clearTimer)
+
 // Charge dans `value` la réponse déjà enregistrée pour la question courante (ou null).
 const loadValue = () => {
     const saved = savedAnswers.value[currentQuestion.value?.id]
     value.value = saved !== undefined ? saved : null
     startedAt.value = Date.now()
+    startTimer()
 }
 loadValue()
 
@@ -94,6 +124,7 @@ const saveError = ref('')
 const recordAndAdvance = () => {
     if (!currentQuestion.value) return
     if (isSubmitting.value || !hasValue(value.value)) return
+    clearTimer()
     isSubmitting.value = true
     saveError.value = ''
     const time = Math.round((Date.now() - startedAt.value) / 1000)
@@ -234,14 +265,38 @@ const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
                         <Transition :name="transitionName">
                             <div class="ac-card" :key="currentIndex">
 
-                    <!-- Badge section -->
-                    <div class="ac-section-badge">{{ currentQuestion.section_title }}</div>
+                    <!-- Badge section + chrono par item (si meta.time_limit) -->
+                    <div class="ac-badge-row">
+                        <div class="ac-section-badge">{{ currentQuestion.section_title }}</div>
+                        <div
+                            v-if="remaining !== null"
+                            class="ac-timer"
+                            :class="{ 'ac-timer--urgent': remaining <= 5 }"
+                            role="timer"
+                            :aria-label="'Temps restant : ' + remaining + ' secondes'"
+                        >
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <circle cx="12" cy="13" r="8" stroke="currentColor" stroke-width="2"/>
+                                <path d="M12 9v4l2.5 2.5M9 2h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            {{ remaining }}s
+                        </div>
+                    </div>
 
                     <!-- Question -->
                     <h2 class="ac-question-text">{{ currentQuestion.prompt }}</h2>
 
                     <!-- Helper -->
                     <p v-if="currentQuestion.helper" class="ac-helper">{{ currentQuestion.helper }}</p>
+
+                    <!-- Figure d'énoncé (SVG généré côté plugin — contenu de confiance) -->
+                    <!-- eslint-disable-next-line vue/no-v-html -->
+                    <div
+                        v-if="currentQuestion.meta && currentQuestion.meta.figure"
+                        class="ac-figure"
+                        aria-hidden="true"
+                        v-html="currentQuestion.meta.figure"
+                    ></div>
 
                     <!-- OPTIONS -->
                     <div class="ac-options">
@@ -273,7 +328,10 @@ const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
                                         <circle cx="9" cy="9" r="8" stroke="var(--glass-border-solid)" stroke-width="1.5"/>
                                     </svg>
                                 </span>
-                                <span class="ac-option-label">{{ opt.label }}</span>
+                                <!-- Figure d'option (SVG plugin de confiance) — ex. PraxiCog -->
+                                <!-- eslint-disable-next-line vue/no-v-html -->
+                                <span v-if="opt.figure" class="ac-option-figure" aria-hidden="true" v-html="opt.figure"></span>
+                                <span class="ac-option-label" :class="{ 'ac-option-label--letter': opt.figure }">{{ opt.label }}</span>
                             </div>
                           </div>
                         </template>
@@ -768,6 +826,71 @@ const exerciseBasis = computed(() => exerciseMeta.value.scientific_basis || '')
 .ac-nav-btn:disabled {
     opacity: 0.4;
     cursor: not-allowed;
+}
+
+/* Ligne badge section + chrono */
+.ac-badge-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+/* Chrono par item (PraxiCog & tests d'aptitude) */
+.ac-timer {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--color-primary);
+    background: rgba(166,117,32,0.10);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 3px 10px;
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+}
+.ac-timer--urgent {
+    color: #fff;
+    background: var(--color-danger);
+    border-color: var(--color-danger);
+    animation: ac-processing-pulse 0.9s ease-in-out infinite;
+}
+
+/* Figure d'énoncé (SVG) */
+.ac-figure {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: center;
+    color: var(--text-primary);
+}
+.ac-figure :deep(svg) {
+    max-width: 100%;
+    height: auto;
+    max-height: 130px;
+}
+
+/* Figure d'option (SVG) */
+.ac-option-figure {
+    flex-shrink: 0;
+    width: 76px;
+    height: 76px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary);
+}
+.ac-option-figure :deep(svg) {
+    width: 100%;
+    height: 100%;
+}
+/* Quand l'option est figurée, le label n'est qu'une lettre repère discrète */
+.ac-option-label--letter {
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    color: var(--text-secondary);
 }
 
 /* Badge section */

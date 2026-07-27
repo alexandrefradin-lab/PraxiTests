@@ -80,7 +80,7 @@ class PraxiSelfScoringEngine implements ScoringEngineContract
         }
 
         // Score global : moyenne arithmétique des 5 dimensions
-        $globalScore = round(array_sum($rawScores) / count($rawScores), 1);
+        $globalScore = round(array_sum($rawScores) / max(1, count($rawScores)), 1);
 
         // Identification de la dimension la plus faible (pour recommandations).
         // On trie une COPIE pour ne pas altérer l'ordre de $rawScores (radar/labels).

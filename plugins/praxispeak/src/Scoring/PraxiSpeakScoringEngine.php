@@ -80,8 +80,11 @@ class PraxiSpeakScoringEngine implements ScoringEngineContract
         }
 
         // Citation aléatoire déterministe (basée sur l'id de l'attempt)
-        $quoteIndex = $attempt->id % count($quotes);
-        $quote      = $quotes[$quoteIndex];
+        $quote = null;
+        if (count($quotes) > 0) {
+            $quoteIndex = $attempt->id % count($quotes);
+            $quote      = $quotes[$quoteIndex];
+        }
 
         return [
             'engine'               => $this->key(),
