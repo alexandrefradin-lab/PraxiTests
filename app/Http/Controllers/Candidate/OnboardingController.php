@@ -22,6 +22,8 @@ class OnboardingController extends Controller
         return Inertia::render('Candidate/Onboarding', [
             'profile'  => $profile,
             'statuses' => config('praxiquest.profile.statuses'),
+            'age_bands'        => config('praxiquest.profile.age_bands'),
+            'education_levels' => config('praxiquest.profile.education_levels'),
             'cv_max_size_kb'   => config('praxiquest.profile.cv_max_size_kb'),
             'cv_allowed_mimes' => config('praxiquest.profile.cv_allowed_mimes'),
         ]);
@@ -36,6 +38,8 @@ class OnboardingController extends Controller
             'status'        => $data['status'],
             'status_since'  => $data['status_since'],
             'status_months' => (int) abs(now()->diffInMonths($data['status_since'])),
+            'age_band'        => $data['age_band'] ?? null,
+            'education_level' => $data['education_level'] ?? null,
             'current_role'  => $data['current_role'] ?? null,
             'industry'      => $data['industry'] ?? null,
             'work_sector'   => $data['work_sector'] ?? null,
@@ -87,6 +91,8 @@ class OnboardingController extends Controller
         return Inertia::render('Candidate/Onboarding', [
             'profile'  => $profile,
             'statuses' => config('praxiquest.profile.statuses'),
+            'age_bands'        => config('praxiquest.profile.age_bands'),
+            'education_levels' => config('praxiquest.profile.education_levels'),
             'cv_max_size_kb'   => config('praxiquest.profile.cv_max_size_kb'),
             'cv_allowed_mimes' => config('praxiquest.profile.cv_allowed_mimes'),
         ]);
@@ -99,6 +105,8 @@ class OnboardingController extends Controller
         $rules = [
             'status'       => ['required', 'in:' . implode(',', array_keys(config('praxiquest.profile.statuses')))],
             'status_since' => ['required', 'date', 'before_or_equal:today'],
+            'age_band'        => ['nullable', 'in:' . implode(',', array_keys(config('praxiquest.profile.age_bands')))],
+            'education_level' => ['nullable', 'in:' . implode(',', array_keys(config('praxiquest.profile.education_levels')))],
             'current_role' => ['nullable', 'string', 'max:120'],
             'industry'     => ['nullable', 'string', 'max:120'],
             'work_sector'  => ['nullable', 'in:public,private,independent,association'],
@@ -130,6 +138,8 @@ class OnboardingController extends Controller
             'status'        => $data['status'],
             'status_since'  => $data['status_since'],
             'status_months' => (int) abs(now()->diffInMonths($data['status_since'])),
+            'age_band'        => $data['age_band'] ?? null,
+            'education_level' => $data['education_level'] ?? null,
             'current_role'  => $data['current_role'] ?? null,
             'industry'      => $data['industry'] ?? null,
             'work_sector'   => $data['work_sector'] ?? null,
@@ -196,6 +206,8 @@ class OnboardingController extends Controller
         $rules = [
             'status'        => ['required', 'in:' . implode(',', array_keys(config('praxiquest.profile.statuses')))],
             'status_since'  => ['required', 'date', 'before_or_equal:today'],
+            'age_band'        => ['nullable', 'in:' . implode(',', array_keys(config('praxiquest.profile.age_bands')))],
+            'education_level' => ['nullable', 'in:' . implode(',', array_keys(config('praxiquest.profile.education_levels')))],
             'current_role'  => ['nullable', 'string', 'max:120'],
             'industry'      => ['nullable', 'string', 'max:120'],
             'work_sector'   => ['nullable', 'in:public,private,independent,association'],

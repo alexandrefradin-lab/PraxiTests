@@ -17,6 +17,8 @@ class Profile extends Model
         'status',
         'status_since',
         'status_months',
+        'age_band',
+        'education_level',
         'current_role',
         'industry',
         'work_sector',
@@ -48,6 +50,15 @@ class Profile extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Clé de groupe d'étalonnage ('age:25-34', …) ou null si la tranche
+     * d'âge n'a pas été renseignée (champ facultatif à l'onboarding).
+     */
+    public function normGroupKey(): ?string
+    {
+        return $this->age_band ? "age:{$this->age_band}" : null;
     }
 
     /**
