@@ -74,6 +74,11 @@ ok "Test Compétences entrepreneuriales OK"
 php artisan db:seed --class=BadgeSeeder --force --no-interaction
 ok "Referentiel des badges OK"
 
+# Baremes de reference des tests (upsert, idempotent). Ne touche JAMAIS aux
+# normes recalculees depuis les donnees plateforme (computed_at non nul).
+php artisan db:seed --class=TestNormsSeeder --force --no-interaction
+ok "Baremes de reference (normes) OK"
+
 msg "Découverte et activation des nouveaux plugins..."
 php artisan praxiquest:plugins:discover --sync
 ok "Plugins découverts"
