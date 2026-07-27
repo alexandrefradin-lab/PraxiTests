@@ -44,3 +44,14 @@ ziaHoX5d
 
 # Graphe de connaissances graphify (local uniquement)
 graphify-out/
+
+# Hygiène dépôt (chore/repo-hygiene 2026-07-28) — legacy + debug, jamais re-tracker
+_imports/
+plugins/_wp_import/
+_checktip*.mjs
+_checkvue.mjs
+_phpbal.cjs
+_perm_test
+_vite_build.log
+ORACLE_DEBUG.md
+**/.fuse_hidden*
