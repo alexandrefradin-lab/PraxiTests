@@ -76,7 +76,7 @@ class CampaignController extends Controller
         $user = auth()->user();
         $data['professional_account_id'] = $user->hasRole('admin')
             ? null
-            : ($user->professionalAccountIds()[0] ?? null);
+            : $user->firstProfessionalAccountId();
 
         $campaign = EmailCampaign::create(array_merge($data, ['status' => 'draft']));
         AuditLog::record('campaign.created', $campaign, ['name' => $campaign->name]); // #9
