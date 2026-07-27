@@ -6,8 +6,6 @@ import CandidateLayout from '@/Layouts/CandidateLayout.vue'
 const props = defineProps({
     profile: Object,
     statuses: Object,
-    age_bands: Object,
-    education_levels: Object,
     cv_max_size_kb: Number,
     cv_allowed_mimes: Array,
 })
@@ -26,8 +24,6 @@ const workSectorOptions = [
 const form = useForm({
     status: p.status || '',
     status_since: p.status_since ? String(p.status_since).slice(0, 10) : '',
-    age_band: p.age_band || '',
-    education_level: p.education_level || '',
     current_role: p.current_role || '',
     industry: p.industry || '',
     work_sector: p.work_sector || '',
@@ -228,36 +224,6 @@ const onFileChange = (e) => {
                             <p v-if="form.errors.hobbies" class="text-xs mt-1" style="color:var(--color-secondary);">{{ form.errors.hobbies }}</p>
                         </div>
                     </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label for="ob-age-band" class="block text-sm font-medium mb-1.5" style="color:var(--text-primary); font-family:'Inter',sans-serif;">
-                                Ta tranche d'âge
-                                <span class="font-normal text-xs" style="color:var(--text-secondary);">(optionnel)</span>
-                            </label>
-                            <select id="ob-age-band" v-model="form.age_band" class="pt-input">
-                                <option value="">— Je préfère ne pas répondre —</option>
-                                <option v-for="(label, key) in age_bands" :key="key" :value="key">{{ label }}</option>
-                            </select>
-                            <p v-if="form.errors.age_band" class="text-xs mt-1" style="color:var(--color-secondary);">{{ form.errors.age_band }}</p>
-                        </div>
-                        <div>
-                            <label for="ob-education" class="block text-sm font-medium mb-1.5" style="color:var(--text-primary); font-family:'Inter',sans-serif;">
-                                Ton diplôme le plus élevé
-                                <span class="font-normal text-xs" style="color:var(--text-secondary);">(optionnel)</span>
-                            </label>
-                            <select id="ob-education" v-model="form.education_level" class="pt-input">
-                                <option value="">— Je préfère ne pas répondre —</option>
-                                <option v-for="(label, key) in education_levels" :key="key" :value="key">{{ label }}</option>
-                            </select>
-                            <p v-if="form.errors.education_level" class="text-xs mt-1" style="color:var(--color-secondary);">{{ form.errors.education_level }}</p>
-                        </div>
-                    </div>
-                    <p class="text-xs -mt-2" style="color:var(--text-secondary); font-family:'Inter',sans-serif;">
-                        Ces deux informations servent uniquement à situer tes résultats par rapport
-                        à des personnes au parcours comparable. Elles restent confidentielles et
-                        n'apparaissent jamais dans tes rapports.
-                    </p>
                 </div>
 
                 <!-- Section 2 : Problématique / Quête -->

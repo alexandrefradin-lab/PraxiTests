@@ -97,18 +97,9 @@ class NarrativeEngine
     protected function partialDimensions(TestAttempt $attempt): array
     {
         try {
-            // Même contexte d'étalonnage qu'au scoring final (TestEngine::complete)
-            // pour que l'aperçu et le résultat définitif utilisent les mêmes normes.
-            \Praxis\Core\TestEngine\NormInterpreter::setCandidateGroup(
-                $attempt->user?->profile?->normGroupKey()
-            );
-            try {
-                $scoring = app(TestEngine::class)
-                    ->resolveScoringEngine($attempt->test)
-                    ->score($attempt);
-            } finally {
-                \Praxis\Core\TestEngine\NormInterpreter::clearCandidateGroup();
-            }
+            $scoring = app(TestEngine::class)
+                ->resolveScoringEngine($attempt->test)
+                ->score($attempt);
         } catch (\Throwable $e) {
             logger()->warning("NarrativeEngine::partialDimensions a échoué pour attempt #{$attempt->id}: {$e->getMessage()}");
             return [];

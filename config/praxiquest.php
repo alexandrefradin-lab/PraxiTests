@@ -56,21 +56,6 @@ return [
             'student'     => 'Étudiant',
             'other'       => 'Autre',
         ],
-        // Tranches larges (minimisation RGPD) — servent de group_key d'étalonnage
-        // sous la forme 'age:<clé>' (voir NormInterpreter).
-        'age_bands' => [
-            '18-24'  => '18 – 24 ans',
-            '25-34'  => '25 – 34 ans',
-            '35-44'  => '35 – 44 ans',
-            '45-54'  => '45 – 54 ans',
-            '55plus' => '55 ans et plus',
-        ],
-        'education_levels' => [
-            'cap_or_less' => 'CAP, BEP ou niveau inférieur',
-            'bac'         => 'Baccalauréat',
-            'bac_2_3'     => 'Bac+2 / Bac+3',
-            'bac_5_plus'  => 'Bac+5 et plus',
-        ],
         'cv_required' => true,
         'cv_max_size_kb' => 5120,
         // A4 — doc/docx retirés : CvExtractionService ne les extrait pas (prévoir phpoffice/phpword)

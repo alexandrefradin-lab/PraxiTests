@@ -60,61 +60,6 @@ it('creates a profile on first onboarding submission', function () {
     Storage::disk('local')->assertExists($profile->cv_path);
 });
 
-it('stores optional age band and education level for norming', function () {
-    $user = User::factory()->create();
-
-    $this->actingAs($user)
-        ->post(route('onboarding.store'), [
-            'status'          => 'employee',
-            'status_since'    => now()->subMonths(6)->format('Y-m-d'),
-            'age_band'        => '35-44',
-            'education_level' => 'bac_5_plus',
-            'problematique'   => 'Faire le point.',
-            'cv'              => onboardingFakePdf(),
-            'consent_data'    => '1',
-        ])
-        ->assertRedirect(route('tests.index'));
-
-    $profile = $user->fresh()->profile;
-    expect($profile->age_band)->toBe('35-44');
-    expect($profile->education_level)->toBe('bac_5_plus');
-    expect($profile->normGroupKey())->toBe('age:35-44');
-});
-
-it('accepts onboarding without age band or education level (optional fields)', function () {
-    $user = User::factory()->create();
-
-    $this->actingAs($user)
-        ->post(route('onboarding.store'), [
-            'status'        => 'employee',
-            'status_since'  => now()->subMonths(6)->format('Y-m-d'),
-            'age_band'      => '',
-            'problematique' => 'Faire le point.',
-            'cv'            => onboardingFakePdf(),
-            'consent_data'  => '1',
-        ])
-        ->assertRedirect(route('tests.index'));
-
-    $profile = $user->fresh()->profile;
-    expect($profile->age_band)->toBeNull();
-    expect($profile->normGroupKey())->toBeNull();
-});
-
-it('rejects an unknown age band', function () {
-    $user = User::factory()->create();
-
-    $this->actingAs($user)
-        ->post(route('onboarding.store'), [
-            'status'        => 'employee',
-            'status_since'  => now()->subMonths(6)->format('Y-m-d'),
-            'age_band'      => 'not-a-band',
-            'problematique' => 'Faire le point.',
-            'cv'            => onboardingFakePdf(),
-            'consent_data'  => '1',
-        ])
-        ->assertSessionHasErrors('age_band');
-});
-
 it('dispatches CV extraction job after profile creation', function () {
     $user = User::factory()->create();
     $cv   = onboardingFakePdf();

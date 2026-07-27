@@ -33,13 +33,20 @@ Schedule::command('queue:work database --stop-when-empty --timeout=50 --max-jobs
     ->appendOutputTo(storage_path('logs/queue.log'));
 
 // ── Recalcul des normes d'étalonnage ─────────────────────────────────────
-// Hebdomadaire — recalcule les normes plateforme (origin='platform') de TOUS
-// les tests ayant des résultats : globales + par tranche d'âge. Les dimensions
-// sont découvertes depuis les norm_scores persistés, plus de liste en dur.
-// Les normes de référence seedées ne sont jamais écrasées.
+// Hebdomadaire — met à jour les normes depuis les vraies données plateforme
+// dès que le seuil de 50 passations par test est atteint.
 Schedule::call(function () {
-    $written = \Praxis\Core\TestEngine\NormInterpreter::recomputeAll();
-    logger()->info('norms:recompute — ' . (empty($written) ? 'aucune norme actualisée (seuils non atteints)' : json_encode($written)));
+    $tests = [
+        ['praximet-riasec',     ['R','I','A','S','E','C']],
+        ['praxiemo-eqi',        ['1','4','9','16','2','3','5','6','7','8','10','11','12','13','14','15']],
+        ['praxivaleurs-schwartz',['autonomie','stimulation','hedonisme','reussite','pouvoir','conformite','tradition','bienveillance','universalisme','securite']],
+        ['praximum-bigfive',    ['O','C','E','A','N']],
+    ];
+    foreach ($tests as [$slug, $dims]) {
+        foreach ($dims as $dim) {
+            \Praxis\Core\TestEngine\NormInterpreter::recompute($slug, $dim, 50);
+        }
+    }
 })->weekly()->name('norms:recompute')->withoutOverlapping();
 
 // ── Relance automatique des synthèses IA bloquées ────────────────────────

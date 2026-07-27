@@ -99,16 +99,8 @@ class TestEngine
             'completed_at' => now(),
         ]);
 
-        // Étalonnage par sous-groupe : les moteurs appellent NormInterpreter::enrich()
-        // sans connaître le candidat — on pose son groupe d'âge en contexte le temps
-        // du scoring (try/finally : jamais de fuite de contexte entre candidats).
-        NormInterpreter::setCandidateGroup($attempt->user?->profile?->normGroupKey());
-        try {
-            $scoring = $this->resolveScoringEngine($attempt->test)->score($attempt);
-            $scoring = PluginHooks::applyFilters('attempt.scoring', $scoring, $attempt);
-        } finally {
-            NormInterpreter::clearCandidateGroup();
-        }
+        $scoring = $this->resolveScoringEngine($attempt->test)->score($attempt);
+        $scoring = PluginHooks::applyFilters('attempt.scoring', $scoring, $attempt);
 
         $attempt->result()->updateOrCreate(
             [],
