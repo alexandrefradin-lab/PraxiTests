@@ -213,9 +213,15 @@ class AuthController extends Controller
 
         $status = Password::sendResetLink($request->only('email'));
 
-        return $status === Password::RESET_LINK_SENT
-            ? back()->with('success', 'Un lien de réinitialisation a été envoyé à ' . $request->email)
-            : back()->withErrors(['email' => 'Aucun compte trouvé avec cette adresse email.']);
+        // SEC (anti-énumération) : réponse IDENTIQUE que le compte existe ou non.
+        // L'ancien message différencié (« Aucun compte trouvé… ») permettait
+        // d'énumérer les comptes existants un email à la fois. Le throttle de la
+        // route (throttle:3,10) limite l'abus ; le log couvre l'observabilité.
+        if ($status !== Password::RESET_LINK_SENT) {
+            \Illuminate\Support\Facades\Log::info('Reset link non envoyé (adresse inconnue ou throttled)', ['status' => $status]);
+        }
+
+        return back()->with('success', "Si un compte est associé à cette adresse, un lien de réinitialisation vient d'être envoyé.");
     }
 
     public function showResetForm(Request $request, string $token)
