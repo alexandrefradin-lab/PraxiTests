@@ -1,9 +1,19 @@
 # Reste à faire — état au 27/07 au soir (pour le matin du 28)
 
-> **⚠️ Blocage de coordination :** une **2ᵉ session** travaille dans le même dossier (Phase 2 `User`).
-> Tant qu'elle est active, aucune opération git lourde ne peut être faite en sécurité sans risque de
-> collision (cf. incidents du 27/07 : revert PraxiCog, branche basculée, PR ratée).
-> **Règle : une seule session pilote git/prod à la fois.**
+## ✅✅ MISE À JOUR nuit 27→28 — traité en autonomie (l'autre session étant arrêtée)
+Mergé sur `main`, **CI verte à chaque fois, vérifié en 3 passes** :
+- **#14** — migration `profile_shares` renommée `2026_04_27_000013` (ordre des FK корrect). → **point 1 ci-dessous FAIT** *(reste juste la manip prod de la table `migrations` au prochain déploiement, cf. point 1)*.
+- **#15** — hygiène dépôt : 236 fichiers legacy/debug dé-trackés + `.gitignore` verrouillé. → **point 3 FAIT.**
+- **#16** — tokens sémantiques `--pt-danger/success/info/warning/indigo` définis dans `app.css`. → **point 4 (partiel) FAIT** ; reste à retirer les blocs de tokens en dur dans `AttemptPlay.vue`/`ResultsShow.vue` (visuel, voir point 4). ⚠️ **Vérifier le rendu des pages de résultat plugins après déploiement.**
+- Vérifié aussi : mes fixes 2FA/last_login/anti-énumération ont **survécu** au refactor `User` concurrent (`forceFill` intact dans les concerns).
+
+**Reste NON traité cette nuit (volontairement — risque à l'aveugle) :** point 2 (Schwartz, décision), fin du point 4 (blocs Vue), point 5 (ARC-M1), point 6 (tests scoring + CI MySQL), ⚪ faible priorité. Détails ci-dessous.
+
+---
+
+> **⚠️ Blocage de coordination (historique) :** une **2ᵉ session** a travaillé dans le même dossier (refactor `User`).
+> Les incidents du 27/07 (revert PraxiCog, branche basculée, PR ratée) en venaient.
+> **Règle pérenne : une seule session pilote git/prod à la fois.**
 
 ---
 
