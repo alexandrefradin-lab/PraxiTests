@@ -80,19 +80,21 @@ it('hasTwoFactorEnabled() reflète la présence du secret', function () {
     $user = User::factory()->create();
     expect($user->hasTwoFactorEnabled())->toBeFalse();
 
-    $user->updateQuietly(['two_factor_secret' => 'JBSWY3DPEHPK3PXP']);
+    // forceFill : two_factor_secret est volontairement hors $fillable (anti
+    // mass-assignment), donc updateQuietly()/fill() l'ignorerait silencieusement.
+    $user->forceFill(['two_factor_secret' => 'JBSWY3DPEHPK3PXP'])->saveQuietly();
     expect($user->fresh()->hasTwoFactorEnabled())->toBeTrue();
 });
 
 it('useRecoveryCode() consomme un code valide (usage unique, insensible à la casse/espaces)', function () {
     $user = User::factory()->create();
-    // Les codes sont stockés hachés SHA-256 (SEC-M3).
-    $user->updateQuietly([
+    // Les codes sont stockés hachés SHA-256 (SEC-M3). forceFill : champ hors $fillable.
+    $user->forceFill([
         'two_factor_recovery_codes' => [
             hash('sha256', 'ABCD-1234'),
             hash('sha256', 'WXYZ-9876'),
         ],
-    ]);
+    ])->saveQuietly();
 
     // Code valide soumis en minuscules + espaces → normalisé, accepté et consommé.
     expect($user->useRecoveryCode('  abcd-1234  '))->toBeTrue();
@@ -107,7 +109,7 @@ it('useRecoveryCode() consomme un code valide (usage unique, insensible à la ca
 
 it('useRecoveryCode() rejette un code inconnu', function () {
     $user = User::factory()->create();
-    $user->updateQuietly(['two_factor_recovery_codes' => [hash('sha256', 'ABCD-1234')]]);
+    $user->forceFill(['two_factor_recovery_codes' => [hash('sha256', 'ABCD-1234')]])->saveQuietly();
 
     expect($user->useRecoveryCode('0000-0000'))->toBeFalse();
     // Aucun code n'a été consommé.
@@ -134,7 +136,9 @@ it('interdit le mass-assignment des champs sensibles', function () {
 
 it('masque les champs sensibles dans la sérialisation', function () {
     $user  = User::factory()->create();
-    $user->updateQuietly(['two_factor_secret' => 'JBSWY3DPEHPK3PXP']);
+    // forceFill : two_factor_secret est volontairement hors $fillable (anti
+    // mass-assignment), donc updateQuietly()/fill() l'ignorerait silencieusement.
+    $user->forceFill(['two_factor_secret' => 'JBSWY3DPEHPK3PXP'])->saveQuietly();
     $array = $user->fresh()->toArray();
 
     expect($array)->not->toHaveKey('password')
