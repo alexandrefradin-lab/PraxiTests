@@ -2,7 +2,7 @@
 
 ## ✅✅ MISE À JOUR nuit 27→28 — traité en autonomie (l'autre session étant arrêtée)
 Mergé sur `main`, **CI verte à chaque fois, vérifié en 3 passes** :
-- **#14** — migration `profile_shares` renommée `2026_04_27_000013` (ordre des FK корrect). → **point 1 ci-dessous FAIT** *(reste juste la manip prod de la table `migrations` au prochain déploiement, cf. point 1)*.
+- **#14 + #17** — migration `profile_shares` renommée `2026_04_27_000013` (ordre des FK correct) **ET rendue idempotente** (`if hasTable return`). → **point 1 ci-dessous ENTIÈREMENT FAIT** : le déploiement est sûr tout seul, **aucune manip manuelle de la table `migrations`** requise. Fresh install corrigé.
 - **#15** — hygiène dépôt : 236 fichiers legacy/debug dé-trackés + `.gitignore` verrouillé. → **point 3 FAIT.**
 - **#16** — tokens sémantiques `--pt-danger/success/info/warning/indigo` définis dans `app.css`. → **point 4 (partiel) FAIT** ; reste à retirer les blocs de tokens en dur dans `AttemptPlay.vue`/`ResultsShow.vue` (visuel, voir point 4). ⚠️ **Vérifier le rendu des pages de résultat plugins après déploiement.**
 - Vérifié aussi : mes fixes 2FA/last_login/anti-énumération ont **survécu** au refactor `User` concurrent (`forceFill` intact dans les concerns).
