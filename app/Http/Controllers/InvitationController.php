@@ -218,7 +218,7 @@ class InvitationController extends Controller
         $user = auth()->user();
         $professionalAccountId = $user->hasRole('admin')
             ? null
-            : $user->professionalAccounts()->value('professional_accounts.id');
+            : $user->firstProfessionalAccountId();
 
         // UNE invitation (un seul email, un seul lien) pour l'ensemble des
         // épreuves cochées. test_id = première épreuve (compat schéma et suivi

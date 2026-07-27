@@ -33,4 +33,14 @@ trait BelongsToProfessionalAccounts
             ->map(fn ($id) => (int) $id)
             ->all();
     }
+
+    /**
+     * Premier compte professionnel de l'utilisateur, ou null s'il n'en a aucun.
+     * Rattachement tenant des écritures (invitations, campagnes) : les deux
+     * contrôleurs doivent lire le MÊME compte pour un même utilisateur.
+     */
+    public function firstProfessionalAccountId(): ?int
+    {
+        return $this->professionalAccountIds()[0] ?? null;
+    }
 }
