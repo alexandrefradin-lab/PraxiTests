@@ -17,13 +17,13 @@ class QuestionsSeeder extends Seeder
             ['slug' => 'praxicog'],
             [
                 'name'              => 'PraxiCog — Raisonnement & aptitude cognitive',
-                'description'       => "Un parcours chronométré de 40 énigmes réparties sur quatre familles de "
+                'description'       => "Un parcours chronométré de 48 énigmes réparties sur quatre familles de "
                                      . "raisonnement : logique, verbal, numérique et spatial. À l'arrivée, un profil "
                                      . "de vos aptitudes et vos points d'appui. Test indicatif — ce n'est pas une "
                                      . "mesure de QI.",
                 'type'              => 'questionnaire',
                 'scoring_engine'    => 'praxicog-scoring',
-                'estimated_minutes' => 25,
+                'estimated_minutes' => 30,
                 'published'         => true,
                 'public'            => false,
             ]

@@ -20,7 +20,10 @@ use Illuminate\Support\Facades\DB;
  *
  * Option B — Pas de normes publiées : laisser mean et std_dev à null.
  *   → NormInterpreter affichera les scores bruts sans étalonnage.
- *   → Dès 50 passations, RecomputeNormsJob calculera les normes automatiquement.
+ *   → Dès 50 passations, le recalcul hebdomadaire (NormInterpreter::recomputeAll)
+ *     écrit des normes plateforme (origin='platform') qui coexistent avec
+ *     celles-ci (origin='reference') — jamais d'écrasement. La chaîne de
+ *     résolution de NormInterpreter choisit la meilleure à la lecture.
  *
  * Unités :
  *   Le ScoringEngine retourne raw_scores en moyenne 1-4.
