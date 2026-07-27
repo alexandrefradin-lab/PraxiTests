@@ -6,19 +6,19 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Normes de référence pour l'étalonnage des tests PraxiQuest.
+ * Barèmes de référence PROVISOIRES pour l'étalonnage des tests PraxiQuest.
  *
- * Sources :
- *   RIASEC  — Holland (1985) + INETOP (2015) + Guédon (2000),
- *             population active française, N ≈ 2 400
- *   EQi     — Adapté Bar-On (2002) + validation française,
- *             population active, N ≈ 1 800
- *   Schwartz — European Social Survey Wave 9, France, N ≈ 2 025
- *   BigFive — Rolland (2004) + NEO-PI-R France,
- *             T-score par définition mean=50 sd=10, N ≈ 3 000
+ * ⚠️ HONNÊTETÉ MÉTHODOLOGIQUE : ce sont des ESTIMATIONS INTERNES, non étalonnées
+ * sur un échantillon de référence documenté. Les tests s'appuient sur des modèles
+ * reconnus (RIASEC, intelligence émotionnelle, valeurs de Schwartz, Big Five/OCEAN),
+ * mais ce sont des adaptations maison : les normes publiées de ces modèles ne sont
+ * pas directement transférables et ne sont donc PAS reprises ici. `n_responses`
+ * vaut 0 (aucun échantillon empirique de référence).
  *
- * Ces normes sont remplacées automatiquement par RecomputeNormsJob
- * dès que la plateforme atteint ≥ 50 passations par test.
+ * Ces barèmes provisoires sont destinés à être remplacés par les vraies normes
+ * plateforme (RecomputeNormsJob) dès que l'échantillon réel est suffisant.
+ * Côté candidat, la restitution n'affiche que des labels qualitatifs (jamais de
+ * percentile chiffré ni de citation) — cf. NormInterpreter (« règle d'or »).
  */
 class TestNormsSeeder extends Seeder
 {
@@ -29,25 +29,25 @@ class TestNormsSeeder extends Seeder
 
         // ── RIASEC (PraxiMet) ─────────────────────────────────────
         // Scores bruts : 0–14 par dimension (binaire Oui=1 / Non=0 × 14 questions)
-        // Source : INETOP 2015 + Holland 1985
+        // Barème provisoire (modèle RIASEC) — estimation interne, non étalonnée
         $riasec = [
-            'R' => ['mean' => 5.5,  'sd' => 3.5, 'n' => 2400], // Réaliste     — manuel, technique
-            'I' => ['mean' => 6.5,  'sd' => 3.3, 'n' => 2400], // Investigateur — analytique
-            'A' => ['mean' => 4.8,  'sd' => 3.6, 'n' => 2400], // Artistique   — créatif
-            'S' => ['mean' => 7.4,  'sd' => 2.9, 'n' => 2400], // Social       — aide / enseignement
-            'E' => ['mean' => 6.5,  'sd' => 3.4, 'n' => 2400], // Entreprenant — leadership
-            'C' => ['mean' => 6.0,  'sd' => 3.1, 'n' => 2400], // Conventionnel — organisation
+            'R' => ['mean' => 5.5,  'sd' => 3.5, 'n' => 0], // Réaliste     — manuel, technique
+            'I' => ['mean' => 6.5,  'sd' => 3.3, 'n' => 0], // Investigateur — analytique
+            'A' => ['mean' => 4.8,  'sd' => 3.6, 'n' => 0], // Artistique   — créatif
+            'S' => ['mean' => 7.4,  'sd' => 2.9, 'n' => 0], // Social       — aide / enseignement
+            'E' => ['mean' => 6.5,  'sd' => 3.4, 'n' => 0], // Entreprenant — leadership
+            'C' => ['mean' => 6.0,  'sd' => 3.1, 'n' => 0], // Conventionnel — organisation
         ];
         foreach ($riasec as $dim => [$mean, $sd, $n]) {
             $rows[] = ['test_slug' => 'praximet-riasec', 'dimension' => $dim,
                 'mean' => $mean, 'std_dev' => $sd, 'n_responses' => $n, 'group_key' => 'all',
-                'source' => 'Holland (1985) · INETOP (2015) · pop. active FR, N≈2400',
+                'source' => 'Barème indicatif provisoire — modèle RIASEC, estimation interne non étalonnée',
                 'computed_at' => null, 'created_at' => $now, 'updated_at' => $now];
         }
 
         // ── EQi — Intelligence émotionnelle (PraxiEmo) ───────────
         // Scores bruts : 5–20 par dimension (5 questions × échelle 1–4)
-        // Source : Bar-On (2002) adapté France, N ≈ 1 800
+        // Barème provisoire (modèle d'intelligence émotionnelle) — estimation interne, non étalonnée
         // Les clés numériques correspondent aux ids de Dimensions::dimensions()
         $eqi = [
              1  => ['mean' => 13.2, 'sd' => 2.6], // Connaissance de soi
@@ -69,14 +69,14 @@ class TestNormsSeeder extends Seeder
         ];
         foreach ($eqi as $dimId => $norm) {
             $rows[] = ['test_slug' => 'praxiemo-eqi', 'dimension' => (string) $dimId,
-                'mean' => $norm['mean'], 'std_dev' => $norm['sd'], 'n_responses' => 1800, 'group_key' => 'all',
-                'source' => 'Bar-On (2002) adapté France · N≈1800',
+                'mean' => $norm['mean'], 'std_dev' => $norm['sd'], 'n_responses' => 0, 'group_key' => 'all',
+                'source' => 'Barème indicatif provisoire — modèle intelligence émotionnelle, estimation interne non étalonnée',
                 'computed_at' => null, 'created_at' => $now, 'updated_at' => $now];
         }
 
         // ── Valeurs Schwartz (PraxiValeurs) ───────────────────────
         // Scores normalisés : 0–100 par dimension (Likert 1–6 → 0–100)
-        // Source : European Social Survey Wave 9, France, N ≈ 2 025
+        // Barème provisoire (valeurs de Schwartz) — estimation interne, non étalonnée
         $schwartz = [
             'autonomie'   => ['mean' => 72, 'sd' => 17], // Indépendance, liberté
             'stimulation' => ['mean' => 55, 'sd' => 21], // Nouveauté, défi
@@ -91,8 +91,8 @@ class TestNormsSeeder extends Seeder
         ];
         foreach ($schwartz as $dim => $norm) {
             $rows[] = ['test_slug' => 'praxivaleurs-schwartz', 'dimension' => $dim,
-                'mean' => $norm['mean'], 'std_dev' => $norm['sd'], 'n_responses' => 2025, 'group_key' => 'all',
-                'source' => 'European Social Survey Wave 9 France · N≈2025',
+                'mean' => $norm['mean'], 'std_dev' => $norm['sd'], 'n_responses' => 0, 'group_key' => 'all',
+                'source' => 'Barème indicatif provisoire — valeurs de Schwartz, estimation interne non étalonnée',
                 'computed_at' => null, 'created_at' => $now, 'updated_at' => $now];
         }
 
@@ -101,12 +101,12 @@ class TestNormsSeeder extends Seeder
         // On stocke ici les normes des 5 dimensions agrégées (moyennes T des facettes)
         // pour avoir un accès uniforme via NormInterpreter::enrich() si besoin.
         // NormInterpreter::fromTScore() est utilisé directement dans le scoring engine.
-        // Source : Rolland (2004) + NEO-PI-R France, N ≈ 3 000
+        // T-score standard (mean=50, sd=10 par définition) — barème provisoire, non étalonné
         $bigfive_dims = ['O', 'C', 'E', 'A', 'N'];
         foreach ($bigfive_dims as $dim) {
             $rows[] = ['test_slug' => 'praximum-bigfive', 'dimension' => $dim,
-                'mean' => 50.0, 'std_dev' => 10.0, 'n_responses' => 3000, 'group_key' => 'all',
-                'source' => 'Rolland (2004) · NEO-PI-R France · T-score par définition mean=50 sd=10',
+                'mean' => 50.0, 'std_dev' => 10.0, 'n_responses' => 0, 'group_key' => 'all',
+                'source' => 'T-score standard (mean=50 sd=10) — barème indicatif provisoire, estimation interne non étalonnée',
                 'computed_at' => null, 'created_at' => $now, 'updated_at' => $now];
         }
 
