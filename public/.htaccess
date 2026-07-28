@@ -5,11 +5,14 @@
 
     RewriteEngine On
 
-    # Domaine canonique : praxiquest.fr -> www.praxiquest.fr (301).
+    # Domaine canonique : praxiquest.fr -> www.praxiquest.fr (308).
     # Un seul hote evite les doubles sessions (cookie par domaine), les
     # navigations Inertia cross-origin et le contenu duplique cote SEO.
+    # 308 (et pas 301) : un 301 transforme les POST rejoues en GET -> un login
+    # soumis vers l'hote sans www rechargeait la page sans message d'erreur
+    # (constate le 28/07/2026, pages en cache d'avant la bascule de domaine).
     RewriteCond %{HTTP_HOST} ^praxiquest\.fr$ [NC]
-    RewriteRule ^ https://www.praxiquest.fr%{REQUEST_URI} [L,R=301]
+    RewriteRule ^ https://www.praxiquest.fr%{REQUEST_URI} [L,R=308]
 
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
