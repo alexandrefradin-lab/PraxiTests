@@ -136,9 +136,19 @@ const currentSection = computed(() =>
                         </template>
                     </nav>
                 </slot>
-                <a href="/" target="_blank" rel="noopener" class="ml-auto text-sm hover:underline" style="color:var(--color-primary)">
-                    Voir le site ↗
-                </a>
+                <!-- Accès rapides : Tests + Console ventes (superadmin), même règle
+                     d'affichage que la sidebar — la sécurité reste côté middleware. -->
+                <div class="ml-auto flex items-center gap-4">
+                    <Link v-if="isAdmin" href="/admin/tests" class="text-sm hover:underline" style="color:var(--color-primary)">
+                        Tests
+                    </Link>
+                    <Link v-if="isAdmin" href="/admin/sales" class="text-sm hover:underline" style="color:var(--color-primary)">
+                        Console ventes
+                    </Link>
+                    <a href="/" target="_blank" rel="noopener" class="text-sm hover:underline" style="color:var(--color-primary)">
+                        Voir le site ↗
+                    </a>
+                </div>
             </header>
 
             <!-- Page content -->
