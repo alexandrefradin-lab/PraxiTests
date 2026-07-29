@@ -136,10 +136,11 @@ const currentSection = computed(() =>
                         </template>
                     </nav>
                 </slot>
-                <!-- Accès rapides : Tests + Console ventes (superadmin), même règle
-                     d'affichage que la sidebar — la sécurité reste côté middleware. -->
+                <!-- Accès rapides : espace épreuves/grimoire du compte connecté (/tests,
+                     ouvert à tout utilisateur vérifié) + Console ventes (superadmin,
+                     même règle d'affichage que la sidebar — sécurité côté middleware). -->
                 <div class="ml-auto flex items-center gap-4">
-                    <Link v-if="isAdmin" href="/admin/tests" class="text-sm hover:underline" style="color:var(--color-primary)">
+                    <Link href="/tests" class="text-sm hover:underline" style="color:var(--color-primary)">
                         Tests
                     </Link>
                     <Link v-if="isAdmin" href="/admin/sales" class="text-sm hover:underline" style="color:var(--color-primary)">
