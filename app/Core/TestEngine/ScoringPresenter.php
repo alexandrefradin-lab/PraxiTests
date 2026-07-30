@@ -147,7 +147,7 @@ class ScoringPresenter
             $bars[] = [
                 'name'  => self::labelFor($id, $meta),
                 'pct'   => $pct,
-                'level' => $norm[$id]['label'] ?? null,
+                'level' => self::levelLabel($norm[$id]['label'] ?? null),
                 'raw'   => null,
                 'max'   => null,
             ];
@@ -165,7 +165,7 @@ class ScoringPresenter
             $bars[] = [
                 'name'  => $d['label'] ?? self::labelFor($id, $meta),
                 'pct'   => (int) round(max(0, min(100, (float) $d['pct']))),
-                'level' => $d['niveau'] ?? $d['label_niveau'] ?? null,
+                'level' => self::levelLabel($d['niveau'] ?? $d['label_niveau'] ?? null),
                 'raw'   => $d['brut'] ?? null,
                 'max'   => null,
             ];
@@ -184,7 +184,7 @@ class ScoringPresenter
             $bars[] = [
                 'name'  => self::labelFor($id, $meta),
                 'pct'   => (int) round(max(0, min(100, (float) $pct))),
-                'level' => is_array($d) ? ($d['label'] ?? null) : null,
+                'level' => self::levelLabel(is_array($d) ? ($d['label'] ?? null) : null),
                 'raw'   => is_array($d) ? ($d['score'] ?? null) : null,
                 'max'   => null,
             ];
@@ -254,7 +254,7 @@ class ScoringPresenter
             ] as [$lbl, $vKey, $mKey, $sevKey]) {
                 if (isset($m[$vKey])) {
                     $it = self::ratioItem($lbl, $m[$vKey], $m[$mKey] ?? null);
-                    $it['level'] = $m[$sevKey] ?? null;
+                    $it['level'] = self::levelLabel($m[$sevKey] ?? null);
                     $items[] = $it;
                 }
             }
@@ -282,6 +282,37 @@ class ScoringPresenter
     }
 
     /* ───────────────────────── Helpers ──────────────────────────────── */
+
+    /**
+     * Les moteurs de scoring renvoient des clés machine ('tres_haut') que le
+     * front Vue traduit — mais le PDF les affichait brutes (« TRES_HAUT »).
+     * Les libellés déjà humains passent inchangés.
+     */
+    private static function levelLabel(?string $level): ?string
+    {
+        if ($level === null || trim($level) === '') {
+            return null;
+        }
+        $map = [
+            'tres_bas'    => 'Très bas',
+            'bas'         => 'Bas',
+            'moyen'       => 'Moyen',
+            'haut'        => 'Haut',
+            'tres_haut'   => 'Très haut',
+            'tres_faible' => 'Très faible',
+            'faible'      => 'Faible',
+            'modere'      => 'Modéré',
+            'eleve'       => 'Élevé',
+            'tres_eleve'  => 'Très élevé',
+        ];
+        $key = strtolower(trim($level));
+        if (isset($map[$key])) {
+            return $map[$key];
+        }
+        return str_contains($level, '_')
+            ? ucfirst(str_replace('_', ' ', strtolower($level)))
+            : $level;
+    }
 
     private static function meta(array $s): array
     {

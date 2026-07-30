@@ -134,6 +134,14 @@
         if ($md === null || trim($md) === '') return '';
         $md = str_replace(["\r\n", "\r"], "\n", trim($md));
 
+        /* L'IA glisse parfois des emoji dans ses titres (« 🎭 L'Explorateur… ») :
+           Lora/Lato n'ont pas ces glyphes et dompdf les rend en tofu (▯).
+           On les retire avant conversion — plans emoji, symboles divers,
+           sélecteurs de variante et ZWJ. Les flèches (U+2190-21FF) sont
+           conservées. */
+        $md = preg_replace('/[\x{1F000}-\x{1FAFF}\x{2600}-\x{27BF}\x{2B00}-\x{2BFF}\x{FE00}-\x{FE0F}\x{200D}\x{20E3}]/u', '', $md) ?? $md;
+        $md = preg_replace('/[ \t]{2,}/', ' ', $md) ?? $md;
+
         // Mise en forme inline, appliquée APRÈS échappement (anti-injection).
         $inline = function (string $text): string {
             $t = e($text);
@@ -742,20 +750,27 @@
      ═══════════════════════════════════════════════════════ --}}
 @if($sections['dimensions'] && count($dimensions))
 <div class="px sec">
-    <div class="kicker">{{ $roman(++$chapN) }}. Profil dimensionnel</div>
-    <table class="s-rule"><tr><td class="g"></td><td class="h"></td></tr></table>
+    {{-- Titre solidaire du radar : sans ce wrapper, le kicker restait
+         orphelin en bas de page pendant que la toile basculait page
+         suivante (constaté sur rapport ASRS). --}}
+    <div class="avoid-break">
+        <div class="kicker">{{ $roman(++$chapN) }}. Profil dimensionnel</div>
+        <table class="s-rule"><tr><td class="g"></td><td class="h"></td></tr></table>
 
+        @if($radarUri)
+        <table class="t100">
+            <tr>
+                <td style="text-align:center; padding:0 0 20px;">
+                    {{-- Toile rendue en 480px : affichée à 440px, les libellés
+                         restent à l'échelle des petites capitales du document. --}}
+                    <img src="{{ $radarUri }}" style="width:440px; height:auto;">
+                    <div class="fig-cap">Score par dimension, sur 100</div>
+                </td>
+            </tr>
+        </table>
+        @endif
+    </div>
     @if($radarUri)
-    <table class="t100">
-        <tr>
-            <td class="avoid-break" style="text-align:center; padding:0 0 20px;">
-                {{-- Toile rendue en 480px : affichée à 440px, les libellés
-                     restent à l'échelle des petites capitales du document. --}}
-                <img src="{{ $radarUri }}" style="width:440px; height:auto;">
-                <div class="fig-cap">Score par dimension, sur 100</div>
-            </td>
-        </tr>
-    </table>
     <div class="sub-title">D&eacute;tail par dimension</div>
     @endif
 

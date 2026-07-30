@@ -144,14 +144,34 @@ class ChartRenderer
                 self::disc($im, $dx, $dy, 3.8 * $ss, $dot, $dotE);
             }
 
-            // Labels d'axes — offset 20*$ss pour éviter la troncature
+            /* Labels d'axes. Deux protections contre la troncature constatée
+               sur les libellés français longs (« Dysrégulation émotionnelle »
+               coupé au bord quand n=3, axes quasi horizontaux) :
+               1. repli sur plusieurs lignes au-delà d'un budget de largeur ;
+               2. rappel de chaque ligne dans les limites du canvas. */
+            $labelSize = $fs * 0.92;
+            $lineH     = 12 * $ss;
+            $pad       = 6 * $ss;
             foreach ($pts as $p) {
                 $lx = $cx + $p['cos'] * ($R + 20 * $ss);
                 $ly = $cy + $p['sin'] * ($R + 20 * $ss);
                 $anchor = $p['cos'] > 0.30 ? 'start' : ($p['cos'] < -0.30 ? 'end' : 'mid');
-                self::text($im, $font, $fs * 0.92, $lx, $ly - 4 * $ss, $p['label'], $txt, $anchor);
-                self::text($im, $font, $fs * 0.80, $lx, $ly + 9 * $ss,
-                    (string) round($p['value']), $val, $anchor);
+                $lines  = self::wrapLabel($font, $labelSize, $p['label'], (int) round(120 * $ss));
+
+                // Sommet (axe du haut) : on empile vers le haut pour que la
+                // valeur garde sa place entre le libellé et le graphe.
+                $firstY = $p['sin'] < -0.30
+                    ? $ly - 4 * $ss - (count($lines) - 1) * $lineH
+                    : $ly - 4 * $ss;
+                foreach ($lines as $i => $lineTxt) {
+                    self::text($im, $font, $labelSize,
+                        self::clampX($anchor, $lx, self::textWidth($font, $labelSize, $lineTxt), $cw, $pad),
+                        $firstY + $i * $lineH, $lineTxt, $txt, $anchor);
+                }
+                $lastY = $firstY + (count($lines) - 1) * $lineH;
+                self::text($im, $font, $fs * 0.80,
+                    self::clampX($anchor, $lx, self::textWidth($font, $fs * 0.80, (string) round($p['value'])), $cw, $pad),
+                    $lastY + 13 * $ss, (string) round($p['value']), $val, $anchor);
             }
 
             return self::down($im, $W, $H);
@@ -346,6 +366,57 @@ class ChartRenderer
         $d = (int) round($r * 2);
         imagefilledellipse($im, (int) round($x), (int) round($y), $d + 4, $d + 4, $edge);
         imagefilledellipse($im, (int) round($x), (int) round($y), $d, $d, $fill);
+    }
+
+    /** Largeur rendue d'un texte, en pixels canvas. */
+    private static function textWidth(?string $font, float $size, string $text): float
+    {
+        if (! $font || $text === '') {
+            return 0.0;
+        }
+        $bbox = imagettfbbox($size, 0, $font, $text);
+
+        return abs($bbox[2] - $bbox[0]);
+    }
+
+    /** Repli glouton d'un libellé sur plusieurs lignes sous un budget de largeur. */
+    private static function wrapLabel(?string $font, float $size, string $label, int $maxW): array
+    {
+        if (! $font || self::textWidth($font, $size, $label) <= $maxW) {
+            return [$label];
+        }
+        $lines = [];
+        $cur   = '';
+        foreach (preg_split('/\s+/', trim($label)) ?: [] as $word) {
+            $try = $cur === '' ? $word : $cur . ' ' . $word;
+            if ($cur !== '' && self::textWidth($font, $size, $try) > $maxW) {
+                $lines[] = $cur;
+                $cur = $word;
+            } else {
+                $cur = $try;
+            }
+        }
+        if ($cur !== '') {
+            $lines[] = $cur;
+        }
+
+        return $lines ?: [$label];
+    }
+
+    /**
+     * Ramène l'ancre X dans le canvas pour que le texte ne soit jamais coupé
+     * par le bord, quel que soit l'ancrage.
+     */
+    private static function clampX(string $anchor, float $x, float $w, int $cw, float $pad): float
+    {
+        if ($anchor === 'start') {
+            return min($x, $cw - $pad - $w);
+        }
+        if ($anchor === 'end') {
+            return max($x, $pad + $w);
+        }
+        // mid : les deux moitiés doivent tenir.
+        return max($pad + $w / 2, min($x, $cw - $pad - $w / 2));
     }
 
     /** Texte ancré (start|mid|end), centré verticalement sur $y. */

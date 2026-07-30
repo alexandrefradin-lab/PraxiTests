@@ -146,9 +146,6 @@ const currentSection = computed(() =>
                     <Link v-if="isAdmin" href="/admin/sales" class="text-sm hover:underline" style="color:var(--color-primary)">
                         Console ventes
                     </Link>
-                    <a href="/" target="_blank" rel="noopener" class="text-sm hover:underline" style="color:var(--color-primary)">
-                        Voir le site ↗
-                    </a>
                 </div>
             </header>
 
