@@ -51,14 +51,21 @@ class GuetNotionProgress extends Model
     }
 
     /**
-     * Applique le résultat d'une carte : une réussite fait monter d'une boîte
-     * et repousse l'échéance, une erreur ramène en boîte 0.
+     * Applique le résultat d'une carte : une réussite fait monter d'une boîte,
+     * une erreur en fait redescendre d'une seule.
+     *
+     * La rétrogradation est volontairement douce. Remettre à zéro une notion
+     * réussie quatre fois d'affilée impose quatre nouvelles réussites pour
+     * revenir au point de départ : simulé sur les 24 notions à 85 % de
+     * réussite, cela porte l'ancrage complet de 19 à 134 sessions et de 213 à
+     * 3 194 cartes, sans bénéfice pédagogique — l'oubli d'une notion mûre ne
+     * l'efface pas, il l'affaiblit.
      */
     public function grade(bool $correct, int $sessionsCount): void
     {
         $this->box = $correct
             ? min($this->box + 1, self::MAX_BOX)
-            : 0;
+            : max(0, $this->box - 1);
 
         $this->due_session = $sessionsCount + self::INTERVALS[$this->box];
     }
