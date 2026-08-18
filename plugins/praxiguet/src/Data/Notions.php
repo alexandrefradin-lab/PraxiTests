@@ -24,7 +24,7 @@ class Notions
                 'id'          => 'n01',
                 'level'       => 1,
                 'theme'       => 'multitache',
-                'explanation' => 'Le cerveau ne parallélise pas deux tâches à forte demande : il bascule de l\'une à l\'autre (<b>task-switching</b>). Chaque bascule a un coût, invisible mais cumulatif.',
+                'explanation' => 'Le cerveau ne mène pas deux tâches exigeantes de front : il <b>bascule</b> de l\'une à l\'autre, très vite. Chaque bascule coûte quelques secondes de remise en route — invisibles une à une, considérables mises bout à bout.',
                 'variants'    => [
                     ['Le cerveau humain sait traiter deux tâches cognitives exigeantes en parallèle.', false],
                     ['Faire deux choses exigeantes « en même temps », c\'est en réalité alterner très vite entre elles.', true],
@@ -50,7 +50,7 @@ class Notions
                 'theme'       => 'multitache',
                 'explanation' => 'Une sollicitation visible n\'a pas besoin d\'être suivie pour coûter : <b>y résister mobilise déjà des ressources</b>. Le coût n\'est pas dans l\'onglet, il est dans la décision répétée de ne pas y aller.',
                 'variants'    => [
-                    ['Garder quinze onglets ouverts est un signe de flexibilité, sans coût attentionnel.', false],
+                    ['Garder quinze onglets ouverts est un signe de flexibilité, et cela ne coûte rien à ton attention.', false],
                     ['Chaque onglet ouvert est une invitation permanente à basculer.', true],
                     ['Fermer les fenêtres inutiles avant de commencer allège la charge mentale.', true],
                     ['Tant qu\'on ne clique pas dessus, un onglet ouvert est neutre.', false],
@@ -63,7 +63,7 @@ class Notions
                 'explanation' => 'Le vagabondage mental est un <b>mode par défaut</b> du cerveau, utile à la consolidation et à la créativité. L\'objectif n\'est pas de le supprimer, mais de raccourcir le délai entre « je décroche » et « je reviens ».',
                 'variants'    => [
                     ['L\'esprit qui vagabonde est un défaut à éliminer complètement.', false],
-                    ['Remarquer qu\'on a décroché, puis revenir : c\'est le cœur de l\'entraînement attentionnel.', true],
+                    ['Remarquer qu\'on a décroché, puis revenir : c\'est tout le cœur de l\'entraînement de l\'attention.', true],
                     ['Un esprit sain reste focalisé en continu pendant une heure, sans jamais dériver.', false],
                     ['Le vagabondage mental participe à la consolidation des souvenirs et à la créativité.', true],
                 ],
@@ -96,11 +96,11 @@ class Notions
                 'id'          => 'n07',
                 'level'       => 1,
                 'theme'       => 'mesure',
-                'explanation' => 'Le transfert vers des tâches réelles reste faible : on progresse surtout <b>sur l\'exercice entraîné</b>. Ce module t\'apprend des mécanismes et des habitudes ; il ne « muscle » pas ton attention comme un biceps.',
+                'explanation' => 'On devient meilleur au jeu, pas plus attentif dans la vie : les progrès se transfèrent mal d\'un exercice à une tâche réelle. Ce module t\'apprend des mécanismes et des habitudes ; il ne « muscle » pas ton attention comme un biceps.',
                 'variants'    => [
-                    ['Les programmes de « brain training » transfèrent largement leurs gains à la vie quotidienne.', false],
+                    ['Les applications d\'entraînement cérébral, celles qui promettent de muscler la mémoire, tiennent leur promesse dans la vraie vie.', false],
                     ['On progresse surtout sur l\'exercice qu\'on entraîne, assez peu au-delà.', true],
-                    ['S\'entraîner à repérer des formes à l\'écran améliore la concentration au bureau.', false],
+                    ['S\'entraîner chaque jour à repérer des formes sur un écran finit par améliorer la concentration au bureau.', false],
                     ['Comprendre les mécanismes de son attention est plus rentable que de muscler un exercice isolé.', true],
                 ],
             ],
@@ -145,7 +145,7 @@ class Notions
                 'id'          => 'n11',
                 'level'       => 3,
                 'theme'       => 'ecran',
-                'explanation' => 'L\'orientation vers un signal saillant est <b>réflexe</b> : elle précède la décision d\'y répondre. Supprimer le signal est plus fiable que lutter contre lui à chaque occurrence.',
+                'explanation' => 'Se tourner vers ce qui bouge, clignote ou sonne est un <b>réflexe</b> : ton attention y va avant que tu aies décidé quoi que ce soit. Supprimer le signal est donc plus fiable que lutter contre lui à chaque fois.',
                 'variants'    => [
                     ['Une notification ignorée ne coûte rien, puisqu\'on n\'y répond pas.', false],
                     ['Couper les notifications est plus efficace que d\'apprendre à les ignorer.', true],
@@ -181,7 +181,7 @@ class Notions
                 'id'          => 'n14',
                 'level'       => 3,
                 'theme'       => 'organisation',
-                'explanation' => 'La mémoire de travail est étroite. Ce qui est posé sur le papier n\'a plus à être maintenu mentalement — et chaque hésitation est une porte ouverte à la distraction.',
+                'explanation' => 'Ce que ton cerveau garde sous la main à un instant donné tient dans un tout petit espace. Ce qui est posé sur le papier n\'a plus à y être maintenu — et chaque hésitation est une porte ouverte à la distraction.',
                 'variants'    => [
                     ['Écrire ce qu\'on va faire juste avant de commencer réduit la charge mentale.', true],
                     ['Garder son plan en tête plutôt que de l\'écrire fait gagner du temps.', false],
@@ -195,7 +195,7 @@ class Notions
                 'theme'       => 'organisation',
                 'explanation' => 'Vingt-cinq minutes est une <b>convention pratique</b>, pas une constante biologique. Le principe utile : un bloc engagé, une pause franche, et on recommence.',
                 'variants'    => [
-                    ['La durée de 25 minutes du Pomodoro est un optimum démontré scientifiquement.', false],
+                    ['Les 25 minutes de la méthode Pomodoro, qui découpe le travail en blocs minutés, sont une durée optimale démontrée.', false],
                     ['Ce qui compte est l\'alternance effort / pause, pas la durée exacte du bloc.', true],
                     ['La bonne durée de bloc dépend de la tâche et de ta forme du jour.', true],
                     ['Modifier la durée de ses blocs, c\'est mal appliquer la méthode.', false],
@@ -266,7 +266,7 @@ class Notions
                 'id'          => 'n21',
                 'level'       => 5,
                 'theme'       => 'emotion',
-                'explanation' => 'L\'inquiétude tourne dans <b>la même mémoire de travail</b> que la tâche. La décharger — par écrit, ou en la traitant — rend de la place immédiatement.',
+                'explanation' => 'L\'inquiétude occupe <b>le même espace mental</b> que la tâche, et cet espace est étroit. La décharger — par écrit, ou en la traitant — rend de la place immédiatement.',
                 'variants'    => [
                     ['Se répéter « je n\'y arriverai jamais » occupe des ressources dont la tâche a besoin.', true],
                     ['Les ruminations sont sans effet sur la performance tant qu\'on reste devant sa tâche.', false],
