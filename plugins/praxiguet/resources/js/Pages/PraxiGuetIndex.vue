@@ -553,24 +553,29 @@ const figColor = (fig) => (fig.color === 'or' ? 'var(--color-primary)' : 'var(--
                 </div>
                 <p class="guet-hint">Glisse la carte · ou utilise ← et →</p>
 
-                <!-- règle expliquée après chaque carte de connaissance -->
-                <div v-if="fb" class="guet-fb ac-card" role="status" aria-live="polite">
-                    <h2 :class="fb.ok ? 'is-ok' : 'is-ko'">{{ fb.ok ? '✓ Exact' : '✕ Raté' }}</h2>
-                    <p>
-                        <b>{{ fb.item.answer ? 'VRAI.' : 'FAUX.' }}</b>
-                        <span v-html="vouvoyer(fb.item.explanation)"></span>
-                    </p>
-                    <button type="button" class="ac-btn-primary" @click="closeFeedback">Continuer</button>
-                </div>
+                <!-- Règle expliquée après chaque carte, et interstitiels.
+                     Téléportés dans <body> : en position fixe à l'intérieur du
+                     gabarit candidat, ils se retrouvaient sous ses barres (z-index
+                     jusqu'à 10000) ou repositionnés par un ancêtre transformé —
+                     invisibles sur mobile, donc plus moyen de continuer. -->
+                <Teleport to="body">
+                    <div v-if="fb" class="guet-fb ac-card" role="status" aria-live="polite">
+                        <h2 :class="fb.ok ? 'is-ok' : 'is-ko'">{{ fb.ok ? '✓ Exact' : '✕ Raté' }}</h2>
+                        <p>
+                            <b>{{ fb.item.answer ? 'VRAI.' : 'FAUX.' }}</b>
+                            <span v-html="vouvoyer(fb.item.explanation)"></span>
+                        </p>
+                        <button type="button" class="ac-btn-primary" @click="closeFeedback">Continuer</button>
+                    </div>
 
-                <!-- intro, inversion de consigne, question puissante -->
-                <div v-if="inter" class="guet-inter" :class="{ 'is-power': inter.power }">
-                    <span class="guet-inter-lab">{{ inter.lab }}</span>
-                    <span class="guet-inter-icon" aria-hidden="true">{{ inter.icon }}</span>
-                    <h2>{{ vouvoyer(inter.title) }}</h2>
-                    <p>{{ vouvoyer(inter.text) }}</p>
-                    <button type="button" class="ac-btn-primary" @click="closeInter">{{ inter.cta }}</button>
-                </div>
+                    <div v-if="inter" class="guet-inter" :class="{ 'is-power': inter.power }">
+                        <span class="guet-inter-lab">{{ inter.lab }}</span>
+                        <span class="guet-inter-icon" aria-hidden="true">{{ inter.icon }}</span>
+                        <h2>{{ vouvoyer(inter.title) }}</h2>
+                        <p>{{ vouvoyer(inter.text) }}</p>
+                        <button type="button" class="ac-btn-primary" @click="closeInter">{{ inter.cta }}</button>
+                    </div>
+                </Teleport>
             </section>
 
             <!-- ═══════════ RÉSULTAT ═══════════ -->
@@ -726,7 +731,7 @@ const figColor = (fig) => (fig.color === 'or' ? 'var(--color-primary)' : 'var(--
 
 .guet-fb {
     position: fixed; left: 50%; bottom: 0; transform: translateX(-50%);
-    width: min(560px, 100%); padding: 20px; border-radius: var(--r-xl) var(--r-xl) 0 0; z-index: 30;
+    width: min(560px, 100%); padding: 20px; border-radius: var(--r-xl) var(--r-xl) 0 0; z-index: 10050;
 }
 .guet-fb h2 { font-size: 16px; margin: 0 0 8px; }
 .guet-fb h2.is-ok { color: var(--color-success); }
@@ -736,7 +741,7 @@ const figColor = (fig) => (fig.color === 'or' ? 'var(--color-primary)' : 'var(--
 .guet-fb .ac-btn-primary { width: 100%; }
 
 .guet-inter {
-    position: fixed; inset: 0; z-index: 40; background: var(--bg-base);
+    position: fixed; inset: 0; z-index: 10051; background: var(--bg-base);
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     text-align: center; padding: 32px; gap: 10px;
 }
