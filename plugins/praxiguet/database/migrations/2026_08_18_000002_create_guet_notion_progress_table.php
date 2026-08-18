@@ -16,7 +16,7 @@ return new class extends Migration
             // c'est la notion qui s'ancre, la formulation change à chaque passage.
             $table->string('notion_id', 16);
 
-            // Boîte de Leitner 0..4. Une erreur renvoie en 0.
+            // Boîte de Leitner 0..4. Une erreur fait redescendre d'un cran.
             $table->unsignedTinyInteger('box')->default(0);
 
             // Session à partir de laquelle la notion redevient due.
