@@ -349,17 +349,36 @@ const finish = () => {
 
 /* ─── Glisser / clavier ─────────────────────────────────────────────────── */
 const cardEl = ref(null)
-let x0 = 0, down = false
+let x0 = 0, down = false, viaTouch = false
 
-const onDown = (e) => {
+const startDrag = (x) => {
     if (!run.value || run.value.locked) return
     down = true
-    x0 = e.clientX
-    e.currentTarget.setPointerCapture?.(e.pointerId)
+    x0 = x
+    run.value.drag = 0
+}
+const moveDrag = (x) => {
+    if (!down) return
+    run.value.drag = x - x0
+}
+
+/* Tactile : événements natifs, avec preventDefault sur le déplacement (le
+   modificateur .prevent du template). Les Pointer Events seuls ne suffisent
+   pas sur mobile — selon le navigateur, le geste peut être requalifié en
+   défilement et le pointeur annulé en cours de route. */
+const onTouchStart = (e) => { viaTouch = true; startDrag(e.touches[0].clientX) }
+const onTouchMove  = (e) => { if (down) moveDrag(e.touches[0].clientX) }
+
+/* Souris et stylet. Ignorés quand le geste vient du doigt : certains
+   navigateurs émettent les deux familles d'événements pour un même contact. */
+const onDown = (e) => {
+    if (viaTouch || e.pointerType === 'touch') return
+    startDrag(e.clientX)
+    try { e.currentTarget.setPointerCapture(e.pointerId) } catch (err) { /* pointeur déjà relâché */ }
 }
 const onMove = (e) => {
-    if (!down) return
-    run.value.drag = e.clientX - x0
+    if (viaTouch || e.pointerType === 'touch') return
+    moveDrag(e.clientX)
 }
 const onUp = () => {
     if (!down) return
@@ -496,6 +515,8 @@ const figColor = (fig) => (fig.color === 'or' ? 'var(--color-primary)' : 'var(--
 
                 <div class="guet-stage">
                     <article v-if="card" ref="cardEl" class="guet-card ac-card-ornate" :style="cardStyle"
+                             @touchstart.passive="onTouchStart" @touchmove.prevent="onTouchMove"
+                             @touchend="onUp" @touchcancel="onUp"
                              @pointerdown="onDown" @pointermove="onMove" @pointerup="onUp" @pointercancel="onUp">
                         <span v-if="card.review" class="guet-tag">Ancrage</span>
 
