@@ -621,7 +621,11 @@ const figColor = (fig) => (fig.color === 'or' ? 'var(--color-primary)' : 'var(--
 </template>
 
 <style scoped>
-.guet { max-width: 560px; margin: 0 auto; padding: 8px 0 40px; }
+/* overflow-x clip : la carte est ejectee a 520px hors du cadre. Sur un
+   ecran etroit cela creait un debordement horizontal qui decalait la vue,
+   et le panneau de reponse partait hors champ. clip plutot que hidden :
+   hidden ferait de ce bloc un conteneur de defilement. */
+.guet { max-width: 560px; margin: 0 auto; padding: 8px 0 40px; overflow-x: clip; }
 
 /* ── accueil ── */
 .guet-head h1 { font-size: 26px; margin: 2px 0 0; }
@@ -688,7 +692,7 @@ const figColor = (fig) => (fig.color === 'or' ? 'var(--color-primary)' : 'var(--
     padding: 9px 12px; margin: 0 0 14px; font-size: 13px; text-align: center; color: var(--text-secondary);
 }
 
-.guet-stage { flex: 1; display: grid; place-items: center; min-height: 300px; }
+.guet-stage { flex: 1; display: grid; place-items: center; min-height: 300px; overflow: hidden; }
 .guet-card {
     position: relative; width: 100%; max-width: 330px; min-height: 300px;
     border-radius: var(--r-lg); border: 1px solid var(--border-mid);
