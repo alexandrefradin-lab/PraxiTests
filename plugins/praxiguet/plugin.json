@@ -1,0 +1,24 @@
+{
+  "slug": "praxiguet",
+  "name": "La Tour de Guet",
+  "version": "1.0.0",
+  "author": "Praxis Accompagnement",
+  "type": "mini-app",
+  "description": "Un entraînement court et répété pour ancrer les mécanismes de l'attention. On répond en glissant la carte à droite ou à gauche : d'un côté les notions à ancrer, qui reviennent tant qu'elles ne sont pas acquises et toujours sous une autre formulation ; de l'autre des séries chronométrées où le geste lui-même devient l'exercice — repérer la cible, freiner le réflexe, tenir la consigne quand elle s'inverse. Six niveaux, du Novice au Maître de l'Ancrage.",
+  "namespace": "Praxis\\Plugins\\PraxiGuet",
+  "service_provider": "Praxis\\Plugins\\PraxiGuet\\PluginServiceProvider",
+  "permissions": [
+    "read:profiles"
+  ],
+  "requires": {
+    "praxiquest": ">=1.0.0",
+    "php": ">=8.2"
+  },
+  "reward": {
+    "threshold_eclats": 3300,
+    "teaser": "La Tour de Guet : des sessions de trois minutes pour ancrer ton attention. Les notions ratées reviennent, reformulées, jusqu'à ce qu'elles tiennent.",
+    "icon": "ti-binoculars",
+    "purpose": "Attention & inhibition",
+    "entry_route": "praxiguet.index"
+  }
+}
