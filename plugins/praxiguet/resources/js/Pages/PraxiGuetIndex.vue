@@ -449,7 +449,7 @@ const figColor = (fig) => (fig.color === 'or' ? 'var(--color-primary)' : 'var(--
 
                 <div class="guet-dash ac-card">
                     <div class="guet-ring">
-                        <svg width="88" height="88" aria-hidden="true">
+                        <svg viewBox="0 0 88 88" aria-hidden="true">
                             <circle cx="44" cy="44" r="38" fill="none" stroke="var(--bg-elevated)" stroke-width="7" />
                             <circle cx="44" cy="44" r="38" fill="none" stroke="var(--color-primary)" stroke-width="7"
                                     stroke-linecap="round" stroke-dasharray="238.8" :stroke-dashoffset="ringDash"
@@ -628,32 +628,59 @@ const figColor = (fig) => (fig.color === 'or' ? 'var(--color-primary)' : 'var(--
 .guet { max-width: 560px; margin: 0 auto; padding: 8px 0 40px; overflow-x: clip; }
 
 /* ── accueil ── */
-.guet-head h1 { font-size: 26px; margin: 2px 0 0; }
-.guet-lede { color: var(--text-secondary); font-size: 14px; margin: 8px 0 0; line-height: 1.6; }
+.guet-head h1 { font-size: 27px; margin: 3px 0 0; letter-spacing: -.02em; text-wrap: balance; }
+.guet-lede {
+    color: var(--text-secondary); font-size: 14.5px; margin: 9px 0 0; line-height: 1.65;
+    max-width: 58ch; text-wrap: pretty;
+}
 
-.guet-dash { display: flex; align-items: center; gap: 16px; padding: 16px; margin-top: 20px; }
+/* Tableau de bord : l'anneau et les quatre indicateurs forment un seul cadran.
+   Les filets separent les cellules — sans eux les valeurs courtes (« 13 »)
+   flottent dans le vide et la carte parait bancale. */
+.guet-dash { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 18px; padding: 14px 16px; margin-top: 22px; }
 .guet-ring { position: relative; width: 88px; height: 88px; flex: none; }
+.guet-ring svg { display: block; width: 100%; height: 100%; }
 .guet-ring-val {
-    position: absolute; inset: 0; display: grid; place-items: center; text-align: center;
-    font-family: var(--font-display); font-size: 20px; font-weight: 700;
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; line-height: 1;
+    font-family: var(--font-display); font-size: 21px; font-weight: 700; font-variant-numeric: tabular-nums;
 }
 .guet-ring-val small {
-    display: block; font-family: var(--font-data); font-size: 8px; letter-spacing: .1em;
-    text-transform: uppercase; color: var(--text-muted); margin-top: 1px; font-weight: 600;
+    font-family: var(--font-data); font-size: 8px; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--text-muted); margin-top: 4px; font-weight: 600;
 }
-.guet-kpis { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0; }
+.guet-kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin: 0; border-left: 1px solid var(--border-light); }
+.guet-kpis > div { padding: 9px 12px 9px 16px; min-width: 0; }
+.guet-kpis > div:nth-child(even) { border-left: 1px solid var(--border-light); }
+.guet-kpis > div:nth-child(n+3) { border-top: 1px solid var(--border-light); }
 .guet-kpis dt {
     font-family: var(--font-data); font-size: 9px; letter-spacing: .1em; text-transform: uppercase;
     color: var(--text-muted); font-weight: 600;
 }
-.guet-kpis dd { margin: 0; font-family: var(--font-display); font-size: 16px; font-weight: 700; }
+.guet-kpis dd {
+    margin: 2px 0 0; font-family: var(--font-display); font-size: 17px; font-weight: 700;
+    line-height: 1.25; font-variant-numeric: tabular-nums; text-wrap: balance;
+}
 
 .guet-recall {
+    display: flex; gap: 8px; align-items: baseline;
     margin: 14px 0 0; padding: 11px 14px; border-radius: var(--r-lg);
     background: rgba(166, 117, 32, .10); border: 1px solid var(--border-mid);
-    font-size: 13px; color: var(--text-secondary);
+    font-size: 13px; line-height: 1.5; color: var(--text-secondary);
 }
-.guet-recall i { color: var(--color-primary-dark); margin-right: 6px; }
+.guet-recall i { color: var(--color-primary-dark); flex: none; }
+
+/* Ecran etroit : l'anneau passe au-dessus, les indicateurs prennent
+   toute la largeur — sinon le rang (« Maitre de l'Ancrage ») se casse
+   sur trois lignes dans une colonne de 70 px. */
+@media (max-width: 430px) {
+    .guet-dash { grid-template-columns: 1fr; justify-items: center; gap: 12px; }
+    .guet-ring { width: 72px; height: 72px; }
+    .guet-ring-val { font-size: 19px; }
+    .guet-kpis { width: 100%; border-left: 0; border-top: 1px solid var(--border-light); }
+    .guet-kpis > div { padding: 9px 12px; }
+    .guet-kpis dd { font-size: 16px; }
+}
 
 .guet-levels { list-style: none; margin: 18px 0 0; padding: 0; display: flex; flex-direction: column; gap: 9px; }
 .guet-level {
