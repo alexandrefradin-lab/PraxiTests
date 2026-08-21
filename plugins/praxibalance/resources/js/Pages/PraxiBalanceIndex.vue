@@ -142,6 +142,7 @@ const startLevel = (level) => {
         boosts: 0,
         pending: null,
         last6: [],
+        missed: [],                   // taches mal triees, listees en fin de serie
         drag: 0,
         stamp: null,
     }
@@ -234,6 +235,7 @@ const answer = (dir) => {
 
     const item = r.queue[r.i]
     let ok
+    let expected = null      // sur une série : le tri qu'il fallait faire
 
     if (r.isKnowledge) {
         ok = dir === item.answer
@@ -256,7 +258,7 @@ const answer = (dir) => {
         // Apres bascule, le niveau 4 trie sur un autre critere — et non sur
         // l'inverse du precedent : urgent puis important, ce sont deux questions.
         const criteres = r.inverted ? (t.criteria_after ?? t.criteria) : t.criteria
-        const expected = matches(item.task, criteres)
+        expected = matches(item.task, criteres)
 
         ok = dir === expected
         if (dir !== null) {
@@ -279,9 +281,19 @@ const answer = (dir) => {
     r.stamp = { side: dir === null ? (Math.random() < 0.5) : dir, ok }
 
     if (r.isKnowledge) {
-        setTimeout(() => { fb.value = { ok, item } }, 220)
-    } else {
+        setTimeout(() => { fb.value = { kind: 'notion', ok, item } }, 220)
+    } else if (ok) {
+        // Tri juste : on enchaîne, le rythme est l'exercice.
         setTimeout(() => { r.i++; nextCard() }, 300)
+    } else {
+        // Tri faux : on s'arrête et on dit pourquoi. Sans cela le candidat
+        // enchaîne les erreurs sans jamais savoir ce qui était attendu — et
+        // c'est justement sur l'erreur qu'il y a quelque chose à apprendre.
+        const attendu = labels.value[expected ? 0 : 1]
+        r.missed.push({ text: item.task.text, expected: attendu, why: item.task.why })
+        setTimeout(() => {
+            fb.value = { kind: 'task', ok: false, task: item.task, expected: attendu }
+        }, 220)
     }
 }
 
@@ -345,7 +357,7 @@ const finish = () => {
     const passed = score >= r.level.pass
     const rt = r.rts.length ? Math.round(r.rts.reduce((a, b) => a + b, 0) / r.rts.length) : null
 
-    result.value = { level: r.level, score, passed, rt, bestCombo: r.bestCombo, errors: r.errors }
+    result.value = { level: r.level, score, passed, rt, bestCombo: r.bestCombo, errors: r.errors, missed: r.missed }
     view.value = 'result'
 
     saving.value = true
@@ -563,10 +575,22 @@ const goHome = () => {
                 <Teleport to="body">
                     <div v-if="fb" class="bal-fb ac-card" role="status" aria-live="polite">
                         <h2 :class="fb.ok ? 'is-ok' : 'is-ko'">{{ fb.ok ? '✓ Exact' : '✕ Raté' }}</h2>
-                        <p>
+
+                        <!-- carte de connaissance : la règle qui fonde la réponse -->
+                        <p v-if="fb.kind === 'notion'">
                             <b>{{ fb.item.answer ? 'VRAI.' : 'FAUX.' }}</b>
                             <span v-html="vouvoyer(fb.item.explanation)"></span>
                         </p>
+
+                        <!-- tri manqué : ce qu'il fallait répondre, et pourquoi -->
+                        <template v-else>
+                            <p class="bal-fb-task">« {{ vouvoyer(fb.task.text) }} »</p>
+                            <p>
+                                <b>C'était {{ fb.expected }}.</b>
+                                {{ vouvoyer(fb.task.why) }}
+                            </p>
+                        </template>
+
                         <button type="button" class="ac-btn-primary" @click="closeFeedback">Continuer</button>
                     </div>
 
@@ -611,6 +635,17 @@ const goHome = () => {
                     <div><dt>Erreurs</dt><dd>{{ result.errors }}</dd></div>
                 </dl>
 
+                <!-- Ce qui a ete mal trie, avec la raison : c est la partie utile
+                     d une serie ratee, et la seule qu on relit vraiment. -->
+                <section v-if="result.missed && result.missed.length" class="bal-recap">
+                    <h2>Ce qui a ete mal trie</h2>
+                    <ul>
+                        <li v-for="(m, k) in result.missed" :key="k">
+                            <p class="bal-recap-task">{{ vouvoyer(m.text) }}</p>
+                            <p class="bal-recap-why"><b>{{ m.expected }}</b> — {{ vouvoyer(m.why) }}</p>
+                        </li>
+                    </ul>
+                </section>
                 <p v-if="saving" class="bal-saving">Enregistrement de la progression…</p>
 
                 <div class="bal-result-actions">
@@ -816,6 +851,28 @@ const goHome = () => {
     color: var(--text-muted); font-weight: 600;
 }
 .bal-stats dd { margin: 2px 0 0; font-family: var(--font-display); font-size: 19px; font-weight: 700; }
+/* La tache rappelee dans le panneau : citee, donc en retrait typographique. */
+.bal-fb-task {
+    font-size: 13px; color: var(--text-muted); font-style: italic;
+    margin: 0 0 10px; line-height: 1.5;
+}
+
+/* Recapitulatif de fin de serie : ce qui a ete mal trie, et pourquoi. */
+.bal-recap { width: 100%; margin-top: 26px; text-align: left; }
+.bal-recap h2 {
+    font-family: var(--font-data); font-size: 10px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--text-muted); font-weight: 600;
+    margin: 0 0 10px;
+}
+.bal-recap ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.bal-recap li {
+    background: var(--bg-surface); border: 1px solid var(--border-light);
+    border-left: 3px solid var(--color-danger); border-radius: var(--r);
+    padding: 10px 12px;
+}
+.bal-recap-task { margin: 0; font-family: var(--font-display); font-size: 13.5px; line-height: 1.4; }
+.bal-recap-why  { margin: 5px 0 0; font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; }
+.bal-recap-why b { color: var(--color-danger); }
 .bal-saving { font-size: 12px; color: var(--text-muted); margin-top: 14px; }
 .bal-result-actions { margin-top: 22px; width: 100%; }
 .bal-result-actions .ac-btn-primary { width: 100%; }
