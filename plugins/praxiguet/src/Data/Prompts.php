@@ -58,6 +58,26 @@ class Prompts
                 'question' => 'Quelle est la plus petite action possible pour entrer dans la tâche que tu repousses ?',
                 'relance'  => 'Si elle prend plus de deux minutes, elle est encore trop grosse.',
             ],
+            'reprise' => [
+                'question' => 'Quand tu quittes une tâche, laisses-tu une porte ouverte, ou tu claques la porte ?',
+                'relance'  => 'Une phrase en suspens, trois mots griffonnés : le futur toi te remerciera.',
+            ],
+            'social' => [
+                'question' => 'Les gens qui t\'interrompent savent-ils quand tu es joignable ?',
+                'relance'  => 'S\'ils ne le savent pas, ils tentent leur chance au hasard. Et ils tombent toujours au mauvais moment.',
+            ],
+            'numerique' => [
+                'question' => 'Quelle application ouvres-tu sans y avoir pensé, plusieurs fois par jour ?',
+                'relance'  => 'Celle-là précisément : que se passerait-il si elle n\'était plus sur ton écran d\'accueil ?',
+            ],
+            'corps' => [
+                'question' => 'Depuis combien de temps es-tu assis ? Et depuis combien de temps n\'as-tu pas bu ?',
+                'relance'  => 'Deux réponses, deux leviers gratuits que tu peux actionner dans la minute.',
+            ],
+            'tunnel' => [
+                'question' => 'Quand es-tu entré dans le tunnel pour la dernière fois, au point de ne plus voir l\'heure passer ?',
+                'relance'  => 'Qu\'est-ce qui l\'avait rendu possible ce jour-là ? C\'est cette condition qu\'il faut recréer, pas l\'état lui-même.',
+            ],
         ];
     }
 

@@ -99,7 +99,7 @@ class Levels
                 'type'     => 'training',
                 'title'    => 'Attention soutenue',
                 'desc'     => 'Série chronométrée · double critère',
-                'rank'     => "Maître de l'Ancrage",
+                'rank'     => 'Gardien',
                 'training' => [
                     'count'        => 28,
                     'time_ms'      => 1300,
@@ -114,6 +114,13 @@ class Levels
                         'text'  => "Deux critères à tenir en même temps, sur une série plus longue. C'est la fin de série qui trahit la fatigue attentionnelle.",
                     ],
                 ],
+            ],
+            [
+                'id'    => 7,
+                'type'  => 'knowledge',
+                'title' => 'Le tunnel et les angles morts',
+                'desc'  => 'Travail profond, reprise, entourage, corps',
+                'rank'  => "Maître de l'Ancrage",
             ],
         ];
     }

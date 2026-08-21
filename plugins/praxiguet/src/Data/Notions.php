@@ -5,7 +5,7 @@ namespace Praxis\Plugins\PraxiGuet\Data;
 /**
  * La Tour de Guet — banque de notions.
  *
- * 24 notions x 4 formulations. La répétition espacée porte sur la NOTION,
+ * 34 notions x 4 formulations. La répétition espacée porte sur la NOTION,
  * jamais sur la phrase : à chaque réapparition, la notion revient sous une
  * formulation différente. Les formulations d une même notion n ont PAS toutes
  * la même réponse (tournure directe = vrai, tournure inversée = faux) — sans
@@ -310,10 +310,131 @@ class Notions
                     ['Définir précisément par où commencer relève du perfectionnisme inutile.', false],
                 ],
             ],
+            // ── Niveau 7 ──
+            [
+                'id'          => 'n25',
+                'level'       => 7,
+                'theme'       => 'reprise',
+                'explanation' => 'Reprendre coûte cher parce qu\'il faut reconstruire le contexte. Laisser un <b>point d\'accroche visible</b> — une phrase en suspens, trois mots sur un papier — t\'évite d\'avoir à le reconstruire.',
+                'variants'    => [
+                    ['Quitter sa tâche en laissant une phrase inachevée aide à repartir plus vite.', true],
+                    ['Mieux vaut terminer proprement sa phrase avant de s\'interrompre, pour repartir au propre.', false],
+                    ['Noter en trois mots où tu en étais avant de partir raccourcit la reprise.', true],
+                    ['Le temps passé à préparer sa reprise est du temps perdu.', false],
+                ],
+            ],
+            [
+                'id'          => 'n26',
+                'level'       => 7,
+                'theme'       => 'reprise',
+                'explanation' => 'Une bonne part des ruptures vient de <b>soi</b> : une pensée qui passe, un réflexe de vérification. Elles coûtent autant que les autres — et ce sont les seules sur lesquelles tu as prise immédiatement.',
+                'variants'    => [
+                    ['S\'interrompre soi-même coûte moins cher que d\'être interrompu par quelqu\'un d\'autre.', false],
+                    ['Une grande partie des interruptions d\'une journée viennent de nous-mêmes.', true],
+                    ['Une interruption qu\'on a choisie n\'a pas de coût de reprise.', false],
+                    ['Repérer ses propres déclencheurs d\'interruption est plus utile que d\'accuser l\'entourage.', true],
+                ],
+            ],
+            [
+                'id'          => 'n27',
+                'level'       => 7,
+                'theme'       => 'social',
+                'explanation' => 'Ton entourage n\'interrompt pas par malveillance, mais faute d\'information. Rendre ton indisponibilité <b>visible</b>, et surtout annoncer quand tu redeviens joignable, suffit à décaler la plupart des sollicitations.',
+                'variants'    => [
+                    ['Annoncer un créneau où tu n\'es pas joignable réduit le nombre d\'interruptions.', true],
+                    ['Se rendre indisponible est malpoli : mieux vaut rester joignable en permanence.', false],
+                    ['Un signal visible — casque, porte fermée, statut affiché — fait baisser les sollicitations.', true],
+                    ['Les collègues interrompent au hasard, quoi qu\'on fasse.', false],
+                ],
+            ],
+            [
+                'id'          => 'n28',
+                'level'       => 7,
+                'theme'       => 'social',
+                'explanation' => 'Ce qui pèse, c\'est <b>l\'incertitude</b>, pas la tâche. Un rendez-vous précis referme la sollicitation sans que tu aies à traiter quoi que ce soit maintenant.',
+                'variants'    => [
+                    ['Traiter tout de suite une demande qui arrive évite d\'y penser ensuite.', false],
+                    ['Dire « je regarde ça à 15 h » referme la sollicitation presque aussi bien que d\'y répondre.', true],
+                    ['Reporter une demande en fixant un moment précis libère de l\'attention.', true],
+                    ['Toute demande non traitée immédiatement continue forcément de peser.', false],
+                ],
+            ],
+            [
+                'id'          => 'n29',
+                'level'       => 7,
+                'theme'       => 'numerique',
+                'explanation' => 'Des équipes entières travaillent à supprimer les moments où tu pourrais t\'arrêter. Te le reprocher ne sert à rien ; <b>modifier le terrain</b> — couper la lecture automatique, sortir l\'appli de l\'écran d\'accueil — pèse bien plus lourd.',
+                'variants'    => [
+                    ['Si tu n\'arrives pas à lâcher une application, c\'est un manque de volonté de ta part.', false],
+                    ['Le défilement sans fin et la lecture automatique suppriment délibérément les points d\'arrêt.', true],
+                    ['Les applications les plus captivantes ont été optimisées pour retenir ton attention.', true],
+                    ['Une application est un outil neutre : ce qu\'on en fait ne dépend que de soi.', false],
+                ],
+            ],
+            [
+                'id'          => 'n30',
+                'level'       => 7,
+                'theme'       => 'numerique',
+                'explanation' => 'Un geste automatique a besoin d\'être <b>facile</b>. Quelques secondes d\'obstacle suffisent souvent à laisser revenir la décision consciente, là où la volonté seule échoue.',
+                'variants'    => [
+                    ['Sortir une application de l\'écran d\'accueil réduit son usage réflexe.', true],
+                    ['Quelques secondes d\'obstacle ne changent rien à une habitude installée.', false],
+                    ['Les gestes automatiques se déclenchent surtout quand rien ne les freine.', true],
+                    ['Pour changer une habitude numérique, la motivation compte plus que l\'agencement du téléphone.', false],
+                ],
+            ],
+            [
+                'id'          => 'n31',
+                'level'       => 7,
+                'theme'       => 'corps',
+                'explanation' => 'Vigilance et circulation vont ensemble. Se lever, boire, respirer : des leviers immédiats, gratuits — et systématiquement négligés.',
+                'variants'    => [
+                    ['Rester assis sans bouger pendant deux heures reste sans effet sur la concentration.', false],
+                    ['Quelques minutes de marche entre deux blocs améliorent la reprise.', true],
+                    ['Une déshydratation même légère suffit à faire baisser la vigilance.', true],
+                    ['L\'attention est purement mentale : l\'état du corps n\'y change rien.', false],
+                ],
+            ],
+            [
+                'id'          => 'n32',
+                'level'       => 7,
+                'theme'       => 'corps',
+                'explanation' => 'Le creux de début d\'après-midi tient en partie à un <b>rythme interne</b>, qu\'un repas lourd ne fait qu\'aggraver. Alléger le midi et y placer les tâches faciles coûte moins cher que de lutter.',
+                'variants'    => [
+                    ['Un déjeuner copieux dégrade la concentration de l\'après-midi.', true],
+                    ['Sauter le déjeuner est une bonne stratégie pour rester vif l\'après-midi.', false],
+                    ['Le creux de début d\'après-midi survient même sans repas copieux.', true],
+                    ['La somnolence d\'après-repas ne concerne que les personnes qui manquent de discipline.', false],
+                ],
+            ],
+            [
+                'id'          => 'n33',
+                'level'       => 7,
+                'theme'       => 'tunnel',
+                'explanation' => 'Le tunnel — cet état où la tâche devient absorbante et où le temps file — ne se déclenche pas sur commande : il se construit par paliers, sur une dizaine ou une quinzaine de minutes sans rupture. C\'est ce qui rend une interruption si chère : elle ne te vole pas deux minutes, <b>elle annule la montée</b>.',
+                'variants'    => [
+                    ['Entrer vraiment dans une tâche profonde demande une quinzaine de minutes sans coupure.', true],
+                    ['On entre dans le tunnel dès qu\'on s\'assoit, pourvu qu\'on soit motivé.', false],
+                    ['Une interruption pendant la montée oblige à refaire toute cette montée.', true],
+                    ['Des blocs de dix minutes suffisent pour atteindre un travail vraiment profond.', false],
+                ],
+            ],
+            [
+                'id'          => 'n34',
+                'level'       => 7,
+                'theme'       => 'tunnel',
+                'explanation' => 'Le tunnel a un revers : il <b>rétrécit le champ</b>. On n\'entend plus, on ne voit plus les signaux qui disent qu\'on s\'est trompé de piste. D\'où l\'intérêt de sortir la tête à intervalle régulier — une minute, pour vérifier qu\'on creuse au bon endroit.',
+                'variants'    => [
+                    ['Une fois dans le tunnel, on peut ne plus percevoir ce qui se passe autour de soi.', true],
+                    ['Être très concentré garantit qu\'on avance dans la bonne direction.', false],
+                    ['S\'acharner sur une piste sans lever la tête est un risque propre à la concentration intense.', true],
+                    ['Plus on est concentré, mieux on repère qu\'on fait fausse route.', false],
+                ],
+            ],
         ];
     }
 
-    /** Notions d un niveau de connaissance (1, 3 ou 5). */
+    /** Notions d un niveau de connaissance (1, 3, 5 ou 7). */
     public static function forLevel(int $level): array
     {
         return array_values(array_filter(
