@@ -1,0 +1,24 @@
+{
+  "slug": "praxibalance",
+  "name": "La Balance",
+  "version": "1.0.0",
+  "author": "Praxis Accompagnement",
+  "type": "mini-app",
+  "description": "Un entraînement court et répété pour apprendre à choisir. On répond en glissant la carte à droite ou à gauche : d'un côté les notions à ancrer — urgent n'est pas important, dire oui c'est dire non ailleurs, une seule tâche décisive par jour ; de l'autre des séries chronométrées où le geste devient l'arbitrage — trier des tâches réelles sous contrainte de temps, d'abord sur l'importance, puis avec une consigne qui bascule en cours de route, enfin sur deux critères à la fois. Sept niveaux, de l'Apprenti au Maître de la Balance.",
+  "namespace": "Praxis\\Plugins\\PraxiBalance",
+  "service_provider": "Praxis\\Plugins\\PraxiBalance\\PluginServiceProvider",
+  "permissions": [
+    "read:profiles"
+  ],
+  "requires": {
+    "praxiquest": ">=1.0.0",
+    "php": ">=8.2"
+  },
+  "reward": {
+    "threshold_eclats": 1800,
+    "teaser": "La Balance : des sessions de trois minutes pour apprendre à trancher. Ce qui est urgent crie plus fort ; ce qui est important attend en silence.",
+    "icon": "ti-scale",
+    "purpose": "Priorités & arbitrage",
+    "entry_route": "praxibalance.index"
+  }
+}
