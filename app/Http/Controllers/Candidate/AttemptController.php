@@ -28,6 +28,13 @@ class AttemptController extends Controller
         abort_unless($test->published, 404);
         abort_unless(auth()->user()->profile?->isComplete(), 403, 'Profil incomplet');
 
+        // Paywall particulier (config/b2c.php) : un auto-inscrit sans achat ne
+        // lance que l'épreuve d'appel. Les invités d'un pro passent toujours.
+        if (! \App\Support\B2c::isFreeTest($test) && \App\Support\B2c::locked($request->user())) {
+            return redirect()->route('b2c.unlock')
+                ->with('info', 'Cette épreuve fait partie du Rapport complet. Débloque ton parcours pour la lancer.');
+        }
+
         // Gating « cadeau » : impossible de lancer un test scellé par un palier d'Éclats.
         if (! $this->rewards->isTestUnlocked($test->slug, $request->user())) {
             $reward = $this->rewards->rewardForTestSlug($test->slug);

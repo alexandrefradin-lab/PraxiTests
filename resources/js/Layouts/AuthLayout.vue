@@ -54,7 +54,9 @@ const branding = computed(() => usePage().props.branding ?? { name: 'PraxiQuest'
                 </blockquote>
                 <div style="width: 32px; height: 1px; background: #A67520; opacity: 0.5; margin-bottom: 1rem"></div>
                 <p style="font-family: var(--font-body); font-size: 12px; color: rgba(240,232,212,0.5); font-style: italic; line-height: 1.6">
-                    Synthèse IA · Bilan de compétences · Orientation experte
+                    <!-- « Bilan de compétences » est un dispositif réglementé (C. trav.
+                         L6313-4) : interdit sur les écrans vus par les particuliers. -->
+                    Synthèse IA · Évaluation professionnelle · Orientation experte
                 </p>
             </div>
 

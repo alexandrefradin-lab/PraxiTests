@@ -909,7 +909,8 @@
 <div class="px avoid-break sec">
     <table class="disclaimer t100">
         <tr><td>
-            <div class="dtitle">&Agrave; lire &mdash; port&eacute;e de ce bilan</div>
+            {{-- « bilan » évité : terme réservé au bilan de compétences réglementé (C. trav. L6313-4). --}}
+            <div class="dtitle">&Agrave; lire &mdash; port&eacute;e de ce rapport</div>
             <div class="dbody">{{ $disclaimer }}</div>
         </td></tr>
     </table>
