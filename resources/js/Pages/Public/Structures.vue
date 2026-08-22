@@ -6,6 +6,10 @@ const props = defineProps({
   plans:     { type: Object, required: true },
   trialDays: { type: Number, default: 14 },
   contact:   { type: String, default: 'contact@praxiquest.fr' },
+  // Calculés côté serveur (StructuresController) : la page suit
+  // automatiquement l'ajout d'un test ou d'une mini-app.
+  tests:         { type: Array, required: true },
+  miniAppsCount: { type: Number, required: true },
 })
 
 const flash = computed(() => usePage().props.flash ?? {})
@@ -21,12 +25,12 @@ const chiffres = [
   { valeur: '8–20 €',   label: 'le coût effectif d\'un dossier PraxiQuest, tests et synthèse IA compris' },
 ]
 
-const tests = [
-  'RIASEC (intérêts professionnels)', 'Big Five (30 facettes)', 'Valeurs professionnelles (Schwartz)',
-  'Intelligence émotionnelle (EQ-i)', 'Stress & épuisement (Karasek + MBI)', 'Biais cognitifs',
-  'Gestion du temps', 'Dépistage TDAH (ASRS-v1.1, OMS)', 'Hypersensibilité (SPS)',
-  'Feedback 360° (évaluateurs invités)', 'Compétences entrepreneuriales', 'Orientation express',
-]
+const metaDescription = computed(() =>
+  `PraxiQuest réunit les ${props.tests.length} tests psychométriques, la restitution IA et l'inter-séance dans un seul outil au prix fixe. Essai gratuit ${props.trialDays} jours pour chaque consultant, programme pilote pour les structures.`
+)
+const ogDescription = computed(() =>
+  `${props.tests.length} tests, synthèse IA, rapports à votre marque et parcours inter-séances. 39 €/mois par consultant, essai gratuit ${props.trialDays} jours.`
+)
 
 const restitution = [
   'Synthèse rédigée + 15-30 pistes métiers',
@@ -35,10 +39,10 @@ const restitution = [
   'Rapport PDF aux couleurs du cabinet',
 ]
 
-const interSeance = [
-  'Parcours guidés 30-60 jours (confiance, stress, prise de parole, temps…)',
+const interSeance = computed(() => [
+  `${props.miniAppsCount} mini-apps offertes : parcours guidés 30-60 jours (confiance, stress, prise de parole, temps…)`,
   'Le bénéficiaire reste actif : le bilan ne s\'enlise plus entre deux rendez-vous',
-]
+])
 
 const parcours = [
   { num: '01', titre: 'Invitation',   texte: 'Le consultant envoie un lien unique. Le bénéficiaire s\'inscrit, dépose son CV, l\'IA en extrait le parcours.' },
@@ -59,10 +63,10 @@ const pilote = [
 
 <template>
 <Head title="PraxiQuest pour les structures — Bilans de compétences augmentés par IA">
-  <meta name="description" content="PraxiQuest réunit les 12 tests psychométriques, la restitution IA et l'inter-séance dans un seul outil au prix fixe. Essai gratuit 14 jours pour chaque consultant, programme pilote pour les structures." />
+  <meta name="description" :content="metaDescription" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="PraxiQuest pour les structures — La plateforme qui travaille aussi entre les séances" />
-  <meta property="og:description" content="12 tests, synthèse IA, rapports à votre marque et parcours inter-séances. 39 €/mois par consultant, essai gratuit 14 jours." />
+  <meta property="og:description" :content="ogDescription" />
 </Head>
 <div style="font-family:var(--font-body,Inter,sans-serif);background:var(--bg-base,#F0E8D4);min-height:100vh;color:var(--text-primary,#2A1E08);overflow-x:hidden">
 
@@ -124,7 +128,7 @@ const pilote = [
       <div class="st-kicker">◆ Disponible aujourd'hui</div>
       <div class="st-grid3">
         <div>
-          <h3 class="st-h3">12 tests psychométriques</h3>
+          <h3 class="st-h3">{{ tests.length }} tests psychométriques</h3>
           <p style="font-size:13px;color:var(--text-muted,#8C7A5E);margin-bottom:1rem;line-height:1.6">Fondés sur les modèles de référence ; étalonnage recalculé automatiquement sur les passations réelles.</p>
           <ul class="st-list"><li v-for="t in tests" :key="t">{{ t }}</li></ul>
         </div>

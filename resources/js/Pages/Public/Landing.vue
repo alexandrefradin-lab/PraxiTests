@@ -2,7 +2,18 @@
 import { Link, Head, usePage } from '@inertiajs/vue3'
 import { computed, onMounted } from 'vue'
 
+// Compteurs calculés côté serveur (HomeController) : la page suit
+// automatiquement l'ajout d'un test ou d'une mini-app.
+const props = defineProps({
+  testsCount:    { type: Number, required: true },
+  miniAppsCount: { type: Number, required: true },
+})
+
 const branding = computed(() => usePage().props.branding ?? { name: 'PraxiQuest' })
+
+const metaDescription = computed(() =>
+  `PraxiQuest : ${props.testsCount} épreuves fondées sur des modèles reconnus (Big Five, RIASEC, valeurs de Schwartz, MBI…), une relecture globale par IA, l'impact de l'IA sur votre métier, jusqu'à 50 horizons métiers réalistes et ${props.miniAppsCount} modules d'entraînement offerts. Idéal pour la reconversion et l'évolution professionnelle.`
+)
 
 onMounted(() => {
   function countUp(el, target, suffix, duration) {
@@ -16,9 +27,9 @@ onMounted(() => {
     }, 16)
   }
   setTimeout(() => {
-    countUp(document.getElementById('lp-stat-epreuves'), 12, '', 1100)
+    countUp(document.getElementById('lp-stat-epreuves'), props.testsCount, '', 1100)
     countUp(document.getElementById('lp-stat-pistes'), 50, '', 1300)
-    countUp(document.getElementById('lp-stat-modules'), 10, '', 1500)
+    countUp(document.getElementById('lp-stat-modules'), props.miniAppsCount, '', 1500)
   }, 500)
 
   // Vague dorée sur les chiffres romains quand la section entre à l'écran.
@@ -41,7 +52,7 @@ onMounted(() => {
 <template>
 <!-- SEO (cf. audit MK-6) : titre, description et cartes de partage Open Graph/Twitter. -->
 <Head title="PraxiQuest — Test d'orientation et de reconversion professionnelle">
-  <meta name="description" content="PraxiQuest : 12 épreuves fondées sur des modèles reconnus (Big Five, RIASEC, valeurs de Schwartz, MBI…), une relecture globale par IA, l'impact de l'IA sur votre métier, jusqu'à 50 horizons métiers réalistes et 10 modules d'entraînement offerts. Idéal pour la reconversion et l'évolution professionnelle." />
+  <meta name="description" :content="metaDescription" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="PraxiQuest — Découvrez votre potentiel professionnel" />
   <meta property="og:description" content="Tests d'orientation augmentés par l'IA : relecture globale de votre profil, votre métier face à l'IA, jusqu'à 50 horizons métiers réalistes et des modules d'entraînement offerts." />
@@ -122,7 +133,7 @@ onMounted(() => {
     <div style="display:flex;align-items:center;gap:12px">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><polygon points="12,2 14,9 12,7.5 10,9" fill="none" stroke="#A67520" stroke-width="1.2" stroke-linejoin="round"/><circle cx="12" cy="12" r="9" stroke="#A67520" stroke-width=".8" opacity=".4"/></svg>
       <div>
-        <div id="lp-stat-epreuves" class="lp-stat-num" style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:22px;font-weight:700;color:var(--color-primary,#A67520);letter-spacing:-0.02em">12</div>
+        <div id="lp-stat-epreuves" class="lp-stat-num" style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:22px;font-weight:700;color:var(--color-primary,#A67520);letter-spacing:-0.02em">{{ testsCount }}</div>
         <div style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;color:var(--text-secondary,#6B5A3E);letter-spacing:.06em;text-transform:uppercase">Épreuves fondées</div>
       </div>
     </div>
@@ -138,7 +149,7 @@ onMounted(() => {
     <div style="display:flex;align-items:center;gap:12px">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 9 L12 4 L20 9 L20 19 L4 19 Z" stroke="#A67520" stroke-width=".9" opacity=".5"/><path d="M9 19 L9 13 L15 13 L15 19" stroke="#A67520" stroke-width="1"/><circle cx="12" cy="9" r="1.4" fill="#A67520" opacity=".7"/></svg>
       <div>
-        <div id="lp-stat-modules" class="lp-stat-num" style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:22px;font-weight:700;color:var(--color-primary,#A67520);letter-spacing:-0.02em">10</div>
+        <div id="lp-stat-modules" class="lp-stat-num" style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:22px;font-weight:700;color:var(--color-primary,#A67520);letter-spacing:-0.02em">{{ miniAppsCount }}</div>
         <div style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;color:var(--text-secondary,#6B5A3E);letter-spacing:.06em;text-transform:uppercase">Modules offerts</div>
       </div>
     </div>
@@ -201,7 +212,7 @@ onMounted(() => {
         <div class="lp-journey-connector" style="position:absolute;top:28px;left:12.5%;right:12.5%;height:1px;background:linear-gradient(90deg,rgba(166,117,32,0.1),rgba(166,117,32,0.4),rgba(166,117,32,0.1))"></div>
         <div v-for="(step, i) in [
           {roman:'I', title:'L\'ancrage', text:'Tu poses le contexte. Là où tu en es. D\'où tu viens. L\'IA t\'écoute avant de te parler.'},
-          {roman:'II', title:'L\'exploration', text:'12 épreuves fondées sur des modèles reconnus : RIASEC, Big Five, valeurs, stress, soft skills 360...'},
+          {roman:'II', title:'L\'exploration', text:`${testsCount} épreuves fondées sur des modèles reconnus : RIASEC, Big Five, valeurs, stress, soft skills 360...`},
           {roman:'III', title:'La révélation', text:'Le Grimoire croise toutes tes épreuves : synthèse profonde, et l\'impact de l\'IA sur ton métier.'},
           {roman:'IV', title:'L\'horizon', text:'Jusqu\'à 50 horizons métiers, à réordonner selon tes priorités. Pas des verdicts. Des chemins.'},
         ]" :key="i" class="lp-journey-item" style="padding:0 1.2rem;text-align:center;position:relative">
@@ -259,7 +270,7 @@ onMounted(() => {
         <div class="lp-univers-card" style="background:var(--bg-base,#F0E8D4);border:1px solid rgba(166,117,32,0.25);border-top:2px solid var(--color-primary,#A67520);border-radius:12px;padding:2rem 1.7rem">
           <p style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--color-primary,#A67520);margin-bottom:.7rem">01 &middot; Les épreuves</p>
           <div style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:17px;font-weight:600;color:var(--text-primary,#2A1E08);margin-bottom:.7rem;letter-spacing:-0.01em">L'Armurerie</div>
-          <p style="font-family:var(--font-body,'Inter',sans-serif);font-size:13px;color:var(--text-secondary,#6B5A3E);line-height:1.75">12 épreuves fondées sur des modèles reconnus : RIASEC, Big Five, valeurs de Schwartz, stress au travail (Karasek + MBI), soft skills 360, compétences entrepreneuriales... Chacune livre une analyse détaillée, téléchargeable en PDF.</p>
+          <p style="font-family:var(--font-body,'Inter',sans-serif);font-size:13px;color:var(--text-secondary,#6B5A3E);line-height:1.75">{{ testsCount }} épreuves fondées sur des modèles reconnus : RIASEC, Big Five, valeurs de Schwartz, stress au travail (Karasek + MBI), soft skills 360, compétences entrepreneuriales... Chacune livre une analyse détaillée, téléchargeable en PDF.</p>
         </div>
         <div class="lp-univers-card" style="background:var(--bg-base,#F0E8D4);border:1px solid rgba(166,117,32,0.25);border-top:2px solid var(--color-primary,#A67520);border-radius:12px;padding:2rem 1.7rem">
           <p style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--color-primary,#A67520);margin-bottom:.7rem">02 &middot; La relecture</p>
@@ -269,7 +280,7 @@ onMounted(() => {
         <div class="lp-univers-card" style="background:var(--bg-base,#F0E8D4);border:1px solid rgba(166,117,32,0.25);border-top:2px solid var(--color-primary,#A67520);border-radius:12px;padding:2rem 1.7rem">
           <p style="font-family:var(--font-data,'Space Mono',monospace);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--color-primary,#A67520);margin-bottom:.7rem">03 &middot; L'entraînement</p>
           <div style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:17px;font-weight:600;color:var(--text-primary,#2A1E08);margin-bottom:.7rem;letter-spacing:-0.01em">La Salle du Trésor</div>
-          <p style="font-family:var(--font-body,'Inter',sans-serif);font-size:13px;color:var(--text-secondary,#6B5A3E);line-height:1.75">Tes Éclats, gagnés au fil des épreuves, révèlent 10 mini-apps offertes : parcours guidés de 30 à 60 jours — confiance, stress, prise de parole, leadership, gestion du temps... Recommandées selon ton profil, à toi pour toujours.</p>
+          <p style="font-family:var(--font-body,'Inter',sans-serif);font-size:13px;color:var(--text-secondary,#6B5A3E);line-height:1.75">Tes Éclats, gagnés au fil des épreuves, révèlent {{ miniAppsCount }} mini-apps offertes : parcours guidés de 30 à 60 jours — confiance, stress, prise de parole, leadership, gestion du temps... Recommandées selon ton profil, à toi pour toujours.</p>
         </div>
       </div>
     </div>

@@ -140,6 +140,9 @@ class PluginManager
         }
         $this->loaded[$slug]?->onActivate();
         $this->logToDb($plugin->id, 'info', 'activated', 'Plugin activated');
+        // Catalogue du Trésor + compteurs des pages publiques : visibles sans
+        // attendre l'expiration du cache (5 min).
+        \Illuminate\Support\Facades\Cache::forget(\Praxis\Core\Gamification\RewardCatalog::CACHE_KEY);
         PluginHooks::doAction('plugin.activated', $slug);
     }
 
@@ -152,6 +155,7 @@ class PluginManager
         $this->loaded[$slug]?->onDeactivate();
         $plugin->update(['enabled' => false]);
         $this->logToDb($plugin->id, 'info', 'deactivated', 'Plugin deactivated');
+        \Illuminate\Support\Facades\Cache::forget(\Praxis\Core\Gamification\RewardCatalog::CACHE_KEY);
         PluginHooks::doAction('plugin.deactivated', $slug);
     }
 
