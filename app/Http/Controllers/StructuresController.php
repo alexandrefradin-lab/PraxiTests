@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Test;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Praxis\Core\Gamification\RewardCatalog;
 
 /**
  * Page de vente publique « Structures » (/structures).
@@ -19,12 +21,23 @@ use Inertia\Response;
  */
 class StructuresController extends Controller
 {
-    public function show(): Response
+    public function show(RewardCatalog $rewards): Response
     {
+        // Liste et compteurs calculés depuis les données réelles pour que la
+        // page suive l'ajout d'un test ou d'une mini-app. Même périmètre que
+        // la landing : tests = l'Armurerie (les tests-cadeaux vivent dans le
+        // Trésor), mini-apps = la Salle du Trésor.
+        $rewardSlugs = $rewards->testSlugs();
+
         return Inertia::render('Public/Structures', [
             'plans'     => config('plans.plans'),
             'trialDays' => config('plans.default_trial_days'),
             'contact'   => config('praxiquest.contact.email', 'contact@praxiquest.fr'),
+            'tests'     => Test::where('published', true)
+                ->when($rewardSlugs !== [], fn ($q) => $q->whereNotIn('slug', $rewardSlugs))
+                ->orderBy('name')
+                ->pluck('name'),
+            'miniAppsCount' => $rewards->all()->count(),
         ]);
     }
 

@@ -110,6 +110,9 @@ class PluginRegistry
         }
 
         Cache::forget(config('plugins.cache_key'));
+        // Le catalogue du Trésor (et les compteurs des pages publiques) dérivent
+        // des plugins : un sync doit se voir sans attendre l'expiration (5 min).
+        Cache::forget(\Praxis\Core\Gamification\RewardCatalog::CACHE_KEY);
         return $synced;
     }
 

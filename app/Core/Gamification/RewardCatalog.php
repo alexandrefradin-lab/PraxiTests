@@ -17,6 +17,10 @@ use Praxis\Core\Plugins\PluginRegistry;
  */
 class RewardCatalog
 {
+    // v2 : URLs relatives (cf. resolveEntry) — bump de clé pour invalider
+    // les anciens caches contenant des URLs absolues.
+    public const CACHE_KEY = 'reward_catalog_v2';
+
     protected ?Collection $cached = null;
 
     public function __construct(
@@ -35,9 +39,7 @@ class RewardCatalog
             return $this->cached = collect();
         }
 
-        // v2 : URLs relatives (cf. resolveEntry) — bump de clé pour invalider
-        // les anciens caches contenant des URLs absolues.
-        $this->cached = Cache::remember('reward_catalog_v2', 300, function () {
+        $this->cached = Cache::remember(self::CACHE_KEY, 300, function () {
             $enabled = PluginModel::where('enabled', true)->get();
 
             return $enabled->map(function (PluginModel $plugin) {
