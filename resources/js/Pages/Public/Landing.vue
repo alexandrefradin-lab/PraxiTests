@@ -7,6 +7,8 @@ import { computed, onMounted } from 'vue'
 const props = defineProps({
   testsCount:    { type: Number, required: true },
   miniAppsCount: { type: Number, required: true },
+  // Offre particulier « Rapport complet » (config/b2c.php) pour le JSON-LD.
+  b2cProduct:    { type: Object, default: () => ({}) },
 })
 
 const branding = computed(() => usePage().props.branding ?? { name: 'PraxiQuest' })
@@ -14,6 +16,52 @@ const branding = computed(() => usePage().props.branding ?? { name: 'PraxiQuest'
 const metaDescription = computed(() =>
   `PraxiQuest : ${props.testsCount} épreuves fondées sur des modèles reconnus (Big Five, RIASEC, valeurs de Schwartz, MBI…), une relecture globale par IA, l'impact de l'IA sur votre métier, jusqu'à 50 horizons métiers réalistes et ${props.miniAppsCount} modules d'entraînement offerts. Idéal pour la reconversion et l'évolution professionnelle.`
 )
+
+// Données structurées schema.org (JSON-LD). Les @id (#organization, #website)
+// servent de référence aux autres pages publiques (cf. Structures.vue).
+const jsonLd = computed(() => JSON.stringify({
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': 'https://www.praxiquest.fr/#organization',
+      name: 'PraxiQuest',
+      url: 'https://www.praxiquest.fr/',
+      email: 'contact@praxiquest.fr',
+    },
+    {
+      '@type': 'WebSite',
+      '@id': 'https://www.praxiquest.fr/#website',
+      url: 'https://www.praxiquest.fr/',
+      name: 'PraxiQuest',
+      inLanguage: 'fr-FR',
+      publisher: { '@id': 'https://www.praxiquest.fr/#organization' },
+    },
+    {
+      '@type': 'WebPage',
+      '@id': 'https://www.praxiquest.fr/#webpage',
+      url: 'https://www.praxiquest.fr/',
+      name: "PraxiQuest — Test d'orientation et de reconversion professionnelle",
+      description: metaDescription.value,
+      isPartOf: { '@id': 'https://www.praxiquest.fr/#website' },
+      about: { '@id': 'https://www.praxiquest.fr/#organization' },
+      inLanguage: 'fr-FR',
+    },
+    {
+      '@type': 'Product',
+      name: props.b2cProduct?.name ?? 'Rapport complet',
+      description: 'Toutes les épreuves, la relecture globale du profil par IA, jusqu\'à 50 horizons métiers et le rapport PDF complet, en un achat unique.',
+      brand: { '@id': 'https://www.praxiquest.fr/#organization' },
+      offers: {
+        '@type': 'Offer',
+        price: ((props.b2cProduct?.price ?? 4900) / 100).toFixed(2),
+        priceCurrency: 'EUR',
+        availability: 'https://schema.org/InStock',
+        url: 'https://www.praxiquest.fr/',
+      },
+    },
+  ],
+}))
 
 onMounted(() => {
   function countUp(el, target, suffix, duration) {
@@ -59,6 +107,8 @@ onMounted(() => {
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="PraxiQuest — Découvrez votre potentiel professionnel" />
   <meta name="twitter:description" content="Tests d'orientation augmentés par l'IA : relecture globale, votre métier face à l'IA et jusqu'à 50 horizons métiers réalistes." />
+  <!-- Vue interdit les <script> bruts dans un template : <component is="script"> les rend quand même dans le <head>. -->
+  <component :is="'script'" type="application/ld+json">{{ jsonLd }}</component>
 </Head>
 <div style="font-family:var(--font-body,Inter,sans-serif);background:var(--bg-base,#F0E8D4);min-height:100vh;color:var(--text-primary,#2A1E08);overflow-x:hidden">
 

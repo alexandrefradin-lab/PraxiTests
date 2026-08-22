@@ -36,6 +36,12 @@ class HomeController extends Controller
                 ->when($rewardSlugs !== [], fn ($q) => $q->whereNotIn('slug', $rewardSlugs))
                 ->count(),
             'miniAppsCount' => $rewards->all()->count(),
+            // Offre particulier « Rapport complet » (config/b2c.php), exposée
+            // pour les données structurées JSON-LD de la page.
+            'b2cProduct' => [
+                'name'  => config('b2c.products.rapport.name'),
+                'price' => config('b2c.products.rapport.price'),
+            ],
         ]);
     }
 }

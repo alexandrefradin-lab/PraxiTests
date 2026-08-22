@@ -32,6 +32,63 @@ const ogDescription = computed(() =>
   `${props.tests.length} tests, synthèse IA, rapports à votre marque et parcours inter-séances. 39 €/mois par consultant, essai gratuit ${props.trialDays} jours.`
 )
 
+// Données structurées schema.org (JSON-LD). Organization/WebSite reprennent les
+// @id définis sur la landing ; les offres suivent config/plans.php — seul le
+// palier Indépendant est souscriptible (Cabinet/Centre : available = false).
+const jsonLd = computed(() => {
+  const indep = props.plans?.independant ?? {}
+  const offer = (name, cents, fallback) => ({
+    '@type': 'Offer',
+    name,
+    price: ((cents ?? fallback) / 100).toFixed(2),
+    priceCurrency: 'EUR',
+    availability: 'https://schema.org/InStock',
+    url: 'https://www.praxiquest.fr/structures',
+  })
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Organization',
+        '@id': 'https://www.praxiquest.fr/#organization',
+        name: 'PraxiQuest',
+        url: 'https://www.praxiquest.fr/',
+        email: props.contact,
+      },
+      {
+        '@type': 'WebSite',
+        '@id': 'https://www.praxiquest.fr/#website',
+        url: 'https://www.praxiquest.fr/',
+        name: 'PraxiQuest',
+        inLanguage: 'fr-FR',
+        publisher: { '@id': 'https://www.praxiquest.fr/#organization' },
+      },
+      {
+        '@type': 'WebPage',
+        '@id': 'https://www.praxiquest.fr/structures#webpage',
+        url: 'https://www.praxiquest.fr/structures',
+        name: 'PraxiQuest pour les structures — Bilans de compétences augmentés par IA',
+        description: metaDescription.value,
+        isPartOf: { '@id': 'https://www.praxiquest.fr/#website' },
+        inLanguage: 'fr-FR',
+      },
+      {
+        '@type': 'SoftwareApplication',
+        name: 'PraxiQuest',
+        url: 'https://www.praxiquest.fr/structures',
+        applicationCategory: 'BusinessApplication',
+        operatingSystem: 'Web',
+        description: `Plateforme de bilan de compétences : ${props.tests.length} tests psychométriques, synthèse IA, rapports à la marque du cabinet et parcours inter-séances. Essai gratuit ${props.trialDays} jours.`,
+        publisher: { '@id': 'https://www.praxiquest.fr/#organization' },
+        offers: [
+          offer(`${indep.name ?? 'Indépendant'} — abonnement mensuel`, indep.price_monthly, 3900),
+          offer(`${indep.name ?? 'Indépendant'} — abonnement annuel`, indep.price_yearly, 39000),
+        ],
+      },
+    ],
+  })
+})
+
 const restitution = [
   'Synthèse rédigée + 15-30 pistes métiers',
   'Relecture transversale de tous les tests',
@@ -67,6 +124,8 @@ const pilote = [
   <meta property="og:type" content="website" />
   <meta property="og:title" content="PraxiQuest pour les structures — La plateforme qui travaille aussi entre les séances" />
   <meta property="og:description" :content="ogDescription" />
+  <!-- Vue interdit les <script> bruts dans un template : <component is="script"> les rend quand même dans le <head>. -->
+  <component :is="'script'" type="application/ld+json">{{ jsonLd }}</component>
 </Head>
 <div style="font-family:var(--font-body,Inter,sans-serif);background:var(--bg-base,#F0E8D4);min-height:100vh;color:var(--text-primary,#2A1E08);overflow-x:hidden">
 
