@@ -12,6 +12,20 @@ class LegalController extends Controller
     }
 
     /**
+     * Conditions Générales de Vente — offre particuliers (achat one-shot).
+     * Obligatoire avant d'encaisser le premier euro B2C : rétractation,
+     * médiation de la consommation, garanties légales (C. conso).
+     */
+    public function cgv()
+    {
+        return Inertia::render('Public/CGV', [
+            'legal'    => config('praxiquest.legal'),
+            'contact'  => config('praxiquest.contact'),
+            'products' => \App\Support\B2c::products(),
+        ]);
+    }
+
+    /**
      * Page Politique de confidentialité (RGPD — Art. 13/14).
      * Route publique (GET /confidentialite, pas d'auth requise).
      */

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\BelongsToProfessionalAccounts;
+use App\Models\Concerns\HasCandidatePurchases;
 use App\Models\Concerns\HasGamification;
 use App\Models\Concerns\HasGrimoire;
 use App\Models\Concerns\HasTwoFactorAuthentication;
@@ -29,7 +30,7 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable implements MustVerifyEmail
 {
     use Billable, HasApiTokens, HasFactory, HasRoles, Notifiable, SoftDeletes;
-    use BelongsToProfessionalAccounts, HasGamification, HasGrimoire, HasTwoFactorAuthentication;
+    use BelongsToProfessionalAccounts, HasCandidatePurchases, HasGamification, HasGrimoire, HasTwoFactorAuthentication;
 
     protected $fillable = [
         'name', 'email', 'password', 'locale', 'ui_theme', 'avatar_path',
