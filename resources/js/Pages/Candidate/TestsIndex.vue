@@ -10,6 +10,8 @@ const { L, isCorporate, testLabel, vouvoyer } = useParcours()
 const props = defineProps({
     tests: Array,
     profile_complete: Boolean,
+    // Paywall particulier (config/b2c.php) : locked = auto-inscrit sans achat.
+    b2c: { type: Object, default: () => ({ locked: false, price_label: null }) },
 })
 
 const completedCount = computed(() => props.tests.filter(t => t.completed_at || t.completed).length)
@@ -22,7 +24,13 @@ const kpiLevel    = computed(() => page.props.gamification?.level ?? 1)
 const kpiLevelName = computed(() => page.props.gamification?.level_name ?? `Niveau ${kpiLevel.value}`)
 
 function goToTest(test) {
-    if (props.profile_complete) router.visit(route('tests.show', test.slug))
+    if (!props.profile_complete) return
+    // Épreuve verrouillée par le paywall particulier → écran de déblocage.
+    if (test.locked) {
+        router.visit(route('b2c.unlock'))
+        return
+    }
+    router.visit(route('tests.show', test.slug))
 }
 
 // ── Emblèmes médiévaux (line-art) par test, mappés sur le slug ──
@@ -166,6 +174,30 @@ function emblem(slug) {
             </div>
         </div>
 
+        <!-- ── Bandeau déblocage (paywall particulier) ── -->
+        <div
+            v-if="b2c.locked && profile_complete"
+            class="rounded-xl border-2 p-5 mb-8 flex flex-col sm:flex-row sm:items-center gap-4"
+            style="background:var(--bg-elevated); border-color:var(--color-primary);"
+        >
+            <div class="flex-1">
+                <p class="text-sm font-semibold mb-1" style="color:var(--text-primary); font-family:var(--font-display);">
+                    {{ isCorporate ? 'Votre évaluation de découverte est offerte.' : "Ton épreuve de découverte est offerte." }}
+                </p>
+                <p class="text-sm" style="color:var(--text-secondary); font-family:'Inter',sans-serif;">
+                    {{ isCorporate
+                        ? `Débloquez l'ensemble des évaluations, la synthèse globale et votre rapport PDF — ${b2c.price_label}, une fois.`
+                        : `Débloque toutes les Épreuves, le Grimoire et ton rapport PDF — ${b2c.price_label}, une seule fois.` }}
+                </p>
+            </div>
+            <Link
+                :href="route('b2c.unlock')"
+                class="pt-btn-primary text-xs px-5 py-2.5 whitespace-nowrap self-start sm:self-center"
+            >
+                Débloquer mon parcours
+            </Link>
+        </div>
+
         <!-- ── Grille des tests ── -->
         <div v-if="tests.length > 0" class="grid md:grid-cols-2 gap-4">
             <div
@@ -201,6 +233,14 @@ function emblem(slug) {
                         >
                             ✓ {{ L.badgeDone }}
                         </span>
+                        <span
+                            v-else-if="test.locked"
+                            class="mt-1"
+                            style="font-size:10px;font-weight:700;border-radius:20px;padding:2px 8px;display:inline-flex;align-items:center;gap:4px;color:var(--color-primary);background:rgba(166,117,32,0.12);"
+                        >
+                            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+                            {{ isCorporate ? 'À débloquer' : 'Scellée' }}
+                        </span>
                     </div>
                     <span class="pt-emblem" v-html="emblem(test.slug)"></span>
                 </div>
@@ -234,7 +274,7 @@ function emblem(slug) {
                         :class="{ 'opacity-40': !profile_complete }"
                         style="pointer-events:none;"
                     >
-                        {{ L.ctaTest }}
+                        {{ test.locked ? 'Débloquer' : L.ctaTest }}
                     </span>
                 </div>
             </div>

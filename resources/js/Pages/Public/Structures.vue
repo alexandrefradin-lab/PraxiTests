@@ -87,6 +87,9 @@ const pilote = [
       </div>
     </Link>
     <div style="display:flex;align-items:center;gap:8px">
+      <!-- Miroir du lien « Professionnels » de la landing : un particulier
+           arrivé ici par erreur retrouve son espace en un clic. -->
+      <Link href="/" class="st-nav-particulier" style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:13px;font-weight:500;color:var(--text-secondary,#6B5A3E);text-decoration:none;padding:6px 14px;border-radius:6px">Vous êtes un particulier ?</Link>
       <Link href="/login" style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:13px;font-weight:500;color:var(--text-secondary,#6B5A3E);text-decoration:none;padding:6px 14px;border-radius:6px">Connexion</Link>
       <a href="#tarifs" style="font-family:var(--font-display,'Space Grotesk',sans-serif);font-size:13px;font-weight:600;letter-spacing:-0.01em;color:var(--bg-base,#F0E8D4);background:var(--color-accent,#1C1408);border:none;padding:8px 20px;border-radius:6px;text-decoration:none;display:inline-block;box-shadow:0 2px 8px rgba(42,30,8,0.2);white-space:nowrap">Essai gratuit {{ trialDays }} jours</a>
     </div>
@@ -220,6 +223,8 @@ const pilote = [
   <footer style="border-top:1px solid rgba(166,117,32,0.2);padding:1.8rem 2rem;text-align:center;font-family:var(--font-data,'Space Mono',monospace);font-size:10.5px;letter-spacing:.1em;color:var(--text-muted,#8C7A5E)">
     <a href="/docs/presentation-structures.pdf" target="_blank" rel="noopener" style="color:var(--color-primary,#A67520);text-decoration:none">Télécharger la présentation PDF</a>
     <span style="margin:0 10px">·</span>
+    <Link href="/" style="color:inherit;text-decoration:none">Particuliers</Link>
+    <span style="margin:0 10px">·</span>
     <Link href="/confidentialite" style="color:inherit;text-decoration:none">Confidentialité</Link>
     <span style="margin:0 10px">·</span>
     <Link href="/cgu" style="color:inherit;text-decoration:none">CGU</Link>
@@ -280,5 +285,9 @@ const pilote = [
 }
 @media (max-width: 600px) {
   .st-grid2, .st-grid3, .st-grid4 { grid-template-columns: 1fr; }
+}
+/* Nav mobile : le lien retour particulier passe par le footer. */
+@media (max-width: 700px) {
+  .st-nav-particulier { display: none; }
 }
 </style>

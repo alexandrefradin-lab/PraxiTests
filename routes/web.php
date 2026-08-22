@@ -33,6 +33,7 @@ Route::any('/install.php', fn () => abort(403));
 Route::get('/nulle-part', [\App\Http\Controllers\EasterEggController::class, 'nullePart'])->name('nulle-part');
 
 Route::get('/cgu', [LegalController::class, 'cgu'])->name('cgu');
+Route::get('/cgv', [LegalController::class, 'cgv'])->name('cgv');
 Route::get('/confidentialite', [LegalController::class, 'confidentialite'])->name('confidentialite');
 Route::get('/mentions-legales', [LegalController::class, 'mentions'])->name('mentions');
 Route::get('/contact', [LegalController::class, 'contact'])->name('contact');
@@ -65,10 +66,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/attempt/{attempt}/answer', [AttemptController::class, 'answer'])->name('attempt.answer');
     Route::post('/attempt/{attempt}/complete', [AttemptController::class, 'complete'])->name('attempt.complete');
 
+    // ─── Déblocage particulier (paywall B2C — config/b2c.php) ────────────────
+    // Page de conversion + checkout Stripe one-shot. Inactif tant que
+    // B2C_PAYWALL_ENFORCED=false (la page redirige vers les tests).
+    Route::get('/debloquer',           [\App\Http\Controllers\Candidate\UnlockController::class, 'show'])->name('b2c.unlock');
+    Route::post('/debloquer/checkout', [\App\Http\Controllers\Candidate\UnlockController::class, 'checkout'])->middleware('throttle:10,1')->name('b2c.checkout');
+    Route::get('/debloquer/succes',    [\App\Http\Controllers\Candidate\UnlockController::class, 'success'])->name('b2c.success');
+
     // Restitution
     Route::get('/results/{attempt}', [ResultController::class, 'show'])->name('results.show');
     Route::get('/results/{attempt}/status', [ResultController::class, 'status'])->name('results.status');
-    Route::get('/results/{attempt}/pdf', [ResultController::class, 'pdf'])->name('results.pdf');
+    // PDF = livrable du Rapport complet → paywall particulier (b2c.unlocked).
+    Route::get('/results/{attempt}/pdf', [ResultController::class, 'pdf'])->middleware('b2c.unlocked')->name('results.pdf');
 
     // Historique des tentatives du candidat
     Route::get('/history', [ResultController::class, 'history'])->name('history');
@@ -88,27 +97,32 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/salle-du-tresor/{slug}/ouvrir', [TreasureController::class, 'unlock'])
         ->middleware('throttle:12,1')->name('treasure.unlock');
 
-    // Le Grimoire — relecture globale transversale de tous les tests
-    Route::get('/grimoire',          [GrimoireController::class, 'show'])->name('grimoire.show');
-    Route::get('/grimoire/status',   [GrimoireController::class, 'status'])->name('grimoire.status');
-    Route::get('/grimoire/pdf',      [GrimoireController::class, 'pdf'])->name('grimoire.pdf');
-    Route::post('/grimoire/refresh', [GrimoireController::class, 'refresh'])
-        ->middleware('throttle:3,1')->name('grimoire.refresh');
-    // Déclaration d'une formation visée/acquise pour une piste (déblocage déclaratif PTP)
-    Route::post('/grimoire/piste/{pathMatch}/declare', [GrimoireController::class, 'declarePiste'])
-        ->middleware('throttle:30,1')->name('grimoire.piste.declare');
-    // Plan d'action 10 étapes d'une voie (génération IA à la demande, 1× par piste)
-    Route::post('/grimoire/voies/{index}/plan', [GrimoireController::class, 'voiePlan'])
-        ->whereNumber('index')->middleware('throttle:6,1')->name('grimoire.voie.plan');
+    // Le Grimoire — relecture globale transversale de tous les tests.
+    // Cœur du Rapport complet → paywall particulier (b2c.unlocked, inactif
+    // par défaut ; les candidats invités par un pro ne sont jamais bloqués).
+    Route::middleware('b2c.unlocked')->group(function () {
+        Route::get('/grimoire',          [GrimoireController::class, 'show'])->name('grimoire.show');
+        Route::get('/grimoire/status',   [GrimoireController::class, 'status'])->name('grimoire.status');
+        Route::get('/grimoire/pdf',      [GrimoireController::class, 'pdf'])->name('grimoire.pdf');
+        Route::post('/grimoire/refresh', [GrimoireController::class, 'refresh'])
+            ->middleware('throttle:3,1')->name('grimoire.refresh');
+        // Déclaration d'une formation visée/acquise pour une piste (déblocage déclaratif PTP)
+        Route::post('/grimoire/piste/{pathMatch}/declare', [GrimoireController::class, 'declarePiste'])
+            ->middleware('throttle:30,1')->name('grimoire.piste.declare');
+        // Plan d'action 10 étapes d'une voie (génération IA à la demande, 1× par piste)
+        Route::post('/grimoire/voies/{index}/plan', [GrimoireController::class, 'voiePlan'])
+            ->whereNumber('index')->middleware('throttle:6,1')->name('grimoire.voie.plan');
 
-    // Plans d'action IA par piste métier (Haiku, throttlé — coût IA)
-    Route::get('/career-path/{careerPath:slug}/plan',  [PathPlanController::class, 'show'])->name('path-plan.show');
-    Route::post('/career-path/{careerPath:slug}/plan', [PathPlanController::class, 'generate'])
-        ->middleware('throttle:5,1')->name('path-plan.generate');
+        // Plans d'action IA par piste métier (Haiku, throttlé — coût IA)
+        Route::get('/career-path/{careerPath:slug}/plan',  [PathPlanController::class, 'show'])->name('path-plan.show');
+        Route::post('/career-path/{careerPath:slug}/plan', [PathPlanController::class, 'generate'])
+            ->middleware('throttle:5,1')->name('path-plan.generate');
+    });
 
     // L'Oracle — chat IA d'orientation (widget flottant). Envoi rate-limité (coût IA).
     Route::get('/oracle/messages',       [OracleController::class, 'history'])->name('oracle.history');
-    Route::post('/oracle/messages',      [OracleController::class, 'message'])->middleware('throttle:20,1')->name('oracle.message');
+    // Envoi gated par le paywall particulier (coût IA) — l'historique reste lisible.
+    Route::post('/oracle/messages',      [OracleController::class, 'message'])->middleware(['throttle:20,1', 'b2c.unlocked'])->name('oracle.message');
     Route::delete('/oracle/messages',    [OracleController::class, 'clear'])->name('oracle.clear');
 
     // Easter eggs — récompense d'un secret découvert. Le slug envoyé est

@@ -40,8 +40,10 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->alias([
-            'role'       => \Spatie\Permission\Middleware\RoleMiddleware::class,
-            'subscribed' => \App\Http\Middleware\EnsureSubscribed::class,
+            'role'          => \Spatie\Permission\Middleware\RoleMiddleware::class,
+            'subscribed'    => \App\Http\Middleware\EnsureSubscribed::class,
+            // Paywall particulier (offre B2C) — inactif tant que B2C_PAYWALL_ENFORCED=false.
+            'b2c.unlocked'  => \App\Http\Middleware\EnsureB2cUnlocked::class,
             '2fa'        => \App\Http\Middleware\EnsureTwoFactorAuthenticated::class,
             // Surcharge l'alias 'verified' natif : ajoute kill-switch + exemption staff.
             'verified'   => \App\Http\Middleware\EnsureEmailVerified::class,
